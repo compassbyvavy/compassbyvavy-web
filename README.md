@@ -30,3 +30,4 @@ npm run deploy
 ```
 
 The repository uses the Next.js App Router and the Cloudflare OpenNext adapter.
+Last updated
