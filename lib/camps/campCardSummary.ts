@@ -285,15 +285,16 @@ export function summarizeMatchingSessionDates(
 
   const first = formatIsoShort(starts[0]);
   const last = ends.length > 0 ? formatIsoShort(ends[ends.length - 1]) : first;
+  const range = first === last ? first : `${first} – ${last}`;
   if (matchingSessions.length === 1) {
-    return {
-      kind: "range",
-      label: first === last ? first : `${first} – ${last}`,
-    };
+    return { kind: "range", label: range };
   }
-  const label = `${matchingSessions.length} sessions · ${first} – ${last}`;
-
-  return { kind: "range", label };
+  const count = matchingSessions.length;
+  const sessionWord = count === 1 ? "session" : "sessions";
+  return {
+    kind: "range",
+    label: `${count} ${sessionWord} · ${range}`,
+  };
 }
 
 export function summarizeMatchingSessionHours(
