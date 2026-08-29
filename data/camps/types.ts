@@ -105,6 +105,25 @@ export type Venue = {
   notes?: string | null;
 };
 
+/**
+ * How a provider assesses child age for exact session eligibility.
+ * - as_of_date: use the session's ageAssessedAtDate (ISO YYYY-MM-DD)
+ * - as_of_session_start: use the session's startDate
+ * - unknown / omit: a child-age query cannot be proven (do not assume today)
+ *
+ * Age unit: whole years (non-negative integers). Fractional ages are not supported.
+ */
+export type CampAgeAssessmentRule =
+  | "as_of_date"
+  | "as_of_session_start"
+  | "unknown";
+
+/** Packing line for detail "what to bring" — required vs suggested stay distinct. */
+export type CampPackingItem = {
+  text: string;
+  kind: "required" | "suggested";
+};
+
 export type CampProgram = {
   id: string;
   /** Stable slug for future /camps/[slug] — provisional until schema reconcile. */
@@ -116,21 +135,38 @@ export type CampProgram = {
   primaryCategory?: string | null;
   /** Secondary themes (array). Do not invent taxonomy values. */
   secondaryThemes?: string[];
-  ageMin?: number | null;
-  ageMax?: number | null;
-  /** Inclusive/exclusive bounds for ageMin / ageMax when known. */
-  ageMinInclusive?: boolean | null;
-  ageMaxInclusive?: boolean | null;
   /**
-   * Date on which age eligibility is assessed (ISO date YYYY-MM-DD).
-   * Required for correct matching when the provider states a cutoff.
+   * Typical / descriptive age band for the program only.
+   * NEVER copied into session eligibility or used as qualification fallback.
+   * Exact eligibility lives on CampSession (flat age* fields) — not inherited here.
    */
-  ageAssessedAtDate?: string | null;
+  typicalAgeMin?: number | null;
+  typicalAgeMax?: number | null;
+  /** Descriptive inclusive/exclusive flags for typical program ages — not session proof. */
+  typicalAgeMinInclusive?: boolean | null;
+  typicalAgeMaxInclusive?: boolean | null;
+  /** Descriptive only when present on the program — not used for session matching. */
+  typicalAgeAssessedAtDate?: string | null;
   audience?: CampAudience | null;
   /** Provider-confirmed accessibility / support tags — not a generic "inclusive" badge. */
   accessibilitySupportTags?: string[];
   imageSrc?: string | null;
   imageAlt?: string | null;
+  /**
+   * Detail-page narrative sections. Omit / empty ⇒ UI shows explicit unknown —
+   * never invent experience, requirements, or packing lists.
+   */
+  experienceSummary?: string | null;
+  /** Provider-confirmed prerequisites only when verified. */
+  prerequisites?: string[] | null;
+  supportInfo?: string | null;
+  policiesSummary?: string | null;
+  /**
+   * Packing / what-to-bring. Keep required vs suggested distinct —
+   * never label suggested items as required.
+   */
+  packingItems?: CampPackingItem[] | null;
+  preparationNotes?: string | null;
   notes?: string | null;
 };
 
@@ -188,6 +224,22 @@ export type CampSession = {
    * Do not store registration closure here.
    */
   seatAvailability?: SeatAvailabilityFact | null;
+  /**
+   * Exact session eligibility in whole years (flat fields; same names as program).
+   * Missing bounds, inclusive flags, or assessment rule/date ⇒ unknown — not eligible.
+   * Program-level ages must never fill these in at match time.
+   */
+  ageMin?: number | null;
+  ageMax?: number | null;
+  ageMinInclusive?: boolean | null;
+  ageMaxInclusive?: boolean | null;
+  /** Provider cutoff date (ISO YYYY-MM-DD) when ageAssessmentRule is as_of_date. */
+  ageAssessedAtDate?: string | null;
+  /**
+   * Explicit assessment rule. Omit/unknown ⇒ child-age queries return unknown
+   * (do not assume "today" or invent a birthday / DOB).
+   */
+  ageAssessmentRule?: CampAgeAssessmentRule | null;
   notes?: string | null;
 };
 

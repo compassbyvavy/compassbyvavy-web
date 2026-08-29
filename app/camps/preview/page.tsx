@@ -1,8 +1,6 @@
 import { notFound } from "next/navigation";
 import { CampCard } from "@/components/camps/CampCard";
 import { loadCampsDevFixtures } from "@/lib/camps/devFixtures";
-import { campsFontVariables } from "@/lib/camps/fonts";
-import "../camps.css";
 
 export const dynamic = "force-dynamic";
 export const metadata = {
@@ -49,7 +47,7 @@ export default function CampsCardPreviewPage() {
   const now = new Date("2026-08-27T16:00:00.000Z");
 
   return (
-    <div className={`camps-theme ${campsFontVariables} camps-preview-page`}>
+    <div className="camps-preview-page">
       <div className="container">
         <p className="camps-preview-banner">
           DEV ONLY — fictional camps fixtures. Not a public directory. Blocked

@@ -2,10 +2,10 @@
 
 ## Authority order
 
-1. **`compass-camps-page-spec.md`** — authoritative product + page spec (when present)
+1. **`compass-camps-page-spec.md`** — authoritative product + page spec (present)
 2. Mockups — visual reference only
 3. Proposal — early layout ideas
-4. Build guide — execution order (Prompt 1 → 6)
+4. Build guide — execution order (Prompt 1 → 6) — **`cursor-build-guide.md` present**
 5. **Workbook schema notes** — field/schema reference only; **not** approved production seed data
 
 ## Workbook as schema/reference (not seed)

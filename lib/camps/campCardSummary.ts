@@ -21,11 +21,12 @@ import {
   type RegistrationAction,
   type RegistrationDisplayStateId,
 } from "@/lib/camps/registrationAction";
+import { summarizeMatchingSessionAges } from "@/lib/camps/sessionEligibility";
 
 export type CampCardPriceSummary =
   | {
       kind: "known";
-      /** Display string including currency + unit, e.g. "From $285 CAD / week". */
+      /** Display string e.g. "CAD $285/week" or "CAD $250–$275/week". */
       label: string;
       amountMin: number;
       amountMax: number;
@@ -76,7 +77,8 @@ export type CampCardDateSummary =
 
 export type CampCardHoursSummary =
   | { kind: "known"; label: string; careNote?: string }
-  | { kind: "unknown"; label: null };
+  | { kind: "vary"; label: "Hours vary by session"; careNote?: string }
+  | { kind: "unknown"; label: "Hours to confirm"; careNote?: string };
 
 export type CampCardSummary = {
   status: CampCardStatusSummary;
@@ -89,12 +91,8 @@ export type CampCardSummary = {
   themeLabels: string[];
 };
 
-function formatMoney(amount: number, currency: CampCurrency): string {
-  const symbol = currency === "USD" ? "US$" : currency === "CAD" ? "$" : "";
-  const suffix = currency === "unknown" ? "" : ` ${currency}`;
-  const rounded =
-    Number.isInteger(amount) ? String(amount) : amount.toFixed(2);
-  return `${symbol}${rounded}${suffix}`.trim();
+function formatPriceAmount(amount: number): string {
+  return Number.isInteger(amount) ? String(amount) : amount.toFixed(2);
 }
 
 function unitLabel(unit: PriceUnit): string {
@@ -134,6 +132,64 @@ function formatIsoShort(iso: string): string {
   return `${months[m - 1]} ${d}, ${y}`;
 }
 
+/**
+ * Format known prices as "CAD $250/week" or "CAD $250–$275/week".
+ * "From" only when the amount is a starting price (min only / open upper bound).
+ */
+function formatKnownPriceLabel(
+  amountMin: number,
+  amountMax: number,
+  currency: CampCurrency,
+  unit: PriceUnit,
+  options?: { startingOnly?: boolean },
+): string {
+  const unitText = unitLabel(unit);
+  const currencyPrefix =
+    currency === "CAD" || currency === "USD" ? `${currency} ` : "";
+  const single = `${currencyPrefix}$${formatPriceAmount(amountMin)}`;
+  let pricePart: string;
+  if (options?.startingOnly) {
+    pricePart = `From ${single}`;
+  } else if (amountMin === amountMax) {
+    pricePart = single;
+  } else {
+    pricePart = `${currencyPrefix}$${formatPriceAmount(amountMin)}–$${formatPriceAmount(amountMax)}`;
+  }
+  return unitText ? `${pricePart}/${unitText}` : pricePart;
+}
+
+function formatCareWindowLabel(
+  kind: "before" | "after",
+  window: CampSession["beforeCare"] | CampSession["afterCare"],
+): string | null {
+  if (!window || window.offered === "no") return null;
+  const name = kind === "before" ? "before care" : "after care";
+  if (window.offered === "unknown") {
+    return `${name} to confirm`;
+  }
+  // offered === "yes"
+  if (window.startTime && window.endTime) {
+    return `${name} ${window.startTime}–${window.endTime}`;
+  }
+  return `${name} (times to confirm)`;
+}
+
+function careNoteForSessions(sessions: CampSession[]): string | undefined {
+  if (sessions.length === 0) return undefined;
+  const notes = sessions.map((s) => {
+    const bits = [
+      formatCareWindowLabel("before", s.beforeCare),
+      formatCareWindowLabel("after", s.afterCare),
+    ].filter(Boolean) as string[];
+    return bits.join(" · ");
+  });
+  const first = notes[0];
+  if (notes.every((n) => n === first)) {
+    return first || undefined;
+  }
+  return "care hours vary by session";
+}
+
 export function summarizeMatchingSessionPrices(
   matchingSessions: CampSession[],
 ): CampCardPriceSummary {
@@ -168,14 +224,12 @@ export function summarizeMatchingSessionPrices(
   const amounts = priced.map((s) => s.priceAmount as number);
   const amountMin = Math.min(...amounts);
   const amountMax = Math.max(...amounts);
-  const unitText = unitLabel(unit);
-  const range =
-    amountMin === amountMax
-      ? formatMoney(amountMin, currency)
-      : `${formatMoney(amountMin, currency)}–${formatMoney(amountMax, currency)}`;
-  const label = unitText
-    ? `From ${range} / ${unitText}`
-    : `From ${range}`;
+  const hasFeeNotes = priced.some((s) => Boolean(s.feeNotes?.trim()));
+  // "From" only for a starting price: fee notes imply additional cost beyond the listed amount.
+  const startingOnly = hasFeeNotes && amountMin === amountMax;
+  const label = formatKnownPriceLabel(amountMin, amountMax, currency, unit, {
+    startingOnly,
+  });
 
   return { kind: "known", label, amountMin, amountMax, currency, unit };
 }
@@ -300,11 +354,28 @@ export function summarizeMatchingSessionDates(
 export function summarizeMatchingSessionHours(
   matchingSessions: CampSession[],
 ): CampCardHoursSummary {
+  if (matchingSessions.length === 0) {
+    return { kind: "unknown", label: "Hours to confirm" };
+  }
+
   const withHours = matchingSessions.filter(
     (s) => s.coreHoursStart && s.coreHoursEnd,
   );
+
   if (withHours.length === 0) {
-    return { kind: "unknown", label: null };
+    return {
+      kind: "unknown",
+      label: "Hours to confirm",
+      careNote: careNoteForSessions(matchingSessions),
+    };
+  }
+
+  if (withHours.length < matchingSessions.length) {
+    return {
+      kind: "vary",
+      label: "Hours vary by session",
+      careNote: careNoteForSessions(matchingSessions),
+    };
   }
 
   const first = withHours[0];
@@ -314,27 +385,18 @@ export function summarizeMatchingSessionHours(
       s.coreHoursEnd === first.coreHoursEnd,
   );
   if (!allSame) {
-    return { kind: "unknown", label: null };
+    return {
+      kind: "vary",
+      label: "Hours vary by session",
+      careNote: careNoteForSessions(matchingSessions),
+    };
   }
-
-  const careBits: string[] = [];
-  if (first.beforeCare?.offered === "yes") careBits.push("before care");
-  if (first.afterCare?.offered === "yes") careBits.push("after care");
 
   return {
     kind: "known",
     label: `${first.coreHoursStart}–${first.coreHoursEnd}`,
-    careNote: careBits.length > 0 ? careBits.join(" · ") : undefined,
+    careNote: careNoteForSessions(withHours),
   };
-}
-
-function eligibilityLabel(program: CampProgram): string | null {
-  if (program.ageMin == null && program.ageMax == null) return null;
-  const min = program.ageMin;
-  const max = program.ageMax;
-  if (min != null && max != null) return `Ages ${min}–${max}`;
-  if (min != null) return `Ages ${min}+`;
-  return `Ages up to ${max}`;
 }
 
 export function buildCampCardSummary(input: {
@@ -345,6 +407,8 @@ export function buildCampCardSummary(input: {
   loadFailed?: boolean;
 }): CampCardSummary {
   const { program, matchingSessions, venuesById, now, loadFailed } = input;
+  // Exact eligibility from matching sessions only — never program typical ages.
+  const ageSummary = summarizeMatchingSessionAges(matchingSessions);
 
   return {
     status: summarizeMatchingSessionStatus(matchingSessions, {
@@ -355,7 +419,7 @@ export function buildCampCardSummary(input: {
     venue: summarizeMatchingSessionVenues(matchingSessions, venuesById),
     dates: summarizeMatchingSessionDates(matchingSessions),
     hours: summarizeMatchingSessionHours(matchingSessions),
-    eligibilityLabel: eligibilityLabel(program),
+    eligibilityLabel: ageSummary.label,
     categoryLabel: program.primaryCategory ?? null,
     themeLabels: program.secondaryThemes ?? [],
   };

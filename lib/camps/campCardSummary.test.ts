@@ -25,8 +25,8 @@ const program: CampProgram = {
   name: "Test Program",
   primaryCategory: "STEM",
   secondaryThemes: ["Robotics"],
-  ageMin: 7,
-  ageMax: 12,
+  typicalAgeMin: 7,
+  typicalAgeMax: 12,
 };
 
 const venuesById: Record<string, Venue> = {
@@ -69,6 +69,12 @@ describe("CampCard summary — single matching session", () => {
         priceAmount: 200,
         priceUnit: "per_week",
         currency: "CAD",
+        ageMin: 7,
+        ageMax: 12,
+        ageMinInclusive: true,
+        ageMaxInclusive: true,
+        ageAssessmentRule: "as_of_date",
+        ageAssessedAtDate: "2026-07-01",
       }),
     ];
     const summary = buildCampCardSummary({
@@ -85,10 +91,34 @@ describe("CampCard summary — single matching session", () => {
     if (summary.price.kind === "known") {
       assert.match(summary.price.label, /200/);
       assert.match(summary.price.label, /week/i);
+      assert.match(summary.price.label, /^CAD \$/);
+      assert.doesNotMatch(summary.price.label, /^From /);
     }
     assert.equal(summary.venue.kind, "known");
     assert.equal(summary.categoryLabel, "STEM");
     assert.equal(summary.eligibilityLabel, "Ages 7–12");
+  });
+
+  it("does not fall back to program typical ages when session ages are missing", () => {
+    const matching = [
+      sess({
+        id: "s1",
+        registrationStatus: "registration_open",
+        venueId: "venue-a",
+        startDate: "2026-07-06",
+        endDate: "2026-07-10",
+        priceAmount: 200,
+        priceUnit: "per_week",
+        currency: "CAD",
+      }),
+    ];
+    const summary = buildCampCardSummary({
+      program,
+      matchingSessions: matching,
+      venuesById,
+      now: FIXED_NOW,
+    });
+    assert.equal(summary.eligibilityLabel, null);
   });
 });
 
@@ -241,6 +271,10 @@ describe("CampCard summary — missing information", () => {
         priceAmount: 100,
         priceUnit: "per_week",
         currency: "CAD",
+        ageMin: 7,
+        ageMax: 12,
+        ageMinInclusive: true,
+        ageMaxInclusive: true,
       }),
     ];
     // Deliberately not passed into summary:
@@ -253,6 +287,10 @@ describe("CampCard summary — missing information", () => {
       priceAmount: 999,
       priceUnit: "per_week",
       currency: "CAD",
+      ageMin: 4,
+      ageMax: 5,
+      ageMinInclusive: true,
+      ageMaxInclusive: true,
     });
     void unmatched;
     const summary = buildCampCardSummary({
@@ -270,5 +308,59 @@ describe("CampCard summary — missing information", () => {
     if (summary.price.kind === "known") {
       assert.equal(summary.price.amountMax, 100);
     }
+    assert.equal(summary.eligibilityLabel, "Ages 7–12");
+    assert.doesNotMatch(summary.eligibilityLabel ?? "", /4–5/);
+  });
+
+  it("preserves disjoint session age bands and qualifies mixed known/unknown", () => {
+    const summaryDisjoint = buildCampCardSummary({
+      program,
+      matchingSessions: [
+        sess({
+          id: "y",
+          registrationStatus: "registration_open",
+          ageMin: 4,
+          ageMax: 5,
+          ageMinInclusive: true,
+          ageMaxInclusive: true,
+        }),
+        sess({
+          id: "o",
+          registrationStatus: "registration_open",
+          ageMin: 7,
+          ageMax: 12,
+          ageMinInclusive: true,
+          ageMaxInclusive: true,
+        }),
+      ],
+      venuesById,
+      now: FIXED_NOW,
+    });
+    assert.equal(summaryDisjoint.eligibilityLabel, "Ages 4–5 · Ages 7–12");
+    assert.doesNotMatch(summaryDisjoint.eligibilityLabel ?? "", /Ages 4–12/);
+
+    const summaryMixed = buildCampCardSummary({
+      program,
+      matchingSessions: [
+        sess({
+          id: "known",
+          registrationStatus: "registration_open",
+          ageMin: 7,
+          ageMax: 12,
+          ageMinInclusive: true,
+          ageMaxInclusive: true,
+        }),
+        sess({
+          id: "unknown-age",
+          registrationStatus: "registration_open",
+        }),
+      ],
+      venuesById,
+      now: FIXED_NOW,
+    });
+    assert.match(
+      summaryMixed.eligibilityLabel ?? "",
+      /Ages 7–12 · some session ages to confirm/,
+    );
   });
 });
