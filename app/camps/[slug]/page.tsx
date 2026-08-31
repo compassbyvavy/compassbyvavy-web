@@ -30,7 +30,7 @@ export default async function CampDetailPage({ params }: PageProps) {
 
   const banner =
     catalog.sourceLabel === "real_dev"
-      ? `DEV ONLY — real-data preview (candidate ${catalog.sourceCandidateId ?? "MSC-0201"}). Facts source-checked ${catalog.sourceCheckedDate ?? ""} against the provider site. Not fictional fixtures.`
+      ? `DEV ONLY — real-data preview (candidate ${catalog.sourceCandidateId ?? "MSC-0201"}). Facts source-checked ${catalog.sourceCheckedDate ?? ""} against the provider site. Session calendar years are not yet verified. Not fictional fixtures.`
       : undefined;
 
   return (

@@ -74,7 +74,7 @@ describe("camp detail — missing information", () => {
       now: NOW,
     });
     assert.equal(row.venueLabel, "Venue to confirm");
-    assert.equal(row.datesLabel, "Dates to confirm");
+    assert.equal(row.datesLabel, "Upcoming dates not yet verified");
     assert.equal(row.ageEligibilityLabel, "Ages to confirm");
     assert.equal(row.hoursLabel, "Hours to confirm");
     assert.equal(row.priceLabel, "Check with provider");

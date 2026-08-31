@@ -211,7 +211,10 @@ export function formatSessionDatesLabel(session: CampSession): string {
   const start = session.startDate;
   const end = session.endDate;
   if (!start || !/^\d{4}-\d{2}-\d{2}$/.test(start)) {
-    return "Dates to confirm";
+    // Prefer source month/day windows when the calendar year is not verified.
+    const listed = session.notes?.match(/^Listed dates:\s*(.+)$/i)?.[1]?.trim();
+    if (listed) return listed;
+    return "Upcoming dates not yet verified";
   }
   const startLabel = formatIsoShort(start);
   if (end && /^\d{4}-\d{2}-\d{2}$/.test(end) && end !== start) {
@@ -224,13 +227,13 @@ function ageAssessmentNote(session: CampSession): string | null {
   const rule = session.ageAssessmentRule ?? "unknown";
   const assessed = resolveSessionAssessmentDate(session);
   if (rule === "as_of_date" && assessed) {
-    return `Age assessed as of ${formatIsoShort(assessed)}`;
+    return `Age checked as of ${formatIsoShort(assessed)}`;
   }
   if (rule === "as_of_session_start" && assessed) {
-    return `Age assessed as of session start (${formatIsoShort(assessed)})`;
+    return `Age checked as of session start (${formatIsoShort(assessed)})`;
   }
   if (rule === "unknown" || !assessed) {
-    return "Age assessment rule to confirm";
+    return "Ask the provider how they check age";
   }
   return null;
 }

@@ -44,7 +44,7 @@ export default function CampsListingPage() {
 
   const banner =
     catalog.sourceLabel === "real_dev"
-      ? `DEV ONLY — real-data preview (candidate ${catalog.sourceCandidateId ?? "MSC-0201"}). Source-checked ${catalog.sourceCheckedDate ?? ""} from the provider site. Not fictional fixtures; not a full Mississauga directory.`
+      ? `DEV ONLY — real-data preview (candidate ${catalog.sourceCandidateId ?? "MSC-0201"}). Source-checked ${catalog.sourceCheckedDate ?? ""} from the provider site. Calendar years for listed weeks are not yet verified. Not fictional fixtures; not a full Mississauga directory.`
       : null;
 
   return (

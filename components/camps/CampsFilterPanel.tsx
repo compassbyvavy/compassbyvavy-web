@@ -32,7 +32,7 @@ const GROUP_LABELS: Record<GroupKey, string> = {
   schedule: "Schedule / format",
   audience: "Audience",
   accessibility: "Accessibility & support",
-  location: "Location",
+  location: "City / neighbourhood",
   practical: "Practical needs",
   unsupported: "Not available yet",
 };

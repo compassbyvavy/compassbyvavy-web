@@ -168,10 +168,14 @@ function formatCareWindowLabel(
     return `${name} to confirm`;
   }
   // offered === "yes"
+  const advance =
+    window.separateBookingRequired === "yes"
+      ? " · advance request; additional fee"
+      : "";
   if (window.startTime && window.endTime) {
-    return `${name} ${window.startTime}–${window.endTime}`;
+    return `${name} ${window.startTime}–${window.endTime}${advance}`;
   }
-  return `${name} (times to confirm)`;
+  return `${name} (times to confirm)${advance}`;
 }
 
 function careNoteForSessions(sessions: CampSession[]): string | undefined {
@@ -224,12 +228,17 @@ export function summarizeMatchingSessionPrices(
   const amounts = priced.map((s) => s.priceAmount as number);
   const amountMin = Math.min(...amounts);
   const amountMax = Math.max(...amounts);
-  const hasFeeNotes = priced.some((s) => Boolean(s.feeNotes?.trim()));
-  // "From" only for a starting price: fee notes imply additional cost beyond the listed amount.
-  const startingOnly = hasFeeNotes && amountMin === amountMax;
-  const label = formatKnownPriceLabel(amountMin, amountMax, currency, unit, {
-    startingOnly,
+  // Exact equal amounts are never "From" — tax / fee notes are disclosures, not an open upper bound.
+  const labelBase = formatKnownPriceLabel(amountMin, amountMax, currency, unit, {
+    startingOnly: false,
   });
+  const disclosesTax = priced.some((s) =>
+    /\+\s*tax/i.test(s.feeNotes?.trim() ?? ""),
+  );
+  const label =
+    amountMin === amountMax && disclosesTax
+      ? `${labelBase} + tax`
+      : labelBase;
 
   return { kind: "known", label, amountMin, amountMax, currency, unit };
 }
@@ -291,10 +300,15 @@ export function summarizeMatchingSessionVenues(
     if (!session.venueId) continue;
     const venue = venuesById[session.venueId];
     if (!venue) continue;
+    // Neighbourhood and city stay distinct — never treat them as interchangeable.
     const label =
       venue.neighbourhood && venue.city
-        ? `${venue.name} · ${venue.neighbourhood}`
-        : venue.name;
+        ? `${venue.name} · ${venue.neighbourhood}, ${venue.city}`
+        : venue.neighbourhood
+          ? `${venue.name} · ${venue.neighbourhood}`
+          : venue.city
+            ? `${venue.name} · ${venue.city}`
+            : venue.name;
     if (!names.includes(label)) names.push(label);
   }
 

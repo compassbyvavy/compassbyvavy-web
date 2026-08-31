@@ -88,7 +88,7 @@ describe("getRegistrationAction — five registration statuses", () => {
     assert.equal(action.buttonText, "View provider info");
   });
 
-  it("availability_unknown → Check availability with provider", () => {
+  it("availability_unknown → Check availability with provider (never generic Register)", () => {
     const action = getRegistrationAction(
       {
         kind: "session",
@@ -100,7 +100,10 @@ describe("getRegistrationAction — five registration statuses", () => {
       { now: FIXED_NOW },
     );
     assert.equal(action.displayState, "availability_unknown");
+    assert.equal(action.label, "Registration availability to confirm");
     assert.equal(action.buttonText, "Check availability with provider");
+    assert.notEqual(action.buttonText, "Register with provider");
+    assert.doesNotMatch(action.buttonText ?? "", /^Register$/i);
   });
 });
 

@@ -197,7 +197,7 @@ function actionForSession(session: CampSession, now: Date): RegistrationAction {
     case "availability_unknown":
       return outbound(
         "availability_unknown",
-        "Availability unknown",
+        "Registration availability to confirm",
         "Check availability with provider",
         registrationUrl,
       );
@@ -205,7 +205,10 @@ function actionForSession(session: CampSession, now: Date): RegistrationAction {
     default: {
       const _exhaustive: never = session.registrationStatus;
       void _exhaustive;
-      return labelOnly("availability_unknown", "Availability unknown");
+      return labelOnly(
+        "availability_unknown",
+        "Registration availability to confirm",
+      );
     }
   }
 }

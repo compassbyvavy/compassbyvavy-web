@@ -324,15 +324,14 @@ export function CampDetailClient({
           )}
         </dl>
         <p className="camp-detail-venue-note" role="note">
-          Venue is listed on each session — this program may run at more than
-          one place. There is no single program-level location.
+          Each session lists its own venue. A program may run at more than one
+          place.
         </p>
         {program.description ? (
           <p className="camp-detail-lede">{program.description}</p>
         ) : null}
         <p className="camp-card-note">
-          Program typical ages are descriptive only and are not used as session
-          eligibility.
+          Use each session’s age range below — overview ages are a guide only.
         </p>
       </header>
 
@@ -351,7 +350,7 @@ export function CampDetailClient({
         ) : (
           <>
             <p className="camp-detail-section-lede">
-              Each row is one dated session with its own venue, ages, hours,
+              Each row is one session with its own dates, venue, ages, hours,
               care, price, and registration.
             </p>
             {hasMatchContext && otherCount > 0 ? (
