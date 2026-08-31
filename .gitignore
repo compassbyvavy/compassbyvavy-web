@@ -15,3 +15,5 @@ cloudflare-env.d.ts
 .DS_Store
 *.pem
 npm-debug.log*
+/tmp/
+tsconfig.tsbuildinfo
