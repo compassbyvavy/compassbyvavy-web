@@ -279,6 +279,15 @@
   max-width: 42rem;
 }
 
+.camps-listing-kicker {
+  margin: 0 0 8px;
+  color: var(--camps-amber-deep);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
 .camps-listing-intro h1 {
   font-size: clamp(1.85rem, 3.4vw, 2.55rem);
   letter-spacing: -0.03em;
@@ -319,6 +328,48 @@
   color: var(--camps-amber-deep);
   font-size: 0.9rem;
   font-weight: 600;
+}
+
+.camps-active-filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 14px;
+}
+
+.camps-active-filter-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.camps-active-filter-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 34px;
+  padding: 5px 10px 5px 12px;
+  border: 1px solid var(--camps-line);
+  border-radius: 999px;
+  background: var(--camps-pine-soft);
+  color: var(--camps-pine);
+  font: inherit;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.camps-active-filter-chip:hover,
+.camps-active-filter-chip:focus-visible {
+  border-color: var(--camps-pine);
+}
+
+.camps-active-filter-chip:focus-visible {
+  outline: 2px solid var(--camps-pine);
+  outline-offset: 2px;
 }
 
 .camps-field {
@@ -790,8 +841,25 @@
   background: var(--camps-pine-soft-2);
 }
 
+.camp-detail-session-picker {
+  max-width: 36rem;
+}
+
+.camp-detail-table tbody tr {
+  cursor: pointer;
+}
+
+.camp-detail-table tbody tr:hover {
+  background: var(--camps-pine-soft-2);
+}
+
 .camp-detail-table tr.is-selected {
   background: var(--camps-pine-soft);
+}
+
+.camps-empty a {
+  color: var(--camps-pine);
+  font-weight: 700;
 }
 
 .camp-detail-table tr[data-filter-match="no"] {

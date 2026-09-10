@@ -17,14 +17,18 @@ import type {
 } from "@/data/camps/types";
 import { CampCard } from "@/components/camps/CampCard";
 import { CampsFilterPanel } from "@/components/camps/CampsFilterPanel";
-import { buildCampDetailHref } from "@/lib/camps/campDetail";
+import { buildCampDetailHref, formatSessionDatesLabel } from "@/lib/camps/campDetail";
 import {
+  DATE_RANGE_OVERLAP_LABEL,
   EMPTY_LISTING_FILTERS,
   buildListingHref,
   buildListingResults,
   countActiveFilters,
+  dateRangeFilterIsActive,
   formatListingCounts,
+  listActiveFilterChips,
   parseListingHrefSearch,
+  removeActiveFilterChip,
   resolveChildAgeFilter,
   toFlatRows,
   type CampsListingFilters,
@@ -198,6 +202,11 @@ export function CampsListingClient({
 
   const flatRows = useMemo(() => toFlatRows(results), [results]);
   const activeFilterCount = countActiveFilters(appliedFilters);
+  const activeChips = useMemo(
+    () => listActiveFilterChips(appliedFilters),
+    [appliedFilters],
+  );
+  const dateRangeActive = dateRangeFilterIsActive(appliedFilters);
   const now = nowIso ? new Date(nowIso) : undefined;
 
   const listingReturnHref = useMemo(
@@ -214,6 +223,15 @@ export function CampsListingClient({
     setFilters(EMPTY_LISTING_FILTERS);
     setKeywordDraft("");
   }, []);
+
+  const dismissChip = useCallback((chipId: string) => {
+    setFilters((current) => {
+      const merged = { ...current, keyword: keywordDraft };
+      const next = removeActiveFilterChip(merged, chipId);
+      setKeywordDraft(next.keyword);
+      return next;
+    });
+  }, [keywordDraft]);
 
   const empty = results.programCount === 0 && results.awaitingDatesCount === 0;
 
@@ -232,11 +250,13 @@ export function CampsListingClient({
       ) : null}
 
       <header className="camps-listing-intro">
-        <h1>Camps in Mississauga</h1>
+        <p className="camps-listing-kicker">Mississauga camps</p>
+        <h1>Every camp we can verify — not just our favourites</h1>
         <p className="camps-listing-lede">
-          Every camp we can verify — not just our favourites. Search and filter
-          by the same session facts parents need: age, dates, venue, hours,
-          care, and price. Coverage is ongoing.
+          Search and filter by the same session facts parents need: age, dates,
+          venue, hours, care, and price. Coverage is ongoing — this is not a
+          promise that every Mississauga camp is listed yet. No account
+          required.
         </p>
       </header>
 
@@ -334,6 +354,29 @@ export function CampsListingClient({
             {ageFilterNotice}
           </p>
         ) : null}
+
+        {activeChips.length > 0 ? (
+          <div className="camps-active-filters" aria-label="Selected filters">
+            <ul className="camps-active-filter-list">
+              {activeChips.map((chip) => (
+                <li key={chip.id}>
+                  <button
+                    type="button"
+                    className="camps-active-filter-chip"
+                    onClick={() => dismissChip(chip.id)}
+                    aria-label={`Remove filter ${chip.label}`}
+                  >
+                    <span>{chip.label}</span>
+                    <span aria-hidden="true">×</span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+            <button type="button" className="camps-text-btn" onClick={resetFilters}>
+              Reset filters
+            </button>
+          </div>
+        ) : null}
       </div>
 
       <div className="camps-listing-layout">
@@ -381,6 +424,11 @@ export function CampsListingClient({
                           matchingSessionIds: match.matchingSessionIds,
                         })}
                         now={now}
+                        dateOverlapLabel={
+                          dateRangeActive && match.matchingSessions.length > 0
+                            ? DATE_RANGE_OVERLAP_LABEL
+                            : null
+                        }
                       />
                     ))
                   : flatRows.map((row) => (
@@ -396,7 +444,10 @@ export function CampsListingClient({
                           matchingSessionIds: row.matchingSessionIds,
                         })}
                         now={now}
-                        flatSessionNote={`Session ${row.session.id} · matching set ${row.matchingSessionIds.length}`}
+                        flatSessionNote={formatSessionDatesLabel(row.session)}
+                        dateOverlapLabel={
+                          dateRangeActive ? DATE_RANGE_OVERLAP_LABEL : null
+                        }
                       />
                     ))}
               </div>

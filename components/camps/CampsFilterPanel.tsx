@@ -206,6 +206,29 @@ export function CampsFilterPanel({
               <span>{label}</span>
             </label>
           ))}
+          <p className="camps-field-hint">
+            Stay type is separate from day length. Unknown stay type never
+            matches a day or overnight filter.
+          </p>
+          {(
+            [
+              ["day", "Day camp"],
+              ["overnight", "Overnight"],
+            ] as const
+          ).map(([value, label]) => (
+            <label key={value} className="camps-check">
+              <input
+                type="checkbox"
+                checked={filters.stayTypes.includes(value)}
+                onChange={() =>
+                  patch({
+                    stayTypes: toggleInList(filters.stayTypes, value),
+                  })
+                }
+              />
+              <span>{label}</span>
+            </label>
+          ))}
         </div>
       </details>
 

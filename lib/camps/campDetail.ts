@@ -10,6 +10,7 @@ import type {
   CampProgram,
   CampSession,
   Provider,
+  SeatAvailabilityFact,
   Venue,
 } from "@/data/camps/types";
 import {
@@ -48,6 +49,13 @@ export type SessionSelectionResult =
       notice: string;
     };
 
+export type SeatCapacityEvidence = {
+  /** Capacity fact only — independent of registration lifecycle. */
+  fact: SeatAvailabilityFact;
+  /** Honest label. Never a numeric inventory count. */
+  label: string;
+};
+
 export type CampSessionDetailRow = {
   session: CampSession;
   venueLabel: string;
@@ -57,6 +65,7 @@ export type CampSessionDetailRow = {
   hoursLabel: string;
   careLabel: string;
   priceLabel: string;
+  capacity: SeatCapacityEvidence;
   registration: RegistrationAction;
   sourceUrl: string | null;
   sourceCheckedDate: string | null;
@@ -245,6 +254,33 @@ function formatCareLabel(session: CampSession): string {
 }
 
 /**
+ * Seat/capacity evidence for the selected session.
+ * Independent of registrationStatus. Unknown is not full, available, or zero.
+ * Does not invent remaining-spot counts.
+ */
+export function formatSeatCapacityEvidence(
+  session: CampSession,
+): SeatCapacityEvidence {
+  const fact: SeatAvailabilityFact = session.seatAvailability ?? "unknown";
+  if (fact === "confirmed_full") {
+    return {
+      fact,
+      label: "Provider confirmed this session is full",
+    };
+  }
+  if (fact === "confirmed_available") {
+    return {
+      fact,
+      label: "Provider confirmed seats available — not a live inventory count",
+    };
+  }
+  return {
+    fact: "unknown",
+    label: "Seat availability to confirm",
+  };
+}
+
+/**
  * One table/row projection for a session. Uses shared helpers only.
  * Never reads program.typicalAge* or a program-level venue.
  */
@@ -267,6 +303,7 @@ export function buildSessionDetailRow(
     hoursLabel: hours.label,
     careLabel: formatCareLabel(session),
     priceLabel: price.label,
+    capacity: formatSeatCapacityEvidence(session),
     registration: getRegistrationAction(
       { kind: "session", session },
       { now: options?.now },

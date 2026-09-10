@@ -10,11 +10,13 @@ import {
 import {
   buildCampDetailHref,
   buildSessionDetailRow,
+  formatSeatCapacityEvidence,
   parseMatchingSessionIds,
   resolveCampDetailBySlug,
   resolveSessionSelection,
   sanitizeCampsReturnPath,
   sessionMatchesListingFilters,
+  summarizeProgramVenuesFromSessions,
 } from "@/lib/camps/campDetail";
 import { loadCampsDevFixtures } from "@/lib/camps/devFixtures";
 import {
@@ -59,6 +61,69 @@ describe("camp detail — mixed registration states", () => {
     assert.ok(states.includes("waitlist"));
     assert.ok(states.includes("full_or_closed"));
     assert.equal(new Set(states).size >= 2, true);
+  });
+
+  it("keeps capacity evidence independent of registration lifecycle", () => {
+    const detail = resolveCampDetailBySlug(fixtures, "stem-explorers-dev");
+    assert.ok(detail);
+    const byId = Object.fromEntries(detail.sessions.map((s) => [s.id, s]));
+    const openUnknown = formatSeatCapacityEvidence(byId["sess-dev-stem-w1"]!);
+    const waitlistFull = formatSeatCapacityEvidence(byId["sess-dev-stem-w2"]!);
+    const closedAvailable = formatSeatCapacityEvidence(
+      byId["sess-dev-stem-w3"]!,
+    );
+
+    assert.equal(openUnknown.fact, "unknown");
+    assert.match(openUnknown.label, /to confirm/i);
+    assert.doesNotMatch(openUnknown.label, /\d+/);
+
+    assert.equal(waitlistFull.fact, "confirmed_full");
+    assert.match(waitlistFull.label, /full/i);
+    assert.doesNotMatch(waitlistFull.label, /register/i);
+
+    assert.equal(closedAvailable.fact, "confirmed_available");
+    assert.match(closedAvailable.label, /available/i);
+    assert.match(closedAvailable.label, /not a live inventory count/i);
+
+    const openRow = buildSessionDetailRow(
+      byId["sess-dev-stem-w1"]!,
+      detail.venuesById,
+      { now: NOW },
+    );
+    assert.equal(openRow.registration.displayState, "registration_open");
+    assert.equal(openRow.capacity.fact, "unknown");
+    assert.notEqual(openRow.capacity.fact, "confirmed_available");
+
+    const fullRow = buildSessionDetailRow(
+      byId["sess-dev-stem-w2"]!,
+      detail.venuesById,
+      { now: NOW },
+    );
+    assert.equal(fullRow.registration.displayState, "waitlist");
+    assert.equal(fullRow.capacity.fact, "confirmed_full");
+    assert.notEqual(fullRow.registration.buttonText, "Register with provider");
+  });
+
+  it("session selector facts stay on the selected session only", () => {
+    const detail = resolveCampDetailBySlug(fixtures, "art-trail-multi-venue-dev");
+    assert.ok(detail);
+    const [portCredit, cityCentre] = detail.sessions.map((s) =>
+      buildSessionDetailRow(s, detail.venuesById, { now: NOW }),
+    );
+    assert.match(portCredit.venueLabel, /Port Credit/);
+    assert.match(cityCentre.venueLabel, /City Centre/);
+    assert.notEqual(portCredit.datesLabel, cityCentre.datesLabel);
+    assert.notEqual(
+      portCredit.registration.displayState,
+      cityCentre.registration.displayState,
+    );
+
+    const venues = summarizeProgramVenuesFromSessions(
+      detail.sessions,
+      detail.venuesById,
+    );
+    assert.equal(venues.kind, "multi");
+    assert.equal(venues.names.length, 2);
   });
 });
 
@@ -133,16 +198,21 @@ describe("camp detail — return path and href", () => {
     assert.equal(sanitizeCampsReturnPath("/about"), "/camps");
   });
 
-  it("builds detail href with session, matches, and from for listing handoff", () => {
-    const href = buildCampDetailHref("stem-explorers-dev", {
-      sessionId: "sess-dev-stem-w1",
-      returnTo: "/camps?q=stem&group=0&sort=name_asc",
+  it("grouped href omits session id; flat href selects that session only", () => {
+    const grouped = buildCampDetailHref("stem-explorers-dev", {
+      returnTo: "/camps?group=1",
       matchingSessionIds: ["sess-dev-stem-w1", "sess-dev-stem-w2"],
     });
-    assert.match(href, /^\/camps\/stem-explorers-dev\?/);
-    assert.match(href, /session=sess-dev-stem-w1/);
-    assert.match(href, /matches=sess-dev-stem-w1%2Csess-dev-stem-w2|matches=sess-dev-stem-w1,sess-dev-stem-w2/);
-    assert.match(href, /from=/);
+    assert.doesNotMatch(grouped, /[?&]session=/);
+    assert.match(grouped, /matches=/);
+
+    const flat = buildCampDetailHref("stem-explorers-dev", {
+      sessionId: "sess-dev-stem-w2",
+      returnTo: "/camps?group=0",
+      matchingSessionIds: ["sess-dev-stem-w1", "sess-dev-stem-w2"],
+    });
+    assert.match(flat, /session=sess-dev-stem-w2/);
+    assert.doesNotMatch(flat, /session=sess-dev-stem-w1/);
   });
 
   it("round-trips listing search/filters/sort/grouping through buildListingHref", () => {

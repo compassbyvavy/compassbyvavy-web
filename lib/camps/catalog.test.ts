@@ -1,9 +1,12 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import type { CampSession } from "@/data/camps/types";
+import type { CampsCatalogBundle } from "@/lib/camps/catalog";
 import {
+  formatCampsCatalogBanner,
   loadCampsCatalog,
   resolveCatalogProgramBySlug,
+  resolvePublishedCampDetail,
 } from "@/lib/camps/catalog";
 import { loadCampsRealDevCatalog } from "@/lib/camps/realDevCatalog";
 import { buildCampCardSummary } from "@/lib/camps/campCardSummary";
@@ -15,10 +18,26 @@ import {
   sessionMatchesListingFilters,
 } from "@/lib/camps/listingFilter";
 
+/** MSC-0201-only slice — used so Nutty assertions stay independent of fixtures. */
+function requireRealDevCatalog(): CampsCatalogBundle {
+  const real = loadCampsRealDevCatalog();
+  assert.ok(real);
+  return {
+    providers: real.providers,
+    venues: real.venues,
+    programs: real.programs,
+    sessions: real.sessions,
+    sourceLabel: "real_dev",
+    includesFictionalFixtures: false,
+    sourceCandidateId: real.sourceCandidateId,
+    sourceUrl: real.sourceUrl,
+    sourceCheckedDate: real.sourceCheckedDate,
+  };
+}
+
 describe("camps real-dev catalog adapter", () => {
   it("loads only MSC-0201 Nutty Scientists in non-production", () => {
-    const catalog = loadCampsCatalog();
-    assert.ok(catalog);
+    const catalog = requireRealDevCatalog();
     assert.equal(catalog.sourceLabel, "real_dev");
     assert.equal(catalog.sourceCandidateId, "MSC-0201");
     assert.equal(catalog.programs.length, 1);
@@ -31,7 +50,7 @@ describe("camps real-dev catalog adapter", () => {
   });
 
   it("does not invent calendar years; dates stay unverified at session and card level", () => {
-    const catalog = loadCampsCatalog();
+    const catalog = requireRealDevCatalog();
     assert.ok(catalog);
     for (const session of catalog.sessions) {
       assert.equal(session.startDate, null);
@@ -56,7 +75,7 @@ describe("camps real-dev catalog adapter", () => {
   });
 
   it("audits registration lifecycle separately from seats — no open ended weeks, no scarcity", () => {
-    const catalog = loadCampsCatalog();
+    const catalog = requireRealDevCatalog();
     assert.ok(catalog);
     assert.equal(catalog.sessions.length, 8);
 
@@ -100,7 +119,7 @@ describe("camps real-dev catalog adapter", () => {
   });
 
   it("shows exact weekly price with tax — no From; qualifies care; keeps session-owned facts", () => {
-    const catalog = loadCampsCatalog();
+    const catalog = requireRealDevCatalog();
     assert.ok(catalog);
     const detail = resolveCatalogProgramBySlug(
       catalog,
@@ -141,7 +160,7 @@ describe("camps real-dev catalog adapter", () => {
   });
 
   it("keeps Mississauga as city and Streetsville as neighbourhood", () => {
-    const catalog = loadCampsCatalog();
+    const catalog = requireRealDevCatalog();
     assert.ok(catalog);
     const venue = catalog.venues[0];
     assert.equal(venue.city, "Mississauga");
@@ -150,7 +169,7 @@ describe("camps real-dev catalog adapter", () => {
   });
 
   it("session rows keep own venue, ages, and do not invent scarcity seats", () => {
-    const catalog = loadCampsCatalog();
+    const catalog = requireRealDevCatalog();
     assert.ok(catalog);
     for (const session of catalog.sessions) {
       assert.equal(session.venueId, "venue-vic-johnson-community-centre");
@@ -169,7 +188,7 @@ describe("camps real-dev catalog adapter", () => {
   });
 
   it("resolves detail by slug with session-owned facts", () => {
-    const catalog = loadCampsCatalog();
+    const catalog = requireRealDevCatalog();
     assert.ok(catalog);
     const detail = resolveCatalogProgramBySlug(
       catalog,
@@ -200,7 +219,7 @@ describe("camps real-dev catalog adapter", () => {
 
 describe("MSC-0201 evidence-correction checkpoint assertions", () => {
   it("1. unverified-year sessions remain visible when no date filter is applied", () => {
-    const catalog = loadCampsCatalog();
+    const catalog = requireRealDevCatalog();
     assert.ok(catalog);
     const venuesById = Object.fromEntries(
       catalog.venues.map((v) => [v.id, v]),
@@ -226,7 +245,7 @@ describe("MSC-0201 evidence-correction checkpoint assertions", () => {
   });
 
   it("2. unverified-year sessions never match a specific date-range filter", () => {
-    const catalog = loadCampsCatalog();
+    const catalog = requireRealDevCatalog();
     assert.ok(catalog);
     const venuesById = Object.fromEntries(
       catalog.venues.map((v) => [v.id, v]),
@@ -266,7 +285,7 @@ describe("MSC-0201 evidence-correction checkpoint assertions", () => {
   });
 
   it("3. soonest_start does not treat null/unverified dates as earliest confirmed", () => {
-    const catalog = loadCampsCatalog();
+    const catalog = requireRealDevCatalog();
     assert.ok(catalog);
     const venuesById = Object.fromEntries(
       catalog.venues.map((v) => [v.id, v]),
@@ -298,7 +317,7 @@ describe("MSC-0201 evidence-correction checkpoint assertions", () => {
   });
 
   it("4. availability_unknown + registration URL never gets a generic Register CTA", () => {
-    const catalog = loadCampsCatalog();
+    const catalog = requireRealDevCatalog();
     assert.ok(catalog);
     for (const session of catalog.sessions) {
       assert.equal(session.registrationStatus, "availability_unknown");
@@ -314,7 +333,7 @@ describe("MSC-0201 evidence-correction checkpoint assertions", () => {
   });
 
   it("5. Nutty grouped summary has zero open sessions and no full/closed/seat claim", () => {
-    const catalog = loadCampsCatalog();
+    const catalog = requireRealDevCatalog();
     assert.ok(catalog);
     const detail = resolveCatalogProgramBySlug(
       catalog,
@@ -350,7 +369,7 @@ describe("MSC-0201 evidence-correction checkpoint assertions", () => {
   });
 
   it('6. exact Nutty pricing displays "CAD $399/week + tax" without From', () => {
-    const catalog = loadCampsCatalog();
+    const catalog = requireRealDevCatalog();
     assert.ok(catalog);
     const detail = resolveCatalogProgramBySlug(
       catalog,
@@ -373,7 +392,7 @@ describe("MSC-0201 evidence-correction checkpoint assertions", () => {
   });
 
   it("7. care copy includes advance request and additional-fee qualification", () => {
-    const catalog = loadCampsCatalog();
+    const catalog = requireRealDevCatalog();
     assert.ok(catalog);
     const detail = resolveCatalogProgramBySlug(
       catalog,
@@ -393,5 +412,115 @@ describe("MSC-0201 evidence-correction checkpoint assertions", () => {
     );
     assert.match(row.careLabel, /advance request/i);
     assert.match(row.careLabel, /additional fee/i);
+  });
+});
+
+describe("public browse catalog — gated fixtures + real-dev", () => {
+  it("non-production catalog includes MSC-0201 and fictional fixtures", () => {
+    const catalog = loadCampsCatalog();
+    assert.ok(catalog);
+    assert.equal(catalog.sourceLabel, "mixed_dev");
+    assert.equal(catalog.includesFictionalFixtures, true);
+    assert.ok(
+      catalog.programs.some((p) => p.slug === "nutty-summer-science-camp"),
+    );
+    assert.ok(catalog.programs.some((p) => p.slug === "stem-explorers-dev"));
+    assert.ok(
+      catalog.sessions.some((s) => s.id.startsWith("sess-nutty-")),
+    );
+    assert.ok(catalog.sessions.some((s) => s.id.startsWith("sess-dev-")));
+    const banner = formatCampsCatalogBanner(catalog);
+    assert.match(banner ?? "", /DEV ONLY/i);
+    assert.match(banner ?? "", /fictional/i);
+  });
+
+  it("resolves both real-dev and fixture slugs from the same catalog", () => {
+    const catalog = loadCampsCatalog();
+    assert.ok(catalog);
+    const nutty = resolveCatalogProgramBySlug(
+      catalog,
+      "nutty-summer-science-camp",
+    );
+    const stem = resolveCatalogProgramBySlug(catalog, "stem-explorers-dev");
+    assert.ok(nutty);
+    assert.ok(stem);
+    assert.equal(nutty.sessions.length, 8);
+    assert.ok(stem.sessions.length >= 2);
+
+    const stemSummary = buildCampCardSummary({
+      program: stem.program,
+      matchingSessions: stem.sessions,
+      venuesById: stem.venuesById,
+      now: new Date("2026-08-28T16:00:00.000Z"),
+    });
+    assert.equal(stemSummary.status.kind, "mixed");
+    if (stemSummary.status.kind === "mixed") {
+      assert.match(stemSummary.status.label, /sessions have registration open/);
+      assert.doesNotMatch(stemSummary.status.label, /seat/i);
+    }
+  });
+
+  it("date-range filter matches dated fixture sessions and still excludes unverified Nutty years", () => {
+    const catalog = loadCampsCatalog();
+    assert.ok(catalog);
+    const venuesById = Object.fromEntries(
+      catalog.venues.map((v) => [v.id, v]),
+    );
+    const results = buildListingResults(
+      {
+        programs: catalog.programs,
+        providers: catalog.providers,
+        sessions: catalog.sessions,
+        venuesById,
+      },
+      {
+        ...EMPTY_LISTING_FILTERS,
+        dateFrom: "2026-07-01",
+        dateTo: "2026-07-31",
+      },
+    );
+    const nutty = results.matches.find(
+      (m) => m.program.slug === "nutty-summer-science-camp",
+    );
+    assert.equal(nutty, undefined);
+    assert.ok(results.matchingSessionCount > 0);
+    assert.ok(
+      results.matches.some((m) => m.program.slug === "stem-explorers-dev"),
+    );
+    for (const match of results.matches) {
+      for (const session of match.matchingSessions) {
+        assert.ok(session.startDate);
+      }
+    }
+  });
+
+  it("unknown slug returns null so the detail route can 404", () => {
+    const catalog = loadCampsCatalog();
+    assert.ok(catalog);
+    assert.equal(
+      resolveCatalogProgramBySlug(catalog, "no-such-camp"),
+      null,
+    );
+    assert.equal(resolvePublishedCampDetail("no-such-camp"), null);
+    assert.ok(resolvePublishedCampDetail("stem-explorers-dev"));
+    assert.ok(resolvePublishedCampDetail("nutty-summer-science-camp"));
+  });
+
+  it("production gate returns null — no fixtures and no real-dev preview", () => {
+    const prev = process.env.NODE_ENV;
+    // @ts-expect-error test override
+    process.env.NODE_ENV = "production";
+    try {
+      assert.equal(loadCampsRealDevCatalog(), null);
+      assert.equal(loadCampsCatalog(), null);
+      assert.equal(resolvePublishedCampDetail("stem-explorers-dev"), null);
+      assert.equal(
+        resolvePublishedCampDetail("nutty-summer-science-camp"),
+        null,
+      );
+    } finally {
+      // @ts-expect-error restore
+      process.env.NODE_ENV = prev;
+    }
   });
 });

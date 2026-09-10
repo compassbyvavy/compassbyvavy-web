@@ -16,6 +16,7 @@ import {
   resolveSessionSelection,
   sanitizeCampsReturnPath,
   sessionMatchesListingFilters,
+  summarizeProgramVenuesFromSessions,
   type CampSessionDetailRow,
 } from "@/lib/camps/campDetail";
 import type { RegistrationDisplayStateId } from "@/lib/camps/registrationAction";
@@ -74,6 +75,10 @@ function SessionFactBlock({ row }: { row: CampSessionDetailRow }) {
         <div className="camp-card-meta-row">
           <dt>Price</dt>
           <dd>{row.priceLabel}</dd>
+        </div>
+        <div className="camp-card-meta-row">
+          <dt>Capacity</dt>
+          <dd>{row.capacity.label}</dd>
         </div>
       </dl>
       {row.session.feeNotes ? (
@@ -244,6 +249,11 @@ export function CampDetailClient({
     return [...matched, ...other];
   }, [rows, matchingSessionIds]);
 
+  const venueSummary = useMemo(
+    () => summarizeProgramVenuesFromSessions(sessions, venuesById),
+    [sessions, venuesById],
+  );
+
   const selectedRow =
     selection.kind === "selected"
       ? rows.find((r) => r.session.id === selection.selectedSessionId) ?? null
@@ -322,10 +332,23 @@ export function CampDetailClient({
               <dd>{provider.name}</dd>
             </div>
           )}
+          <div className="camp-card-meta-row">
+            <dt>Venue</dt>
+            <dd>
+              {venueSummary.label}
+              {venueSummary.kind === "multi" ? (
+                <span className="camp-card-note">
+                  {" "}
+                  ({venueSummary.names.join("; ")})
+                </span>
+              ) : null}
+            </dd>
+          </div>
         </dl>
         <p className="camp-detail-venue-note" role="note">
           Each session lists its own venue. A program may run at more than one
-          place.
+          place. Selecting a session below updates dates, eligibility, hours,
+          care, price, registration, and capacity for that session only.
         </p>
         {program.description ? (
           <p className="camp-detail-lede">{program.description}</p>
@@ -351,7 +374,9 @@ export function CampDetailClient({
           <>
             <p className="camp-detail-section-lede">
               Each row is one session with its own dates, venue, ages, hours,
-              care, price, and registration.
+              care, price, registration, and capacity. The selected session
+              controls the facts underneath — sessions are never stitched
+              together.
             </p>
             {hasMatchContext && otherCount > 0 ? (
               <p className="camps-age-filter-notice" role="status">
@@ -361,6 +386,25 @@ export function CampDetailClient({
                 {otherCount === 1 ? "" : "s"} for this program.
               </p>
             ) : null}
+            <label className="camps-field camp-detail-session-picker">
+              <span>Selected session</span>
+              <select
+                aria-label={`Select a camp session for ${program.name}`}
+                value={
+                  selection.kind === "selected"
+                    ? selection.selectedSessionId
+                    : ""
+                }
+                onChange={(e) => setSession(e.target.value || null)}
+              >
+                <option value="">Choose a session</option>
+                {orderedRows.map((row) => (
+                  <option key={row.session.id} value={row.session.id}>
+                    {row.datesLabel} · {row.venueLabel}
+                  </option>
+                ))}
+              </select>
+            </label>
             <fieldset className="camp-detail-session-fieldset">
               <legend className="visually-hidden">
                 Select a camp session for {program.name}
@@ -376,6 +420,7 @@ export function CampDetailClient({
                       <th scope="col">Hours</th>
                       <th scope="col">Care</th>
                       <th scope="col">Price</th>
+                      <th scope="col">Capacity</th>
                       <th scope="col">Registration</th>
                       {hasMatchContext ? (
                         <th scope="col">Filter match</th>
@@ -405,6 +450,7 @@ export function CampDetailClient({
                                 : "no"
                           }
                           className={selected ? "is-selected" : undefined}
+                          onClick={() => setSession(row.session.id)}
                         >
                           <td>
                             <input
@@ -429,6 +475,7 @@ export function CampDetailClient({
                           <td>{row.hoursLabel}</td>
                           <td>{row.careLabel}</td>
                           <td>{row.priceLabel}</td>
+                          <td>{row.capacity.label}</td>
                           <td>
                             <span
                               className={statusChipClass(

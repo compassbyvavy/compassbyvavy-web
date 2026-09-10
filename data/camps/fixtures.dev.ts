@@ -1,9 +1,9 @@
 /**
- * DEV ONLY — synthetic fixtures for type-checking and future UI previews.
+ * DEV ONLY — synthetic fixtures for type-checking and Camps listing previews.
  *
- * Not production directory data. Do not import from public pages, API routes,
- * or Supabase seeding without an explicit development-preview gate.
- * Names, prices, and statuses are fictional.
+ * Not production directory data. Public `/camps` may include these in
+ * non-production via `lib/camps/devFixtures.ts` (gated). Direct imports from
+ * production UI are unsupported. Names, prices, and statuses are fictional.
  *
  * Access ONLY via lib/camps/devFixtures.ts (`loadCampsDevFixtures` /
  * `requireCampsDevFixtures`). Direct imports from production UI are unsupported.
