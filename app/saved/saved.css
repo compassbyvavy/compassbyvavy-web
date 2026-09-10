@@ -137,6 +137,15 @@
   min-width: 180px;
 }
 
+.saved-compare-table thead th a {
+  display: block;
+}
+
+.saved-compare-table thead th .camp-card-note {
+  display: block;
+  margin-top: 4px;
+}
+
 .saved-compare-table tbody th {
   width: 7.5rem;
   color: var(--camps-muted);
