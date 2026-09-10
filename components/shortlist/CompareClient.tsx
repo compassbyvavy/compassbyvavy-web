@@ -13,7 +13,10 @@ export type CompareClientProps = {
 
 export function CompareClient({ catalog, nowIso }: CompareClientProps) {
   const searchParams = useSearchParams();
-  const now = nowIso ? new Date(nowIso) : undefined;
+  const now = useMemo(
+    () => (nowIso ? new Date(nowIso) : undefined),
+    [nowIso],
+  );
   const raw = searchParams.get("sessions");
 
   const table = useMemo(

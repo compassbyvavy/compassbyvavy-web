@@ -22,7 +22,10 @@ export function SavedListClient({ catalog, nowIso }: SavedListClientProps) {
     markRegistered,
     reconcileUnavailable,
   } = useShortlist();
-  const now = nowIso ? new Date(nowIso) : undefined;
+  const now = useMemo(
+    () => (nowIso ? new Date(nowIso) : undefined),
+    [nowIso],
+  );
   const [selectedSessionIds, setSelectedSessionIds] = useState<string[]>([]);
 
   useEffect(() => {
@@ -47,9 +50,16 @@ export function SavedListClient({ catalog, nowIso }: SavedListClientProps) {
   }, [resolved.active]);
 
   useEffect(() => {
-    setSelectedSessionIds((current) =>
-      current.filter((id) => selectableSessionIds.has(id)),
-    );
+    setSelectedSessionIds((current) => {
+      const next = current.filter((id) => selectableSessionIds.has(id));
+      if (
+        next.length === current.length &&
+        next.every((id, index) => id === current[index])
+      ) {
+        return current;
+      }
+      return next;
+    });
   }, [selectableSessionIds]);
 
   const toggleSession = (sessionId: string, checked: boolean) => {
@@ -97,9 +107,9 @@ export function SavedListClient({ catalog, nowIso }: SavedListClientProps) {
           not rank incomparable prices.
         </p>
         {compareReady ? (
-          <Link className="camp-card-cta" href={buildCompareHref(selectedSessionIds)}>
+          <a className="camp-card-cta" href={buildCompareHref(selectedSessionIds)}>
             Compare {selectedSessionIds.length} sessions
-          </Link>
+          </a>
         ) : (
           <p className="camp-card-note">
             {selectedSessionIds.length} selected — choose at least {COMPARE_MIN}
