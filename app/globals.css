@@ -642,6 +642,8 @@ a.category-card {
 
   .header-inner {
     min-height: 68px;
+    flex-wrap: wrap;
+    gap: 10px 16px;
   }
 
   .brand {
