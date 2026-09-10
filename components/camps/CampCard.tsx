@@ -1,10 +1,12 @@
 import Link from "next/link";
 import type { CampProgram, CampSession, Provider, Venue } from "@/data/camps/types";
+import { SaveControl } from "@/components/shortlist/SaveControl";
 import {
   buildCampCardSummary,
   type CampCardStatusSummary,
 } from "@/lib/camps/campCardSummary";
 import type { RegistrationDisplayStateId } from "@/lib/camps/registrationAction";
+import { saveRefForCard } from "@/lib/shortlist/refs";
 
 export type CampCardProps = {
   program: CampProgram;
@@ -68,6 +70,11 @@ export function CampCard({
       : "camp-card-price camp-card-price-unknown";
 
   const hasPhoto = Boolean(program.imageSrc);
+  const saveRef = saveRefForCard(program, matchingSessions);
+  const saveLabel =
+    saveRef.kind === "camp_session"
+      ? `${program.name} session`
+      : program.name;
 
   return (
     <article className="camp-card" data-program-id={program.id}>
@@ -176,6 +183,7 @@ export function CampCard({
           <Link className="camp-card-cta" href={detailHref}>
             View dates &amp; details
           </Link>
+          <SaveControl refToSave={saveRef} label={saveLabel} variant="heart" />
         </div>
       </div>
     </article>

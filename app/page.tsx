@@ -1,31 +1,10 @@
-const categories: Array<{
-  icon: string;
-  title: string;
-  text: string;
-  href?: string;
-  cta?: string;
-}> = [
-  { icon: "🌳", title: "Parks & Nature", text: "Playgrounds, trails, beaches and outdoor escapes." },
-  { icon: "💦", title: "Splash Pads", text: "Cool-down spots and water-play favourites." },
-  { icon: "🎠", title: "Indoor Play", text: "Rainy-day fun, play centres and museums." },
-  { icon: "🎉", title: "Events", text: "Festivals, weekend events and seasonal celebrations." },
-  { icon: "🎨", title: "Classes", text: "Sports, arts, STEM and enriching programs." },
-  {
-    icon: "🏕️",
-    title: "Camps",
-    text: "Summer, March break and specialty camps.",
-    href: "/camps",
-    cta: "Browse camps",
-  },
-  { icon: "🍦", title: "Food & Treats", text: "Family-friendly restaurants and sweet stops." },
-  { icon: "🚗", title: "Getaways", text: "Easy day trips and memorable family weekends." },
-];
+import { DISCOVER_CATEGORIES } from "@/lib/discover/categories";
 
 const promises = [
-  "Useful details parents actually need",
-  "Age, budget and accessibility filters",
-  "Trusted tips before you leave home",
-  "Smarter family planning, all in one place",
+  "Useful session facts when we have them — unknown stays unknown",
+  "Age, dates, hours, and cost on the same camp session",
+  "Public browse: no account required to see details",
+  "A saved list on this device, when you want one",
 ];
 
 export default function HomePage() {
@@ -36,32 +15,31 @@ export default function HomePage() {
         <div className="hero-orb hero-orb-two" />
         <div className="container hero-grid">
           <div className="hero-copy">
-            <span className="eyebrow">Your family-fun compass</span>
+            <span className="eyebrow">Weekend clarity for parents</span>
             <h1>Spend less time searching. Make more family memories.</h1>
             <p className="hero-lead">
-              Discover places, events, classes, camps and weekend adventures
-              matched to your children, budget and available time.
+              Compass is household intelligence: discover, choose, then
+              organize. Start with Mississauga camps you can actually weigh —
+              dates, eligibility, hours, and cost on the same session. We will
+              not pretend the whole city is listed yet.
             </p>
             <div className="hero-actions">
-              <a className="button button-primary" href="#discover">
-                Explore what is coming
+              <a className="button button-primary" href="/camps">
+                Browse Mississauga camps
               </a>
-              <a
-                className="button button-secondary"
-                href="mailto:hello@compassbyvavy.ca?subject=Join%20the%20Compass%20by%20Vavy%20waitlist&body=Please%20add%20me%20to%20the%20Compass%20by%20Vavy%20early-access%20list."
-              >
-                Join the waitlist
+              <a className="button button-secondary" href="#discover">
+                See the Discover map
               </a>
             </div>
             <div className="trust-line">
-              <span>Made for families</span>
-              <span>Launching first in the GTA</span>
+              <span>No account needed to browse</span>
+              <span>Starting in Mississauga</span>
             </div>
           </div>
 
           <div className="hero-card" aria-label="Example family recommendation">
             <div className="hero-card-top">
-              <span className="mini-label">A perfect Saturday</span>
+              <span className="mini-label">A calmer Saturday</span>
               <span className="weather">☀️ 24°C</span>
             </div>
             <div className="adventure-visual">
@@ -73,7 +51,7 @@ export default function HomePage() {
               <div className="family">👨‍👩‍👧‍👦</div>
             </div>
             <h2>Lakeside play + ice cream</h2>
-            <p>Great for ages 2–8 · Free · 18 minutes away</p>
+            <p>An illustration of the kind of weekend we want to make easier — not a live listing.</p>
             <div className="tags">
               <span>Playground</span>
               <span>Washrooms</span>
@@ -86,36 +64,38 @@ export default function HomePage() {
       <section className="section" id="discover">
         <div className="container">
           <div className="section-heading">
-            <span className="eyebrow">Discover more together</span>
-            <h2>Everything families need, in one welcoming place</h2>
+            <span className="eyebrow">Discover</span>
+            <h2>An honest map of family time — one live category first</h2>
             <p>
-              Compass by Vavy is being built to make family decisions simpler,
-              faster and more confident.
+              Camps is available to browse now. Every other category is a
+              calm placeholder, not a fake directory. Coverage is ongoing;
+              confidence over urgency; no paid ranking.
             </p>
           </div>
-          <div className="category-grid">
-            {categories.map((category) => {
+          <div className="category-grid category-grid-ten">
+            {DISCOVER_CATEGORIES.map((category) => {
               const inner = (
                 <>
-                  <span className="category-icon" aria-hidden="true">{category.icon}</span>
+                  <span className="category-icon" aria-hidden="true">
+                    {category.icon}
+                  </span>
                   <h3>{category.title}</h3>
-                  <p>{category.text}</p>
-                  <span className={category.href ? "category-available" : "coming-soon"}>
-                    {category.cta ?? "Coming soon"}
+                  <p>{category.blurb}</p>
+                  <span
+                    className={
+                      category.status === "available"
+                        ? "category-available"
+                        : "coming-soon"
+                    }
+                  >
+                    {category.cta}
                   </span>
                 </>
               );
-              if (category.href) {
-                return (
-                  <a className="category-card" href={category.href} key={category.title}>
-                    {inner}
-                  </a>
-                );
-              }
               return (
-                <article className="category-card" key={category.title}>
+                <a className="category-card" href={category.href} key={category.slug}>
                   {inner}
-                </article>
+                </a>
               );
             })}
           </div>
@@ -132,8 +112,10 @@ export default function HomePage() {
               forecast. What should we do?”
             </p>
             <p>
-              We are designing Compass to answer the full question—not simply
-              provide another long directory of places.
+              We are designing Compass to answer that kind of question with
+              evidence, not another long undifferentiated list. Compass never
+              processes provider registration — parents complete that step
+              with the provider.
             </p>
           </div>
           <div className="promise-list">
@@ -153,7 +135,8 @@ export default function HomePage() {
             <span className="eyebrow light">Be among the first</span>
             <h2>Join the Compass by Vavy journey</h2>
             <p>
-              Get early access, launch updates and hand-picked family ideas.
+              Early notes as more Discover categories come online — without
+              pretending they already have listings.
             </p>
           </div>
           <a

@@ -264,6 +264,52 @@
   font-size: 0.85rem;
 }
 
+.shortlist-save {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin: 0;
+  border: 1px solid var(--camps-line);
+  background: var(--camps-paper);
+  color: var(--camps-pine);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.shortlist-save-heart {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  font-size: 1.2rem;
+}
+
+.shortlist-save-button {
+  min-height: 44px;
+  padding: 8px 16px;
+  border-radius: 999px;
+}
+
+.shortlist-save.is-saved {
+  border-color: var(--camps-amber);
+  background: var(--camps-amber-soft);
+  color: var(--camps-amber-deep);
+}
+
+.shortlist-save:hover,
+.shortlist-save:focus-visible {
+  border-color: var(--camps-pine);
+}
+
+.camp-detail-save-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin-top: 8px;
+}
+
 /* —— Listing page —— */
 
 .camps-listing-page {
