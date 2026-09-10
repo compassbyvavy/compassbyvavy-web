@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useCallback, useMemo, type ReactNode } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { SaveControl } from "@/components/shortlist/SaveControl";
 import type {
   CampPackingItem,
   CampProgram,
@@ -20,6 +21,7 @@ import {
   type CampSessionDetailRow,
 } from "@/lib/camps/campDetail";
 import type { RegistrationDisplayStateId } from "@/lib/camps/registrationAction";
+import { saveRefForDetail } from "@/lib/shortlist/refs";
 
 export type CampDetailClientProps = {
   program: CampProgram;
@@ -91,6 +93,7 @@ function SessionFactBlock({ row }: { row: CampSessionDetailRow }) {
             href={action.href}
             target="_blank"
             rel="noopener noreferrer"
+            data-shortlist-outbound="true"
           >
             {action.buttonText}
           </a>
@@ -272,6 +275,14 @@ export function CampDetailClient({
   );
 
   const packing = program.packingItems ?? [];
+  const saveRef = saveRefForDetail(
+    program,
+    selection.kind === "selected" ? selection.selectedSessionId : null,
+  );
+  const saveLabel =
+    saveRef.kind === "camp_session"
+      ? `${program.name} selected session`
+      : program.name;
   const hasMatchContext = matchingSessionIds != null;
   const otherCount =
     hasMatchContext && matchingSessionIds
@@ -356,6 +367,18 @@ export function CampDetailClient({
         <p className="camp-card-note">
           Use each session’s age range below — overview ages are a guide only.
         </p>
+        <div className="camp-detail-save-row">
+          <SaveControl
+            refToSave={saveRef}
+            label={saveLabel}
+            variant="button"
+          />
+          <p className="camp-card-note">
+            {saveRef.kind === "camp_session"
+              ? "Saves this session to your device list. Opening a provider link does not mark you as registered."
+              : "Saves this camp. Select a session to save a specific week."}
+          </p>
+        </div>
       </header>
 
       {selection.kind === "invalid" ? (

@@ -1,0 +1,171 @@
+.saved-page {
+  padding: 28px 0 64px;
+}
+
+.saved-compare-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  margin: 0 0 24px;
+  padding: 16px 18px;
+  background: var(--camps-paper);
+  border: 1px solid var(--camps-line);
+  border-radius: var(--camps-radius);
+}
+
+.saved-compare-bar p {
+  margin: 0;
+  max-width: 46rem;
+}
+
+.saved-list,
+.saved-past-list,
+.saved-session-picks {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.saved-list {
+  display: grid;
+  gap: 16px;
+}
+
+.saved-item {
+  display: grid;
+  gap: 12px;
+  padding: 18px 20px;
+  background: var(--camps-paper);
+  border: 1px solid var(--camps-line);
+  border-radius: var(--camps-radius);
+}
+
+.saved-item h2 {
+  margin: 4px 0 0;
+  font-size: 1.35rem;
+}
+
+.saved-item h2 a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.saved-item h2 a:hover,
+.saved-item h2 a:focus-visible {
+  text-decoration: underline;
+}
+
+.saved-item-head {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.saved-compare-pick,
+.saved-registered,
+.saved-session-picks label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.92rem;
+  font-weight: 600;
+}
+
+.saved-session-picks {
+  display: grid;
+  gap: 8px;
+}
+
+.saved-past {
+  margin-top: 42px;
+}
+
+.saved-past h2 {
+  margin-bottom: 8px;
+}
+
+.saved-past-list {
+  display: grid;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.saved-past-list li {
+  color: var(--camps-muted);
+  font-size: 0.95rem;
+}
+
+.saved-price-note {
+  margin: 0 0 16px;
+  padding: 12px 14px;
+  background: var(--camps-amber-soft);
+  color: var(--camps-amber-deep);
+  border-radius: 10px;
+  font-size: 0.92rem;
+  font-weight: 600;
+}
+
+.saved-compare-scroll {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  border: 1px solid var(--camps-line);
+  border-radius: var(--camps-radius);
+  background: var(--camps-paper);
+}
+
+.saved-compare-table {
+  width: 100%;
+  min-width: 640px;
+  border-collapse: collapse;
+  font-size: 0.92rem;
+}
+
+.saved-compare-table th,
+.saved-compare-table td {
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--camps-line);
+  vertical-align: top;
+  text-align: left;
+}
+
+.saved-compare-table thead th {
+  background: var(--camps-pine-soft);
+  min-width: 180px;
+}
+
+.saved-compare-table thead th a {
+  display: block;
+}
+
+.saved-compare-table thead th .camp-card-note {
+  display: block;
+  margin-top: 4px;
+}
+
+.saved-compare-table tbody th {
+  width: 7.5rem;
+  color: var(--camps-muted);
+  font-weight: 600;
+  background: var(--camps-ivory);
+  position: sticky;
+  left: 0;
+}
+
+.saved-compare-table .camp-card-cta {
+  margin-top: 8px;
+}
+
+@media (max-width: 620px) {
+  .saved-page {
+    padding-top: 18px;
+  }
+
+  .saved-compare-bar {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
