@@ -133,16 +133,21 @@ describe("camp detail — return path and href", () => {
     assert.equal(sanitizeCampsReturnPath("/about"), "/camps");
   });
 
-  it("builds detail href with session, matches, and from for listing handoff", () => {
-    const href = buildCampDetailHref("stem-explorers-dev", {
-      sessionId: "sess-dev-stem-w1",
-      returnTo: "/camps?q=stem&group=0&sort=name_asc",
+  it("grouped href omits session id; flat href selects that session only", () => {
+    const grouped = buildCampDetailHref("stem-explorers-dev", {
+      returnTo: "/camps?group=1",
       matchingSessionIds: ["sess-dev-stem-w1", "sess-dev-stem-w2"],
     });
-    assert.match(href, /^\/camps\/stem-explorers-dev\?/);
-    assert.match(href, /session=sess-dev-stem-w1/);
-    assert.match(href, /matches=sess-dev-stem-w1%2Csess-dev-stem-w2|matches=sess-dev-stem-w1,sess-dev-stem-w2/);
-    assert.match(href, /from=/);
+    assert.doesNotMatch(grouped, /[?&]session=/);
+    assert.match(grouped, /matches=/);
+
+    const flat = buildCampDetailHref("stem-explorers-dev", {
+      sessionId: "sess-dev-stem-w2",
+      returnTo: "/camps?group=0",
+      matchingSessionIds: ["sess-dev-stem-w1", "sess-dev-stem-w2"],
+    });
+    assert.match(flat, /session=sess-dev-stem-w2/);
+    assert.doesNotMatch(flat, /session=sess-dev-stem-w1/);
   });
 
   it("round-trips listing search/filters/sort/grouping through buildListingHref", () => {

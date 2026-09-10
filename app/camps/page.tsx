@@ -1,15 +1,17 @@
 import { Suspense } from "react";
 import { CampsListingClient } from "@/components/camps/CampsListingClient";
-import { loadCampsCatalog } from "@/lib/camps/catalog";
+import {
+  formatCampsCatalogBanner,
+  loadCampsCatalog,
+} from "@/lib/camps/catalog";
 
 export const dynamic = "force-dynamic";
 
 /**
  * Public Camps listing.
  *
- * Reads from the shared catalog layer (development: real-dev adapter for
- * MSC-0201 only). Fictional fixtures are not loaded here. Production soft-loads
- * empty until a published data source exists.
+ * Shared catalog layer: non-production uses gated real-dev + fixtures;
+ * production soft-loads empty (no fixtures).
  */
 export default function CampsListingPage() {
   const catalog = loadCampsCatalog();
@@ -42,11 +44,6 @@ export default function CampsListingPage() {
     );
   }
 
-  const banner =
-    catalog.sourceLabel === "real_dev"
-      ? `DEV ONLY — real-data preview (candidate ${catalog.sourceCandidateId ?? "MSC-0201"}). Source-checked ${catalog.sourceCheckedDate ?? ""} from the provider site. Calendar years for listed weeks are not yet verified. Not fictional fixtures; not a full Mississauga directory.`
-      : null;
-
   return (
     <div className="container camps-listing-page">
       <Suspense fallback={<p className="camp-card-note">Loading camps…</p>}>
@@ -56,7 +53,7 @@ export default function CampsListingPage() {
           sessions={catalog.sessions}
           venues={catalog.venues}
           nowIso="2026-08-28T16:00:00.000Z"
-          catalogBanner={banner}
+          catalogBanner={formatCampsCatalogBanner(catalog)}
         />
       </Suspense>
     </div>

@@ -102,6 +102,12 @@ export const AGE_FILTER_MISSING_AGE_NOTICE =
 export const AGE_FILTER_INVALID_AGE_NOTICE =
   "Age filter not applied—enter a whole-number age.";
 
+/**
+ * Shown on matching cards when a date-range filter is active.
+ * Overlap is not the same as “exactly these dates.”
+ */
+export const DATE_RANGE_OVERLAP_LABEL = "Overlaps these dates.";
+
 /** @deprecated Prefer AGE_FILTER_MISSING_DATE_NOTICE — kept as the missing-date copy. */
 export const AGE_FILTER_INCOMPLETE_NOTICE = AGE_FILTER_MISSING_DATE_NOTICE;
 
@@ -243,18 +249,46 @@ function normalizeText(value: string): string {
   return value.trim().toLowerCase();
 }
 
-function sessionOverlapsDateRange(
+/**
+ * Known attendance dates for a session: verified start and (when present) end.
+ * Do not invent school-calendar days or fill a missing year.
+ */
+export function knownSessionAttendanceDates(session: CampSession): string[] {
+  const dates: string[] = [];
+  if (isIsoDateString(session.startDate)) dates.push(session.startDate);
+  if (
+    isIsoDateString(session.endDate) &&
+    session.endDate !== session.startDate
+  ) {
+    dates.push(session.endDate);
+  }
+  return dates;
+}
+
+/**
+ * A session matches a date range when at least one *known* attendance date
+ * overlaps the inclusive filter window. Unknown start/end never count as a
+ * match (and never invent a calendar year).
+ *
+ * Start+end are treated as an inclusive attendance window when both are known;
+ * a start-only session is a single known attendance date.
+ */
+export function sessionOverlapsDateRange(
   session: CampSession,
   dateFrom: string | null,
   dateTo: string | null,
 ): boolean {
   if (!dateFrom && !dateTo) return true;
-  const start = session.startDate;
+  const start = isIsoDateString(session.startDate) ? session.startDate : null;
   if (!start) return false;
-  const end = session.endDate ?? start;
+  const end = isIsoDateString(session.endDate) ? session.endDate : start;
   if (dateFrom && end < dateFrom) return false;
   if (dateTo && start > dateTo) return false;
   return true;
+}
+
+export function dateRangeFilterIsActive(filters: CampsListingFilters): boolean {
+  return Boolean(filters.dateFrom || filters.dateTo);
 }
 
 function timingMatches(
@@ -680,6 +714,204 @@ export function countActiveFilters(filters: CampsListingFilters): number {
   if (filters.requireBeforeCare || filters.requireAfterCare) n += 1;
   if (filters.stayTypes.length) n += 1;
   return n;
+}
+
+const TIMING_CHIP_LABELS: Record<Exclude<TimingShortcutId, "all">, string> = {
+  summer: "Summer",
+  march_break: "March Break",
+  winter_break: "Winter Break",
+  pa_days: "PA Days",
+  weekends: "Weekends",
+};
+
+const SCHEDULE_CHIP_LABELS: Record<CampSessionScheduleFormat, string> = {
+  full_day: "Full day",
+  half_day: "Half day",
+  short_session: "Short session",
+  single_day: "Single day",
+  weekly: "Weekly",
+  multiweek: "Multi-week",
+  other: "Other schedule",
+  unknown: "Schedule unknown",
+};
+
+const AUDIENCE_CHIP_LABELS: Record<
+  NonNullable<CampProgram["audience"]>,
+  string
+> = {
+  child_only: "Child only",
+  parent_and_child: "Parent & child",
+  family: "Family",
+  other: "Other audience",
+  unknown: "Audience unknown",
+};
+
+const STAY_CHIP_LABELS: Record<CampStayType, string> = {
+  day: "Day camp",
+  overnight: "Overnight",
+  unknown: "Stay type unknown",
+};
+
+const PRICE_UNIT_CHIP_LABELS: Record<PriceUnit, string> = {
+  per_day: "per day",
+  per_week: "per week",
+  per_session: "per session",
+  full_program: "full program",
+  other: "other unit",
+  unknown: "unit unknown",
+};
+
+export type ListingFilterChip = {
+  id: string;
+  label: string;
+};
+
+/**
+ * Selected-filter chips for the listing chrome (not a second filter UI).
+ */
+export function listActiveFilterChips(
+  filters: CampsListingFilters,
+): ListingFilterChip[] {
+  const chips: ListingFilterChip[] = [];
+  const kw = filters.keyword.trim();
+  if (kw) chips.push({ id: "keyword", label: `Keyword: ${kw}` });
+
+  const age = resolveChildAgeFilter(filters.childAge).applied;
+  if (age) {
+    chips.push({
+      id: "age",
+      label: `Age ${age.ageYears} as of ${age.asOfDate}`,
+    });
+  }
+
+  if (filters.dateFrom || filters.dateTo) {
+    const from = filters.dateFrom ?? "…";
+    const to = filters.dateTo ?? "…";
+    chips.push({ id: "dates", label: `Dates ${from} – ${to}` });
+  }
+
+  if (filters.timingShortcut !== "all") {
+    chips.push({
+      id: "timing",
+      label: TIMING_CHIP_LABELS[filters.timingShortcut],
+    });
+  }
+
+  for (const theme of filters.themes) {
+    chips.push({ id: `theme:${theme}`, label: theme });
+  }
+  for (const format of filters.scheduleFormats) {
+    chips.push({
+      id: `format:${format}`,
+      label: SCHEDULE_CHIP_LABELS[format] ?? format,
+    });
+  }
+  for (const audience of filters.audiences) {
+    chips.push({
+      id: `audience:${audience}`,
+      label: AUDIENCE_CHIP_LABELS[audience] ?? audience,
+    });
+  }
+  for (const tag of filters.accessibilityTags) {
+    chips.push({ id: `access:${tag}`, label: `Support: ${tag}` });
+  }
+  for (const loc of filters.locations) {
+    chips.push({ id: `loc:${loc}`, label: loc });
+  }
+  for (const venueId of filters.venueIds) {
+    chips.push({ id: `venue:${venueId}`, label: `Venue ${venueId}` });
+  }
+  if (filters.priceMax != null) {
+    const unit = filters.priceUnit
+      ? PRICE_UNIT_CHIP_LABELS[filters.priceUnit] ?? filters.priceUnit
+      : "any known unit";
+    chips.push({
+      id: "price",
+      label: `Max $${filters.priceMax} ${unit}`,
+    });
+  }
+  if (filters.coreHoursStartMax || filters.coreHoursEndMin) {
+    const start = filters.coreHoursStartMax ?? "…";
+    const end = filters.coreHoursEndMin ?? "…";
+    chips.push({ id: "hours", label: `Hours ${start}–${end}` });
+  }
+  if (filters.requireBeforeCare) {
+    chips.push({ id: "before", label: "Before care offered" });
+  }
+  if (filters.requireAfterCare) {
+    chips.push({ id: "after", label: "After care offered" });
+  }
+  for (const stay of filters.stayTypes) {
+    chips.push({
+      id: `stay:${stay}`,
+      label: STAY_CHIP_LABELS[stay] ?? stay,
+    });
+  }
+  return chips;
+}
+
+export function removeActiveFilterChip(
+  filters: CampsListingFilters,
+  chipId: string,
+): CampsListingFilters {
+  if (chipId === "keyword") return { ...filters, keyword: "" };
+  if (chipId === "age") return { ...filters, childAge: null };
+  if (chipId === "dates") return { ...filters, dateFrom: null, dateTo: null };
+  if (chipId === "timing") return { ...filters, timingShortcut: "all" };
+  if (chipId === "price") {
+    return { ...filters, priceMax: null, priceUnit: null };
+  }
+  if (chipId === "hours") {
+    return { ...filters, coreHoursStartMax: null, coreHoursEndMin: null };
+  }
+  if (chipId === "before") return { ...filters, requireBeforeCare: false };
+  if (chipId === "after") return { ...filters, requireAfterCare: false };
+
+  const split = chipId.indexOf(":");
+  if (split === -1) return filters;
+  const kind = chipId.slice(0, split);
+  const value = chipId.slice(split + 1);
+
+  if (kind === "theme") {
+    return { ...filters, themes: filters.themes.filter((t) => t !== value) };
+  }
+  if (kind === "format") {
+    return {
+      ...filters,
+      scheduleFormats: filters.scheduleFormats.filter((t) => t !== value),
+    };
+  }
+  if (kind === "audience") {
+    return {
+      ...filters,
+      audiences: filters.audiences.filter((t) => t !== value),
+    };
+  }
+  if (kind === "access") {
+    return {
+      ...filters,
+      accessibilityTags: filters.accessibilityTags.filter((t) => t !== value),
+    };
+  }
+  if (kind === "loc") {
+    return {
+      ...filters,
+      locations: filters.locations.filter((t) => t !== value),
+    };
+  }
+  if (kind === "venue") {
+    return {
+      ...filters,
+      venueIds: filters.venueIds.filter((t) => t !== value),
+    };
+  }
+  if (kind === "stay") {
+    return {
+      ...filters,
+      stayTypes: filters.stayTypes.filter((t) => t !== value),
+    };
+  }
+  return filters;
 }
 
 /** Listing UI state that must survive detail → back. */

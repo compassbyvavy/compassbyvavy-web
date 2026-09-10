@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { CampDetailClient } from "@/components/camps/CampDetailClient";
 import {
+  formatCampsCatalogBanner,
   loadCampsCatalog,
   resolveCatalogProgramBySlug,
 } from "@/lib/camps/catalog";
@@ -13,7 +14,7 @@ type PageProps = {
 };
 
 /**
- * Camp program detail — shared catalog only (not fictional fixtures).
+ * Camp program detail — same catalog as listing (shared session truth).
  * Unknown slug or missing catalog → 404. Production catalog is null today.
  */
 export default async function CampDetailPage({ params }: PageProps) {
@@ -28,10 +29,7 @@ export default async function CampDetailPage({ params }: PageProps) {
     notFound();
   }
 
-  const banner =
-    catalog.sourceLabel === "real_dev"
-      ? `DEV ONLY — real-data preview (candidate ${catalog.sourceCandidateId ?? "MSC-0201"}). Facts source-checked ${catalog.sourceCheckedDate ?? ""} against the provider site. Session calendar years are not yet verified. Not fictional fixtures.`
-      : undefined;
+  const banner = formatCampsCatalogBanner(catalog);
 
   return (
     <div className="container camp-detail-page">

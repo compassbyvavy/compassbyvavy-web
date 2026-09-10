@@ -18,6 +18,11 @@ export type CampCardProps = {
   loadFailed?: boolean;
   /** Optional flat-view session label shown above meta. */
   flatSessionNote?: string | null;
+  /**
+   * When a date-range filter is active, matching cards label overlap
+   * (not exact containment).
+   */
+  dateOverlapLabel?: string | null;
 };
 
 function statusChipClass(state: RegistrationDisplayStateId): string {
@@ -45,6 +50,7 @@ export function CampCard({
   now,
   loadFailed,
   flatSessionNote,
+  dateOverlapLabel,
 }: CampCardProps) {
   const summary = buildCampCardSummary({
     program,
@@ -128,7 +134,12 @@ export function CampCard({
         <dl className="camp-card-meta">
           <div className="camp-card-meta-row">
             <dt>Dates</dt>
-            <dd>{summary.dates.label}</dd>
+            <dd>
+              {summary.dates.label}
+              {dateOverlapLabel && summary.dates.kind === "range" ? (
+                <span className="camp-card-note"> · {dateOverlapLabel}</span>
+              ) : null}
+            </dd>
           </div>
           <div className="camp-card-meta-row">
             <dt>Location</dt>

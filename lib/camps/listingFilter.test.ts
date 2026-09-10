@@ -12,12 +12,20 @@ import type {
   Venue,
 } from "@/data/camps/types";
 import {
+  DATE_RANGE_OVERLAP_LABEL,
   EMPTY_LISTING_FILTERS,
+  buildListingHref,
   buildListingResults,
   countActiveFilters,
+  dateRangeFilterIsActive,
   formatListingCounts,
+  knownSessionAttendanceDates,
+  listActiveFilterChips,
+  parseListingHrefSearch,
+  removeActiveFilterChip,
   resolveChildAgeFilter,
   sessionMatchesListingFilters,
+  sessionOverlapsDateRange,
   toFlatRows,
   type CampsListingFilters,
 } from "@/lib/camps/listingFilter";
@@ -259,6 +267,61 @@ describe("same-session filtering", () => {
     const results = buildListingResults(catalog, criteria);
     assert.deepEqual(results.matches[0]?.matchingSessionIds, ["sess-b"]);
   });
+
+  it("date range matches partial overlap and labels it as overlap, not exact dates", () => {
+    const overlap = filters({
+      dateFrom: "2026-07-08",
+      dateTo: "2026-07-09",
+    });
+    assert.equal(
+      sessionOverlapsDateRange(sessionA, overlap.dateFrom, overlap.dateTo),
+      true,
+    );
+    assert.equal(
+      sessionOverlapsDateRange(sessionB, overlap.dateFrom, overlap.dateTo),
+      false,
+    );
+    const results = buildListingResults(catalog, overlap);
+    assert.deepEqual(results.matches[0]?.matchingSessionIds, ["sess-a"]);
+    assert.equal(DATE_RANGE_OVERLAP_LABEL, "Overlaps these dates.");
+    assert.equal(dateRangeFilterIsActive(overlap), true);
+    assert.equal(dateRangeFilterIsActive(filters()), false);
+  });
+
+  it("unknown attendance dates never match a date-range filter", () => {
+    const undated = sess({
+      id: "sess-undated",
+      registrationStatus: "availability_unknown",
+      startDate: null,
+      endDate: null,
+    });
+    assert.equal(
+      sessionOverlapsDateRange(undated, "2026-07-01", "2026-07-31"),
+      false,
+    );
+    assert.deepEqual(knownSessionAttendanceDates(undated), []);
+    assert.deepEqual(knownSessionAttendanceDates(sessionA), [
+      "2026-07-06",
+      "2026-07-10",
+    ]);
+  });
+
+  it("stay type filters on the same session and unknown stay never matches", () => {
+    const overnightOnly = filters({ stayTypes: ["overnight"] });
+    assert.equal(
+      sessionMatchesListingFilters(
+        sessionA,
+        program,
+        provider,
+        venuesById,
+        overnightOnly,
+      ),
+      false,
+    );
+    const dayOnly = filters({ stayTypes: ["day"] });
+    const results = buildListingResults(catalog, dayOnly);
+    assert.deepEqual(results.matches[0]?.matchingSessionIds, ["sess-a", "sess-b"]);
+  });
 });
 
 describe("grouped/flat consistency", () => {
@@ -429,5 +492,55 @@ describe("resolveChildAgeFilter — incomplete age drafts", () => {
       resolveChildAgeFilter({ ageYears: Number.NaN, asOfDate: null }).notice,
       "Age filter not applied—enter a whole-number age.",
     );
+  });
+});
+
+describe("listing URL state and selected-filter chips", () => {
+  it("defaults grouping on and round-trips filters/sort/group", () => {
+    const parsedDefault = parseListingHrefSearch("");
+    assert.equal(parsedDefault.groupByProgram, true);
+    assert.equal(parsedDefault.sort, "soonest_start");
+
+    const href = buildListingHref({
+      filters: filters({
+        keyword: "harbour",
+        dateFrom: "2026-07-06",
+        dateTo: "2026-07-10",
+        stayTypes: ["day"],
+        requireBeforeCare: true,
+      }),
+      sort: "price_asc",
+      groupByProgram: false,
+    });
+    const parsed = parseListingHrefSearch(href.replace("/camps", ""));
+    assert.equal(parsed.filters.keyword, "harbour");
+    assert.equal(parsed.filters.dateFrom, "2026-07-06");
+    assert.deepEqual(parsed.filters.stayTypes, ["day"]);
+    assert.equal(parsed.filters.requireBeforeCare, true);
+    assert.equal(parsed.sort, "price_asc");
+    assert.equal(parsed.groupByProgram, false);
+  });
+
+  it("lists and dismisses selected filter chips without dropping unrelated state", () => {
+    const start = filters({
+      keyword: "stem",
+      dateFrom: "2026-07-01",
+      dateTo: "2026-07-31",
+      themes: ["STEM", "Arts"],
+      stayTypes: ["day"],
+    });
+    const chips = listActiveFilterChips(start);
+    assert.ok(chips.some((c) => c.id === "keyword"));
+    assert.ok(chips.some((c) => c.id === "dates"));
+    assert.ok(chips.some((c) => c.id === "theme:STEM"));
+    assert.ok(chips.some((c) => c.id === "stay:day"));
+
+    const withoutTheme = removeActiveFilterChip(start, "theme:STEM");
+    assert.deepEqual(withoutTheme.themes, ["Arts"]);
+    assert.equal(withoutTheme.keyword, "stem");
+    const withoutDates = removeActiveFilterChip(withoutTheme, "dates");
+    assert.equal(withoutDates.dateFrom, null);
+    assert.equal(withoutDates.dateTo, null);
+    assert.deepEqual(withoutDates.themes, ["Arts"]);
   });
 });
