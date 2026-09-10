@@ -49,6 +49,7 @@ export default function RootLayout({
             <nav className="nav" aria-label="Main navigation">
               <a href="/#discover">Discover</a>
               <a href="/#how-it-works">How it works</a>
+              <Link href="/camps">Camps</Link>
               <Link href="/about">About</Link>
               <a className="nav-cta" href="mailto:hello@compassbyvavy.ca?subject=Join%20the%20Compass%20by%20Vavy%20waitlist">
                 Join waitlist
