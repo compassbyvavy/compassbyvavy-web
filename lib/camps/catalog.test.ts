@@ -6,6 +6,7 @@ import {
   formatCampsCatalogBanner,
   loadCampsCatalog,
   resolveCatalogProgramBySlug,
+  resolvePublishedCampDetail,
 } from "@/lib/camps/catalog";
 import { loadCampsRealDevCatalog } from "@/lib/camps/realDevCatalog";
 import { buildCampCardSummary } from "@/lib/camps/campCardSummary";
@@ -493,6 +494,18 @@ describe("public browse catalog — gated fixtures + real-dev", () => {
     }
   });
 
+  it("unknown slug returns null so the detail route can 404", () => {
+    const catalog = loadCampsCatalog();
+    assert.ok(catalog);
+    assert.equal(
+      resolveCatalogProgramBySlug(catalog, "no-such-camp"),
+      null,
+    );
+    assert.equal(resolvePublishedCampDetail("no-such-camp"), null);
+    assert.ok(resolvePublishedCampDetail("stem-explorers-dev"));
+    assert.ok(resolvePublishedCampDetail("nutty-summer-science-camp"));
+  });
+
   it("production gate returns null — no fixtures and no real-dev preview", () => {
     const prev = process.env.NODE_ENV;
     // @ts-expect-error test override
@@ -500,6 +513,11 @@ describe("public browse catalog — gated fixtures + real-dev", () => {
     try {
       assert.equal(loadCampsRealDevCatalog(), null);
       assert.equal(loadCampsCatalog(), null);
+      assert.equal(resolvePublishedCampDetail("stem-explorers-dev"), null);
+      assert.equal(
+        resolvePublishedCampDetail("nutty-summer-science-camp"),
+        null,
+      );
     } finally {
       // @ts-expect-error restore
       process.env.NODE_ENV = prev;

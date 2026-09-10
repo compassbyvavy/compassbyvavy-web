@@ -841,8 +841,25 @@
   background: var(--camps-pine-soft-2);
 }
 
+.camp-detail-session-picker {
+  max-width: 36rem;
+}
+
+.camp-detail-table tbody tr {
+  cursor: pointer;
+}
+
+.camp-detail-table tbody tr:hover {
+  background: var(--camps-pine-soft-2);
+}
+
 .camp-detail-table tr.is-selected {
   background: var(--camps-pine-soft);
+}
+
+.camps-empty a {
+  color: var(--camps-pine);
+  font-weight: 700;
 }
 
 .camp-detail-table tr[data-filter-match="no"] {

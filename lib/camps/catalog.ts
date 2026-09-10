@@ -101,6 +101,25 @@ export function loadCampsCatalog(): CampsCatalogBundle | null {
   };
 }
 
+/**
+ * Detail-page loader: same catalog as listing (shared session truth).
+ * Returns null for unknown slug, missing catalog, or production gate —
+ * callers should 404. Never falls back to a different program.
+ */
+export function resolvePublishedCampDetail(slug: string): {
+  program: CampProgram;
+  provider: Provider;
+  sessions: CampSession[];
+  venuesById: Record<string, Venue>;
+  catalog: CampsCatalogBundle;
+} | null {
+  const catalog = loadCampsCatalog();
+  if (!catalog) return null;
+  const detail = resolveCatalogProgramBySlug(catalog, slug);
+  if (!detail) return null;
+  return { ...detail, catalog };
+}
+
 export function resolveCatalogProgramBySlug(
   catalog: CampsCatalogBundle,
   slug: string,
