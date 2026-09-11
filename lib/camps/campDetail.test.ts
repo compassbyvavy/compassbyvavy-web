@@ -225,7 +225,7 @@ describe("camp detail — return path and href", () => {
         themes: ["Arts"],
       },
       sort: "name_asc",
-      groupByProgram: false,
+      listingView: "session",
     });
     assert.match(href, /^\/camps\?/);
     const parsed = parseListingHrefSearch(href.slice("/camps".length));
@@ -234,7 +234,7 @@ describe("camp detail — return path and href", () => {
     assert.deepEqual(parsed.filters.locations, ["Port Credit"]);
     assert.deepEqual(parsed.filters.themes, ["Arts"]);
     assert.equal(parsed.sort, "name_asc");
-    assert.equal(parsed.groupByProgram, false);
+    assert.equal(parsed.listingView, "session");
   });
 });
 

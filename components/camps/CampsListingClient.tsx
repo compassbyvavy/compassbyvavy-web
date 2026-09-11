@@ -21,22 +21,27 @@ import { buildCampDetailHref, formatSessionDatesLabel } from "@/lib/camps/campDe
 import {
   DATE_RANGE_OVERLAP_LABEL,
   EMPTY_LISTING_FILTERS,
+  LISTING_BROWSE_CITY,
+  LISTING_VIEW_OPTIONS,
   buildListingHref,
   buildListingResults,
   countActiveFilters,
   dateRangeFilterIsActive,
   formatListingCounts,
   listActiveFilterChips,
+  listingDistanceAvailability,
   parseListingHrefSearch,
   removeActiveFilterChip,
   resolveChildAgeFilter,
   toFlatRows,
+  toProviderGroups,
   type CampsListingFilters,
   type ListingSortId,
+  type ListingViewId,
   type TimingShortcutId,
 } from "@/lib/camps/listingFilter";
 
-const GROUP_TOGGLE_KEY = "compass.camps.groupByProgram";
+const LISTING_VIEW_KEY = "compass.camps.listingView";
 
 const TIMING_CHIPS: { id: TimingShortcutId; label: string }[] = [
   { id: "all", label: "All dates" },
@@ -60,14 +65,18 @@ export type CampsListingClientProps = {
   catalogBanner?: string | null;
 };
 
-function readGroupPreferenceFallback(): boolean {
-  if (typeof window === "undefined") return true;
+function readListingViewFallback(): ListingViewId {
+  if (typeof window === "undefined") return "program";
   try {
-    const raw = window.sessionStorage.getItem(GROUP_TOGGLE_KEY);
-    if (raw == null) return true;
-    return raw === "1";
+    const raw = window.sessionStorage.getItem(LISTING_VIEW_KEY);
+    if (raw === "program" || raw === "provider" || raw === "session") {
+      return raw;
+    }
+    if (raw === "0") return "session";
+    if (raw === "1") return "program";
+    return "program";
   } catch {
-    return true;
+    return "program";
   }
 }
 
@@ -86,7 +95,7 @@ export function CampsListingClient({
   const [filters, setFilters] = useState<CampsListingFilters>(EMPTY_LISTING_FILTERS);
   const [keywordDraft, setKeywordDraft] = useState("");
   const [sort, setSort] = useState<ListingSortId>("soonest_start");
-  const [groupByProgram, setGroupByProgram] = useState(true);
+  const [listingView, setListingView] = useState<ListingViewId>("program");
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [urlHydrated, setUrlHydrated] = useState(false);
   const drawerTitleId = useId();
@@ -100,10 +109,8 @@ export function CampsListingClient({
     setFilters(parsed.filters);
     setKeywordDraft(parsed.filters.keyword);
     setSort(parsed.sort);
-    const hasGroupParam = searchParams.has("group");
-    setGroupByProgram(
-      hasGroupParam ? parsed.groupByProgram : readGroupPreferenceFallback(),
-    );
+    const hasViewParam = searchParams.has("view") || searchParams.has("group");
+    setListingView(hasViewParam ? parsed.listingView : readListingViewFallback());
     setUrlHydrated(true);
     // Intentionally once — subsequent edits write the URL instead.
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -111,14 +118,11 @@ export function CampsListingClient({
 
   useEffect(() => {
     try {
-      window.sessionStorage.setItem(
-        GROUP_TOGGLE_KEY,
-        groupByProgram ? "1" : "0",
-      );
+      window.sessionStorage.setItem(LISTING_VIEW_KEY, listingView);
     } catch {
       /* ignore */
     }
-  }, [groupByProgram]);
+  }, [listingView]);
 
   // Keep address bar in sync so Back from detail restores filters/sort/group.
   useEffect(() => {
@@ -127,7 +131,7 @@ export function CampsListingClient({
     const href = buildListingHref({
       filters: { ...filters, keyword: keywordDraft },
       sort,
-      groupByProgram,
+      listingView,
     });
     const nextQs = href.includes("?") ? href.slice(href.indexOf("?") + 1) : "";
     const currentQs = searchParams.toString();
@@ -139,7 +143,7 @@ export function CampsListingClient({
     filters,
     keywordDraft,
     sort,
-    groupByProgram,
+    listingView,
     router,
     searchParams,
   ]);
@@ -159,6 +163,11 @@ export function CampsListingClient({
 
   const venuesById = useMemo(
     () => Object.fromEntries(venues.map((v) => [v.id, v])),
+    [venues],
+  );
+
+  const distanceChrome = useMemo(
+    () => listingDistanceAvailability(venues),
     [venues],
   );
 
@@ -201,6 +210,7 @@ export function CampsListingClient({
   );
 
   const flatRows = useMemo(() => toFlatRows(results), [results]);
+  const providerGroups = useMemo(() => toProviderGroups(results), [results]);
   const activeFilterCount = countActiveFilters(appliedFilters);
   const activeChips = useMemo(
     () => listActiveFilterChips(appliedFilters),
@@ -208,15 +218,16 @@ export function CampsListingClient({
   );
   const dateRangeActive = dateRangeFilterIsActive(appliedFilters);
   const now = nowIso ? new Date(nowIso) : undefined;
+  const grouped = listingView !== "session";
 
   const listingReturnHref = useMemo(
     () =>
       buildListingHref({
         filters: { ...filters, keyword: keywordDraft },
         sort,
-        groupByProgram,
+        listingView,
       }),
-    [filters, keywordDraft, sort, groupByProgram],
+    [filters, keywordDraft, sort, listingView],
   );
 
   const resetFilters = useCallback(() => {
@@ -234,6 +245,39 @@ export function CampsListingClient({
   }, [keywordDraft]);
 
   const empty = results.programCount === 0 && results.awaitingDatesCount === 0;
+
+  const renderProgramCard = (
+    match: (typeof results.matches)[number],
+    options?: { flatSessionId?: string; flatNote?: string | null },
+  ) => {
+    const matching = options?.flatSessionId
+      ? match.matchingSessions.filter((s) => s.id === options.flatSessionId)
+      : match.matchingSessions;
+    return (
+      <CampCard
+        key={options?.flatSessionId ?? match.program.id}
+        program={match.program}
+        provider={match.provider}
+        matchingSessions={matching}
+        venuesById={venuesById}
+        href={buildCampDetailHref(match.program.slug, {
+          sessionId: options?.flatSessionId,
+          returnTo: listingReturnHref,
+          matchingSessionIds: match.matchingSessionIds,
+        })}
+        now={now}
+        flatSessionNote={options?.flatNote}
+        dateOverlapLabel={
+          dateRangeActive && matching.length > 0
+            ? DATE_RANGE_OVERLAP_LABEL
+            : null
+        }
+        ctaLabel={
+          options?.flatSessionId ? "View this session" : "View dates & details"
+        }
+      />
+    );
+  };
 
   return (
     <div className="camps-listing">
@@ -261,6 +305,40 @@ export function CampsListingClient({
       </header>
 
       <div className="camps-listing-top">
+        <div className="camps-toolbar">
+          <label className="camps-field camps-toolbar-city">
+            <span>Browse location</span>
+            <input
+              type="text"
+              value={LISTING_BROWSE_CITY}
+              readOnly
+              aria-readonly="true"
+            />
+          </label>
+          <p className="camps-toolbar-distance" role="note">
+            <span className="camps-field">
+              <span>Distance</span>
+            </span>
+            <span>{distanceChrome.reason}</span>
+          </p>
+          <label className="camps-sort">
+            <span>Sort</span>
+            <select
+              value={sort}
+              aria-label="Sort results"
+              onChange={(e) => setSort(e.target.value as ListingSortId)}
+            >
+              <option value="soonest_start">Soonest start</option>
+              <option value="price_asc">Price (low to high)</option>
+              <option value="name_asc">Name A–Z</option>
+            </select>
+          </label>
+        </div>
+        <p className="camps-field-hint camps-toolbar-city-hint">
+          Browse stays in {LISTING_BROWSE_CITY}. We do not silently widen to
+          another city or invent kilometres.
+        </p>
+
         <form
           className="camps-search-row"
           onSubmit={(e) => {
@@ -320,29 +398,28 @@ export function CampsListingClient({
             Filters{activeFilterCount > 0 ? ` (${activeFilterCount})` : ""}
           </button>
 
-          <label className="camps-sort">
-            <span>Sort</span>
-            <select
-              value={sort}
-              aria-label="Sort results"
-              onChange={(e) => setSort(e.target.value as ListingSortId)}
-            >
-              <option value="soonest_start">Soonest start</option>
-              <option value="price_asc">Price (low to high)</option>
-              <option value="name_asc">Name A–Z</option>
-            </select>
-          </label>
-
-          <label className="camps-group-toggle">
-            <input
-              type="checkbox"
-              role="switch"
-              checked={groupByProgram}
-              aria-checked={groupByProgram}
-              onChange={(e) => setGroupByProgram(e.target.checked)}
-            />
-            <span>Group sessions by camp</span>
-          </label>
+          <fieldset className="camps-view-toggle">
+            <legend className="visually-hidden">Result grouping</legend>
+            {LISTING_VIEW_OPTIONS.map((option) => (
+              <label
+                key={option.id}
+                className={
+                  listingView === option.id
+                    ? "camps-view-option is-active"
+                    : "camps-view-option"
+                }
+              >
+                <input
+                  type="radio"
+                  name="camps-listing-view"
+                  value={option.id}
+                  checked={listingView === option.id}
+                  onChange={() => setListingView(option.id)}
+                />
+                <span>{option.label}</span>
+              </label>
+            ))}
+          </fieldset>
         </div>
 
         {ageFilterNotice ? (
@@ -373,7 +450,7 @@ export function CampsListingClient({
               ))}
             </ul>
             <button type="button" className="camps-text-btn" onClick={resetFilters}>
-              Reset filters
+              Clear all
             </button>
           </div>
         ) : null}
@@ -402,57 +479,64 @@ export function CampsListingClient({
                 city.
               </p>
               <button type="button" className="camps-text-btn" onClick={resetFilters}>
-                Reset filters
+                Clear all
               </button>
             </div>
           ) : (
             <>
               <div
                 className="camps-results-grid"
-                data-view={groupByProgram ? "grouped" : "flat"}
+                data-view={listingView}
               >
-                {groupByProgram
-                  ? results.matches.map((match) => (
-                      <CampCard
-                        key={match.program.id}
-                        program={match.program}
-                        provider={match.provider}
-                        matchingSessions={match.matchingSessions}
-                        venuesById={venuesById}
-                        href={buildCampDetailHref(match.program.slug, {
-                          returnTo: listingReturnHref,
-                          matchingSessionIds: match.matchingSessionIds,
-                        })}
-                        now={now}
-                        dateOverlapLabel={
-                          dateRangeActive && match.matchingSessions.length > 0
-                            ? DATE_RANGE_OVERLAP_LABEL
-                            : null
-                        }
-                      />
-                    ))
-                  : flatRows.map((row) => (
-                      <CampCard
-                        key={row.session.id}
-                        program={row.program}
-                        provider={row.provider}
-                        matchingSessions={[row.session]}
-                        venuesById={venuesById}
-                        href={buildCampDetailHref(row.program.slug, {
-                          sessionId: row.session.id,
-                          returnTo: listingReturnHref,
-                          matchingSessionIds: row.matchingSessionIds,
-                        })}
-                        now={now}
-                        flatSessionNote={formatSessionDatesLabel(row.session)}
-                        dateOverlapLabel={
-                          dateRangeActive ? DATE_RANGE_OVERLAP_LABEL : null
-                        }
-                      />
-                    ))}
+                {listingView === "program"
+                  ? results.matches.map((match) => renderProgramCard(match))
+                  : listingView === "provider"
+                    ? providerGroups.map((group) => (
+                        <section
+                          key={group.provider.id}
+                          className="camps-provider-group"
+                          aria-labelledby={`provider-${group.provider.id}`}
+                        >
+                          <header className="camps-provider-group-head">
+                            <div>
+                              <p className="camp-card-provider">
+                                {group.provider.name}
+                              </p>
+                              <h2 id={`provider-${group.provider.id}`}>
+                                {group.programCount}{" "}
+                                {group.programCount === 1 ? "camp" : "camps"}
+                                {" · "}
+                                {group.matchingSessionCount} matching{" "}
+                                {group.matchingSessionCount === 1
+                                  ? "session"
+                                  : "sessions"}
+                              </h2>
+                            </div>
+                          </header>
+                          <div className="camps-provider-group-cards">
+                            {group.matches.map((match) =>
+                              renderProgramCard(match),
+                            )}
+                          </div>
+                        </section>
+                      ))
+                    : flatRows.map((row) =>
+                        renderProgramCard(
+                          {
+                            program: row.program,
+                            provider: row.provider,
+                            matchingSessionIds: row.matchingSessionIds,
+                            matchingSessions: [row.session],
+                          },
+                          {
+                            flatSessionId: row.session.id,
+                            flatNote: formatSessionDatesLabel(row.session),
+                          },
+                        ),
+                      )}
               </div>
 
-              {groupByProgram && results.awaitingDatesCount > 0 ? (
+              {grouped && results.awaitingDatesCount > 0 ? (
                 <section
                   className="camps-awaiting"
                   aria-labelledby="camps-awaiting-title"
@@ -482,13 +566,13 @@ export function CampsListingClient({
                 </section>
               ) : null}
 
-              {!groupByProgram && results.awaitingDatesCount > 0 ? (
+              {!grouped && results.awaitingDatesCount > 0 ? (
                 <p className="camps-awaiting-flat-note" role="note">
                   {results.awaitingDatesCount}{" "}
                   {results.awaitingDatesCount === 1 ? "camp" : "camps"} awaiting
                   verified dates {results.awaitingDatesCount === 1 ? "is" : "are"}{" "}
-                  listed only in grouped view — flat mode does not invent session
-                  rows.
+                  listed only in grouped views — each-session mode does not invent
+                  session rows.
                 </p>
               ) : null}
             </>

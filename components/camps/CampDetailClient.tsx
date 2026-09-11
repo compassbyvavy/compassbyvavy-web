@@ -309,14 +309,21 @@ export function CampDetailClient({
       <header className="camp-detail-identity">
         <p className="camp-card-provider">{provider.name}</p>
         <h1>{program.name}</h1>
-        {program.primaryCategory || (program.secondaryThemes?.length ?? 0) > 0 ? (
-          <div className="camp-card-pills" aria-label="Categories">
+        {program.primaryCategory ||
+        (program.secondaryThemes?.length ?? 0) > 0 ||
+        (program.accessibilitySupportTags?.length ?? 0) > 0 ? (
+          <div className="camp-card-pills" aria-label="Themes and confirmed support">
             {program.primaryCategory ? (
               <span className="camp-pill">{program.primaryCategory}</span>
             ) : null}
             {(program.secondaryThemes ?? []).map((theme) => (
               <span key={theme} className="camp-pill">
                 {theme}
+              </span>
+            ))}
+            {(program.accessibilitySupportTags ?? []).map((tag) => (
+              <span key={tag} className="camp-pill camp-pill-support">
+                {tag}
               </span>
             ))}
           </div>
