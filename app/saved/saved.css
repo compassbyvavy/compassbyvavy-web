@@ -159,6 +159,20 @@
   margin-top: 8px;
 }
 
+.tracker-saved-entry {
+  margin: 14px 0 0;
+  padding: 12px 14px;
+  background: var(--camps-amber-soft);
+  color: var(--camps-pine-ink);
+  border-radius: 10px;
+  font-size: 0.95rem;
+}
+
+.tracker-saved-entry a {
+  color: var(--camps-pine);
+  font-weight: 700;
+}
+
 @media (max-width: 620px) {
   .saved-page {
     padding-top: 18px;

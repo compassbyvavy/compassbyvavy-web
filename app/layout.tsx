@@ -59,6 +59,9 @@ export default function RootLayout({
                   Camps
                 </Link>
                 <SavedNavLink />
+                <Link href="/saved/tracker" className="nav-link">
+                  Tracker
+                </Link>
                 <Link className="nav-link nav-link-secondary" href="/about">
                   About
                 </Link>
@@ -87,6 +90,7 @@ export default function RootLayout({
                 <a href="/#discover">Discover</a>
                 <Link href="/camps">Camps</Link>
                 <Link href="/saved">Saved</Link>
+                <Link href="/saved/tracker">Tracker</Link>
                 <Link href="/about">About</Link>
                 <Link href="/privacy">Privacy</Link>
                 <Link href="/terms">Terms</Link>

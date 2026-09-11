@@ -209,6 +209,12 @@ export type CampSession = {
   registrationStatus: CampRegistrationStatus;
   /** Confirmed registration opening date when status is not_yet_open. */
   registrationOpensOn?: string | null;
+  /**
+   * Verified registration deadline (ISO YYYY-MM-DD) when the provider
+   * publishes one. Omit / null when unknown — never invent a cutoff.
+   * Display as “Deadline on file …”, never as a countdown.
+   */
+  registrationDeadlineOn?: string | null;
   /** Waitlist URL only when the provider explicitly offers one. */
   waitlistUrl?: string | null;
   /** Outbound registration / info link for this session when known. */

@@ -1364,3 +1364,122 @@
     text-align: center;
   }
 }
+
+/* —— Camps chrome (browse / saved / registration tracker) —— */
+
+.camps-chrome-bar {
+  border-bottom: 1px solid var(--camps-line);
+  background: var(--camps-pine-soft);
+}
+
+.camps-chrome-nav {
+  padding: 10px 0;
+}
+
+.camps-chrome-nav-list {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.camps-chrome-nav-link {
+  display: inline-flex;
+  align-items: center;
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--camps-line);
+  background: var(--camps-paper);
+  color: var(--camps-pine);
+  font-size: 0.88rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.camps-chrome-nav-link:hover,
+.camps-chrome-nav-link:focus-visible {
+  border-color: var(--camps-pine);
+}
+
+.camps-chrome-nav-link.is-active {
+  background: var(--camps-pine);
+  color: var(--camps-ivory);
+  border-color: var(--camps-pine);
+}
+
+.tracker-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 16px;
+}
+
+.tracker-card {
+  display: grid;
+  gap: 10px;
+  padding: 18px 20px;
+  background: var(--camps-paper);
+  border: 1px solid var(--camps-line);
+  border-radius: var(--camps-radius);
+  box-shadow: var(--camps-shadow);
+}
+
+.tracker-card h2 {
+  margin: 0;
+  font-size: 1.35rem;
+}
+
+.tracker-card h2 a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.tracker-card h2 a:hover,
+.tracker-card h2 a:focus-visible {
+  text-decoration: underline;
+}
+
+.tracker-signals {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.tracker-signal {
+  display: inline-flex;
+  align-items: center;
+  max-width: 100%;
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.tracker-signal-known {
+  background: var(--camps-amber-soft);
+  color: var(--camps-amber-deep);
+}
+
+.tracker-signal-unknown {
+  background: var(--camps-pine-soft-2);
+  color: var(--camps-muted);
+}
+
+.tracker-card-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+
+.tracker-card-actions .camp-card-cta {
+  width: auto;
+}
