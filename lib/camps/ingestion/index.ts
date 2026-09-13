@@ -185,7 +185,6 @@ export {
 export {
   parseCreativeKidsPlaceSchedule,
   parseWeekAddOns,
-  parseWeekDateWindow,
   parseWeekDateWindows,
   isShortSessionWindow,
   sessionWindowDayCount,

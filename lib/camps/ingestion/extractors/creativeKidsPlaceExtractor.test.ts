@@ -134,6 +134,34 @@ describe("Creative Kids Place benchmark (Prompt 8B grain)", () => {
     assert.equal(isShortSessionWindow("2026-07-06", "2026-07-10"), false);
   });
 
+  it("never collapses non-contiguous segments into one continuous span", () => {
+    // Fee-copy style list naming all three short weeks — still three windows.
+    assert.deepEqual(
+      parseWeekDateWindows("June 29-30, July 2-3 & Aug. 4-7", 2026),
+      [
+        { startDate: "2026-06-29", endDate: "2026-06-30" },
+        { startDate: "2026-07-02", endDate: "2026-07-03" },
+        { startDate: "2026-08-04", endDate: "2026-08-07" },
+      ],
+    );
+
+    const facts = parseCreativeKidsPlaceFacts(document, { sourceUrl: SOURCE_URL });
+    const spans = facts.weeks.map((week) => `${week.startDate}|${week.endDate}`);
+    assert.ok(spans.includes("2026-06-29|2026-06-30"));
+    assert.ok(spans.includes("2026-07-02|2026-07-03"));
+    assert.ok(spans.includes("2026-08-04|2026-08-07"));
+    // Forbidden bridges: inventing Jul 1, or stitching all short weeks together.
+    assert.equal(spans.includes("2026-06-29|2026-07-03"), false);
+    assert.equal(spans.includes("2026-06-29|2026-08-07"), false);
+    assert.ok(
+      facts.offerings.every(
+        (offering) =>
+          !(offering.startDate === "2026-06-29" && offering.endDate === "2026-07-03") &&
+          !(offering.startDate === "2026-06-29" && offering.endDate === "2026-08-07"),
+      ),
+    );
+  });
+
   it("reproduces the recorded facts from the saved page", () => {
     const facts = parseCreativeKidsPlaceFacts(document, { sourceUrl: SOURCE_URL });
     assert.deepEqual(JSON.parse(JSON.stringify(facts)), expected.facts);

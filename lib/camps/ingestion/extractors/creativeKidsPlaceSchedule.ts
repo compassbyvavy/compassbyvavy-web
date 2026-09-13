@@ -223,23 +223,6 @@ export function parseWeekDateWindows(
   }));
 }
 
-/**
- * Envelope spanning the first day of the first segment through the last day
- * of the last segment. Prefer {@link parseWeekDateWindows} for session grain.
- */
-export function parseWeekDateWindow(
-  dateText: string,
-  year: number,
-): WeekDateWindow | null {
-  const windows = parseWeekDateWindows(dateText, year);
-  if (windows.length === 0) return null;
-  return {
-    startDate: windows[0].startDate,
-    endDate: windows[windows.length - 1].endDate,
-  };
-}
-
-
 function cleanLooseDateText(raw: string): string {
   return raw
     .replace(/\b(Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:t(?:ember)?)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?)\./gi, "$1 ")
