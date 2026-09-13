@@ -12,6 +12,7 @@ import type {
 } from "@/data/camps/types";
 import {
   buildCampCardSummary,
+  moreMatchingDatesLocationsLabel,
   summarizeMatchingSessionPrices,
   summarizeMatchingSessionStatus,
 } from "@/lib/camps/campCardSummary";
@@ -361,6 +362,71 @@ describe("CampCard summary — missing information", () => {
     assert.match(
       summaryMixed.eligibilityLabel ?? "",
       /Ages 7–12 · some session ages to confirm/,
+    );
+  });
+});
+
+describe("CampCard summary — evidence and support tags", () => {
+  it("does not invent a generic Inclusive badge from empty support tags", () => {
+    const summary = buildCampCardSummary({
+      program,
+      matchingSessions: [
+        sess({
+          id: "s1",
+          registrationStatus: "registration_open",
+          venueId: "venue-a",
+          startDate: "2026-07-06",
+          endDate: "2026-07-10",
+        }),
+      ],
+      venuesById,
+      now: FIXED_NOW,
+    });
+    assert.deepEqual(summary.supportTags, []);
+    assert.equal(summary.evidence.kind, "unknown");
+  });
+
+  it("labels source-checked vs provider-confirmed without implying seats", () => {
+    const checked = buildCampCardSummary({
+      program: {
+        ...program,
+        accessibilitySupportTags: ["Quiet space on request"],
+      },
+      matchingSessions: [
+        sess({
+          id: "s1",
+          registrationStatus: "registration_open",
+          venueId: "venue-a",
+          startDate: "2026-07-06",
+          endDate: "2026-07-10",
+          sourceCheckedDate: "2026-08-01",
+          providerConfirmed: true,
+        }),
+      ],
+      venuesById,
+      now: FIXED_NOW,
+    });
+    assert.deepEqual(checked.supportTags, ["Quiet space on request"]);
+    assert.equal(checked.evidence.kind, "checked");
+    if (checked.evidence.kind === "checked") {
+      assert.match(checked.evidence.label, /Checked 2026-08-01/);
+      assert.match(checked.evidence.label, /provider confirmed/i);
+      assert.equal(checked.evidence.providerConfirmed, true);
+    }
+    assert.doesNotMatch(checked.evidence.label, /\binclusive\b/i);
+    assert.doesNotMatch(checked.evidence.label, /\bopen spots?\b/i);
+  });
+
+  it("grouped disclosure names extra matching dates/locations without stitching facts", () => {
+    assert.equal(moreMatchingDatesLocationsLabel(0), null);
+    assert.equal(moreMatchingDatesLocationsLabel(1), null);
+    assert.equal(
+      moreMatchingDatesLocationsLabel(2),
+      "+ 1 more matching date/location",
+    );
+    assert.equal(
+      moreMatchingDatesLocationsLabel(3),
+      "+ 2 more matching dates/locations",
     );
   });
 });

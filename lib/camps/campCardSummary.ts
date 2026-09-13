@@ -80,6 +80,15 @@ export type CampCardHoursSummary =
   | { kind: "vary"; label: "Hours vary by session"; careNote?: string }
   | { kind: "unknown"; label: "Hours to confirm"; careNote?: string };
 
+export type CampCardEvidenceSummary =
+  | {
+      kind: "checked";
+      label: string;
+      /** True only when every matching session is provider-confirmed. */
+      providerConfirmed: boolean | null;
+    }
+  | { kind: "unknown"; label: "Evidence unknown" };
+
 export type CampCardSummary = {
   status: CampCardStatusSummary;
   price: CampCardPriceSummary;
@@ -89,6 +98,9 @@ export type CampCardSummary = {
   eligibilityLabel: string | null;
   categoryLabel: string | null;
   themeLabels: string[];
+  /** Provider-confirmed support tags only — never a generic Inclusive badge. */
+  supportTags: string[];
+  evidence: CampCardEvidenceSummary;
 };
 
 function formatPriceAmount(amount: number): string {
@@ -413,6 +425,73 @@ export function summarizeMatchingSessionHours(
   };
 }
 
+/**
+ * Compact grouped-card disclosure. The first matching session’s facts stay
+ * on the card; extras are not stitched into those facts.
+ */
+export function moreMatchingDatesLocationsLabel(
+  matchingSessionCount: number,
+): string | null {
+  if (matchingSessionCount <= 1) return null;
+  const extra = matchingSessionCount - 1;
+  return extra === 1
+    ? "+ 1 more matching date/location"
+    : `+ ${extra} more matching dates/locations`;
+}
+
+export function summarizeMatchingSessionEvidence(
+  matchingSessions: CampSession[],
+): CampCardEvidenceSummary {
+  if (matchingSessions.length === 0) {
+    return { kind: "unknown", label: "Evidence unknown" };
+  }
+
+  const checkedDates = [
+    ...new Set(
+      matchingSessions
+        .map((s) => s.sourceCheckedDate?.trim())
+        .filter((d): d is string => Boolean(d && /^\d{4}-\d{2}-\d{2}$/.test(d))),
+    ),
+  ].sort();
+
+  if (checkedDates.length === 0) {
+    return { kind: "unknown", label: "Evidence unknown" };
+  }
+
+  const datePart =
+    checkedDates.length === 1
+      ? `Checked ${checkedDates[0]}`
+      : `Checked ${checkedDates[0]}–${checkedDates[checkedDates.length - 1]}`;
+
+  const confirmations = matchingSessions.map((s) => s.providerConfirmed);
+  if (confirmations.every((c) => c === true)) {
+    return {
+      kind: "checked",
+      label: `${datePart} · provider confirmed`,
+      providerConfirmed: true,
+    };
+  }
+  if (confirmations.some((c) => c === true)) {
+    return {
+      kind: "checked",
+      label: `${datePart} · some sessions provider-confirmed`,
+      providerConfirmed: null,
+    };
+  }
+  if (confirmations.every((c) => c === false)) {
+    return {
+      kind: "checked",
+      label: `${datePart} · source-checked (not provider-confirmed)`,
+      providerConfirmed: false,
+    };
+  }
+  return {
+    kind: "checked",
+    label: `${datePart} · confirmation status unknown`,
+    providerConfirmed: null,
+  };
+}
+
 export function buildCampCardSummary(input: {
   program: CampProgram;
   matchingSessions: CampSession[];
@@ -436,5 +515,9 @@ export function buildCampCardSummary(input: {
     eligibilityLabel: ageSummary.label,
     categoryLabel: program.primaryCategory ?? null,
     themeLabels: program.secondaryThemes ?? [],
+    supportTags: (program.accessibilitySupportTags ?? []).filter((t) =>
+      t.trim(),
+    ),
+    evidence: summarizeMatchingSessionEvidence(matchingSessions),
   };
 }

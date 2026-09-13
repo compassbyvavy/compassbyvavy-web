@@ -15,6 +15,7 @@ import type {
   Provider,
   Venue,
 } from "@/data/camps/types";
+import { getRegistrationAction } from "@/lib/camps/registrationAction";
 import {
   childMatchesSessionAge,
   isIsoDateString,
@@ -33,6 +34,63 @@ export type ListingSortId =
   | "soonest_start"
   | "price_asc"
   | "name_asc";
+
+/**
+ * Result grouping. Filters always run on the same session first; this only
+ * changes how matching rows are displayed.
+ * - program: one card per camp program (spec “group sessions by camp”)
+ * - provider: matching programs nested under their provider
+ * - session: one card per matching session (flat)
+ */
+export type ListingViewId = "program" | "provider" | "session";
+
+/**
+ * Registration browse filter. Uses getRegistrationAction display states.
+ * Open ≠ seat. Unknown is never treated as closed/full/eligible.
+ */
+export type RegistrationFilterId =
+  | "all"
+  | "registration_open"
+  | "not_yet_open"
+  | "waitlist"
+  | "full_or_closed"
+  | "availability_unknown";
+
+export const REGISTRATION_FILTER_HELPER =
+  "Registration open means the provider is accepting registrations — not that a seat is confirmed. Unknown is not closed, full, or ineligible.";
+
+export const REGISTRATION_FILTER_OPTIONS: ReadonlyArray<{
+  id: RegistrationFilterId;
+  label: string;
+}> = [
+  { id: "all", label: "All" },
+  {
+    id: "registration_open",
+    label: "Registration open with provider",
+  },
+  { id: "not_yet_open", label: "Not yet open" },
+  { id: "waitlist", label: "Waitlist" },
+  { id: "full_or_closed", label: "Full or closed" },
+  { id: "availability_unknown", label: "Availability unknown" },
+];
+
+export const LISTING_VIEW_OPTIONS: ReadonlyArray<{
+  id: ListingViewId;
+  label: string;
+}> = [
+  { id: "program", label: "Group sessions by camp" },
+  { id: "provider", label: "Group by provider" },
+  { id: "session", label: "Each session" },
+];
+
+/** Browse city for the listing top bar — never silently widened. */
+export const LISTING_BROWSE_CITY = "Mississauga";
+
+export const DISTANCE_UNAVAILABLE_NO_COORDS =
+  "Distance unavailable — no verified venue coordinates.";
+
+export const DISTANCE_UNAVAILABLE_NO_MAP =
+  "Map and kilometre distance are not available yet. Neighbourhood and city filters work without inventing distance.";
 
 /**
  * Draft age inputs from the filter UI. Incomplete drafts are never applied as
@@ -72,6 +130,11 @@ export type CampsListingFilters = {
   requireBeforeCare: boolean;
   requireAfterCare: boolean;
   stayTypes: CampStayType[];
+  /**
+   * Same-session registration display-state filter. "all" applies no constraint.
+   * Unknown never matches open/closed/waitlist.
+   */
+  registrationFilter: RegistrationFilterId;
 };
 
 export const EMPTY_LISTING_FILTERS: CampsListingFilters = {
@@ -93,6 +156,7 @@ export const EMPTY_LISTING_FILTERS: CampsListingFilters = {
   requireBeforeCare: false,
   requireAfterCare: false,
   stayTypes: [],
+  registrationFilter: "all",
 };
 
 export const AGE_FILTER_MISSING_DATE_NOTICE =
@@ -191,7 +255,8 @@ export const UNSUPPORTED_LISTING_FILTERS: ReadonlyArray<{
   {
     id: "distance",
     label: "Distance / map radius",
-    reason: "Map search is out of v1 scope; neighbourhood/city filters are available.",
+    reason:
+      "Kilometre radius needs verified venue coordinates and a maps origin. Neither is wired — neighbourhood and city filters are available instead of invented km.",
   },
   {
     id: "meals",
@@ -225,6 +290,13 @@ export type ListingFlatRow = {
   provider: Provider;
   session: CampSession;
   matchingSessionIds: string[];
+};
+
+export type ListingProviderGroup = {
+  provider: Provider;
+  matches: ListingProgramMatch[];
+  programCount: number;
+  matchingSessionCount: number;
 };
 
 export type ListingResultSet = {
@@ -289,6 +361,61 @@ export function sessionOverlapsDateRange(
 
 export function dateRangeFilterIsActive(filters: CampsListingFilters): boolean {
   return Boolean(filters.dateFrom || filters.dateTo);
+}
+
+export function venueHasVerifiedCoordinates(venue: Venue): boolean {
+  return (
+    typeof venue.latitude === "number" &&
+    Number.isFinite(venue.latitude) &&
+    typeof venue.longitude === "number" &&
+    Number.isFinite(venue.longitude)
+  );
+}
+
+/**
+ * Distance / map chrome. Never invent kilometres from a city centroid.
+ * Coordinates alone are not enough without a maps origin — still unavailable.
+ */
+export function listingDistanceAvailability(venues: Venue[]): {
+  available: false;
+  reason: string;
+} {
+  const hasCoords = venues.some(venueHasVerifiedCoordinates);
+  return {
+    available: false,
+    reason: hasCoords
+      ? DISTANCE_UNAVAILABLE_NO_MAP
+      : DISTANCE_UNAVAILABLE_NO_COORDS,
+  };
+}
+
+/**
+ * Map a session onto the registration filter using the shared helper.
+ * Unknown / unverified never satisfy open, waitlist, or full/closed.
+ */
+export function sessionMatchesRegistrationFilter(
+  session: CampSession,
+  filter: RegistrationFilterId,
+  now?: Date,
+): boolean {
+  if (filter === "all") return true;
+  const action = getRegistrationAction(
+    { kind: "session", session },
+    now ? { now } : undefined,
+  );
+  const state = action.displayState;
+  if (filter === "registration_open") return state === "registration_open";
+  if (filter === "not_yet_open") return state === "not_yet_open";
+  if (filter === "waitlist") return state === "waitlist";
+  if (filter === "full_or_closed") return state === "full_or_closed";
+  if (filter === "availability_unknown") {
+    return (
+      state === "availability_unknown" ||
+      state === "dates_unverified" ||
+      state === "load_failed"
+    );
+  }
+  return true;
 }
 
 function timingMatches(
@@ -416,6 +543,12 @@ export function sessionMatchesListingFilters(
     return false;
   }
 
+  if (
+    !sessionMatchesRegistrationFilter(session, filters.registrationFilter)
+  ) {
+    return false;
+  }
+
   if (filters.scheduleFormats.length > 0) {
     if (
       !session.scheduleFormat ||
@@ -513,7 +646,8 @@ export function hasActiveSessionLevelFilters(
       filters.requireBeforeCare ||
       filters.requireAfterCare ||
       filters.locations.length > 0 ||
-      filters.venueIds.length > 0,
+      filters.venueIds.length > 0 ||
+      filters.registrationFilter !== "all",
   );
 }
 
@@ -668,6 +802,36 @@ export function buildListingResults(
   };
 }
 
+/**
+ * Nest already-filtered program matches under their provider.
+ * Does not re-filter or merge unrelated programs by similar name/theme.
+ */
+export function toProviderGroups(
+  results: ListingResultSet,
+): ListingProviderGroup[] {
+  const groups: ListingProviderGroup[] = [];
+  const indexByProviderId = new Map<string, number>();
+  for (const match of results.matches) {
+    const existingIndex = indexByProviderId.get(match.provider.id);
+    if (existingIndex != null) {
+      const group = groups[existingIndex];
+      group.matches.push(match);
+      group.programCount += 1;
+      group.matchingSessionCount += match.matchingSessionIds.length;
+      continue;
+    }
+    indexByProviderId.set(match.provider.id, groups.length);
+    groups.push({
+      provider: match.provider,
+      matches: [match],
+      programCount: 1,
+      matchingSessionCount: match.matchingSessionIds.length,
+    });
+  }
+  groups.sort((a, b) => a.provider.name.localeCompare(b.provider.name));
+  return groups;
+}
+
 /** Flat rows share the same matchingSessionIds as the grouped match for that program. */
 export function toFlatRows(results: ListingResultSet): ListingFlatRow[] {
   const rows: ListingFlatRow[] = [];
@@ -713,6 +877,7 @@ export function countActiveFilters(filters: CampsListingFilters): number {
   if (filters.coreHoursStartMax || filters.coreHoursEndMin) n += 1;
   if (filters.requireBeforeCare || filters.requireAfterCare) n += 1;
   if (filters.stayTypes.length) n += 1;
+  if (filters.registrationFilter !== "all") n += 1;
   return n;
 }
 
@@ -750,6 +915,17 @@ const STAY_CHIP_LABELS: Record<CampStayType, string> = {
   day: "Day camp",
   overnight: "Overnight",
   unknown: "Stay type unknown",
+};
+
+const REGISTRATION_CHIP_LABELS: Record<
+  Exclude<RegistrationFilterId, "all">,
+  string
+> = {
+  registration_open: "Registration open with provider",
+  not_yet_open: "Not yet open",
+  waitlist: "Waitlist",
+  full_or_closed: "Full or closed",
+  availability_unknown: "Availability unknown",
 };
 
 const PRICE_UNIT_CHIP_LABELS: Record<PriceUnit, string> = {
@@ -847,6 +1023,12 @@ export function listActiveFilterChips(
       label: STAY_CHIP_LABELS[stay] ?? stay,
     });
   }
+  if (filters.registrationFilter !== "all") {
+    chips.push({
+      id: "reg",
+      label: REGISTRATION_CHIP_LABELS[filters.registrationFilter],
+    });
+  }
   return chips;
 }
 
@@ -866,6 +1048,7 @@ export function removeActiveFilterChip(
   }
   if (chipId === "before") return { ...filters, requireBeforeCare: false };
   if (chipId === "after") return { ...filters, requireAfterCare: false };
+  if (chipId === "reg") return { ...filters, registrationFilter: "all" };
 
   const split = chipId.indexOf(":");
   if (split === -1) return filters;
@@ -918,7 +1101,7 @@ export function removeActiveFilterChip(
 export type CampsListingUrlState = {
   filters: CampsListingFilters;
   sort: ListingSortId;
-  groupByProgram: boolean;
+  listingView: ListingViewId;
 };
 
 const SORT_IDS: ListingSortId[] = ["soonest_start", "price_asc", "name_asc"];
@@ -929,6 +1112,15 @@ const TIMING_IDS: TimingShortcutId[] = [
   "winter_break",
   "pa_days",
   "weekends",
+];
+const VIEW_IDS: ListingViewId[] = ["program", "provider", "session"];
+const REGISTRATION_IDS: RegistrationFilterId[] = [
+  "all",
+  "registration_open",
+  "not_yet_open",
+  "waitlist",
+  "full_or_closed",
+  "availability_unknown",
 ];
 
 function csv(values: string[]): string | null {
@@ -978,8 +1170,11 @@ export function buildListingHref(state: CampsListingUrlState): string {
   if (f.requireAfterCare) p.set("after", "1");
   const stays = csv(f.stayTypes);
   if (stays) p.set("stay", stays);
+  if (f.registrationFilter !== "all") p.set("reg", f.registrationFilter);
   if (state.sort !== "soonest_start") p.set("sort", state.sort);
-  p.set("group", state.groupByProgram ? "1" : "0");
+  p.set("view", state.listingView);
+  // Legacy group flag so older return URLs still parse grouped vs flat.
+  p.set("group", state.listingView === "session" ? "0" : "1");
   const qs = p.toString();
   return qs ? `/camps?${qs}` : "/camps";
 }
@@ -1018,8 +1213,18 @@ export function parseListingHrefSearch(
   const sort =
     sortRaw && SORT_IDS.includes(sortRaw) ? sortRaw : "soonest_start";
 
+  const viewRaw = p.get("view") as ListingViewId | null;
   const groupParam = p.get("group");
-  const groupByProgram = groupParam == null ? true : groupParam !== "0";
+  let listingView: ListingViewId = "program";
+  if (viewRaw && VIEW_IDS.includes(viewRaw)) {
+    listingView = viewRaw;
+  } else if (groupParam === "0") {
+    listingView = "session";
+  }
+
+  const regRaw = p.get("reg") as RegistrationFilterId | null;
+  const registrationFilter =
+    regRaw && REGISTRATION_IDS.includes(regRaw) ? regRaw : "all";
 
   const priceMaxRaw = p.get("priceMax");
   let priceMax: number | null = null;
@@ -1050,8 +1255,9 @@ export function parseListingHrefSearch(
     requireBeforeCare: p.get("before") === "1",
     requireAfterCare: p.get("after") === "1",
     stayTypes: splitCsv(p.get("stay")) as CampStayType[],
+    registrationFilter,
   };
 
-  return { filters, sort, groupByProgram };
+  return { filters, sort, listingView };
 }
 

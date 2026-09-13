@@ -1,7 +1,13 @@
 "use client";
 
 import type { CampsListingFilters } from "@/lib/camps/listingFilter";
-import { UNSUPPORTED_LISTING_FILTERS } from "@/lib/camps/listingFilter";
+import {
+  REGISTRATION_FILTER_HELPER,
+  REGISTRATION_FILTER_OPTIONS,
+  UNSUPPORTED_LISTING_FILTERS,
+  type RegistrationFilterId,
+  type TimingShortcutId,
+} from "@/lib/camps/listingFilter";
 
 export type CampsFilterPanelProps = {
   id: string;
@@ -14,28 +20,14 @@ export type CampsFilterPanelProps = {
   variant: "sidebar" | "drawer";
 };
 
-type GroupKey =
-  | "age"
-  | "dates"
-  | "theme"
-  | "schedule"
-  | "audience"
-  | "accessibility"
-  | "location"
-  | "practical"
-  | "unsupported";
-
-const GROUP_LABELS: Record<GroupKey, string> = {
-  age: "Age",
-  dates: "Dates",
-  theme: "Theme / activity",
-  schedule: "Schedule / format",
-  audience: "Audience",
-  accessibility: "Accessibility & support",
-  location: "City / neighbourhood",
-  practical: "Practical needs",
-  unsupported: "Not available yet",
-};
+const TIMING_CHIPS: { id: TimingShortcutId; label: string }[] = [
+  { id: "all", label: "All dates" },
+  { id: "summer", label: "Summer" },
+  { id: "march_break", label: "March Break" },
+  { id: "winter_break", label: "Winter Break" },
+  { id: "pa_days", label: "PA Days" },
+  { id: "weekends", label: "Weekends" },
+];
 
 function toggleInList<T extends string>(list: T[], value: T): T[] {
   return list.includes(value)
@@ -60,13 +52,14 @@ export function CampsFilterPanel({
       <div className="camps-filter-panel-head">
         <h2 className="camps-filter-panel-title">Filters</h2>
         <button type="button" className="camps-text-btn" onClick={onReset}>
-          Reset
+          Clear all
         </button>
       </div>
 
-      <details className="camps-filter-group" open>
-        <summary>{GROUP_LABELS.age}</summary>
+      <details className="camps-filter-group camps-filter-group-priority" open>
+        <summary>Your kids</summary>
         <div className="camps-filter-group-body">
+          <p className="camps-filter-kicker">Age first</p>
           <label className="camps-field">
             <span>Child age (whole years)</span>
             <input
@@ -74,7 +67,7 @@ export function CampsFilterPanel({
               inputMode="numeric"
               min={0}
               step={1}
-              placeholder="e.g. 7"
+              placeholder="e.g. 8"
               value={
                 filters.childAge?.ageYears != null &&
                 !Number.isNaN(filters.childAge.ageYears)
@@ -92,8 +85,6 @@ export function CampsFilterPanel({
                   });
                   return;
                 }
-                // Blank → null (above). Non-empty invalid parse → NaN so the
-                // resolver can distinguish blank from invalid without raw strings.
                 const ageYears = Number(raw);
                 patch({
                   childAge: {
@@ -129,14 +120,72 @@ export function CampsFilterPanel({
           </label>
           <p className="camps-field-hint">
             Age is evaluated only when this date matches the provider’s session
-            assessment date. “Age 7 today” does not prove eligibility at a
+            assessment date. “Age 8 today” does not prove eligibility at a
             future cutoff. Unknown assessment dates never count as a match.
           </p>
         </div>
       </details>
 
+      <details className="camps-filter-group camps-filter-group-priority" open>
+        <summary>Registration</summary>
+        <div className="camps-filter-group-body">
+          <fieldset className="camps-radio-fieldset">
+            <legend className="visually-hidden">Registration status</legend>
+            {REGISTRATION_FILTER_OPTIONS.map((option) => (
+              <label key={option.id} className="camps-check">
+                <input
+                  type="radio"
+                  name={`${id}-registration`}
+                  checked={filters.registrationFilter === option.id}
+                  onChange={() =>
+                    patch({
+                      registrationFilter: option.id as RegistrationFilterId,
+                    })
+                  }
+                />
+                <span>{option.label}</span>
+              </label>
+            ))}
+          </fieldset>
+          <p className="camps-field-hint">{REGISTRATION_FILTER_HELPER}</p>
+        </div>
+      </details>
+
       <details className="camps-filter-group" open>
-        <summary>{GROUP_LABELS.dates}</summary>
+        <summary>Season / timing</summary>
+        <div className="camps-filter-group-body">
+          <div
+            className="camps-timing-chips camps-timing-chips-stacked"
+            role="group"
+            aria-label="Season and timing"
+          >
+            {TIMING_CHIPS.map((chip) => (
+              <button
+                key={chip.id}
+                type="button"
+                className={
+                  filters.timingShortcut === chip.id
+                    ? "camps-chip camps-chip-active"
+                    : "camps-chip"
+                }
+                aria-pressed={filters.timingShortcut === chip.id}
+                onClick={() =>
+                  patch({ timingShortcut: chip.id })
+                }
+              >
+                {chip.label}
+              </button>
+            ))}
+          </div>
+          <p className="camps-field-hint">
+            Timing matches the session’s verified seasonal label. Unknown
+            labels never count as Summer, March Break, or PA Days.
+          </p>
+        </div>
+      </details>
+
+      <details className="camps-filter-group" open>
+        <summary>Dates</summary>
         <div className="camps-filter-group-body">
           <label className="camps-field">
             <span>From</span>
@@ -160,7 +209,7 @@ export function CampsFilterPanel({
       </details>
 
       <details className="camps-filter-group">
-        <summary>{GROUP_LABELS.theme}</summary>
+        <summary>Theme / activity</summary>
         <div className="camps-filter-group-body camps-check-list">
           {themeOptions.map((theme) => (
             <label key={theme} className="camps-check">
@@ -178,7 +227,7 @@ export function CampsFilterPanel({
       </details>
 
       <details className="camps-filter-group">
-        <summary>{GROUP_LABELS.schedule}</summary>
+        <summary>Schedule / format</summary>
         <div className="camps-filter-group-body camps-check-list">
           {(
             [
@@ -233,7 +282,7 @@ export function CampsFilterPanel({
       </details>
 
       <details className="camps-filter-group">
-        <summary>{GROUP_LABELS.audience}</summary>
+        <summary>Audience</summary>
         <div className="camps-filter-group-body camps-check-list">
           {(
             [
@@ -259,11 +308,12 @@ export function CampsFilterPanel({
       </details>
 
       <details className="camps-filter-group">
-        <summary>{GROUP_LABELS.accessibility}</summary>
+        <summary>Accessibility &amp; support</summary>
         <div className="camps-filter-group-body">
           <p className="camps-field-hint">
             Only provider-confirmed support tags on a program are searchable.
-            Empty tags never invent inclusion.
+            Empty tags never invent inclusion, and there is no generic Inclusive
+            badge.
           </p>
           <label className="camps-field">
             <span>Required tag</span>
@@ -281,7 +331,7 @@ export function CampsFilterPanel({
       </details>
 
       <details className="camps-filter-group" open>
-        <summary>{GROUP_LABELS.location}</summary>
+        <summary>City / neighbourhood</summary>
         <div className="camps-filter-group-body camps-check-list">
           {locationOptions.map((loc) => (
             <label key={loc} className="camps-check">
@@ -301,7 +351,7 @@ export function CampsFilterPanel({
       </details>
 
       <details className="camps-filter-group" open>
-        <summary>{GROUP_LABELS.practical}</summary>
+        <summary>Practical needs</summary>
         <div className="camps-filter-group-body">
           <label className="camps-field">
             <span>Max price</span>
@@ -385,7 +435,7 @@ export function CampsFilterPanel({
       </details>
 
       <details className="camps-filter-group">
-        <summary>{GROUP_LABELS.unsupported}</summary>
+        <summary>Not available yet</summary>
         <ul className="camps-unsupported-list">
           {UNSUPPORTED_LISTING_FILTERS.map((item) => (
             <li key={item.id}>

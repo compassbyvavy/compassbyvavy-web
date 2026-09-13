@@ -3,6 +3,7 @@ import type { CampProgram, CampSession, Provider, Venue } from "@/data/camps/typ
 import { SaveControl } from "@/components/shortlist/SaveControl";
 import {
   buildCampCardSummary,
+  moreMatchingDatesLocationsLabel,
   type CampCardStatusSummary,
 } from "@/lib/camps/campCardSummary";
 import type { RegistrationDisplayStateId } from "@/lib/camps/registrationAction";
@@ -25,6 +26,10 @@ export type CampCardProps = {
    * (not exact containment).
    */
   dateOverlapLabel?: string | null;
+  /** Grouped vs flat next-action label. */
+  ctaLabel?: string;
+  /** When true, show the spec “+ more matching dates/locations” disclosure. */
+  groupedDisclosure?: boolean;
 };
 
 function statusChipClass(state: RegistrationDisplayStateId): string {
@@ -43,6 +48,14 @@ function statusChipState(status: CampCardStatusSummary): RegistrationDisplayStat
   return status.action.displayState;
 }
 
+function locationLine(
+  venue: ReturnType<typeof buildCampCardSummary>["venue"],
+): string {
+  if (venue.kind === "unknown") return venue.label;
+  if (venue.kind === "multi") return venue.label;
+  return venue.label;
+}
+
 export function CampCard({
   program,
   provider,
@@ -53,6 +66,8 @@ export function CampCard({
   loadFailed,
   flatSessionNote,
   dateOverlapLabel,
+  ctaLabel = "View dates & details",
+  groupedDisclosure = false,
 }: CampCardProps) {
   const summary = buildCampCardSummary({
     program,
@@ -75,50 +90,43 @@ export function CampCard({
     saveRef.kind === "camp_session"
       ? `${program.name} session`
       : program.name;
+  const moreMatchingNote = groupedDisclosure
+    ? moreMatchingDatesLocationsLabel(matchingSessions.length)
+    : matchingSessions.length > 1
+      ? `${matchingSessions.length} matching sessions`
+      : null;
 
   return (
     <article className="camp-card" data-program-id={program.id}>
-      <div
-        className={
-          hasPhoto ? "camp-card-media" : "camp-card-media camp-card-media-fallback"
-        }
-        aria-hidden={hasPhoto ? undefined : true}
-      >
-        {hasPhoto ? (
-          // Provisional fixture URLs — next/image CDN not wired for camps yet.
-          // eslint-disable-next-line @next/next/no-img-element
+      {hasPhoto ? (
+        <div className="camp-card-media">
+          {/* Provisional fixture URLs — next/image CDN not wired for camps yet. */}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             className="camp-card-media-img"
             src={program.imageSrc!}
             alt={program.imageAlt?.trim() || `${program.name} photo`}
           />
-        ) : (
-          <div className="camp-card-media-placeholder" title="No photo">
-            <span className="camp-card-media-mark" />
-          </div>
-        )}
-      </div>
+        </div>
+      ) : null}
 
       <div className="camp-card-body">
         <div className="camp-card-top">
-          <div>
+          <div className="camp-card-identity">
             <p className="camp-card-provider">{provider.name}</p>
             <h3 className="camp-card-title">{program.name}</h3>
+            <p className="camp-card-place">{locationLine(summary.venue)}</p>
           </div>
-          <span className={statusChipClass(chipState)}>
-            {statusChipLabel(summary.status)}
-          </span>
+          <SaveControl refToSave={saveRef} label={saveLabel} variant="heart" />
         </div>
 
         {flatSessionNote ? (
           <p className="camp-card-flat-note">{flatSessionNote}</p>
+        ) : moreMatchingNote ? (
+          <p className="camp-card-flat-note">{moreMatchingNote}</p>
         ) : null}
 
-        {program.description ? (
-          <p className="camp-card-description">{program.description}</p>
-        ) : null}
-
-        <div className="camp-card-pills" aria-label="Categories and eligibility">
+        <div className="camp-card-pills" aria-label="Themes and confirmed support">
           {summary.categoryLabel ? (
             <span className="camp-pill">{summary.categoryLabel}</span>
           ) : (
@@ -129,61 +137,58 @@ export function CampCard({
               {theme}
             </span>
           ))}
-          {summary.eligibilityLabel ? (
-            <span className="camp-pill camp-pill-amber">
-              {summary.eligibilityLabel}
+          {summary.supportTags.map((tag) => (
+            <span key={tag} className="camp-pill camp-pill-support">
+              {tag}
             </span>
-          ) : (
-            <span className="camp-pill camp-pill-amber">Ages to confirm</span>
-          )}
+          ))}
         </div>
 
-        <dl className="camp-card-meta">
-          <div className="camp-card-meta-row">
-            <dt>Dates</dt>
-            <dd>
+        <ul className="camp-card-facts">
+          <li>
+            <span className="camp-card-fact-label">Dates</span>
+            <span>
               {summary.dates.label}
               {dateOverlapLabel && summary.dates.kind === "range" ? (
                 <span className="camp-card-note"> · {dateOverlapLabel}</span>
               ) : null}
-            </dd>
-          </div>
-          <div className="camp-card-meta-row">
-            <dt>Location</dt>
-            <dd>
-              {summary.venue.label}
-              {summary.venue.kind === "multi" ? (
-                <span className="camp-card-note">
-                  {" "}
-                  ({summary.venue.venueNames.join("; ")})
-                </span>
-              ) : null}
-            </dd>
-          </div>
-          <div className="camp-card-meta-row">
-            <dt>Hours</dt>
-            <dd>
+            </span>
+          </li>
+          <li>
+            <span className="camp-card-fact-label">Hours</span>
+            <span>
               {summary.hours.label}
               {summary.hours.careNote ? (
-                <span className="camp-card-note">
-                  {" "}
-                  · {summary.hours.careNote}
-                </span>
+                <span className="camp-card-note"> · {summary.hours.careNote}</span>
               ) : null}
-            </dd>
-          </div>
-        </dl>
+            </span>
+          </li>
+          <li>
+            <span className="camp-card-fact-label">Ages</span>
+            <span>
+              {summary.eligibilityLabel ?? "Ages to confirm"}
+            </span>
+          </li>
+        </ul>
 
-        <p className={priceClass}>{summary.price.label}</p>
-        {summary.price.kind === "mixed_units" ? (
-          <p className="camp-card-note">{summary.price.detail}</p>
-        ) : null}
+        <div className="camp-card-footer">
+          <div>
+            <p className={priceClass}>{summary.price.label}</p>
+            {summary.price.kind === "mixed_units" ? (
+              <p className="camp-card-note">{summary.price.detail}</p>
+            ) : null}
+          </div>
+          <span className={statusChipClass(chipState)}>
+            {statusChipLabel(summary.status)}
+          </span>
+        </div>
+
+        <p className="camp-card-evidence">{summary.evidence.label}</p>
 
         <div className="camp-card-actions">
           <Link className="camp-card-cta" href={detailHref}>
-            View dates &amp; details
+            {ctaLabel}
           </Link>
-          <SaveControl refToSave={saveRef} label={saveLabel} variant="heart" />
         </div>
       </div>
     </article>

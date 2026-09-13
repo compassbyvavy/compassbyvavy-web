@@ -25,8 +25,14 @@ import {
   removeActiveFilterChip,
   resolveChildAgeFilter,
   sessionMatchesListingFilters,
+  sessionMatchesRegistrationFilter,
   sessionOverlapsDateRange,
   toFlatRows,
+  toProviderGroups,
+  listingDistanceAvailability,
+  venueHasVerifiedCoordinates,
+  DISTANCE_UNAVAILABLE_NO_COORDS,
+  DISTANCE_UNAVAILABLE_NO_MAP,
   type CampsListingFilters,
 } from "@/lib/camps/listingFilter";
 
@@ -322,6 +328,71 @@ describe("same-session filtering", () => {
     const results = buildListingResults(catalog, dayOnly);
     assert.deepEqual(results.matches[0]?.matchingSessionIds, ["sess-a", "sess-b"]);
   });
+
+  it("registration filter uses helper states; unknown never matches open or closed", () => {
+    const unknownSession = sess({
+      id: "sess-unk-reg",
+      registrationStatus: "availability_unknown",
+      venueId: "venue-a",
+      startDate: "2026-07-20",
+      endDate: "2026-07-24",
+    });
+    const closedSession = sess({
+      id: "sess-closed",
+      registrationStatus: "registration_closed",
+      venueId: "venue-a",
+      startDate: "2026-07-27",
+      endDate: "2026-07-31",
+      seatAvailability: "confirmed_available",
+    });
+
+    assert.equal(
+      sessionMatchesRegistrationFilter(sessionA, "registration_open"),
+      true,
+    );
+    assert.equal(
+      sessionMatchesRegistrationFilter(unknownSession, "registration_open"),
+      false,
+    );
+    assert.equal(
+      sessionMatchesRegistrationFilter(unknownSession, "full_or_closed"),
+      false,
+    );
+    assert.equal(
+      sessionMatchesRegistrationFilter(closedSession, "full_or_closed"),
+      true,
+    );
+    assert.equal(
+      sessionMatchesRegistrationFilter(unknownSession, "availability_unknown"),
+      true,
+    );
+    assert.equal(
+      sessionMatchesRegistrationFilter(sessionA, "availability_unknown"),
+      false,
+    );
+
+    const openOnly = filters({ registrationFilter: "registration_open" });
+    assert.equal(
+      sessionMatchesListingFilters(
+        unknownSession,
+        program,
+        provider,
+        venuesById,
+        openOnly,
+      ),
+      false,
+    );
+    assert.equal(
+      sessionMatchesListingFilters(
+        sessionA,
+        program,
+        provider,
+        venuesById,
+        openOnly,
+      ),
+      true,
+    );
+  });
 });
 
 describe("grouped/flat consistency", () => {
@@ -357,6 +428,70 @@ describe("grouped/flat consistency", () => {
     assert.equal(flat[0].session.priceAmount, 400);
     assert.deepEqual(flat[0].matchingSessionIds, ["sess-a"]);
   });
+
+  it("provider groups nest the same filtered matches without merging programs by name", () => {
+    const secondProgram: CampProgram = {
+      ...program,
+      id: "prog-b",
+      slug: "prog-b",
+      name: "Second Camp Same Provider",
+    };
+    const sessionC = sess({
+      id: "sess-c",
+      programId: secondProgram.id,
+      registrationStatus: "registration_open",
+      venueId: "venue-a",
+      startDate: "2026-07-20",
+      endDate: "2026-07-24",
+      priceAmount: 180,
+      priceUnit: "per_week",
+      currency: "CAD",
+    });
+    const otherProvider: Provider = { id: "prov-b", name: "Provider B" };
+    const otherProgram: CampProgram = {
+      ...program,
+      id: "prog-other",
+      slug: "prog-other",
+      providerId: otherProvider.id,
+      name: "Mixed Venue Camp",
+    };
+    const sessionOther = sess({
+      id: "sess-other",
+      programId: otherProgram.id,
+      registrationStatus: "waitlist",
+      waitlistUrl: "https://example.invalid/w",
+      venueId: "venue-b",
+      startDate: "2026-07-13",
+      endDate: "2026-07-17",
+    });
+
+    const multi = {
+      programs: [program, secondProgram, otherProgram, awaitingProgram],
+      providers: [provider, otherProvider],
+      sessions: [sessionA, sessionB, sessionC, sessionOther],
+      venuesById,
+    };
+    const criteria = filters({ locations: ["Port Credit"] });
+    const results = buildListingResults(multi, criteria);
+    const groups = toProviderGroups(results);
+    assert.equal(groups.length, 1);
+    assert.equal(groups[0].provider.id, "prov-a");
+    assert.deepEqual(
+      groups[0].matches.map((m) => m.program.id).sort(),
+      ["prog-a", "prog-b"],
+    );
+    assert.deepEqual(groups[0].matches[0].matchingSessionIds.includes("sess-a") || groups[0].matches[1].matchingSessionIds.includes("sess-a"), true);
+    for (const group of groups) {
+      for (const match of group.matches) {
+        assert.equal(match.provider.id, group.provider.id);
+        assert.ok(match.matchingSessionIds.length > 0);
+      }
+    }
+    assert.equal(
+      groups[0].matchingSessionCount,
+      groups[0].matches.reduce((n, m) => n + m.matchingSessionIds.length, 0),
+    );
+  });
 });
 
 describe("listing counts and empty/unknown states", () => {
@@ -390,6 +525,12 @@ describe("listing counts and empty/unknown states", () => {
     );
     assert.equal(withAge.awaitingDatesCount, 0);
     assert.ok(withAge.matches.every((m) => m.matchingSessionIds.length > 0));
+
+    const withReg = buildListingResults(
+      catalog,
+      filters({ registrationFilter: "registration_open" }),
+    );
+    assert.equal(withReg.awaitingDatesCount, 0);
   });
 });
 
@@ -496,10 +637,11 @@ describe("resolveChildAgeFilter — incomplete age drafts", () => {
 });
 
 describe("listing URL state and selected-filter chips", () => {
-  it("defaults grouping on and round-trips filters/sort/group", () => {
+  it("defaults grouping to camp and round-trips filters/sort/view", () => {
     const parsedDefault = parseListingHrefSearch("");
-    assert.equal(parsedDefault.groupByProgram, true);
+    assert.equal(parsedDefault.listingView, "program");
     assert.equal(parsedDefault.sort, "soonest_start");
+    assert.equal(parsedDefault.filters.registrationFilter, "all");
 
     const href = buildListingHref({
       filters: filters({
@@ -508,17 +650,29 @@ describe("listing URL state and selected-filter chips", () => {
         dateTo: "2026-07-10",
         stayTypes: ["day"],
         requireBeforeCare: true,
+        registrationFilter: "registration_open",
       }),
       sort: "price_asc",
-      groupByProgram: false,
+      listingView: "session",
     });
     const parsed = parseListingHrefSearch(href.replace("/camps", ""));
     assert.equal(parsed.filters.keyword, "harbour");
     assert.equal(parsed.filters.dateFrom, "2026-07-06");
     assert.deepEqual(parsed.filters.stayTypes, ["day"]);
     assert.equal(parsed.filters.requireBeforeCare, true);
+    assert.equal(parsed.filters.registrationFilter, "registration_open");
     assert.equal(parsed.sort, "price_asc");
-    assert.equal(parsed.groupByProgram, false);
+    assert.equal(parsed.listingView, "session");
+  });
+
+  it("legacy group=0 without view hydrates as each-session", () => {
+    const parsed = parseListingHrefSearch("group=0");
+    assert.equal(parsed.listingView, "session");
+  });
+
+  it("view=provider wins over group=1", () => {
+    const parsed = parseListingHrefSearch("view=provider&group=1");
+    assert.equal(parsed.listingView, "provider");
   });
 
   it("lists and dismisses selected filter chips without dropping unrelated state", () => {
@@ -528,19 +682,45 @@ describe("listing URL state and selected-filter chips", () => {
       dateTo: "2026-07-31",
       themes: ["STEM", "Arts"],
       stayTypes: ["day"],
+      registrationFilter: "not_yet_open",
     });
     const chips = listActiveFilterChips(start);
     assert.ok(chips.some((c) => c.id === "keyword"));
     assert.ok(chips.some((c) => c.id === "dates"));
     assert.ok(chips.some((c) => c.id === "theme:STEM"));
     assert.ok(chips.some((c) => c.id === "stay:day"));
+    assert.ok(chips.some((c) => c.id === "reg"));
 
     const withoutTheme = removeActiveFilterChip(start, "theme:STEM");
     assert.deepEqual(withoutTheme.themes, ["Arts"]);
     assert.equal(withoutTheme.keyword, "stem");
+    assert.equal(withoutTheme.registrationFilter, "not_yet_open");
     const withoutDates = removeActiveFilterChip(withoutTheme, "dates");
     assert.equal(withoutDates.dateFrom, null);
     assert.equal(withoutDates.dateTo, null);
     assert.deepEqual(withoutDates.themes, ["Arts"]);
+    const withoutReg = removeActiveFilterChip(withoutDates, "reg");
+    assert.equal(withoutReg.registrationFilter, "all");
+    assert.deepEqual(withoutReg.themes, ["Arts"]);
+  });
+});
+
+describe("honest distance chrome", () => {
+  it("never reports distance available without inventing kilometres", () => {
+    const none = listingDistanceAvailability(Object.values(venuesById));
+    assert.equal(none.available, false);
+    assert.equal(none.reason, DISTANCE_UNAVAILABLE_NO_COORDS);
+    assert.equal(venueHasVerifiedCoordinates(venuesById["venue-a"]), false);
+
+    const withCoords: Venue = {
+      id: "venue-coords",
+      name: "Mapped venue",
+      city: "Mississauga",
+      latitude: 43.589,
+      longitude: -79.644,
+    };
+    const mapped = listingDistanceAvailability([withCoords]);
+    assert.equal(mapped.available, false);
+    assert.equal(mapped.reason, DISTANCE_UNAVAILABLE_NO_MAP);
   });
 });
