@@ -91,6 +91,12 @@ export function SavedListClient({ catalog, nowIso }: SavedListClientProps) {
           public camp IDs, not copied prices. Marking a camp as registered is
           yours to do; opening a provider link never does it for you.
         </p>
+        <p className="tracker-saved-entry">
+          <Link href="/saved/tracker">Registration Tracker</Link>
+          {" — "}
+          opens-on dates and lifecycle notes on file for these saved camps.
+          Not live seat inventory.
+        </p>
       </header>
 
       {resolved.catalogPending ? (

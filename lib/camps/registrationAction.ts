@@ -106,7 +106,10 @@ function labelOnly(
   };
 }
 
-function formatOpensOn(isoDate: string | null | undefined): string | null {
+/** Long calendar label for verified ISO dates (YYYY-MM-DD). Null when missing/invalid. */
+export function formatRegistrationCalendarDate(
+  isoDate: string | null | undefined,
+): string | null {
   if (!isoDate || !/^\d{4}-\d{2}-\d{2}$/.test(isoDate)) return null;
   const [y, m, d] = isoDate.split("-").map(Number);
   const months = [
@@ -124,6 +127,10 @@ function formatOpensOn(isoDate: string | null | undefined): string | null {
     "December",
   ];
   return `${months[m - 1]} ${d}, ${y}`;
+}
+
+function formatOpensOn(isoDate: string | null | undefined): string | null {
+  return formatRegistrationCalendarDate(isoDate);
 }
 
 function waitlistAction(
