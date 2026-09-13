@@ -30,3 +30,5 @@ If no workbook file is attached to the agent run, leave `docs/camps/schema/READM
 - `/camps` — listing (Prompt 4+)
 - `/camps/[slug]` — detail; session-specific links select a session within the program page
 - `/camps/preview` — **development-only** CampCard preview (fixture gate → 404 in production)
+- `/camps/admin/ingestion` — **development-only** ingestion review queue (see `INGESTION_ARCHITECTURE.md`)
+- `/camps/admin/ingestion/sources` — **development-only** source registry
