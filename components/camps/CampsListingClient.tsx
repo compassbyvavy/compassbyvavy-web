@@ -400,7 +400,9 @@ export function CampsListingClient({
           </button>
 
           <fieldset className="camps-view-toggle">
-            <legend className="visually-hidden">Result grouping</legend>
+            <legend className="visually-hidden">
+              Group sessions by camp
+            </legend>
             {LISTING_VIEW_OPTIONS.map((option) => (
               <label
                 key={option.id}
