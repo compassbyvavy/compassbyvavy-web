@@ -180,13 +180,17 @@ export type WeekDateWindow = {
 /**
  * Parse week heading date text into one or more session windows.
  *
- * Discontinuous segments stay separate:
- * - "June 29-30, July 2-3" → Jun 29–30 and Jul 2–3
- * - "Aug. 4-7" → Aug 4–7
- * - "July 6-10" → Jul 6–10
+ * Short-week segment invariant:
+ * - Each contiguous scheduled date segment is its own session window.
+ * - Non-contiguous ranges must never be collapsed into one continuous span.
  *
- * Never collapse comma-separated short weeks into a single bridged span
- * (Jun 29 → Jul 3 would invent Jul 1 camp days that do not exist).
+ * Examples that stay separate:
+ * - "June 29-30, July 2-3" → Jun 29–30 and Jul 2–3 (not Jun 29–Jul 3)
+ * - "Aug. 4-7" → Aug 4–7
+ * - never invent Jun 29–Aug 7 unless the schedule explicitly runs continuously
+ *
+ * Continuous single segments stay one window:
+ * - "July 6-10" → Jul 6–10
  */
 export function parseWeekDateWindows(
   dateText: string,

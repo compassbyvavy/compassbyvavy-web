@@ -168,8 +168,11 @@ value, and warns `generic_extractor_low_confidence`.
 An offline benchmark keeps the site-specific parser honest:
 `data/camps/ingestion/benchmarks/creative-kids-place-square-one.html` with
 expected facts in `creative-kids-place.expected.json` (10 session windows /
-93 offerings). Discontinuous short weeks stay separate: Jun 29–30, Jul 2–3,
-and Aug 4–7 are three distinct session windows.
+93 offerings). **Short-week segment invariant:** each contiguous scheduled date
+segment is its own session window. Non-contiguous ranges are never collapsed
+into one continuous span (no inventing Jul 1 between Jun 29–30 and Jul 2–3, and
+never bridging Jun 29 through Aug 7). Jun 29–30, Jul 2–3, and Aug 4–7 are three
+distinct session windows.
 The test asserts the parse against the JSON, so a regression fails without
 touching the network.
 
