@@ -78,7 +78,7 @@ export const LISTING_VIEW_OPTIONS: ReadonlyArray<{
   id: ListingViewId;
   label: string;
 }> = [
-  { id: "program", label: "Group by camp" },
+  { id: "program", label: "Group sessions by camp" },
   { id: "provider", label: "Group by provider" },
   { id: "session", label: "Each session" },
 ];

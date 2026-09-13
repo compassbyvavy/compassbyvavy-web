@@ -3,6 +3,7 @@ import type { CampProgram, CampSession, Provider, Venue } from "@/data/camps/typ
 import { SaveControl } from "@/components/shortlist/SaveControl";
 import {
   buildCampCardSummary,
+  moreMatchingDatesLocationsLabel,
   type CampCardStatusSummary,
 } from "@/lib/camps/campCardSummary";
 import type { RegistrationDisplayStateId } from "@/lib/camps/registrationAction";
@@ -27,6 +28,8 @@ export type CampCardProps = {
   dateOverlapLabel?: string | null;
   /** Grouped vs flat next-action label. */
   ctaLabel?: string;
+  /** When true, show the spec “+ more matching dates/locations” disclosure. */
+  groupedDisclosure?: boolean;
 };
 
 function statusChipClass(state: RegistrationDisplayStateId): string {
@@ -64,6 +67,7 @@ export function CampCard({
   flatSessionNote,
   dateOverlapLabel,
   ctaLabel = "View dates & details",
+  groupedDisclosure = false,
 }: CampCardProps) {
   const summary = buildCampCardSummary({
     program,
@@ -86,10 +90,10 @@ export function CampCard({
     saveRef.kind === "camp_session"
       ? `${program.name} session`
       : program.name;
-  const sessionCount = matchingSessions.length;
-  const moreSessionsNote =
-    sessionCount > 1
-      ? `${sessionCount} matching sessions`
+  const moreMatchingNote = groupedDisclosure
+    ? moreMatchingDatesLocationsLabel(matchingSessions.length)
+    : matchingSessions.length > 1
+      ? `${matchingSessions.length} matching sessions`
       : null;
 
   return (
@@ -118,8 +122,8 @@ export function CampCard({
 
         {flatSessionNote ? (
           <p className="camp-card-flat-note">{flatSessionNote}</p>
-        ) : moreSessionsNote ? (
-          <p className="camp-card-flat-note">{moreSessionsNote}</p>
+        ) : moreMatchingNote ? (
+          <p className="camp-card-flat-note">{moreMatchingNote}</p>
         ) : null}
 
         <div className="camp-card-pills" aria-label="Themes and confirmed support">

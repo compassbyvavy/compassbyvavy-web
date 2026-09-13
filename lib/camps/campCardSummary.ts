@@ -425,6 +425,20 @@ export function summarizeMatchingSessionHours(
   };
 }
 
+/**
+ * Compact grouped-card disclosure. The first matching session’s facts stay
+ * on the card; extras are not stitched into those facts.
+ */
+export function moreMatchingDatesLocationsLabel(
+  matchingSessionCount: number,
+): string | null {
+  if (matchingSessionCount <= 1) return null;
+  const extra = matchingSessionCount - 1;
+  return extra === 1
+    ? "+ 1 more matching date/location"
+    : `+ ${extra} more matching dates/locations`;
+}
+
 export function summarizeMatchingSessionEvidence(
   matchingSessions: CampSession[],
 ): CampCardEvidenceSummary {

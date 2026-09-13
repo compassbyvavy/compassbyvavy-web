@@ -12,6 +12,7 @@ import type {
 } from "@/data/camps/types";
 import {
   buildCampCardSummary,
+  moreMatchingDatesLocationsLabel,
   summarizeMatchingSessionPrices,
   summarizeMatchingSessionStatus,
 } from "@/lib/camps/campCardSummary";
@@ -414,5 +415,18 @@ describe("CampCard summary — evidence and support tags", () => {
     }
     assert.doesNotMatch(checked.evidence.label, /\binclusive\b/i);
     assert.doesNotMatch(checked.evidence.label, /\bopen spots?\b/i);
+  });
+
+  it("grouped disclosure names extra matching dates/locations without stitching facts", () => {
+    assert.equal(moreMatchingDatesLocationsLabel(0), null);
+    assert.equal(moreMatchingDatesLocationsLabel(1), null);
+    assert.equal(
+      moreMatchingDatesLocationsLabel(2),
+      "+ 1 more matching date/location",
+    );
+    assert.equal(
+      moreMatchingDatesLocationsLabel(3),
+      "+ 2 more matching dates/locations",
+    );
   });
 });

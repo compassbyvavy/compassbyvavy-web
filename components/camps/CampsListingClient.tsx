@@ -275,6 +275,7 @@ export function CampsListingClient({
         ctaLabel={
           options?.flatSessionId ? "View this session" : "View dates & details"
         }
+        groupedDisclosure={!options?.flatSessionId}
       />
     );
   };
@@ -571,8 +572,15 @@ export function CampsListingClient({
                   {results.awaitingDatesCount}{" "}
                   {results.awaitingDatesCount === 1 ? "camp" : "camps"} awaiting
                   verified dates {results.awaitingDatesCount === 1 ? "is" : "are"}{" "}
-                  listed only in grouped views — each-session mode does not invent
-                  session rows.
+                  not shown as session rows — each-session mode does not invent
+                  dates.{" "}
+                  <button
+                    type="button"
+                    className="camps-text-btn"
+                    onClick={() => setListingView("program")}
+                  >
+                    Open group-sessions-by-camp view
+                  </button>
                 </p>
               ) : null}
             </>
