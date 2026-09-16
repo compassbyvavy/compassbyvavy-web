@@ -6,6 +6,12 @@ import { useMemo } from "react";
 import type { CampsCatalogBundle } from "@/lib/camps/catalog";
 import { buildCompareTable } from "@/lib/shortlist/compare";
 
+function UnknownFact({ text }: { text: string }) {
+  const unknown = /to confirm|not yet verified|unknown/i.test(text);
+  if (!unknown) return <>{text}</>;
+  return <span className="camps-unknown-chip">{text}</span>;
+}
+
 export type CompareClientProps = {
   catalog: CampsCatalogBundle | null;
   nowIso?: string;
@@ -71,7 +77,8 @@ export function CompareClient({ catalog, nowIso }: CompareClientProps) {
         <h1>Side by side</h1>
         <p className="camps-listing-lede">
           Each column is one session. Facts stay on that session — Compass
-          does not stitch hours from one week onto the price of another.
+          does not stitch hours from one week onto the price of another, and
+          does not invent a family package total.
         </p>
       </header>
 
@@ -116,7 +123,9 @@ export function CompareClient({ catalog, nowIso }: CompareClientProps) {
                 <tr>
                   <th scope="row">Dates</th>
                   {columns.map((col) => (
-                    <td key={col.sessionId}>{col.row.datesLabel}</td>
+                    <td key={col.sessionId}>
+                      <UnknownFact text={col.row.datesLabel} />
+                    </td>
                   ))}
                 </tr>
                 <tr>
@@ -148,13 +157,17 @@ export function CompareClient({ catalog, nowIso }: CompareClientProps) {
                 <tr>
                   <th scope="row">Venue</th>
                   {columns.map((col) => (
-                    <td key={col.sessionId}>{col.row.venueLabel}</td>
+                    <td key={col.sessionId}>
+                      <UnknownFact text={col.row.venueLabel} />
+                    </td>
                   ))}
                 </tr>
                 <tr>
                   <th scope="row">Price</th>
                   {columns.map((col) => (
-                    <td key={col.sessionId}>{col.row.priceLabel}</td>
+                    <td key={col.sessionId}>
+                      <UnknownFact text={col.row.priceLabel} />
+                    </td>
                   ))}
                 </tr>
                 <tr>
@@ -173,7 +186,9 @@ export function CompareClient({ catalog, nowIso }: CompareClientProps) {
                   <th scope="row">Fees</th>
                   {columns.map((col) => (
                     <td key={col.sessionId}>
-                      {col.feeNotes ?? "Fee notes to confirm"}
+                      <UnknownFact
+                        text={col.feeNotes ?? "Fee notes to confirm"}
+                      />
                     </td>
                   ))}
                 </tr>

@@ -17,10 +17,10 @@ import type {
 } from "@/data/camps/types";
 import { getRegistrationAction } from "@/lib/camps/registrationAction";
 import {
-  childMatchesSessionAge,
   isIsoDateString,
   type ChildAgeStatement,
 } from "@/lib/camps/sessionEligibility";
+import { sessionFitsAllSiblings, uniqueWholeAges } from "@/lib/camps/siblingOverlap";
 
 export type TimingShortcutId =
   | "all"
@@ -98,6 +98,11 @@ export const DISTANCE_UNAVAILABLE_NO_MAP =
  */
 export type ListingAgeDraft = {
   ageYears: number | null;
+  /**
+   * Extra sibling ages (whole years). Combined with ageYears — the same
+   * session must fit every child. Not a program-level typical-age overlap.
+   */
+  siblingAges?: number[];
   asOfDate: string | null;
 };
 
@@ -183,6 +188,76 @@ export const AGE_FILTER_INCOMPLETE_NOTICE = AGE_FILTER_MISSING_DATE_NOTICE;
  * parse → `NaN`; finite numbers (including non-integers) are stored as-is.
  * Follow-up: blank vs invalid is preserved via null vs NaN — not a raw string.
  */
+export function draftAgeYears(draft: ListingAgeDraft | null | undefined): number[] {
+  if (!draft) return [];
+  const ages: number[] = [];
+  if (
+    typeof draft.ageYears === "number" &&
+    !Number.isNaN(draft.ageYears)
+  ) {
+    ages.push(draft.ageYears);
+  }
+  for (const extra of draft.siblingAges ?? []) ages.push(extra);
+  return uniqueWholeAges(ages);
+}
+
+export function resolveFamilyAgeFilter(
+  draft: ListingAgeDraft | null | undefined,
+): {
+  applied: ChildAgeStatement[];
+  notice: string | null;
+} {
+  const single = resolveChildAgeFilter(draft);
+  if (!draft) return { applied: [], notice: null };
+
+  const extras = uniqueWholeAges(draft.siblingAges ?? []);
+  const primaryValid =
+    typeof draft.ageYears === "number" &&
+    Number.isInteger(draft.ageYears) &&
+    draft.ageYears >= 0;
+  const ages = uniqueWholeAges([
+    ...(primaryValid ? [draft.ageYears as number] : []),
+    ...extras,
+  ]);
+
+  if (ages.length === 0) {
+    return { applied: [], notice: single.notice };
+  }
+
+  if (single.notice && !single.applied && ages.length > 0) {
+    // Shared as-of date still required when sibling badges exist.
+    if (!draft.asOfDate || !isIsoDateString(draft.asOfDate.trim())) {
+      return { applied: [], notice: AGE_FILTER_MISSING_DATE_NOTICE };
+    }
+  }
+
+  if (single.applied) {
+    const asOf = single.applied.asOfDate;
+    return {
+      applied: ages.map((ageYears) => ({ ageYears, asOfDate: asOf })),
+      notice: null,
+    };
+  }
+
+  const rawAsOf = draft.asOfDate?.trim() ?? "";
+  if (ages.length > 0 && isIsoDateString(rawAsOf)) {
+    return {
+      applied: ages.map((ageYears) => ({ ageYears, asOfDate: rawAsOf })),
+      notice: null,
+    };
+  }
+
+  return { applied: [], notice: single.notice };
+}
+
+/**
+ * Resolve sidebar/drawer age drafts into an applied eligibility statement.
+ * Incomplete or invalid drafts never count as an applied age filter.
+ *
+ * Input contract (CampsFilterPanel): blank age → `null`; non-empty invalid
+ * parse → `NaN`; finite numbers (including non-integers) are stored as-is.
+ * Follow-up: blank vs invalid is preserved via null vs NaN — not a raw string.
+ */
 export function resolveChildAgeFilter(
   draft: ListingAgeDraft | null | undefined,
 ): {
@@ -251,6 +326,24 @@ export const UNSUPPORTED_LISTING_FILTERS: ReadonlyArray<{
     id: "grade",
     label: "Grade eligibility",
     reason: "Grade bands are not modelled on sessions yet.",
+  },
+  {
+    id: "weather",
+    label: "Live rainy-day weather pivot",
+    reason:
+      "Compass does not show live weather badges. Indoor vs outdoor is not a verified session field — we do not invent cover from the camp name.",
+  },
+  {
+    id: "school_board",
+    label: "School-board calendar overlay",
+    reason:
+      "Verified TDSB/Peel/etc. calendars are not loaded. Use the PA Days timing shortcut for sessions already labelled PA Days.",
+  },
+  {
+    id: "camp_buddies",
+    label: "Camp Buddies",
+    reason:
+      "Private multi-family sharing is not part of this release. Saved lists stay on this device.",
   },
   {
     id: "distance",
@@ -527,12 +620,9 @@ export function sessionMatchesListingFilters(
   venuesById: Record<string, Venue>,
   filters: CampsListingFilters,
 ): boolean {
-  if (filters.childAge) {
-    const { applied } = resolveChildAgeFilter(filters.childAge);
-    if (applied) {
-      const ageResult = childMatchesSessionAge(session, applied);
-      if (ageResult !== "match") return false;
-    }
+  const familyAges = resolveFamilyAgeFilter(filters.childAge).applied;
+  if (familyAges.length > 0) {
+    if (!sessionFitsAllSiblings(session, familyAges)) return false;
   }
 
   if (!sessionOverlapsDateRange(session, filters.dateFrom, filters.dateTo)) {
@@ -632,7 +722,7 @@ export function sessionMatchesListingFilters(
 export function hasActiveSessionLevelFilters(
   filters: CampsListingFilters,
 ): boolean {
-  const ageApplied = resolveChildAgeFilter(filters.childAge).applied;
+  const ageApplied = resolveFamilyAgeFilter(filters.childAge).applied.length > 0;
   return Boolean(
     ageApplied ||
       filters.dateFrom ||
@@ -865,7 +955,7 @@ export function formatListingCounts(results: ListingResultSet): string {
 export function countActiveFilters(filters: CampsListingFilters): number {
   let n = 0;
   if (filters.keyword.trim()) n += 1;
-  if (resolveChildAgeFilter(filters.childAge).applied) n += 1;
+  if (resolveFamilyAgeFilter(filters.childAge).applied.length) n += 1;
   if (filters.dateFrom || filters.dateTo) n += 1;
   if (filters.timingShortcut !== "all") n += 1;
   if (filters.themes.length) n += 1;
@@ -952,11 +1042,16 @@ export function listActiveFilterChips(
   const kw = filters.keyword.trim();
   if (kw) chips.push({ id: "keyword", label: `Keyword: ${kw}` });
 
-  const age = resolveChildAgeFilter(filters.childAge).applied;
-  if (age) {
+  const family = resolveFamilyAgeFilter(filters.childAge).applied;
+  if (family.length === 1) {
     chips.push({
       id: "age",
-      label: `Age ${age.ageYears} as of ${age.asOfDate}`,
+      label: `Age ${family[0].ageYears} as of ${family[0].asOfDate}`,
+    });
+  } else if (family.length > 1) {
+    chips.push({
+      id: "age",
+      label: `Ages ${family.map((c) => c.ageYears).join(" & ")} as of ${family[0].asOfDate}`,
     });
   }
 
@@ -1146,6 +1241,8 @@ export function buildListingHref(state: CampsListingUrlState): string {
   if (f.childAge?.ageYears != null && !Number.isNaN(f.childAge.ageYears)) {
     p.set("age", String(f.childAge.ageYears));
   }
+  const siblingCsv = uniqueWholeAges(f.childAge?.siblingAges ?? []).join(",");
+  if (siblingCsv) p.set("ages", siblingCsv);
   if (f.childAge?.asOfDate) p.set("ageAsOf", f.childAge.asOfDate);
   if (f.dateFrom) p.set("df", f.dateFrom);
   if (f.dateTo) p.set("dt", f.dateTo);
@@ -1199,10 +1296,17 @@ export function parseListingHrefSearch(
     const n = Number(ageRaw);
     ageYears = Number.isFinite(n) ? n : Number.NaN;
   }
+  const siblingAges = splitCsv(p.get("ages"))
+    .map((s) => Number(s))
+    .filter((n) => Number.isInteger(n) && n >= 0);
   const ageAsOf = p.get("ageAsOf");
   const childAge =
-    ageYears != null || ageAsOf
-      ? { ageYears, asOfDate: ageAsOf || null }
+    ageYears != null || ageAsOf || siblingAges.length > 0
+      ? {
+          ageYears,
+          siblingAges: siblingAges.length ? siblingAges : undefined,
+          asOfDate: ageAsOf || null,
+        }
       : null;
 
   const timingRaw = p.get("timing") as TimingShortcutId | null;

@@ -33,6 +33,7 @@ import {
   venueHasVerifiedCoordinates,
   DISTANCE_UNAVAILABLE_NO_COORDS,
   DISTANCE_UNAVAILABLE_NO_MAP,
+  UNSUPPORTED_LISTING_FILTERS,
   type CampsListingFilters,
 } from "@/lib/camps/listingFilter";
 
@@ -263,6 +264,32 @@ describe("same-session filtering", () => {
       ),
       false,
     );
+  });
+
+  it("sibling ages must all fit the same session — not two sessions stitched", () => {
+    const siblings = filters({
+      childAge: {
+        ageYears: 4,
+        siblingAges: [7],
+        asOfDate: "2026-07-01",
+      },
+    });
+    assert.equal(
+      sessionMatchesListingFilters(sessionA, program, provider, venuesById, siblings),
+      false,
+    );
+    assert.equal(
+      sessionMatchesListingFilters(sessionB, program, provider, venuesById, siblings),
+      false,
+    );
+    const href = buildListingHref({
+      filters: siblings,
+      sort: "soonest_start",
+      listingView: "program",
+    });
+    assert.match(href, /ages=7/);
+    const parsed = parseListingHrefSearch(href);
+    assert.deepEqual(parsed.filters.childAge?.siblingAges, [7]);
   });
 
   it("date range excludes sessions outside the window", () => {
@@ -702,6 +729,18 @@ describe("listing URL state and selected-filter chips", () => {
     const withoutReg = removeActiveFilterChip(withoutDates, "reg");
     assert.equal(withoutReg.registrationFilter, "all");
     assert.deepEqual(withoutReg.themes, ["Arts"]);
+  });
+});
+
+describe("playbook features that stay unsupported until verified data exists", () => {
+  it("does not ship live weather, invented school boards, or Camp Buddies", () => {
+    const ids = UNSUPPORTED_LISTING_FILTERS.map((item) => item.id);
+    assert.ok(ids.includes("weather"));
+    assert.ok(ids.includes("school_board"));
+    assert.ok(ids.includes("camp_buddies"));
+    const blob = UNSUPPORTED_LISTING_FILTERS.map((i) => i.reason).join(" ");
+    assert.match(blob, /does not show live weather/i);
+    assert.match(blob, /not part of this release/i);
   });
 });
 

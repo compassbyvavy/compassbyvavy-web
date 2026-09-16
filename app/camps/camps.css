@@ -1396,7 +1396,9 @@
   color: var(--camps-pine);
   font-size: 0.88rem;
   font-weight: 700;
+  font-family: inherit;
   text-decoration: none;
+  cursor: pointer;
 }
 
 .camps-chrome-nav-link:hover,
@@ -1482,4 +1484,113 @@
 
 .tracker-card-actions .camp-card-cta {
   width: auto;
+}
+
+.camps-age-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.camps-offline-banner {
+  margin: 0;
+  padding: 10px 16px;
+  background: var(--camps-amber-soft);
+  color: var(--camps-amber-deep);
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+.camps-unknown-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--camps-amber-soft);
+  color: var(--camps-amber-deep);
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.camps-cmd-root {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+}
+
+.camps-cmd-backdrop {
+  position: absolute;
+  inset: 0;
+  border: 0;
+  background: rgba(31, 46, 37, 0.35);
+}
+
+.camps-cmd-dialog {
+  position: relative;
+  z-index: 1;
+  width: min(40rem, calc(100% - 32px));
+  margin: 12vh auto 0;
+  padding: 16px;
+  background: var(--camps-paper);
+  border: 1px solid var(--camps-line);
+  border-radius: var(--camps-radius);
+  box-shadow: var(--camps-shadow);
+  display: grid;
+  gap: 12px;
+}
+
+.camps-cmd-input {
+  width: 100%;
+  min-height: 44px;
+  padding: 10px 12px;
+  border: 1px solid var(--camps-line);
+  border-radius: 10px;
+  font: inherit;
+}
+
+.camps-cmd-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 6px;
+  max-height: 50vh;
+  overflow: auto;
+}
+
+.camps-cmd-list a {
+  display: block;
+  padding: 10px 12px;
+  border-radius: 10px;
+  text-decoration: none;
+  color: var(--camps-pine);
+  font-weight: 700;
+}
+
+.camps-cmd-list a:hover,
+.camps-cmd-list a:focus-visible {
+  background: var(--camps-pine-soft);
+}
+
+.bag-check-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.bag-check-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 44px;
+  font-weight: 600;
+}
+
+.bag-check-item input {
+  width: 1.25rem;
+  height: 1.25rem;
+  accent-color: var(--camps-pine);
 }

@@ -3,9 +3,9 @@
 import Link from "next/link";
 import { useCallback, useMemo, type ReactNode } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { BagCheckClient } from "@/components/camps/BagCheckClient";
 import { SaveControl } from "@/components/shortlist/SaveControl";
 import type {
-  CampPackingItem,
   CampProgram,
   CampSession,
   Provider,
@@ -161,39 +161,6 @@ function CollapsedDetailSection({
       <summary className="camp-detail-accordion-summary">{title}</summary>
       <div className="camp-detail-accordion-body">{children}</div>
     </details>
-  );
-}
-
-function PackingLists({ items }: { items: CampPackingItem[] }) {
-  const required = items.filter((i) => i.kind === "required");
-  const suggested = items.filter((i) => i.kind === "suggested");
-  return (
-    <div className="camp-detail-packing">
-      <div>
-        <h3>Provider-required</h3>
-        {required.length === 0 ? (
-          <p className="camp-card-note">No provider-required items verified.</p>
-        ) : (
-          <ul>
-            {required.map((i) => (
-              <li key={`req-${i.text}`}>{i.text}</li>
-            ))}
-          </ul>
-        )}
-      </div>
-      <div>
-        <h3>Suggested (not required)</h3>
-        {suggested.length === 0 ? (
-          <p className="camp-card-note">No suggested items listed.</p>
-        ) : (
-          <ul>
-            {suggested.map((i) => (
-              <li key={`sug-${i.text}`}>{i.text}</li>
-            ))}
-          </ul>
-        )}
-      </div>
-    </div>
   );
 }
 
@@ -593,14 +560,7 @@ export function CampDetailClient({
       </CollapsedDetailSection>
 
       <CollapsedDetailSection id="camp-detail-packing" title="What to Bring">
-        {packing.length === 0 ? (
-          <p className="camp-card-note">
-            Packing list not verified — nothing is marked required or suggested
-            here.
-          </p>
-        ) : (
-          <PackingLists items={packing} />
-        )}
+        <BagCheckClient programId={program.id} items={packing} />
       </CollapsedDetailSection>
 
       <NarrativeSection id="camp-detail-prep" title="Preparation">

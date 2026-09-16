@@ -32,7 +32,7 @@ import {
   listingDistanceAvailability,
   parseListingHrefSearch,
   removeActiveFilterChip,
-  resolveChildAgeFilter,
+  resolveFamilyAgeFilter,
   toFlatRows,
   toProviderGroups,
   type CampsListingFilters,
@@ -190,12 +190,11 @@ export function CampsListingClient({
   }, [venues]);
 
   const appliedFilters = useMemo(() => {
-    const { applied } = resolveChildAgeFilter(filters.childAge);
-    return { ...filters, keyword: keywordDraft, childAge: applied };
+    return { ...filters, keyword: keywordDraft };
   }, [filters, keywordDraft]);
 
   const ageFilterNotice = useMemo(
-    () => resolveChildAgeFilter(filters.childAge).notice,
+    () => resolveFamilyAgeFilter(filters.childAge).notice,
     [filters.childAge],
   );
 

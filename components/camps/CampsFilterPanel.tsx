@@ -1,10 +1,15 @@
 "use client";
 
-import type { CampsListingFilters } from "@/lib/camps/listingFilter";
+import { useState } from "react";
+import type {
+  CampsListingFilters,
+  ListingAgeDraft,
+} from "@/lib/camps/listingFilter";
 import {
   REGISTRATION_FILTER_HELPER,
   REGISTRATION_FILTER_OPTIONS,
   UNSUPPORTED_LISTING_FILTERS,
+  draftAgeYears,
   type RegistrationFilterId,
   type TimingShortcutId,
 } from "@/lib/camps/listingFilter";
@@ -19,6 +24,38 @@ export type CampsFilterPanelProps = {
   /** When true, render as drawer panel chrome (close control provided by parent). */
   variant: "sidebar" | "drawer";
 };
+
+function uniqueDraftAges(draft: ListingAgeDraft | null): number[] {
+  return draftAgeYears(draft);
+}
+
+function removeDraftAge(
+  draft: ListingAgeDraft | null,
+  age: number,
+): ListingAgeDraft | null {
+  const remaining = uniqueDraftAges(draft).filter((a) => a !== age);
+  const asOfDate = draft?.asOfDate ?? null;
+  if (remaining.length === 0 && !asOfDate) return null;
+  if (remaining.length === 0) {
+    return { ageYears: null, siblingAges: [], asOfDate };
+  }
+  const [ageYears, ...siblingAges] = remaining;
+  return { ageYears, siblingAges, asOfDate };
+}
+
+function addDraftAge(
+  draft: ListingAgeDraft | null,
+  age: number,
+): ListingAgeDraft {
+  const ages = uniqueDraftAges(draft);
+  if (!ages.includes(age)) ages.push(age);
+  const [ageYears, ...siblingAges] = ages;
+  return {
+    ageYears,
+    siblingAges,
+    asOfDate: draft?.asOfDate ?? null,
+  };
+}
 
 const TIMING_CHIPS: { id: TimingShortcutId; label: string }[] = [
   { id: "all", label: "All dates" },
@@ -44,8 +81,16 @@ export function CampsFilterPanel({
   locationOptions,
   variant,
 }: CampsFilterPanelProps) {
+  const [ageDraft, setAgeDraft] = useState("");
   const patch = (partial: Partial<CampsListingFilters>) =>
     onChange({ ...filters, ...partial });
+
+  const addAge = () => {
+    const n = Number(ageDraft);
+    if (!Number.isInteger(n) || n < 0) return;
+    patch({ childAge: addDraftAge(filters.childAge, n) });
+    setAgeDraft("");
+  };
 
   return (
     <div className="camps-filter-panel" id={id} data-variant={variant}>
@@ -59,44 +104,50 @@ export function CampsFilterPanel({
       <details className="camps-filter-group camps-filter-group-priority" open>
         <summary>Your kids</summary>
         <div className="camps-filter-group-body">
-          <p className="camps-filter-kicker">Age first</p>
+          <p className="camps-filter-kicker">Ages first — same session</p>
+          <p className="camps-field-hint">
+            Add each child. A camp session must fit every age on that session
+            — we do not combine one week for one sibling with another week for
+            another.
+          </p>
+          <div className="camps-age-badges" role="group" aria-label="Sibling ages">
+            {uniqueDraftAges(filters.childAge).map((age) => (
+              <button
+                key={age}
+                type="button"
+                className="camps-chip camps-chip-active"
+                onClick={() =>
+                  patch({
+                    childAge: removeDraftAge(filters.childAge, age),
+                  })
+                }
+                aria-label={`Remove age ${age}`}
+              >
+                {age} ×
+              </button>
+            ))}
+          </div>
           <label className="camps-field">
-            <span>Child age (whole years)</span>
+            <span>Add a child age (whole years)</span>
             <input
               type="number"
               inputMode="numeric"
               min={0}
               step={1}
               placeholder="e.g. 8"
-              value={
-                filters.childAge?.ageYears != null &&
-                !Number.isNaN(filters.childAge.ageYears)
-                  ? filters.childAge.ageYears
-                  : ""
-              }
-              onChange={(e) => {
-                const raw = e.target.value;
-                if (raw === "") {
-                  const asOf = filters.childAge?.asOfDate ?? null;
-                  patch({
-                    childAge: asOf
-                      ? { ageYears: null, asOfDate: asOf }
-                      : null,
-                  });
-                  return;
+              value={ageDraft}
+              onChange={(e) => setAgeDraft(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  addAge();
                 }
-                const ageYears = Number(raw);
-                patch({
-                  childAge: {
-                    ageYears: Number.isFinite(ageYears)
-                      ? ageYears
-                      : Number.NaN,
-                    asOfDate: filters.childAge?.asOfDate ?? null,
-                  },
-                });
               }}
             />
           </label>
+          <button type="button" className="camps-text-btn" onClick={addAge}>
+            Add age
+          </button>
           <label className="camps-field">
             <span>Age as of (YYYY-MM-DD)</span>
             <input
@@ -104,14 +155,16 @@ export function CampsFilterPanel({
               value={filters.childAge?.asOfDate ?? ""}
               onChange={(e) => {
                 const asOfDate = e.target.value || null;
-                const ageYears = filters.childAge?.ageYears ?? null;
-                if (asOfDate == null && ageYears == null) {
+                const ages = uniqueDraftAges(filters.childAge);
+                if (asOfDate == null && ages.length === 0) {
                   patch({ childAge: null });
                   return;
                 }
+                const [ageYears, ...siblingAges] = ages;
                 patch({
                   childAge: {
-                    ageYears,
+                    ageYears: ageYears ?? null,
+                    siblingAges,
                     asOfDate,
                   },
                 });
