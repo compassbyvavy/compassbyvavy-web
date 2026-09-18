@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import { canonicalizeSourceUrl } from "@/lib/camps/ingestion/canonicalizeUrl";
 import { CREATIVE_KIDS_PLACE_EXTRACTOR_KEY } from "@/lib/camps/ingestion/extractors/creativeKidsPlaceExtractor";
+import { NUTTY_SCIENTISTS_EXTRACTOR_KEY } from "@/lib/camps/ingestion/extractors/nuttyScientistsExtractor";
 import { resolveExtractor } from "@/lib/camps/ingestion/extractors/registry";
 import { HttpCampSourceFetcher } from "@/lib/camps/ingestion/httpFetcher";
 import { createMemoryIngestionStore } from "@/lib/camps/ingestion/repositories/memoryStore";
@@ -9,8 +10,11 @@ import {
   CAMP_FETCH_ALLOWLIST,
   CREATIVE_KIDS_PLACE_SOURCE_ID,
   CREATIVE_KIDS_PLACE_SOURCE_URL,
+  NUTTY_SCIENTISTS_SOURCE_ID,
+  NUTTY_SCIENTISTS_SOURCE_URL,
   creativeKidsPlaceSource,
   isFetchAllowlisted,
+  nuttyScientistsSource,
   registerSeedCampSources,
   seedCampSources,
 } from "@/lib/camps/ingestion/sources/seedSources";
@@ -24,6 +28,15 @@ describe("seed camp sources", () => {
     assert.equal(source.canonicalUrl, canonicalizeSourceUrl(CREATIVE_KIDS_PLACE_SOURCE_URL));
     assert.equal(source.crawlStrategy, "html");
     assert.equal(source.extractorKey, CREATIVE_KIDS_PLACE_EXTRACTOR_KEY);
+  });
+
+  it("registers Nutty Scientists against the official summer-camp HTML page", () => {
+    const source = nuttyScientistsSource(NOW);
+    assert.equal(source.sourceUrl, NUTTY_SCIENTISTS_SOURCE_URL);
+    assert.equal(source.canonicalUrl, canonicalizeSourceUrl(NUTTY_SCIENTISTS_SOURCE_URL));
+    assert.equal(source.crawlStrategy, "html");
+    assert.equal(source.extractorKey, NUTTY_SCIENTISTS_EXTRACTOR_KEY);
+    assert.doesNotMatch(source.sourceUrl, /forms\.gle|docs\.google\.com/);
   });
 
   it("is due immediately and has no history to compare against", () => {
@@ -41,13 +54,27 @@ describe("seed camp sources", () => {
     });
     assert.equal(extractor.key, CREATIVE_KIDS_PLACE_EXTRACTOR_KEY);
   });
+
+  it("resolves Nutty Scientists to the Nutty extractor", () => {
+    const extractor = resolveExtractor({
+      source: nuttyScientistsSource(NOW),
+      document: { title: null, text: "", headings: [], links: [], metadata: {} },
+      rawHtml: "",
+    });
+    assert.equal(extractor.key, NUTTY_SCIENTISTS_EXTRACTOR_KEY);
+  });
 });
 
 describe("fetch allowlist", () => {
-  it("contains only the reviewed source", () => {
-    assert.deepEqual(CAMP_FETCH_ALLOWLIST, [CREATIVE_KIDS_PLACE_SOURCE_ID]);
+  it("contains only the reviewed HTML sources", () => {
+    assert.deepEqual(CAMP_FETCH_ALLOWLIST, [
+      CREATIVE_KIDS_PLACE_SOURCE_ID,
+      NUTTY_SCIENTISTS_SOURCE_ID,
+    ]);
     assert.ok(isFetchAllowlisted(CREATIVE_KIDS_PLACE_SOURCE_ID));
+    assert.ok(isFetchAllowlisted(NUTTY_SCIENTISTS_SOURCE_ID));
     assert.ok(!isFetchAllowlisted("src-some-other-provider"));
+    assert.ok(!isFetchAllowlisted("https://forms.gle/SGgvXZddvprHFjGC9"));
   });
 
   it("registering a source does not make it fetchable", async () => {
@@ -108,7 +135,7 @@ describe("registerSeedCampSources", () => {
     assert.equal(stored?.lastCheckedAt, "2026-09-12T13:00:00.000Z");
     assert.equal(stored?.nextCheckAt, "2026-09-13T13:00:00.000Z");
     assert.equal(stored?.updatedAt, "2026-09-12T14:00:00.000Z");
-    assert.equal((await store.sources.listSources()).length, 1);
+    assert.equal((await store.sources.listSources()).length, 2);
   });
 
   it("refreshes configuration from the seed", async () => {

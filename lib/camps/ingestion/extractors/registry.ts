@@ -16,13 +16,20 @@ import {
   GENERIC_HTML_EXTRACTOR_KEY,
   genericHtmlExtractor,
 } from "@/lib/camps/ingestion/extractors/genericHtmlExtractor";
+import {
+  NUTTY_SCIENTISTS_EXTRACTOR_KEY,
+  nuttyScientistsExtractor,
+} from "@/lib/camps/ingestion/extractors/nuttyScientistsExtractor";
 import type {
   CampExtractor,
   ExtractorSupportInput,
 } from "@/lib/camps/ingestion/extractors/types";
 
 /** Site-specific extractors, most specific first. */
-export const SITE_EXTRACTORS: readonly CampExtractor[] = [creativeKidsPlaceExtractor];
+export const SITE_EXTRACTORS: readonly CampExtractor[] = [
+  creativeKidsPlaceExtractor,
+  nuttyScientistsExtractor,
+];
 
 export const CAMP_EXTRACTORS: readonly CampExtractor[] = [
   ...SITE_EXTRACTORS,
@@ -65,6 +72,9 @@ export function resolveExtractor(input: ResolveExtractorInput): CampExtractor {
 export function suggestExtractorKey(source: Pick<CampSource, "canonicalUrl">): string {
   if (/creativekidsplace\.(ca|com)/i.test(source.canonicalUrl)) {
     return CREATIVE_KIDS_PLACE_EXTRACTOR_KEY;
+  }
+  if (/nuttyscientistscanada\.ca/i.test(source.canonicalUrl)) {
+    return NUTTY_SCIENTISTS_EXTRACTOR_KEY;
   }
   return GENERIC_HTML_EXTRACTOR_KEY;
 }
