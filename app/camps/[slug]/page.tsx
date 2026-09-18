@@ -1,9 +1,10 @@
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { CampDetailClient } from "@/components/camps/CampDetailClient";
+import { loadCampsCatalogForRequest } from "@/lib/camps/campsServerCatalog";
 import {
   formatCampsCatalogBanner,
-  resolvePublishedCampDetail,
+  resolveCatalogProgramBySlug,
 } from "@/lib/camps/catalog";
 
 export const dynamic = "force-dynamic";
@@ -19,12 +20,15 @@ type PageProps = {
  */
 export default async function CampDetailPage({ params }: PageProps) {
   const { slug } = await params;
-  const published = resolvePublishedCampDetail(slug);
-  if (!published) {
+  const catalog = await loadCampsCatalogForRequest();
+  const published = catalog
+    ? resolveCatalogProgramBySlug(catalog, slug)
+    : null;
+  if (!published || !catalog) {
     notFound();
   }
 
-  const banner = formatCampsCatalogBanner(published.catalog);
+  const banner = formatCampsCatalogBanner(catalog);
 
   return (
     <div className="container camp-detail-page">

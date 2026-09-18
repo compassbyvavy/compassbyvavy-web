@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 import { RegistrationTrackerClient } from "@/components/shortlist/RegistrationTrackerClient";
-import { loadCampsCatalog } from "@/lib/camps/catalog";
+import { loadCampsCatalogForRequest } from "@/lib/camps/campsServerCatalog";
 
 export const dynamic = "force-dynamic";
 
@@ -10,8 +10,8 @@ export const metadata = {
     "Opens-on dates and registration notes on file for camps you saved. Compass does not process provider registration or show live seats.",
 };
 
-export default function RegistrationTrackerPage() {
-  const catalog = loadCampsCatalog();
+export default async function RegistrationTrackerPage() {
+  const catalog = await loadCampsCatalogForRequest();
   return (
     <div className="container camps-listing-page">
       <Suspense fallback={<p className="camp-card-note">Loading tracker…</p>}>

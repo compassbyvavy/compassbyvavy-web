@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 import { CompareClient } from "@/components/shortlist/CompareClient";
-import { loadCampsCatalog } from "@/lib/camps/catalog";
+import { loadCampsCatalogForRequest } from "@/lib/camps/campsServerCatalog";
 
 export const dynamic = "force-dynamic";
 
@@ -10,8 +10,8 @@ export const metadata = {
     "Compare 2–4 camp sessions side by side. Unknown stays unknown; prices are not ranked across different units.",
 };
 
-export default function ComparePage() {
-  const catalog = loadCampsCatalog();
+export default async function ComparePage() {
+  const catalog = await loadCampsCatalogForRequest();
   return (
     <div className="container camps-listing-page">
       <Suspense fallback={<p className="camp-card-note">Loading comparison…</p>}>

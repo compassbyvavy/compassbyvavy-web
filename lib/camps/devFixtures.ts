@@ -29,8 +29,13 @@ export type CampsDevFixturesBundle = {
   campsDevSessions: CampSession[];
 };
 
-function isProductionNodeEnv(): boolean {
-  return process.env.NODE_ENV === "production";
+export type CampsDevFixtureLoadOptions = {
+  allowReviewPreview?: boolean;
+  nodeEnv?: string;
+};
+
+function isProductionNodeEnv(nodeEnv?: string): boolean {
+  return (nodeEnv ?? process.env.NODE_ENV) === "production";
 }
 
 function bundle(): CampsDevFixturesBundle {
@@ -47,8 +52,10 @@ function bundle(): CampsDevFixturesBundle {
  * Soft gate: null in production; fixture bundle otherwise.
  * Prefer `requireCampsDevFixtures` when absence should fail loudly.
  */
-export function loadCampsDevFixtures(): CampsDevFixturesBundle | null {
-  if (isProductionNodeEnv()) {
+export function loadCampsDevFixtures(
+  options: CampsDevFixtureLoadOptions = {},
+): CampsDevFixturesBundle | null {
+  if (isProductionNodeEnv(options.nodeEnv) && !options.allowReviewPreview) {
     return null;
   }
   return bundle();

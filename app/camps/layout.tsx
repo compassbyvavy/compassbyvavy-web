@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { CampsChromeNav } from "@/components/camps/CampsChromeNav";
 import { CampsCommandPalette } from "@/components/camps/CampsCommandPalette";
 import { CampsOfflineBanner } from "@/components/camps/CampsOfflineBanner";
-import { loadCampsCatalog } from "@/lib/camps/catalog";
+import { loadCampsCatalogForRequest } from "@/lib/camps/campsServerCatalog";
 import { campsFontVariables } from "@/lib/camps/fonts";
 import "./camps.css";
 
@@ -12,10 +12,10 @@ export const metadata: Metadata = {
     "Browse verified Mississauga camp sessions — age, dates, venue, hours, care, and price on the same session.",
 };
 
-export default function CampsLayout({
+export default async function CampsLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
-  const catalog = loadCampsCatalog();
+  const catalog = await loadCampsCatalogForRequest();
   return (
     <div className={`camps-theme ${campsFontVariables}`}>
       <CampsOfflineBanner />

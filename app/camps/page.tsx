@@ -1,9 +1,7 @@
 import { Suspense } from "react";
 import { CampsListingClient } from "@/components/camps/CampsListingClient";
-import {
-  formatCampsCatalogBanner,
-  loadCampsCatalog,
-} from "@/lib/camps/catalog";
+import { loadCampsCatalogForRequest } from "@/lib/camps/campsServerCatalog";
+import { formatCampsCatalogBanner } from "@/lib/camps/catalog";
 
 export const dynamic = "force-dynamic";
 
@@ -11,10 +9,10 @@ export const dynamic = "force-dynamic";
  * Public Camps listing.
  *
  * Shared catalog layer: non-production uses gated real-dev + fixtures;
- * production soft-loads empty (no fixtures).
+ * production is empty unless the Cloudflare review-preview dual gate is on.
  */
-export default function CampsListingPage() {
-  const catalog = loadCampsCatalog();
+export default async function CampsListingPage() {
+  const catalog = await loadCampsCatalogForRequest();
 
   if (!catalog) {
     return (
@@ -24,9 +22,9 @@ export default function CampsListingPage() {
             <p className="camps-listing-kicker">Mississauga camps</p>
             <h1>Every camp we can verify — not just our favourites</h1>
             <p className="camps-listing-lede">
-              The public directory is available without an account. Verified
-              program and session data is not loaded in this environment yet —
-              no fictional fixture records are shown here.
+              We’re still gathering verified Mississauga camp sessions you can
+              compare by age, dates, hours, and cost. Check back soon — or tell
+              us about a camp your family uses.
             </p>
           </header>
           <footer className="camps-trust-footer">

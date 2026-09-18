@@ -5,9 +5,10 @@
  * rows, and detail sessions share one authoritative session set (shared
  * session truth).
  *
- * Non-production: gated real-dev (MSC-0201) plus gated fictional fixtures so
- * `/camps` is reviewable (dates, grouping, mixed status). Production: both
- * loaders return null — never serve fixtures or unpublished preview rows.
+ * Non-production: gated real-dev (MSC-0201) plus gated fictional fixtures.
+ * Production: empty, except Cloudflare Workers preview hosts with
+ * COMPASS_CAMPS_REVIEW_PREVIEW=true, which load sample fixtures only.
+ * MSC-0201 stays production-gated and is never served in review mode.
  */
 
 import type {
@@ -18,6 +19,16 @@ import type {
 } from "@/data/camps/types";
 import { loadCampsDevFixtures } from "@/lib/camps/devFixtures";
 import { loadCampsRealDevCatalog } from "@/lib/camps/realDevCatalog";
+import {
+  CAMPS_REVIEW_PREVIEW_FLAG,
+  isCampsReviewPreviewEnabled,
+} from "@/lib/camps/reviewPreviewGate";
+
+export type CampsCatalogLoadOptions = {
+  hostname?: string | null;
+  reviewFlag?: string | null;
+  nodeEnv?: string;
+};
 
 export type CampsCatalogSourceLabel = "real_dev" | "dev_fixtures" | "mixed_dev";
 
@@ -54,12 +65,26 @@ export function formatCampsCatalogBanner(
  * Soft load: catalog for public Camps routes, or null when unavailable
  * (production today; empty published set in the future).
  *
- * Fixtures and real-dev are each gated on NODE_ENV. They are never returned
- * when NODE_ENV is production.
+ * Fixtures and real-dev are each gated on NODE_ENV. Production returns null
+ * unless the Cloudflare Workers review-preview dual gate is on, in which
+ * case only the sample/dev fixture catalog is served — never MSC-0201.
  */
-export function loadCampsCatalog(): CampsCatalogBundle | null {
+export function loadCampsCatalog(
+  options: CampsCatalogLoadOptions = {},
+): CampsCatalogBundle | null {
+  const nodeEnv = options.nodeEnv ?? process.env.NODE_ENV;
+  const reviewPreview = isCampsReviewPreviewEnabled({
+    reviewFlag:
+      options.reviewFlag !== undefined
+        ? options.reviewFlag
+        : process.env[CAMPS_REVIEW_PREVIEW_FLAG],
+    hostname: options.hostname,
+  });
   const real = loadCampsRealDevCatalog();
-  const fixtures = loadCampsDevFixtures();
+  const fixtures = loadCampsDevFixtures({
+    allowReviewPreview: reviewPreview,
+    nodeEnv,
+  });
 
   if (!real && !fixtures) return null;
 
@@ -106,14 +131,17 @@ export function loadCampsCatalog(): CampsCatalogBundle | null {
  * Returns null for unknown slug, missing catalog, or production gate —
  * callers should 404. Never falls back to a different program.
  */
-export function resolvePublishedCampDetail(slug: string): {
+export function resolvePublishedCampDetail(
+  slug: string,
+  options: CampsCatalogLoadOptions = {},
+): {
   program: CampProgram;
   provider: Provider;
   sessions: CampSession[];
   venuesById: Record<string, Venue>;
   catalog: CampsCatalogBundle;
 } | null {
-  const catalog = loadCampsCatalog();
+  const catalog = loadCampsCatalog(options);
   if (!catalog) return null;
   const detail = resolveCatalogProgramBySlug(catalog, slug);
   if (!detail) return null;

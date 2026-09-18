@@ -1,11 +1,11 @@
 import { Suspense } from "react";
 import { SavedListClient } from "@/components/shortlist/SavedListClient";
-import { loadCampsCatalog } from "@/lib/camps/catalog";
+import { loadCampsCatalogForRequest } from "@/lib/camps/campsServerCatalog";
 
 export const dynamic = "force-dynamic";
 
-export default function SavedPage() {
-  const catalog = loadCampsCatalog();
+export default async function SavedPage() {
+  const catalog = await loadCampsCatalogForRequest();
   return (
     <div className="container camps-listing-page">
       <Suspense fallback={<p className="camp-card-note">Loading saved list…</p>}>
