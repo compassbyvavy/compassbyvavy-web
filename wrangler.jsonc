@@ -10,5 +10,10 @@
   },
   "observability": {
     "enabled": true
+  },
+  // Explicit review flag. Production traffic still cannot load samples:
+  // isCampsReviewPreviewEnabled also requires a Cloudflare Preview URL host.
+  "vars": {
+    "COMPASS_CAMPS_REVIEW_PREVIEW": "true"
   }
 }
