@@ -23,9 +23,10 @@ export default function AboutPage() {
           </p>
           <h2>Our first focus</h2>
           <p>
-            We are starting in the Greater Toronto Area with thoughtfully
-            organized parks, splash pads, indoor play, events, camps, classes,
-            food stops and family getaways.
+            We are starting in the Greater Toronto Area, beginning with
+            Mississauga camps you can browse without an account. Parks, play,
+            events, classes, food, travel, shopping, and services are on the
+            map as coming-soon categories — not live directories yet.
           </p>
           <h2>Contact</h2>
           <p>

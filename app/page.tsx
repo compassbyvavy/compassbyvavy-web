@@ -1,13 +1,4 @@
-const categories = [
-  { icon: "🌳", title: "Parks & Nature", text: "Playgrounds, trails, beaches and outdoor escapes." },
-  { icon: "💦", title: "Splash Pads", text: "Cool-down spots and water-play favourites." },
-  { icon: "🎠", title: "Indoor Play", text: "Rainy-day fun, play centres and museums." },
-  { icon: "🎉", title: "Events", text: "Festivals, weekend events and seasonal celebrations." },
-  { icon: "🎨", title: "Classes", text: "Sports, arts, STEM and enriching programs." },
-  { icon: "🏕️", title: "Camps", text: "Summer, March break and specialty camps." },
-  { icon: "🍦", title: "Food & Treats", text: "Family-friendly restaurants and sweet stops." },
-  { icon: "🚗", title: "Getaways", text: "Easy day trips and memorable family weekends." },
-];
+import { DISCOVER_CATEGORIES } from "@/lib/discover/categories";
 
 const promises = [
   "Useful details parents actually need",
@@ -81,14 +72,22 @@ export default function HomePage() {
               faster and more confident.
             </p>
           </div>
-          <div className="category-grid">
-            {categories.map((category) => (
-              <article className="category-card" key={category.title}>
+          <div className="category-grid category-grid-ten">
+            {DISCOVER_CATEGORIES.map((category) => (
+              <a className="category-card" href={category.href} key={category.slug}>
                 <span className="category-icon" aria-hidden="true">{category.icon}</span>
                 <h3>{category.title}</h3>
-                <p>{category.text}</p>
-                <span className="coming-soon">Coming soon</span>
-              </article>
+                <p>{category.blurb}</p>
+                <span
+                  className={
+                    category.status === "available"
+                      ? "category-available"
+                      : "coming-soon"
+                  }
+                >
+                  {category.cta}
+                </span>
+              </a>
             ))}
           </div>
         </div>
