@@ -8,6 +8,12 @@ export {
 } from "@/lib/camps/ingestion/normalize/dateRange";
 export { normalizePriceCad, type NormalizedPrice } from "@/lib/camps/ingestion/normalize/price";
 export {
+  monthDayWindowIdentity,
+  padMonthDay,
+  parseMonthDayWindows,
+  type MonthDayWindow,
+} from "@/lib/camps/ingestion/normalize/monthDayWindow";
+export {
   findRegistrationLink,
   normalizeRegistrationPlatform,
   type RegistrationPlatformSignals,

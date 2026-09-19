@@ -17,6 +17,7 @@ import type { CampSource } from "@/data/camps/ingestion/types";
 import { canonicalizeSourceUrl } from "@/lib/camps/ingestion/canonicalizeUrl";
 import { CREATIVE_KIDS_PLACE_EXTRACTOR_KEY } from "@/lib/camps/ingestion/extractors/creativeKidsPlaceExtractor";
 import { NUTTY_SCIENTISTS_EXTRACTOR_KEY } from "@/lib/camps/ingestion/extractors/nuttyScientistsExtractor";
+import { RIVERWOOD_CONSERVANCY_EXTRACTOR_KEY } from "@/lib/camps/ingestion/extractors/riverwoodConservancyExtractor";
 import { DEFAULT_CHECK_INTERVAL_HOURS } from "@/lib/camps/ingestion/freshness";
 import type { CampIngestionStore } from "@/lib/camps/ingestion/repositories/types";
 
@@ -33,13 +34,20 @@ export const NUTTY_SCIENTISTS_PROVIDER_ID = "prov-nutty-scientists-canada";
 /** Official Nutty Scientists Canada summer-camp HTML page. Google Forms are not fetch targets. */
 export const NUTTY_SCIENTISTS_SOURCE_URL = "https://nuttyscientistscanada.ca/summercamp";
 
+export const RIVERWOOD_CONSERVANCY_SOURCE_ID = "src-riverwood-conservancy-summer-camp";
+export const RIVERWOOD_CONSERVANCY_PROVIDER_ID = "prov-riverwood-conservancy";
+
+/** Official Riverwood Conservancy summer-camp HTML page. The camp guide PDF is not a fetch target. */
+export const RIVERWOOD_CONSERVANCY_SOURCE_URL = "https://theriverwoodconservancy.org/summercamp/";
+
 /**
  * Source ids `HttpCampSourceFetcher` is permitted to fetch. Reviewed HTML
- * pages only. Registration forms (including Google Forms) are never allowlisted.
+ * pages only. Registration forms (including Google Forms) and PDFs are never allowlisted.
  */
 export const CAMP_FETCH_ALLOWLIST: readonly string[] = [
   CREATIVE_KIDS_PLACE_SOURCE_ID,
   NUTTY_SCIENTISTS_SOURCE_ID,
+  RIVERWOOD_CONSERVANCY_SOURCE_ID,
 ];
 
 export function isFetchAllowlisted(sourceId: string): boolean {
@@ -105,8 +113,35 @@ export function nuttyScientistsSource(now: Date = new Date()): CampSource {
   };
 }
 
+export function riverwoodConservancySource(now: Date = new Date()): CampSource {
+  const timestamp = now.toISOString();
+  return {
+    id: RIVERWOOD_CONSERVANCY_SOURCE_ID,
+    providerId: RIVERWOOD_CONSERVANCY_PROVIDER_ID,
+    sourceType: "provider_website",
+    sourceUrl: RIVERWOOD_CONSERVANCY_SOURCE_URL,
+    canonicalUrl: canonicalizeSourceUrl(RIVERWOOD_CONSERVANCY_SOURCE_URL),
+    registrationPlatform: null,
+    isActive: true,
+    crawlStrategy: "html",
+    crawlFrequency: "daily",
+    checkIntervalHours: DEFAULT_CHECK_INTERVAL_HOURS,
+    nextCheckAt: null,
+    extractorKey: RIVERWOOD_CONSERVANCY_EXTRACTOR_KEY,
+    lastCheckedAt: null,
+    lastSuccessfulAt: null,
+    lastChangedAt: null,
+    lastContentHash: null,
+    lastFactFingerprint: null,
+    lastErrorAt: null,
+    lastError: null,
+    createdAt: timestamp,
+    updatedAt: timestamp,
+  };
+}
+
 export function seedCampSources(now: Date = new Date()): CampSource[] {
-  return [creativeKidsPlaceSource(now), nuttyScientistsSource(now)];
+  return [creativeKidsPlaceSource(now), nuttyScientistsSource(now), riverwoodConservancySource(now)];
 }
 
 /**
