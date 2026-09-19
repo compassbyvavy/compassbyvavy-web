@@ -1,0 +1,175 @@
+{
+  "$comment": [
+    "Expected offline extraction for nutty-scientists-summercamp.html.",
+    "Prompt 9B-A grain: one session per week window × the age band that week names (8 week windows / 8 offerings).",
+    "The official page states month/day windows only — ISO dates stay null.",
+    "Identity: nutty_scientists:session:{MM-DD}_{MM-DD}:{ageMin}-{ageMax}",
+    "KNOWN LIMITATION: the same month/day + age band in a later year, still without a stated year, collides on identity and can look unchanged.",
+    "Price is a semantic fact, not session identity.",
+    "Google Forms hrefs are link facts only and are never fetched.",
+    "Regenerate via scripts/rebuild-nutty-expected.ts — never edit to make a failing extractor pass."
+  ],
+  "benchmark": {
+    "sourceFile": "nutty-scientists-summercamp.html",
+    "sourceUrl": "https://nuttyscientistscanada.ca/summercamp",
+    "capturedAt": "2026-09-18",
+    "extractorKey": "nutty_scientists",
+    "extractorVersion": "0.1.0",
+    "status": "success",
+    "weekCount": 8,
+    "offeringCount": 8
+  },
+  "identity": {
+    "formula": "nutty_scientists:session:{MM-DD}_{MM-DD}:{ageMin}-{ageMax}",
+    "keys": [
+      "nutty_scientists:session:07-06_07-10:5-7",
+      "nutty_scientists:session:07-13_07-17:5-7",
+      "nutty_scientists:session:07-20_07-24:8-10",
+      "nutty_scientists:session:07-27_07-31:8-10",
+      "nutty_scientists:session:08-03_08-07:5-7",
+      "nutty_scientists:session:08-10_08-14:5-7",
+      "nutty_scientists:session:08-17_08-21:8-10",
+      "nutty_scientists:session:08-24_08-28:8-10"
+    ]
+  },
+  "facts": {
+    "provider": {
+      "name": "Nutty Scientists Canada",
+      "registrationPlatform": "Google Forms"
+    },
+    "venue": {
+      "name": "Vic Johnson Community Center",
+      "neighbourhood": "Streetsville",
+      "addressLine": "335 Church St",
+      "city": "Mississauga",
+      "province": "ON",
+      "postalCode": "L5M 1N1"
+    },
+    "program": {
+      "name": "Nutty Summer Science Camp",
+      "ageMin": 5,
+      "ageMax": 10,
+      "seasonStartDate": null,
+      "seasonEndDate": null,
+      "coreHoursStart": "10:30",
+      "coreHoursEnd": "16:00",
+      "registrationUrl": null
+    },
+    "priceTiers": [
+      {
+        "key": "two_week",
+        "priceAmount": 599,
+        "priceUnit": "other",
+        "taxExtra": true
+      },
+      {
+        "key": "one_week",
+        "priceAmount": 399,
+        "priceUnit": "per_week",
+        "taxExtra": true
+      },
+      {
+        "key": "one_day",
+        "priceAmount": 105,
+        "priceUnit": "per_day",
+        "taxExtra": true
+      }
+    ],
+    "scarcityCopy": [
+      "* FEW SPOTS LEFT"
+    ],
+    "derivedAvailableAgeMin": 5,
+    "derivedAvailableAgeMax": 10,
+    "marketingAgeMin": null,
+    "marketingAgeMax": null,
+    "warnings": [
+      "year_not_stated",
+      "session_iso_dates_unparsed_year_not_stated",
+      "currency_symbol_only_assumed_cad",
+      "price_unit_not_stated",
+      "tax_charged_on_top"
+    ],
+    "offerings": [
+      {
+        "weekIdentity": "07-06_07-10",
+        "listedDateWindow": "July 6th - 10th",
+        "ageMin": 5,
+        "ageMax": 7,
+        "startDate": null,
+        "endDate": null,
+        "registrationUrl": "https://forms.gle/SGgvXZddvprHFjGC9",
+        "sourceIdentity": "nutty_scientists:session:07-06_07-10:5-7"
+      },
+      {
+        "weekIdentity": "07-13_07-17",
+        "listedDateWindow": "July 13th - 17th",
+        "ageMin": 5,
+        "ageMax": 7,
+        "startDate": null,
+        "endDate": null,
+        "registrationUrl": "https://forms.gle/SGgvXZddvprHFjGC9",
+        "sourceIdentity": "nutty_scientists:session:07-13_07-17:5-7"
+      },
+      {
+        "weekIdentity": "07-20_07-24",
+        "listedDateWindow": "July 20th - 24th",
+        "ageMin": 8,
+        "ageMax": 10,
+        "startDate": null,
+        "endDate": null,
+        "registrationUrl": "https://forms.gle/UGMUaLXtnTWxbHNz9",
+        "sourceIdentity": "nutty_scientists:session:07-20_07-24:8-10"
+      },
+      {
+        "weekIdentity": "07-27_07-31",
+        "listedDateWindow": "July 27th - July 31st",
+        "ageMin": 8,
+        "ageMax": 10,
+        "startDate": null,
+        "endDate": null,
+        "registrationUrl": "https://forms.gle/UGMUaLXtnTWxbHNz9",
+        "sourceIdentity": "nutty_scientists:session:07-27_07-31:8-10"
+      },
+      {
+        "weekIdentity": "08-03_08-07",
+        "listedDateWindow": "Aug. 3rd - 7th",
+        "ageMin": 5,
+        "ageMax": 7,
+        "startDate": null,
+        "endDate": null,
+        "registrationUrl": "https://forms.gle/SGgvXZddvprHFjGC9",
+        "sourceIdentity": "nutty_scientists:session:08-03_08-07:5-7"
+      },
+      {
+        "weekIdentity": "08-10_08-14",
+        "listedDateWindow": "Aug. 10th - 14th",
+        "ageMin": 5,
+        "ageMax": 7,
+        "startDate": null,
+        "endDate": null,
+        "registrationUrl": "https://forms.gle/SGgvXZddvprHFjGC9",
+        "sourceIdentity": "nutty_scientists:session:08-10_08-14:5-7"
+      },
+      {
+        "weekIdentity": "08-17_08-21",
+        "listedDateWindow": "Aug.17th - 21st",
+        "ageMin": 8,
+        "ageMax": 10,
+        "startDate": null,
+        "endDate": null,
+        "registrationUrl": "https://forms.gle/UGMUaLXtnTWxbHNz9",
+        "sourceIdentity": "nutty_scientists:session:08-17_08-21:8-10"
+      },
+      {
+        "weekIdentity": "08-24_08-28",
+        "listedDateWindow": "Aug. 24th - 28th",
+        "ageMin": 8,
+        "ageMax": 10,
+        "startDate": null,
+        "endDate": null,
+        "registrationUrl": "https://forms.gle/UGMUaLXtnTWxbHNz9",
+        "sourceIdentity": "nutty_scientists:session:08-24_08-28:8-10"
+      }
+    ]
+  }
+}

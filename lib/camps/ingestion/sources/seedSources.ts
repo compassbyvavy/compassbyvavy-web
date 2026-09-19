@@ -16,6 +16,7 @@
 import type { CampSource } from "@/data/camps/ingestion/types";
 import { canonicalizeSourceUrl } from "@/lib/camps/ingestion/canonicalizeUrl";
 import { CREATIVE_KIDS_PLACE_EXTRACTOR_KEY } from "@/lib/camps/ingestion/extractors/creativeKidsPlaceExtractor";
+import { NUTTY_SCIENTISTS_EXTRACTOR_KEY } from "@/lib/camps/ingestion/extractors/nuttyScientistsExtractor";
 import { DEFAULT_CHECK_INTERVAL_HOURS } from "@/lib/camps/ingestion/freshness";
 import type { CampIngestionStore } from "@/lib/camps/ingestion/repositories/types";
 
@@ -26,12 +27,20 @@ export const CREATIVE_KIDS_PLACE_PROVIDER_ID = "prov-creative-kids-place";
 export const CREATIVE_KIDS_PLACE_SOURCE_URL =
   "https://www.creativekidsplace.ca/pages/camps/summer-camp-square-one-mississauga-on";
 
+export const NUTTY_SCIENTISTS_SOURCE_ID = "src-nutty-scientists-summer-camp";
+export const NUTTY_SCIENTISTS_PROVIDER_ID = "prov-nutty-scientists-canada";
+
+/** Official Nutty Scientists Canada summer-camp HTML page. Google Forms are not fetch targets. */
+export const NUTTY_SCIENTISTS_SOURCE_URL = "https://nuttyscientistscanada.ca/summercamp";
+
 /**
- * Source ids `HttpCampSourceFetcher` is permitted to fetch. One entry: the
- * first real provider page. Everything else in the registry is read from
- * fixtures or handled manually.
+ * Source ids `HttpCampSourceFetcher` is permitted to fetch. Reviewed HTML
+ * pages only. Registration forms (including Google Forms) are never allowlisted.
  */
-export const CAMP_FETCH_ALLOWLIST: readonly string[] = [CREATIVE_KIDS_PLACE_SOURCE_ID];
+export const CAMP_FETCH_ALLOWLIST: readonly string[] = [
+  CREATIVE_KIDS_PLACE_SOURCE_ID,
+  NUTTY_SCIENTISTS_SOURCE_ID,
+];
 
 export function isFetchAllowlisted(sourceId: string): boolean {
   return CAMP_FETCH_ALLOWLIST.includes(sourceId);
@@ -69,8 +78,35 @@ export function creativeKidsPlaceSource(now: Date = new Date()): CampSource {
   };
 }
 
+export function nuttyScientistsSource(now: Date = new Date()): CampSource {
+  const timestamp = now.toISOString();
+  return {
+    id: NUTTY_SCIENTISTS_SOURCE_ID,
+    providerId: NUTTY_SCIENTISTS_PROVIDER_ID,
+    sourceType: "provider_website",
+    sourceUrl: NUTTY_SCIENTISTS_SOURCE_URL,
+    canonicalUrl: canonicalizeSourceUrl(NUTTY_SCIENTISTS_SOURCE_URL),
+    registrationPlatform: "Google Forms",
+    isActive: true,
+    crawlStrategy: "html",
+    crawlFrequency: "daily",
+    checkIntervalHours: DEFAULT_CHECK_INTERVAL_HOURS,
+    nextCheckAt: null,
+    extractorKey: NUTTY_SCIENTISTS_EXTRACTOR_KEY,
+    lastCheckedAt: null,
+    lastSuccessfulAt: null,
+    lastChangedAt: null,
+    lastContentHash: null,
+    lastFactFingerprint: null,
+    lastErrorAt: null,
+    lastError: null,
+    createdAt: timestamp,
+    updatedAt: timestamp,
+  };
+}
+
 export function seedCampSources(now: Date = new Date()): CampSource[] {
-  return [creativeKidsPlaceSource(now)];
+  return [creativeKidsPlaceSource(now), nuttyScientistsSource(now)];
 }
 
 /**

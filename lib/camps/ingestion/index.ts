@@ -183,6 +183,21 @@ export {
   type CreativeKidsPlacePriceTier,
 } from "@/lib/camps/ingestion/extractors/creativeKidsPlaceExtractor";
 export {
+  NUTTY_SCIENTISTS_EXTRACTOR_KEY,
+  NUTTY_SCIENTISTS_HOST,
+  NUTTY_SCIENTISTS_PROVIDER_NAME,
+  NUTTY_SCIENTISTS_PROGRAM_NAME,
+  NUTTY_SCIENTISTS_VENUE_NAME,
+  nuttyScientistsExtractor,
+  parseNuttyScientistsFacts,
+  parseNuttyWeekWindows,
+  parseNuttyScientistsSchedule,
+  nuttySessionSourceIdentity,
+  nuttyWeekIdentity,
+  type NuttyScientistsFacts,
+  type NuttyScientistsPriceTier,
+} from "@/lib/camps/ingestion/extractors/nuttyScientistsExtractor";
+export {
   parseCreativeKidsPlaceSchedule,
   parseWeekAddOns,
   parseWeekDateWindows,
@@ -282,7 +297,11 @@ export {
   CREATIVE_KIDS_PLACE_PROVIDER_ID,
   CREATIVE_KIDS_PLACE_SOURCE_ID,
   CREATIVE_KIDS_PLACE_SOURCE_URL,
+  NUTTY_SCIENTISTS_PROVIDER_ID,
+  NUTTY_SCIENTISTS_SOURCE_ID,
+  NUTTY_SCIENTISTS_SOURCE_URL,
   creativeKidsPlaceSource,
+  nuttyScientistsSource,
   isFetchAllowlisted,
   registerSeedCampSources,
   seedCampSources,

@@ -1,0 +1,565 @@
+<script>
+    //to sync session from w4r to idxb server
+    let urlsParams = new URLSearchParams(window.location.search);
+    let paramObj = Object.fromEntries(urlsParams);
+	if ((paramObj.create_idxb_session == 1) && (paramObj.redirect_back != '')) {
+        //storing saaschat data in local storage
+        let v_keys = ['saaschat_visitor_id','saaschat_visitor_form'];
+        v_keys.forEach(element => {
+            let vid_key = Object.keys(paramObj).filter(v => v.startsWith(element));
+            if(vid_key.length){
+                vid_key = vid_key[0];
+                let vid_value = paramObj[vid_key];
+                if(vid_key != null && vid_value != null){
+                    localStorage.setItem(vid_key, vid_value);
+                    delete paramObj[vid_key];
+                }
+            }
+        });
+        //storing user_data in local storage
+        let redirect_back = paramObj.redirect_back;
+        delete paramObj['create_idxb_session'];
+        delete paramObj['redirect_back'];
+        localStorage.setItem("user_data", JSON.stringify(paramObj));
+        window.location = redirect_back;
+	}
+    const removeWaiterJs = 0; 
+</script>
+<!doctype html>
+<html class="no-js userCunstom w4rFrontend          " lang="en" xmlns="https://www.w3.org/1999/xhtml" xmlns:fb="https://ogp.me/ns/fb#" id="w4rPage_id_763">
+
+<script>
+	var enable_rate_listings = false;
+    var isUserLoggedIn = false;
+    var isLiveChatEnabled = 0;
+    var brokerage =  "";
+    var idxb_url = "";
+                enable_rate_listings = true;
+    </script>
+<head>
+<meta charset="UTF-8">
+<meta name="referrer" content="no-referrer-when-downgrade">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<title>
+    Summer Science Camp | Nutty Scientists Canada| Science Camp | Summer STEM Learning |  Summer Program & Activities | Summer Camp | In-Class Science Workshop |  Scientific Birthday Party | Awareness Campaign | Special Event</title>
+<meta name="robots" content="index, follow">
+<meta name="author" content="Nutty Scientists  Canada" />
+<meta name="description" content="Summer Science Camp is an interactive STEM Programs & activities for kids by way of hands-on activities, Visual learning and science game. Let's make your summer more scientific!!" />
+<meta name="keywords" content="Science Camp, Summer Science Camp, Children Learning, STEM Learning, Children Summer Education, Nutty Scientists Summer Camp" />
+<meta name="Copyright" content="" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="format-detection" content="telephone=no">
+<meta property="og:title" content="Summer Science Camp | Nutty Scientists Canada| Science Camp | Summer STEM Learning |  Summer Program & Activities | Summer Camp | In-Class Science Workshop |  Scientific Birthday Party | Awareness Campaign | Special Event"/>
+<meta property="og:url" content="https://nuttyscientistscanada.ca/summercamp/"/>
+<meta property="og:description" content="Summer Science Camp is an interactive STEM Programs & activities for kids by way of hands-on activities, Visual learning and science game. Let's make your summer more scientific!!"/>
+	<meta property="og:type" content="website" />  
+    <meta property="og:image" content="favicon761.jpg"/>
+        <meta property="og:image:url" content="favicon761.jpg" />
+    <meta property="og:image:secure_url" content="favicon761.jpg" />
+    
+<link rel="icon" href="https://d101qgvxw5fp3p.cloudfront.net/site/99009108/assets/uploads/theme/fav_favicon.png" type="image/x-icon" />
+<link rel="shortcut icon" href="https://d101qgvxw5fp3p.cloudfront.net/site/99009108/assets/uploads/theme/fav_favicon.png" />
+<link rel="apple-touch-icon" sizes="128x128" href="https://d101qgvxw5fp3p.cloudfront.net/site/99009108/assets/uploads/theme/fav_favicon.png">
+
+<!-- Strategic Analytics Tag Manager -->
+
+<script type="text/javascript">
+
+var _mtm = window._mtm = window._mtm || [];
+
+_mtm.push({"mtm.startTime": (new Date().getTime()), "event": "mtm.Start"});
+
+var d=document, g=d.createElement("script"), s=d.getElementsByTagName("script")[0];
+
+g.type="text/javascript"; g.async=true; g.src="https://track.stratanalytics.com/js/container_67RDAYKe.js"; s.parentNode.insertBefore(g,s);
+
+</script>
+
+<!-- End Strategic Analytics Tag Manager --><!-- Strategic Analytics Tag Manager -->
+<script type="text/javascript">
+var _mtm = window._mtm = window._mtm || [];
+_mtm.push({"mtm.startTime": (new Date().getTime()), "event": "mtm.Start"});
+var d=document, g=d.createElement("script"), s=d.getElementsByTagName("script")[0];
+g.type="text/javascript"; g.async=true; g.src="https://track.stratanalytics.com/js/container_fcAbL9eL.js"; s.parentNode.insertBefore(g,s);
+</script>
+<!-- End Strategic Analytics Tag Manager --><!-- Google tag (gtag.js) --> <script async src="https://www.googletagmanager.com/gtag/js?id=G-QXBNHBCMDL"></script> <script> window.dataLayer = window.dataLayer || []; function gtag(){dataLayer.push(arguments);} gtag('js', new Date()); gtag('config', 'G-QXBNHBCMDL'); </script><input type="hidden" value="summercamp"  name="currentwebpagename" id="currentwebpagename" /><link href="https://fonts.googleapis.com/css?family=Open Sans|Noto+Sans:400,400italic,700,700italic|Fjalla+One|Damion&display=swap" rel="stylesheet"><link href="https://d101qgvxw5fp3p.cloudfront.net/site/99009108/assets/uploads/theme/w4r_763_20240305121711_20260916124113_v13922105_310677.css" rel="stylesheet" type="text/css">
+
+<link href="application/layouts/scripts/themes/trailblazer/css/w4ruserarea.css?v=1789761756" rel="stylesheet" type="text/css">
+
+<link href="application/layouts/scripts/themes/trailblazer/css/print.css?v=1789761756" rel="stylesheet" media="print"><link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css">
+<style>
+    .grecaptcha-badge { visibility: hidden; }
+</style>
+<link rel="alternate" href="https://nuttyscientistscanada.ca/summercamp" hreflang="en-ca"/>
+
+<link rel="canonical" href="https://nuttyscientistscanada.ca/summercamp"/>
+<script type="text/javascript">
+    // Fix for Firefox/Chorme/IE autofocus CSS bug - Dnt Remove this Tag 
+    // //Autofocus should apply after the styles are applied (some pages scroll down sometimes after loading, some pages have flash of unstyled content
+    // See: SHAM
+</script>
+
+<script>
+var loadSaasChat = false;
+window.onstorage = () => {
+    var message=JSON.parse(localStorage.getItem('app-message'));
+    if (!message) return; // ignore empty msg or msg reset
+    if (message.command == 'user-email-verified' && !window.location.pathname.includes("email-verification")){
+        localStorage.removeItem('app-message');
+        if(!isUserLoggedIn && message.data.status == 200){
+            $(".pageLoader").show();
+            $.ajax({
+                type: "POST",
+                url: 'ajaxsetuserdata',
+                data:message.data.data,
+                success: function (res) {
+                    if(res == 1 && !removeWaiterJs){
+                       waiter.identity(message.data.data.contact_id,{
+                            first_name: message.data.data.first_name,
+                            last_name: message.data.data.last_name,
+                            email: message.data.data.email,
+                        });
+
+                        waiter.event("logged_in", {
+                            user_id: message.data.data.contact_id,
+                            first_name: message.data.data.first_name,
+                            last_name: message.data.data.last_name,
+                            email: message.data.data.email,
+                        });
+                    }
+                    
+                    window.location.reload();
+                    $(".pageLoader").show();
+                }
+            });
+        }else{
+            // window.location.reload();
+            // $(".pageLoader").show();
+        }
+            
+    }
+};
+/**Sample call like : message_broadcast({'command':'user-email-verified',data : ''}) */
+function message_broadcast(message)
+{
+    localStorage.removeItem('app-message');
+    if(message.command == "waiter-js-loaded"){
+        /**load saaschat*/
+        loadSaasChat = true;
+    }else{
+        localStorage.setItem('app-message',JSON.stringify(message));
+    }
+}
+
+var $w4rbounceloader = '<div class="loadingBar"><div class="bounce1"></div><div class="bounce2"></div><div class="bounce3"></div></div>';
+</script>
+    <!-- BEGIN idx snippet -->
+    <script type="text/javascript">
+        window.idxjsSettings = { "token": "3df8b1c49dc6cb9e59ac80846e2da332f5183aa6bf86a49b2fb92a768c4396dd" };
+
+                    // Update idxjsSettings if idxjs_apiurl is provided
+            window.idxjsSettings.api_server = "https://coreapi.web4realty.com";
+            window.idxjsSettings.platform = "web4realty";
+            </script>
+    <script type="module" src="https://idxjs.web4realty.com/" defer></script>
+    <!-- END idx snippet -->
+     
+        <script src="https://www.google.com/recaptcha/api.js?render=6LeFwOkqAAAAAMuRbH4V397HU-E2jaR4uuciNj8d"></script>
+        <script>
+            window.recaptcha = {
+                isActive: true,
+                publicKey: "6LeFwOkqAAAAAMuRbH4V397HU-E2jaR4uuciNj8d",
+            }
+        </script>
+    </head>
+
+
+
+<body id="default-theme" class="   no_menu_images web4realty-wrap footerCalltoAction_off    disabled_listings_portal    listingDetailsBottomBar__hidden  " wow-type="signup"> 
+<input type="hidden" id="isIdx" value="0"><input type="hidden" id="checkbrokerage" value=" __ ">
+<input type="hidden" id="termsTrigger" value="">
+<div class="pageLoader"><div class="loadingBar"><div class="bounce1"></div><div class="bounce2"></div><div class="bounce3"></div></div></div>
+<div class="wrapper">
+  <section id="main">
+  	<input type="hidden" value=""  name="w4r_baseUrl" id="w4r_baseUrl" />
+    <input type="hidden" value=""  name="baseUrl" id="baseUrl" />
+    <input type="hidden" value="https://nuttyscientistscanada.ca"  name="completeBaseUrl" id="completeBaseUrl" />
+        <input type="hidden" value="$"  name="currency" id="currency" />
+        <input type="hidden" value=""  name="recaptcha_site_keyElement" id="recaptcha_site_keyElement" />
+        <input type="hidden" value=""  name="GEventTrackId" id="GEventTrackId" />
+        <input type="hidden" value=""  name="fbConversionEvent" id="fbConversionEvent" />
+        <input type="hidden" value=""  name="showdummycontent" id="showdummycontent" />
+    
+
+	<header class="row main-header2 noPreh    mbhead_ menuLayout_Horizontal ">
+
+
+<input type="hidden" class="parentNavImgSpace" value="w4rw4rw4rw4r" />
+
+     
+  
+  
+  
+           
+	            <div class="row main-header h_layout_one" data-layout="horizontal">
+    	<div>
+    	                	<div data-width="container" class="new_brand_area container brand_area brand_col_one" data-layout="horizontal">
+                		
+						                        	<div class="col-4 noPad col1_row1 elmCol_image">
+							                              </div>
+                            
+                                            	
+                   </div>
+				                	<div data-width="container" class="new_brand_area container brand_area brand_col_one" data-layout="horizontal">
+                		
+						                        	<div class="col-4 noPad col1_row2 elmCol_image">
+							  <div class="col1_row2_img_div"><span class="blh him_block col1_row2_img"><img data-original="https://d101qgvxw5fp3p.cloudfront.net/site/99009108/assets/uploads/theme/FWHEADER_header-v2.png" src="/assets/images/lazyloadbg.png" alt="Nutty Scientists Canada" title="Nutty Scientists Canada"></span></div>                            </div>
+                            
+                                            	
+                   </div>
+				                	<div data-width="container" class="new_brand_area container brand_area brand_col_one" data-layout="horizontal">
+                		
+						                        	<div class="col-4 noPad col1_row3 elmCol_image">
+							                              </div>
+                            
+                                            	
+                   </div>
+							
+        
+    </div>
+    </div>
+
+
+      
+                                              
+                    <span class="navBtn right" data-type="right" href="javascript:void(0);" rel="nofollow" area-label="Menu Button">
+                    	<span></span>
+                                                <div class="menuIcon_Test right">Menu</div>
+                                            </span>
+                          <nav class="top-nav row topnav_loc_center right menu_withTpBar w4rNav_center menu_width_90   topnaveImg_left">
+                          		
+                                																																                                
+                                								<div class="container">                                <span itemscope itemtype="https://schema.org/Organization"><link itemprop="url" href=""><div class="nav_ul social_wraper social_inMenu_right"><div><ul class="top-social col-6 socialSet rnd vire w4r-topSocial-right"><li><a itemprop="sameAs" href="https://www.facebook.com/LittleCanadianScientists/" target="_blank" title="Facebook"><i class="ico-facebook grey ico-xsmall"></i></a></li><li><a itemprop="sameAs" href="https://www.instagram.com/littlenuttyscientists/" target="_blank" title="Instagram"><i class="ico-instagram grey ico-xsmall"></i></a></li><li><a itemprop="sameAs" href="https://www.youtube.com/channel/UCIDN1nOP_uxBxGLuWKlTBjA" target="_blank" title="Youtube"><i class="ico-youtube grey ico-xsmall"></i></a></li></ul></div></div></span>                                
+                                <ul class="nav_ul_top  container w4r-menu-center ">
+                                        
+                                   	<li class=" " id="w4r668"><a class="elmNav  "  href="https://nuttyscientistscanada.ca/home"  title="Home" ><span class="nv_text">Home</span></a></li><li class="drop-menu  " id="w4r703"><a class="elmNav   "   href="https://nuttyscientistscanada.ca/our-programs-events"  title="Our Programs & Events" ><span class="nv_text">Our Programs & Events </span></a><i class="ico-right-arrow-thin grey"></i><ul class="prehNav pull-right  _  " data-type="" data-space="___" data-imgwidth="auto"><li  class=" imgNot" id="w4r704"><a class="elmNav "  href="https://nuttyscientistscanada.ca/after-school-programs"  title="After School Programs"><span class="nv_text">After School Programs</span></a></li><li  class=" imgNot" id="w4r705"><a class="elmNav "  href="https://nuttyscientistscanada.ca/summercamps"  title="Science Camps"><span class="nv_text">Science Camps</span></a></li><li  class=" imgNot" id="w4r720"><a class="elmNav "  href="https://nuttyscientistscanada.ca/in-school"  title="In-School programs"><span class="nv_text">In-School programs</span></a></li><li  class=" imgNot" id="w4r721"><a class="elmNav "  href="https://nuttyscientistscanada.ca/special-events"  title="Special Events"><span class="nv_text">Special Events</span></a></li><li  class=" imgNot" id="w4r722"><a class="elmNav "  href="https://nuttyscientistscanada.ca/celebrations-parties"  title="Celebrations & Parties"><span class="nv_text">Celebrations & Parties</span></a></li><li  class=" imgNot" id="w4r723"><a class="elmNav "  href="https://nuttyscientistscanada.ca/awareness-campaigns"  title="Awareness Campaigns"><span class="nv_text">Awareness Campaigns</span></a></li><li  class=" imgNot" id="w4r710"><a class="elmNav "  href="https://nuttyscientistscanada.ca/register-program"  title="Program Registration"><span class="nv_text">Program Registration</span></a></li></ul></li><li class="drop-menu  " id="w4r711"><a class="elmNav   "   href="https://nuttyscientistscanada.ca/what-kids-learn-"  title="What Kids Learn " ><span class="nv_text">What Kids Learn  </span></a><i class="ico-right-arrow-thin grey"></i><ul class="prehNav pull-right  _  " data-type="" data-space="___" data-imgwidth="auto"><li  class=" imgNot" id="w4r724"><a class="elmNav "  href="https://nuttyscientistscanada.ca/success-stories"  title="Success Stories"><span class="nv_text">Success Stories</span></a></li><li  class=" imgNot" id="w4r725"><a class="elmNav "  href="https://nuttyscientistscanada.ca/faqs"  title="FAQs"><span class="nv_text">FAQs</span></a></li></ul></li><li class=" " id="w4r619"><a class="elmNav  "  href="https://nuttyscientistscanada.ca/blog"  title="Blog" ><span class="nv_text">Blog</span></a></li><li class="drop-menu  " id="w4r726"><a class="elmNav   "   href="https://nuttyscientistscanada.ca/about-us"  title="About US" ><span class="nv_text">About US </span></a><i class="ico-right-arrow-thin grey"></i><ul class="prehNav pull-right  _  " data-type="" data-space="___" data-imgwidth="auto"><li  class=" imgNot" id="w4r727"><a class="elmNav "  href="https://nuttyscientistscanada.ca/what-we-believe-in"  title="What We Believe In"><span class="nv_text">What We Believe In</span></a></li><li  class=" imgNot" id="w4r728"><a class="elmNav "  href="https://nuttyscientistscanada.ca/our-scientists"  title="Our Scientists"><span class="nv_text">Our Scientists</span></a></li><li  class=" imgNot" id="w4r717"><a class="elmNav "  href="https://nuttyscientistscanada.ca/locations"  title="Locations"><span class="nv_text">Locations</span></a></li><li  class=" imgNot" id="w4r733"><a class="elmNav "  href="https://nuttyscientistscanada.ca/nutty-community"  title="Nutty Community"><span class="nv_text">Nutty Community</span></a></li><li  class=" imgNot" id="w4r729"><a class="elmNav "  href="https://nuttyscientistscanada.ca/careers"  title="Career opportunity"><span class="nv_text">Career opportunity</span></a></li><li  class=" imgNot" id="w4r719"><a class="elmNav "  href="https://nuttyscientistscanada.ca/contact-us"  title="Contact Us"><span class="nv_text">Contact Us</span></a></li><li  class=" imgNot" id="w4r766"><a class="elmNav "  href="https://nuttyscientistscanada.ca/nutty-scientists-canada-on-tvokids2"  title="Nutty Scientists Canada On TVOKids"><span class="nv_text">Nutty Scientists Canada On TVOKids</span></a></li></ul></li><li class=" " id="w4r764"><a class="elmNav  "  href="https://nuttyscientistscanada.ca/scientific-birthday"  title="Scientific Birthday Party " ><span class="nv_text">Scientific Birthday Party </span></a></li>                                </ul>
+                                
+                                                                        
+                                </div>                                
+                                                                                                                                                          </nav>
+         
+  </header>
+	<section id="fullscreen-maindata"><span id="isOnscreen"></span>
+<div id="pageManager" class="content-area">
+<div class="row banner-inner pTitle-2413184559946 sectVisibility_both" id="page-title" data-fcta="w4rfcFCTA_off_w4rfcFCTA" data-fav="w4rfcFAV_favicon761.jpg_w4rfcFAV" page-menulinkcolor="" data-menuoverlay="swh4armenuoverlaystatus_no_swh4armenuoverlaystatus" data-menu="no" overlay-elements="fcw4roverlaytype_menu_fcw4roverlaytype" data-visibility="both"><div class="container"><h3 class="w4r-pageTitle pTitle-26916123946252">Science Camp </h3><ul class="breadcrumb"><li><a href="https://nuttyscientistscanada.ca">Home</a></li><li><a href="summercamp">Summer Science Camp</a></li></ul></div></div>      <div class="mainWrapper sectVisibility_both row" id="contentId_241318445761" data-visibility="both"><div class="row sect section-2413183857650 _contentWidth" id="width-2413183857650"><div class="container content-2413183857650"><div class="grid-row"><div class="col-half col_child_left"><div class="contentBlock myBlock _customContent" id="cBlock_241318459173"><div style="position: relative;"><p style="text-align:center"><span style="font-size:16px"><span style="font-family:Aileron"><span style="line-height:normal"><span style="color:#660066">Nutty Scientists Canada we strive to provide the best <span class="bold_elem">STEAM </span>learning experiences through fun and hands-on activities for our little scientists at our Summer Science Camp!&nbsp;</span></span></span></span></p><p style="text-align:center"><br></p><p style="text-align:center"><span style="font-size:16px"><span style="font-family:Aileron"><span style="line-height:normal"><span style="color:#660066">Whether you like to <span class="bold_elem">explore science</span> and <span class="bold_elem">hands-on experiment</span> with different areas of science, or you are curious to know about STEAM, Nutty Summer Science Camp provides all opportunities to our little scientists to explore <span class="bold_elem">SCIENCE </span>of for their own interest! ALL activities with hands-on science experiments in a group or individually, visual learning, information exchange (Nutty Facts). We cover different scientific topics every week along with specialized activities that align with science! </span></span></span></span></p><p style="text-align:center"><br></p><p style="text-align:center"><span style="font-size:16px"><span style="font-family:Aileron"><span style="line-height:normal"><span style="color:#660066">Our Summer Camp is the place where little scientists can explore every day different area of science learning with hands on, group discussion, visual learning, explore to understand, ask questions, and most importantly connect with science activities during the summer time &amp; <span class="bold_elem">BE scientists</span> themselves!&nbsp;</span></span></span></span></p></div></div><div class="contentBlock img-block myBlock inner_content_241319170406" id="wBlock_2413182655621" data-follow="1"><div class="imgBlock" id="image-2413182655621"><div class="w4rImg_equal"><span class="swing animated check_animAttr image_hover" data-animation="swing"><img src="assets/images/lazyloadbg.png" title="Nutty Science Camp" alt="Scientific Summer Science Camp for Kids " data-original="https://d101qgvxw5fp3p.cloudfront.net/site/99009108/assets/uploads/pageuploads/20260208092325-1.png"></span></div></div></div><div class="contentBlock myBlock _customContent" id="cBlock_2413184721184"><div style="position: relative;"><p style="text-align:center"><span class="bold_elem"><span style="font-size:16px"><span style="font-family:&quot;Times New Roman&quot;,serif"><span style="font-family:&quot;Open Sans&quot;,sans-serif"><span style="color:#660066">Science Camp Day Breakdown:&nbsp;</span></span></span></span></span></p><p style="text-align:center"><br></p><p><span style="color:#660066"><span style="font-size:16px"><span style="font-family:Aileron"><span style="line-height:107%">10:30 - 10:45:&nbsp;&nbsp;&nbsp;&nbsp;Drop-Off and Free Play&nbsp;</span></span></span></span></p><p><span style="color:#660066"><span style="font-size:16px"><span style="font-family:Aileron"><span style="line-height:107%">10:45 - 11:45:&nbsp;&nbsp;&nbsp;&nbsp;STEM learning of the day</span></span></span></span></p><p><span style="color:#660066"><span style="font-size:16px"><span style="font-family:Aileron"><span style="line-height:107%">11:45 - 12.00:&nbsp;&nbsp;&nbsp;&nbsp;Water/ Snack /washroom Break</span></span></span></span></p><p><span style="color:#660066"><span style="font-size:16px"><span style="font-family:Aileron"><span style="line-height:107%">12.00 -&nbsp;&nbsp;&nbsp;1.00:&nbsp;&nbsp;&nbsp;&nbsp;Hands on Science Experiment </span></span></span></span></p><p><span style="color:#660066"><span style="font-size:16px"><span style="font-family:Aileron"><span style="line-height:107%">&nbsp;&nbsp;1.00 -&nbsp;&nbsp;&nbsp;2.00:&nbsp;&nbsp;&nbsp;&nbsp;Lunch Break&nbsp;</span></span></span></span></p><p><span style="color:#660066"><span style="font-size:16px"><span style="font-family:Aileron"><span style="line-height:107%">&nbsp;&nbsp;2:00 -&nbsp;&nbsp;&nbsp;2.45:&nbsp;&nbsp;&nbsp;&nbsp;Themed active recall and Nutty Facts /open&nbsp;discussion</span></span></span></span></p><p><span style="color:#660066"><span style="font-size:16px"><span style="font-family:Aileron"><span style="line-height:107%">&nbsp;&nbsp;2.45 -&nbsp;&nbsp;&nbsp;3.00:&nbsp;&nbsp;&nbsp;&nbsp;Water / washroom break</span></span></span></span></p><p><span style="color:#660066"><span style="font-size:16px"><span style="font-family:Aileron"><span style="line-height:107%">&nbsp;3.00 -&nbsp;&nbsp;&nbsp;&nbsp;3.30:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Activities with worksheet, games or craft</span></span></span></span></p><p><span style="color:#660066"><span style="font-size:16px"><span style="font-family:Aileron"><span style="line-height:107%">&nbsp;3.30 -&nbsp;&nbsp;&nbsp;&nbsp;4.00 :&nbsp;&nbsp;&nbsp;&nbsp;Free play &amp; pick up time </span></span></span></span></p><p><br></p><p style="text-align:center"><span style="font-size:16px"><span style="font-family:Aileron"><span style="color:#800000"><span class="bold_elem">Science Camp Weekly Age Group Breakdown</span></span></span></span></p><p><span style="font-size:16px"><span style="font-family:Aileron"><span class="bold_elem"><span style="color:#800000">July:&nbsp;</span></span></span></span></p><p><br></p><p><span style="font-size:16px"><span style="font-family:Aileron"><span class="bold_elem"><span style="color:#660066">For Age Group: 5 to 7yrs&nbsp;:</span></span>&nbsp;</span></span><span style="font-size:18px"><span style="font-family:Aileron"><span style="color:#ff0000"><span class="bold_elem">July 6th - 10th &amp;&nbsp;&nbsp;July 13th - 17th&nbsp;</span>&nbsp;</span><span style="color:#000000"> &nbsp;</span></span></span></p><p><span style="font-size:16px"><span style="font-family:Aileron"><span style="color:#000000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></span></span></p><p><span style="font-size:16px"><span style="font-family:Aileron"><span style="color:#660066"><span class="bold_elem">For&nbsp;Age Group: 8 to 10 yrs:</span></span><span style="color:#000000">&nbsp;</span></span></span><span style="font-size:18px"><span style="font-family:Aileron"><span style="color:#0000ff"><span class="bold_elem">July 20th - 24th &amp;&nbsp;July 27th - July 31st</span></span></span></span></p><p><br></p><p><span style="font-size:16px"><span style="font-family:Aileron"><span style="color:#800000"><span class="bold_elem">August:&nbsp;</span></span></span></span></p><p><br></p><p><span style="font-size:16px"><span style="font-family:Aileron"><span class="bold_elem"><span style="color:#660066">For Age Group: 5 to 7 yrs:</span><span style="color:#0000ff"> </span></span></span></span><span style="font-size:18px"><span style="font-family:Aileron"><span class="bold_elem"><span style="color:#ff0000">Aug. 3rd - 7th&nbsp;&nbsp;&amp;&nbsp;&nbsp;Aug. 10th - 14th</span></span></span></span></p><p><br></p><p><span style="font-size:16px"><span style="font-family:Aileron"><span style="color:#660066"><span class="bold_elem">For Age Group 8 to 10 yrs:</span></span>&nbsp;</span></span><span style="font-size:18px"><span style="color:#0000ff"><span class="bold_elem"><span style="font-family:&quot;Times New Roman&quot;,serif"><span style="font-family:&quot;Open Sans&quot;,sans-serif"><span style="font-family:Aileron">Aug.17th - 21st &amp;&nbsp;Aug. 24th - 28t</span>h</span></span></span></span></span></p><p><br></p><p><br></p><p><br></p></div></div><div class="contentBlock img-block myBlock inner_content_2413192811200" id="wBlock_2413192713659" data-follow="1"><div class="imgBlock" id="image-2413192713659"><div class="w4rImg_equal"><span class="image_hover  check_animAttr" data-animation="rubberBand"><img src="assets/images/lazyloadbg.png" title="Summer Camp - Explore, Discover &amp; Learn STEM" alt="Science Camp" data-original="https://d101qgvxw5fp3p.cloudfront.net/site/99009108/assets/uploads/pageuploads/20260208103736-3.png"></span></div></div></div><div class="contentBlock myBlock _customContent" id="cBlock_2555232350498"><div style="position: relative;"><p><span style="font-size:16px"><span style="color:#660066"><span class="bold_elem">NOTE:</span></span></span></p><p><br></p><p><span style="font-size:12px"><span style="color:#800000"><span class="bold_elem">1. </span>Very limited seats are available. Required registration in advance. No Walk-in available. All requests will be processed on a first come, first serve basis.&nbsp;&nbsp;</span></span></p><p><span style="font-size:12px"><span style="color:#800000"><span class="bold_elem">2.</span> Required Drop-Off and Pick-up at &amp; from</span><a data-cke-saved-href="https://maps.app.goo.gl/e4vHaPHc3epG5ra7A" href="https://maps.app.goo.gl/e4vHaPHc3epG5ra7A"><span style="color:#800000"><span style="background-color:#fff68f"> </span><span class="bold_elem"><span style="background-color:#fff68f">Vic Johnson Community Center</span></span></span></a><span style="color:#800000">&nbsp;</span><span class="bold_elem">&nbsp;</span><span style="color:#800000"><span class="bold_elem">- 335 Church St, Mississauga ON</span> by parents/ guardian or registered person. <span class="bold_elem">Early drop off </span>( from 9.30am ) and also <span class="bold_elem">extended pick up time</span> (until 4.30pm) available upon request along with the registration in advance @ <span class="underline_elem"><span class="bold_elem">$20/per hour/ per day</span></span> for <span class="bold_elem">ONE STUDENT</span> registration, <span class="bold_elem">$10.00/ per hour /per day/per student</span> for <span class="bold_elem">TWO OR MORE -GROUP / SIBLINGS registrations</span> for&nbsp;an emergency staffing.&nbsp;</span></span></p><p><span style="font-size:12px"><span style="color:#800000"><span class="bold_elem">3. </span>You can reserve &amp; secure your spot by advance payment of full program fees.&nbsp;&nbsp;Click</span><span class="bold_elem"><span style="color:#800000"> </span><a data-cke-saved-href="http://nuttyscientistscanada.ca/refund-policy-" href="http://nuttyscientistscanada.ca/refund-policy-"><span style="color:#800000">REFUND POLICY</span></a></span><span style="color:#800000"> for more details.</span></span></p><p><br></p></div></div></div><div class="col-half col_child_right"><div class="contentBlock img-block myBlock inner_content_2413191454668" id="wBlock_2413182522437" data-follow="1"><div class="imgBlock" id="image-2413182522437"><div class="w4rImg_equal"><span class="shake animated check_animAttr image_hover" data-animation="shake"><img src="assets/images/lazyloadbg.png" title="Summer Science Camp" alt="Summer Science Camp for kids" data-original="https://d101qgvxw5fp3p.cloudfront.net/site/99009108/assets/uploads/pageuploads/20260208092300-2.png"></span></div></div></div><div class="contentBlock myBlock _customContent" id="cBlock_241318273580"><div style="position: relative;"><p><span style="font-size:16px"><span style="font-family:Aileron"><span style="line-height:normal"><span style="color:#660066">Nutty Summer Camp is a science program available for science geniuses in the summer time- July &amp; August</span></span></span></span><span style="font-size:16px"><span style="font-family:Aileron"><span style="line-height:normal"><span style="color:#660066"><span class="bold_elem">.&nbsp;</span></span></span></span></span></p><p style="text-align:center"><br></p><p style="text-align:center"><span style="font-size:16px"><span style="font-family:Aileron"><span style="line-height:normal"><span style="color:#660066"><span class="bold_elem">A special way</span> to explore, understand and learn science while having fun at Summer vacation! </span></span></span></span></p><p style="text-align:center"><br></p><p><span style="font-size:16px"><span style="font-family:Aileron"><span style="line-height:normal"><span style="color:#660066">The Nutty Summer&nbsp;Science Camp is a drop off program, where you, the guardian, can drop off your little scientist at the summer camp location, we will explore different area of science together and then you can pick up your scientist after the activities!</span></span></span></span></p><p><br></p><p style="text-align:center"><span style="color:#ff0000"><span style="font-size:20px"><span class="underline_elem"><span class="bold_elem"><span style="line-height:107%"><span style="font-family:&quot;Calibri Light&quot;,sans-serif"><span style="font-weight:normal"><span style="line-height:107%"><span style="font-family:&quot;Calibri&quot;,sans-serif">REGISTRATION FOR JULY &amp; AUGUST</span></span></span></span></span></span></span></span></span></p><p style="text-align:center"><br></p><p style="text-align:center"><span style="font-family:Aileron"><span style="font-size:18px"><span style="color:#660066">Programs registration available for </span></span></span></p><p style="text-align:center"><br></p><p style="text-align:center"><span style="font-family:Aileron"><span style="font-size:18px"><span class="bold_elem"><span style="color:#660066"><span class="underline_elem">2 weeks / 1 week / One Day</span></span></span></span></span></p><p><br></p><p><span style="font-family:Aileron"><span style="font-size:18px"><span class="bold_elem"><span style="color:#0000ff">5 Days a week:</span><span style="color:#660066"> </span></span><span style="color:#660066"><span class="bold_elem">Monday to Friday</span> (excluding Weekend)</span></span></span></p><p style="text-align:center"><br></p><p><span style="font-size:18px"><span class="bold_elem"><span style="font-family:&quot;Times New Roman&quot;,serif"><span style="font-family:&quot;Calibri&quot;,sans-serif"><span style="color:#660066">&nbsp;</span></span></span></span></span><span style="font-family:Aileron"><span style="font-size:18px"><span style="color:#0000ff"><span style="font-weight:bold" class="bold_elem">Age Groups:</span></span><span style="color:#660066; font-weight:bold" class="bold_elem">&nbsp;&nbsp;</span></span><span style="font-size:18px"><span style="color:#660066; font-weight:bold" class="bold_elem"><span class="underline_elem">5 Yrs to 7 yrs&nbsp;</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="underline_elem"> 8</span></span></span><span style="font-size:18px"><span style="color:#660066; font-weight:bold" class="bold_elem"><span class="underline_elem">&nbsp;Yrs&nbsp;</span><span class="underline_elem">to 10&nbsp;Yrs</span></span></span></span></p><p style="text-align:center"><br></p><p><span style="font-family:Aileron"><span style="font-size:18px"><span class="bold_elem"><span style="color:#0000ff">Time:</span><span style="color:#660066"> </span><span style="color:#660066">10:30 am to 4.00&nbsp;pm&nbsp;&nbsp;&nbsp;&nbsp;</span></span></span></span></p><p><span style="font-family:Aileron"><span style="font-size:12px"><span style="color:#660066; font-weight:bold" class="bold_elem">&nbsp;&nbsp;</span></span><span style="font-size:14px"><span style="color:#660066; font-weight:bold" class="bold_elem">(Early drop off &amp; Extended Pick-Up time available with request - see Note #2 below)</span></span></span></p><p style="text-align:center"><br></p><p><span style="font-family:Aileron"><span style="font-size:18px"><span class="bold_elem"><span style="color:#0000ff">Where:</span><span style="color:#660066">&nbsp;</span><span style="color:#800000">At the</span>&nbsp;</span></span><a data-cke-saved-href="https://share.google/0OZgIdmWFRAxno4hX" href="https://share.google/0OZgIdmWFRAxno4hX"><span class="underline_elem"><span style="color:#800000"><span class="bold_elem"><span style="font-size:14.0pt"><span style="line-height:107%">Vic Johnson Community Center</span></span></span></span></span></a></span></p><p><span style="font-family:Aileron">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="font-size:18px"><span class="bold_elem">&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#800000">335 Church St&nbsp;Streetsville&nbsp;</span></span></span><span style="color:#800000"><span style="font-size:14px"><span class="bold_elem">(Mississauga ) </span></span><span style="font-size:18px"><span class="bold_elem">L5M 1N1</span></span></span></span></p><p><br></p><p><span style="font-family:Aileron"><span style="font-size:18px"><span style="color:#0000ff"><span class="bold_elem">Registration Fees: </span></span></span></span></p><p><span style="color:#660066"><span style="font-size:12px"><span style="font-family:Aileron"><span class="bold_elem">* (4 WEEKS available on request see note # 4 below)</span></span></span></span></p><p><br></p><p style="text-align:center"><span style="font-family:Aileron"><span style="font-size:18px"><span class="blink_me"><span style="color:#ff0000"><span class="bold_elem">* </span></span><span class="underline_elem"><span style="color:#ff0000"><span class="bold_elem">CAMP WITH SMALL GROUP.</span></span></span><span style="color:#ff0000"><span class="bold_elem">&nbsp;&nbsp;&nbsp;</span></span></span></span></span></p><p style="text-align:center"><span style="font-family:Aileron"><span style="font-size:18px"><span class="blink_me"><span style="color:#ff0000"><span class="bold_elem">*&nbsp;&nbsp;<span class="underline_elem">FEW SPOTS LEFT&nbsp;</span>&nbsp;</span></span></span></span></span></p><p style="text-align:center"><span style="font-family:Aileron"><span style="font-size:18px"><span class="blink_me"><span style="color:#ff0000"><span class="bold_elem">*&nbsp;</span></span><span class="underline_elem"><span style="color:#ff0000"><span class="bold_elem">SECURE YOUR SPOT TODAY!&nbsp;</span></span></span></span></span></span></p><p><br></p><p>​​​​​​​<span style="font-family:Aileron"><span class="bold_elem"><span style="font-size:18px"><span style="color:#660066">FOR <span class="underline_elem">2&nbsp;WEEK</span>: </span></span></span><span style="font-size:18px"><span style="color:#660066">$599.00 + tax/per registration&nbsp;</span></span></span>&nbsp;</p><p><br></p><p><span style="font-family:Aileron"><span class="bold_elem"><span style="font-size:18px"><span style="color:#660066">FOR&nbsp;<span class="underline_elem">1 WEEK</span>: </span></span></span><span style="font-size:18px"><span style="color:#660066">$399.00 + tax/per registration</span></span></span></p><p><br></p><p><span style="font-family:Aileron"><span class="bold_elem"><span style="font-size:18px"><span style="color:#660066">FOR&nbsp;<span class="underline_elem">1 DAY</span>: </span></span></span><span style="font-size:18px"><span style="color:#660066">$105.00 + tax/per registration</span></span></span></p><p><br></p><p><span style="font-family:Aileron"><span style="font-size:12px"><span class="bold_elem"><span style="color:#660066">*(For Group / Sibling discount eligibility, see Note #4 below) </span></span></span></span></p><p><span style="font-family:Aileron"><span style="font-size:12px"><span class="bold_elem"><span style="color:#660066">*(For One day registration, see Note #6 below)</span></span></span></span></p><p><br></p><p style="text-align:center"><br></p><p style="text-align:center"><span style="color:#800080"><span class="pulseit"><span style="font-size:12pt"><span style="font-family:&quot;Times New Roman&quot;,serif"><span style="font-size:21.0pt"><span style="font-family:&quot;Damion&quot;,serif">Let's Make This Summer More Scientific</span></span></span></span></span></span></p><p style="text-align:center"><br></p><p style="text-align:center"><span style="font-size:12pt"><span style="font-family:&quot;Times New Roman&quot;,serif"><span style="font-size:16.5pt"><span style="font-family:&quot;Fjalla One&quot;"><span style="color:#660066">Seats are limited...</span></span></span></span></span></p><p style="text-align:center"><span style="font-size:12pt"><span style="font-family:&quot;Times New Roman&quot;,serif"><span style="font-size:16.5pt"><span style="font-family:&quot;Fjalla One&quot;"><span style="color:#660066"><span style="background-color:#ffff00">Few spots are available for both the groups: </span></span></span></span></span></span></p><p style="text-align:center"><span style="font-size:12pt"><span style="font-family:&quot;Times New Roman&quot;,serif"><span style="font-size:16.5pt"><span style="font-family:&quot;Fjalla One&quot;"><span style="color:#660066"><span style="background-color:#ffff00">5-7 Yrs &amp; 8-10 Yrs&nbsp;</span></span></span></span></span></span></p><p style="text-align:center"><span style="font-size:12pt"><span style="font-family:&quot;Times New Roman&quot;,serif"><span style="font-size:16.5pt"><span style="font-family:&quot;Fjalla One&quot;"><span style="color:#660066">Secure your registration </span></span></span></span></span><span style="font-size:12pt"><span style="font-family:&quot;Times New Roman&quot;,serif"><span style="font-size:16.5pt"><span style="font-family:&quot;Fjalla One&quot;"><span style="color:#660066">today!</span></span></span></span></span></p></div></div><div class="contentBlock btn-block myBlock" id="wBlock_243416183541" data-follow="1"><a class="btn button-243416183541" href="https://forms.gle/SGgvXZddvprHFjGC9" target="_blank" title="Age Group 5 to 7 Yrs: Register Here!  ">Age Group 5 to 7 Yrs: Register Here!  </a></div><div class="contentBlock btn-block myBlock duplicated_sect" id="wBlock_2625155821473" data-follow="1"><a class="btn button-2625155821473" href="https://forms.gle/UGMUaLXtnTWxbHNz9" target="_blank" title="Age Group 8 to 10 Yrs : Register Here!  ">Age Group 8 to 10 Yrs : Register Here!  </a></div><div class="contentBlock myBlock _customContent" id="cBlock_24312211024241"><div style="position: relative;"><p><span style="font-size:16px"><span style="color:#660066"><span class="bold_elem">NOTE:</span></span></span></p><p><br></p><p><span style="font-size:12px"><span style="color:#800000"><span style="font-weight:400"><span class="bold_elem">4. </span>Currently we are offering&nbsp;a <span class="bold_elem">20 % off&nbsp;&nbsp;for 4 weeks registration and 5 % off for siblings or group registration (Minimum 2 registrations)&nbsp;</span><span class="bold_elem"><span style="background-color:#ffff00">NOT APPLICABLE TO ONE WEEK REGISTRATION.</span> </span>All payment by e-transfer.&nbsp;</span>Credit card payment option available for payment with 8% processing charges, will be added to the total payment of registration fees.</span></span></p><p><span style="font-size:12px"><span style="color:#800000"><span style="font-weight:400"><span class="bold_elem">5.</span>&nbsp;</span>Registration fees are subject to change without notice at any time, with exception of confirmed bookings.</span></span></p><p><span class="bold_elem"><span style="font-size:12px"><span style="color:#800000">6. </span></span></span><span style="font-size:12px"><span style="color:#800000">For one day registration, you can register online a day before the camp day and pay by e-transfer or cash. NO Walk in registration will be honored. Once one day continue and you like to continue, it will be considered as a new registration. The one day payment can not be combined with or credited to further / additional registration for weekly or monthly. NO refund will be honor for completed or partly completed camp day.&nbsp;</span></span></p><p><span style="font-size:12px"><span style="color:#800000"><span style="font-weight:400"><span class="bold_elem">7. </span>A time slot assigned for Lunch &amp; snack time. Campers will bring their own lunch / snack pack for every camp days they are joining for. In the beginning of the week of your registration, we may send you further the information with the food / allergies restrictions, if any, have been requested by parents within the group you are joining for summer camp.&nbsp;&nbsp;</span></span></span></p><p><span style="font-size:12px"><span style="color:#800000"><span style="font-weight:400"><span class="bold_elem">8.</span>&nbsp;</span></span><span style="font-weight:400"><span style="color:#990000">Any further questions or concerns, feel free to contact us by phone at </span><span style="color:#800000"><span class="bold_elem">905-997-7262</span> </span><span style="color:#990000">or&nbsp;by email at</span><span style="color:#800000">&nbsp;</span></span></span><span style="font-size:12px"><span style="font-weight:400"><span class="bold_elem"><a data-cke-saved-href="mailto:nuttyscientistscanada@gmail.com" href="mailto:nuttyscientistscanada@gmail.com"><span style="color:#800000">nuttyscientistscanada@gmail.com</span></a></span></span></span></p></div></div></div></div></div></div></div></div>
+<input type="hidden" id="idxListingWidget" value="">
+<input type="hidden" value="0"  name="cntSearchWidgets" id="cntSearchWidgets" />
+<input type="hidden" value="15"  name="cntmapsection" id="cntmapsection" />
+<input type="hidden" value="1"  name="uniquecurrentsectionid" id="uniquecurrentsectionid" />
+</section>
+
+<footer class="row footer-content  ">
+	      <div class="row footer-container">
+        <div class="footer_Cwrapper ">
+          <div class="col-6" id="fl_ContactInformation">
+								<div class="f-agent-info"><div class="col-5"><span class="agentSmallPhoto agnt_bg_img" style="background-image:url(https://d101qgvxw5fp3p.cloudfront.net/site/99009108/assets/uploads/agentphoto/webphoto_09122019094521.png);"><img src="https://d101qgvxw5fp3p.cloudfront.net/site/99009108/assets/uploads/agentphoto/webphoto_09122019094521.png" alt="Nutty Scientists  Canada"/></span></div><div class="col-7">
+									<h3>Nutty Scientists  Canada</h3>
+									<span class="w4r_f_contact_info "><p class="minfo_brokrg"> Availability: M-F 4.30pm to 7.30pm : SAT & SUN 11.30 to 6.30pm                
+ (Appointment based visits ONLY-Call to book )                                                                                              
+                                        </p><p class="minfo_slogan">We Love Science </p><p>154 Queen St S, Unit 223 (2nd Floor) , Mississauga, ON, L5M 2P4</p><p class="i"><!--googleoff: all--><span class="goff-e"> <i class="ico-email_icon_2" title="Email"></i></span><!--googleon: all--><a href="mailto:nuttyscientistscanada@gmail.com">nuttyscientistscanada@gmail.com</a></p><p class="i"><!--googleoff: all--><span class="goff-m"> <i class="ico-iphone" title="Mobile"></i></span><!--googleon: all--><a href="tel:9059977264">(905) 997-7264</a></p></span>
+								  	
+								  </div>
+								</div>
+							  </div><div class="col-6" id="fr_Pages">
+                    <nav class="footer-nav">
+                      <h3>Useful Links</h3>
+                      <ul><li><a class="elmNav  "  href="https://nuttyscientistscanada.ca/home"  title="Home">&rsaquo;&nbsp;&nbsp;Home</a></li><li><a class="elmNav  "  href="https://nuttyscientistscanada.ca/what-kids-learn-"  title="What Kids Learn ">&rsaquo;&nbsp;&nbsp;What Kids Learn </a></li><li><a class="elmNav  "  href="https://nuttyscientistscanada.ca/faqs"  title="FAQs">&rsaquo;&nbsp;&nbsp;FAQs</a></li><li><a class="elmNav  "  href="https://nuttyscientistscanada.ca/about-us"  title="About US">&rsaquo;&nbsp;&nbsp;About US</a></li><li><a class="elmNav  "  href="https://nuttyscientistscanada.ca/what-we-believe-in"  title="What We Believe In">&rsaquo;&nbsp;&nbsp;What We Believe In</a></li><li><a class="elmNav  "  href="https://nuttyscientistscanada.ca/careers"  title="Career opportunity">&rsaquo;&nbsp;&nbsp;Career opportunity</a></li><li><a class="elmNav  "  href="https://nuttyscientistscanada.ca/contact-us"  title="Contact Us">&rsaquo;&nbsp;&nbsp;Contact Us</a></li><li><a class="elmNav  "  href="https://nuttyscientistscanada.ca/faqs-nutty-scientific-birthday-"  title="FAQs- Nutty Scientific Birthday ">&rsaquo;&nbsp;&nbsp;FAQs- Nutty Scientific Birthday </a></li><li><a class="elmNav  "  href="https://nuttyscientistscanada.ca/nutty-scientists-canada-on-tvokids"  title="Nutty Scientists Canada On TVOKids">&rsaquo;&nbsp;&nbsp;Nutty Scientists Canada On TVOKids</a></li><li><a class="elmNav  "  href="https://nuttyscientistscanada.ca/nutty-scientists-canada-on-tvokids2"  title="Nutty Scientists Canada On TVOKids">&rsaquo;&nbsp;&nbsp;Nutty Scientists Canada On TVOKids</a></li></ul>
+                    </nav>
+                  </div>		          </div>
+      </div>
+            
+      <div class="row copyright ">
+        <div class="container">
+          <div class="col-4 a">
+                    </div>
+          <div class="col-4 b">
+          <span itemscope itemtype="https://schema.org/Organization"><link itemprop="url" href="">          <ul class="social-round-wire f footer-Social socialSet rnd vire">
+          	<li><a itemprop="sameAs" href="https://www.facebook.com/LittleCanadianScientists/" target="_blank" title="Facebook"><i class="ico-facebook ico-xsmall"></i></a></li><li><a itemprop="sameAs" href="https://www.instagram.com/littlenuttyscientists/" target="_blank" title="Instagram"><i class="ico-instagram ico-xsmall"></i></a></li><li><a itemprop="sameAs" href="https://www.youtube.com/channel/UCIDN1nOP_uxBxGLuWKlTBjA" target="_blank" title="Youtube"><i class="ico-youtube ico-xsmall"></i></a></li> 
+            </ul>
+            </span>          </div>
+          <div class="col-4 c">
+                	                                        <!-- <a href="https://web4realty.com/">Real Estate Websites by Web4Realty</a>-->
+                                       
+                                      <p class="_termsOfUse"><span class="elmflinks termsBtn">Terms of Use & Privacy</span></p>
+                   <div style="display:none !important;" id="board_website_terms"><h4>General Terms of Use</h4><p>Welcome to our website. If you continue to browse and use this website, you are agreeing to comply with and be bound by the following terms and conditions of use, which together with our privacy policy govern this site’s owner’s relationship with you in relation to this website. If you disagree with any part of these terms and conditions, please do not use our website.</p>
+                                                                                                
+<h4>Terms of Use & Privacy</h4>
+<ul>
+<li>The content of the pages of this website is for your general information and use only. It is subject to change without notice.</li>
+<li>Neither we nor any third parties provide any warranty or guarantee as to the accuracy, timeliness, performance, completeness or suitability of the information and materials offered on this website for any particular purpose. You acknowledge that such information and materials may contain inaccuracies or errors and we expressly exclude liability for any such inaccuracies or errors to the fullest extent permitted by law.</li>
+<li>Your use of any information or materials on this website is entirely at your own risk, for which we shall not be liable. It shall be your own responsibility to ensure that any products, services or information available through this website meet your specific requirements.</li>
+<li>This website contains material which is owned by or licensed to us. This material includes, but is not limited to, the design, layout, look, appearance and graphics. Reproduction is prohibited other than in accordance with the copyright notice, which forms part of these terms and conditions.</li>
+<li>All trademarks reproduced in this website, which are not the property of, or licensed to the operator, are acknowledged on the website.</li>
+<li>Unauthorized use of this website may give rise to a claim for damages and/or be a criminal offence.</li>
+<li>From time to time, this website may also include links to other websites. These links are provided for your convenience to provide further information. They do not signify that we endorse the website(s). We have no responsibility for the content of the linked website(s).</li>
+<li>Your use of this website and any dispute arising out of such use of the website is subject to the laws of Canada.</li>
+</ul>
+                           
+<h4>Terms of Use</h4>
+<ul>
+<li>This representation is based in whole or in part on data generated by the Real Estate Board/Website Administrator which assumes no responsibility for its accuracy. The information provided herein must only be used by consumers that have a bona fide interest in the purchase, sale or lease of real estate and may not be used for any commercial purpose or any other purpose.</li>
+<li>All MLS&REG; data obtained from this Virtual Office Website ('VOW') is intended only for your personal, non-commercial use.</li>
+<li>You have a bona fide interest in the purchase, sale, or lease of real estate of the type being offered through this VOW.</li>
+<li>You will not copy, redistribute, retransmit, or otherwise use any of the data or Listing Information provided, except in connection with your consideration of the purchase, sale, or lease of an individual property.</li>
+<li>Real Estate Board/Website Administrator ownership of and the validity of Real Estate Board’s proprietary rights and copyright in the MLS&REG; database, MLS&REG; data, Real Estate Board's MLS&REG; System, and Listing Information.</li>
+<li>You will not, directly or indirectly, display, post, disseminate, distribute, publish, broadcast, transfer, sell or sublicense any Listing Information to another individual or entity. The prohibited uses expressly include ‘scraping’ (including ‘screen scraping’ and ‘database scraping’), ‘data mining’ or any other activity intended to collect, store, re-organize, summarize or manipulate any Listing Information or any related data.</li>
+<li>The Terms of Use agreement also expressly authorizes Real Estate Board, and other Real Estate Board Members or their duly authorized representatives, to access the VOW for the purposes of verifying compliance with MLS® Rules and Policies (including the VOW Rules) and monitoring the display of Members’ Listings by the VOW.</li>
+<li>Consent to the fact that your Personal Information, including first and last name, email address, and phone number may be collected, used or disclosed. The personal information may be shared with Real Estate Board for auditing and/or legal purposes.</li>
+</ul>
+<h4>Privacy</h4>
+<ul>
+<li>My website automatically gathers certain usage information like the numbers and frequency of visitors. This data helps me determine how many visitors use parts of the website, so I can improve my website to assure that it is as appealing as I can make it for as many of you as possible.</li>
+<li>We use a technology called "cookies" that tells us how and when pages in our website are visited, and by how many people. These cookies do not collect personally identifiable information and we do not combine information collected through these cookies with other personally identifiable information to tell us who you are or even what your email address is.</li>
+<li>We may provide statistical "ratings" information, never information about you personally, to our partners about how our clients and visitors, collectively. We do this so they too can understand how much people use their areas and our website in order for them to provide you with the best possible Web experience.</li>
+<li>We will only transmit or ask for personal information over secure Internet connections, using SSL (Secure Sockets Layer) encryption, the currently accepted standard for online security, and security keys.</li>
+<li>We may use your information to let you know of additional products and services which you might be interested. We may ask you for information about your interests so that both you and we can take advantage of the interactivity of the online medium, but you may always choose to respond or not, or opt out of future mailings.</li>
+<li>We will not share your personal information to any third party, unless requested in response to legal processes, such as a court order or subpoena.</li>
+<li>Whenever personal information about you is stored on our computers, that information is password-protected from unauthorized access or use. In addition, this information is kept on servers that are located behind a firewall.</li>
+<li>This website may contain links to other websites. We are not responsible for the privacy practices or the content of such websites.</li>
+<li>If we elect to change our privacy policy, you will be notified, and we will post those changes here so that you will always know what information we gather, how we might use that information and whether we will disclose it to anyone.</li>
+</ul>
+                       </div>
+            </div>
+        </div>
+                
+      </div>
+      
+          </footer>
+    <div class="sitePowerbyPrint printOnlyDiv">
+        <p><img src="https://nuttyscientistscanada.ca//assets/images/Logo-Master-color.svg" alt="Web4Realty" style="width:300px; display:inline-block;"></p>
+        <p>Real Estate Websites by <strong>Web4Realty</strong></p>
+        <p style="text-decoration:underline;">https://web4realty.com/</p>
+    </div>
+    <div class="myOverlay"></div><div id="_privacy"><button id="pfullScreen" class="pfullsc fsAnchorButton" title="Full Screen"><i class="ico-fullscreen"></i></button><button id="exitFscreen" class="pfullsc fsAnchorButton" title="Exit Full Screen"><i class="ico-fullscreen_exit"></i></button><button class="pclose fsAnchorButton" title="Close"><i class="ico-cross3"></i></button><h3></h3><div id="privacycontent"></div></div>
+
+
+
+
+
+      </section>
+  </div>
+
+<input type="hidden" value="ca" name="address_country_code" id="address_country_code" >
+<input type="hidden" value="" name="w4rauto_users_config_w4rlistings" id="w4rauto_users_config_w4rlistings" >
+<input type="hidden" value="39" name="w4rauto_w4r_listings_feed_id" id="w4rauto_w4r_listings_feed_id" >
+
+<input type="hidden" value="" name="w4r_setUrlPath" id="w4r_setUrlPath" >
+
+<script> var app_url = "https://nuttyscientistscanada.ca"  
+
+</script> 
+
+<script>
+    let BUY_Residential_Sub_Type = ['Att/Row/Townhouse', 'Cottage', 'Detached', 'Duplex', 'Farm', 'Fourplex', 'Link', 'MobileTrailer', 'Multiplex', 'Other', 'Rural Residential', 'Semi-Detached', 'Store W Apt/Office', 'Triplex', 'Vacant Land'];</script>
+	<script src='https://d101qgvxw5fp3p.cloudfront.net/site/99009108/assets/uploads/theme/w4r_763_min_v14024715_2891016.js' type="text/javascript"></script>
+<!-- <script src="application/layouts/scripts/themes/trailblazer/js/w4ruserarea.js"></script> -->
+<script src="//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
+<script>
+  $(document).on('click', '.tablinks', function(){
+     let tabClass= $(this).attr('data-id');
+     let tabValue= $(this).attr('data-value');
+     $("."+tabClass).find("input[name='defaultFilterOption']").val(tabValue);
+     $(".tabSearchFilter"+tabClass).removeClass('active');
+     // Hidden/ Show Type filter option
+     $("."+tabClass).find(".srchType_div_p").addClass('hidden');
+     $("."+tabClass).find("."+tabClass+tabValue).removeClass('hidden');
+     
+     $("."+tabClass).find(".MainType"+tabValue).addClass('hidden');
+     
+     $("."+tabClass+" .buyRent_type").find(".searchTypesFilter").addClass('hidden');
+     $("."+tabClass+" .buyRent_type").find(".searchTypes_span_"+tabValue).removeClass('hidden');
+     
+     // Hidden/Show Price filter
+     $("."+tabClass+" .buyRent_price").find(".srch_cat_row").addClass('hidden');
+     $("."+tabClass+" .buyRent_price").find("[data-type='"+tabValue+"']").removeClass('hidden');
+     
+     $("."+tabClass+" .buyRent_price").find(".searchTypes_priceFilter").addClass('hidden');
+     $("."+tabClass+" .buyRent_price").find(".searchTypes_price_"+tabValue).removeClass('hidden');
+     
+     $(this).addClass('active');
+  });
+  
+  $(document).ready(function(){
+    $(".firstTabLink").each(function(){
+        let id= $(this).attr('data-id');
+        let tabValue= $(this).attr('data-value');
+        $(this).click();
+    });
+  });
+</script>
+
+
+<!-- youtube api to mute vimeo videos -->
+<script type="text/javascript" src="https://www.youtube.com/iframe_api"></script>
+<script type="text/javascript" src="https://nuttyscientistscanada.ca/assets/javascript/jquery.vimeo.api.js"></script>
+<!-- vimeo api to mute vimeo videos -->
+<script>
+    $(document).ready(function(e) {
+		//vimeo mute function
+        var iframe = document.getElementsByClassName('mutevimeo');
+        for (i = 0; i < iframe.length; i++) { 
+            var playervimo = iframe[i];
+            $(playervimo).vimeo("setVolume", 0);
+			$(playervimo).vimeo("play");
+        }
+    });
+	// parascroll function
+	$(function(){
+		$('.youvimeoparascroll').parascroll();
+	});
+	//youtube mute function
+	//fitvid117276
+	var players = new Array();
+	var players_attr = new Array();
+        $('.muteYoutube').each(function() {
+            videoIds = this.id;
+            players_attr[videoIds] = {
+              events: {
+                    onReady: function(e) {
+                        e.target.mute();
+                    }
+              }
+            }
+        });
+	function onYouTubeIframeAPIReady() {
+	  for (key in players_attr) {
+		players[key] = new YT.Player(key, players_attr[key]);
+	  }
+	}    
+</script>
+
+
+<button class="pageUp _pc_ _mobile_"  > <i class="ico-up-arrow-thick"></i></button>
+
+
+
+<!-- 
+    Code to get api keys of waiter & livechat
+ -->
+ 
+<!-- waiter snippet -->
+<!-- loading snippet -->
+
+<script type="text/javascript">
+
+    /**
+     * Jira card id: W4R-118 
+     * Retrieve IDX status and listing details
+     */
+    var idx_elm             = document.getElementById('isIdx')?.value;
+    var listing_data    = document.getElementById('IDX-listing-detail');
+
+    if (idx_elm == '1') {
+        var idxPageType = 'listing';
+
+        if(typeof listing_data?.dataset?.listingid != "undefined") {
+            var idxPageData = {
+                            'listing_id': listing_data?.dataset?.listingid
+                          };
+        } else {
+            var idxPageData = {};
+        }
+
+        var wtPageType      = idxPageType;
+        var wtPageProperty  = idxPageData;
+    } else {
+        var wtPageType      = "";
+        var wtPageProperty  =  {}; 
+    }
+
+    ! function() {
+        var waiter = window.waiter = window.waiter || [];
+        if (!waiter.initialize)
+            if (waiter.invoked) window.console && console.error && console.error("Waiter snippet included twice.");
+            else {
+                waiter.invoked = true;
+                waiter.methods = ["identity", "event", "page"];
+                waiter.factory = function(t) {
+                    return function () {
+                        var e = Array.prototype.slice.call(arguments);
+                        e.unshift(t);
+                        waiter.push(e);
+                        return waiter
+                    }
+                };
+                for (var t = 0; t < waiter.methods.length; t++) {
+                    var e = waiter.methods[t];
+                    waiter[e] = waiter.factory(e)
+                }
+                waiter.load = function(e, t) {
+                    var n = document.createElement("script");
+                    n.type = "text/javascript";
+                    // n.async = 1;
+                    n.defer = true;
+                    n.src = "https://cdn.waiter.io/v1/waiter.min.js?key=" + e, n.charset = 'UTF-8';
+                    var a = document.getElementsByTagName("script");
+                    a = a[a.length-1];
+                    a.parentNode.insertBefore(n, a);
+                    waiter._loadOptions = t;
+                    waiter._apiKey = e;
+                };
+                waiter.SNIPPET_VERSION = "1.0.0";
+                waiter.load("2td5prhxUu892Y2U229t163e9T62d4w8");
+
+                console.log('---------------TEST 4---------------------');
+                console.log(wtPageType);
+                console.log(wtPageProperty);
+                console.log('---------------TEST 5---------------------');
+
+                waiter.page(wtPageType,wtPageProperty);
+            }
+    }();
+</script>
+<!-- Snippet loaded --> 
+<!-- saaschat snippet -->
+<!-- loading snippet -->
+<script type="text/javascript">
+var saaschatAk = "M0N723ShhRX72by6640T1U41F1d1XrX0";
+
+! function() {
+  var saaschatwidgethandler = setInterval(() => {
+    if(loadSaasChat){
+      console.warn("chat widget adding...");
+      clearInterval(saaschatwidgethandler);
+      var a = window.saaschat = window.saaschat || [];
+      a.initialize || (a.invoked ? window.console && console.error && console.error("Saaschat snippet included twice.") : (a.invoked = !0, a.load = function(e, t) {
+          var o = document.createElement("script");
+          o.type = "text/javascript",  o.defer = true, o.src = "https://cdn.saaschat.io/v5/js/saaschat.min.js?key=" + e+"&external_identifier=",o.charset='UTF-8';
+          var n = document.getElementsByTagName("script");
+          n = n[n.length-1];
+          n.parentNode.insertBefore(o, n), a._loadOptions = t
+      },
+      a.SNIPPET_VERSION = "1.0.0",
+      a.load(saaschatAk)
+      ));
+      console.warn("chat widget added.");
+    }
+  }, 100);
+
+}();
+
+
+</script>
+<!-- Snippet loaded --> 
+
+<script>
+  isLiveChatEnabled = 1</script>
+<script>
+//this function to set min height of content to place footer always at bottom..
+function setWrapper_min_height(){try{var e=document.querySelector(".footer-content"),t=document.querySelector(".us_preheader"),i=e.offsetHeight,n=t ? t.offsetHeight : 0;if(t&&e){var o=i+n,r=window.innerHeight-o,c="",d="",s="",a=document.querySelector(".setwrapMinHeight");if(a)c=".setwrapMinHeight{min-height:"+(window.innerHeight-a.offsetTop-i-223)+"px;}";var h=document.querySelector(".favoriteListingsList");if(h)s=".favoriteListingsList{min-height:"+(r-h.offsetTop+10)+"px;}";if(document.querySelector(".listingMain"))d=".listingMain{min-height:"+(r-433)+"px;}";var m=document.querySelector(".min_height_injection");m&&m.remove(),500>r&&(r=500);var u="@media screen and (min-width: 1024px) and (max-width:5000px) {"+s+c+d+"}",f=document.createElement("style");f.classList.add("min_height_injection"),f.innerHTML=u,document.body.appendChild(f)}document.querySelector(".footer-content").style.display="block";}catch(err){}}
+setWrapper_min_height();
+</script>
+</body>
+<input type="hidden" id="listingPortal_status" value="0">
+<input type="hidden" id="show_contact_form_status" value="0">
+</html>
