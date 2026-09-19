@@ -3,6 +3,7 @@ import { describe, it } from "node:test";
 import { canonicalizeSourceUrl } from "@/lib/camps/ingestion/canonicalizeUrl";
 import { CREATIVE_KIDS_PLACE_EXTRACTOR_KEY } from "@/lib/camps/ingestion/extractors/creativeKidsPlaceExtractor";
 import { NUTTY_SCIENTISTS_EXTRACTOR_KEY } from "@/lib/camps/ingestion/extractors/nuttyScientistsExtractor";
+import { RIVERWOOD_CONSERVANCY_EXTRACTOR_KEY } from "@/lib/camps/ingestion/extractors/riverwoodConservancyExtractor";
 import { resolveExtractor } from "@/lib/camps/ingestion/extractors/registry";
 import { HttpCampSourceFetcher } from "@/lib/camps/ingestion/httpFetcher";
 import { createMemoryIngestionStore } from "@/lib/camps/ingestion/repositories/memoryStore";
@@ -12,10 +13,13 @@ import {
   CREATIVE_KIDS_PLACE_SOURCE_URL,
   NUTTY_SCIENTISTS_SOURCE_ID,
   NUTTY_SCIENTISTS_SOURCE_URL,
+  RIVERWOOD_CONSERVANCY_SOURCE_ID,
+  RIVERWOOD_CONSERVANCY_SOURCE_URL,
   creativeKidsPlaceSource,
   isFetchAllowlisted,
   nuttyScientistsSource,
   registerSeedCampSources,
+  riverwoodConservancySource,
   seedCampSources,
 } from "@/lib/camps/ingestion/sources/seedSources";
 
@@ -63,6 +67,24 @@ describe("seed camp sources", () => {
     });
     assert.equal(extractor.key, NUTTY_SCIENTISTS_EXTRACTOR_KEY);
   });
+
+  it("registers Riverwood Conservancy against the official summer-camp HTML page", () => {
+    const source = riverwoodConservancySource(NOW);
+    assert.equal(source.sourceUrl, RIVERWOOD_CONSERVANCY_SOURCE_URL);
+    assert.equal(source.canonicalUrl, canonicalizeSourceUrl(RIVERWOOD_CONSERVANCY_SOURCE_URL));
+    assert.equal(source.crawlStrategy, "html");
+    assert.equal(source.extractorKey, RIVERWOOD_CONSERVANCY_EXTRACTOR_KEY);
+    assert.doesNotMatch(source.sourceUrl, /\.pdf($|\?)/i);
+  });
+
+  it("resolves Riverwood Conservancy to the Riverwood extractor", () => {
+    const extractor = resolveExtractor({
+      source: riverwoodConservancySource(NOW),
+      document: { title: null, text: "", headings: [], links: [], metadata: {} },
+      rawHtml: "",
+    });
+    assert.equal(extractor.key, RIVERWOOD_CONSERVANCY_EXTRACTOR_KEY);
+  });
 });
 
 describe("fetch allowlist", () => {
@@ -70,11 +92,18 @@ describe("fetch allowlist", () => {
     assert.deepEqual(CAMP_FETCH_ALLOWLIST, [
       CREATIVE_KIDS_PLACE_SOURCE_ID,
       NUTTY_SCIENTISTS_SOURCE_ID,
+      RIVERWOOD_CONSERVANCY_SOURCE_ID,
     ]);
     assert.ok(isFetchAllowlisted(CREATIVE_KIDS_PLACE_SOURCE_ID));
     assert.ok(isFetchAllowlisted(NUTTY_SCIENTISTS_SOURCE_ID));
+    assert.ok(isFetchAllowlisted(RIVERWOOD_CONSERVANCY_SOURCE_ID));
     assert.ok(!isFetchAllowlisted("src-some-other-provider"));
     assert.ok(!isFetchAllowlisted("https://forms.gle/SGgvXZddvprHFjGC9"));
+    assert.ok(
+      !isFetchAllowlisted(
+        "https://theriverwoodconservancy.org/wp-content/uploads/2026/06/2026-Camp-Riverwood-Summer-Day-Camp-Information-Guide.pdf",
+      ),
+    );
   });
 
   it("registering a source does not make it fetchable", async () => {
@@ -135,7 +164,7 @@ describe("registerSeedCampSources", () => {
     assert.equal(stored?.lastCheckedAt, "2026-09-12T13:00:00.000Z");
     assert.equal(stored?.nextCheckAt, "2026-09-13T13:00:00.000Z");
     assert.equal(stored?.updatedAt, "2026-09-12T14:00:00.000Z");
-    assert.equal((await store.sources.listSources()).length, 2);
+    assert.equal((await store.sources.listSources()).length, 3);
   });
 
   it("refreshes configuration from the seed", async () => {

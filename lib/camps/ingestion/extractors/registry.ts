@@ -20,6 +20,10 @@ import {
   NUTTY_SCIENTISTS_EXTRACTOR_KEY,
   nuttyScientistsExtractor,
 } from "@/lib/camps/ingestion/extractors/nuttyScientistsExtractor";
+import {
+  RIVERWOOD_CONSERVANCY_EXTRACTOR_KEY,
+  riverwoodConservancyExtractor,
+} from "@/lib/camps/ingestion/extractors/riverwoodConservancyExtractor";
 import type {
   CampExtractor,
   ExtractorSupportInput,
@@ -29,6 +33,7 @@ import type {
 export const SITE_EXTRACTORS: readonly CampExtractor[] = [
   creativeKidsPlaceExtractor,
   nuttyScientistsExtractor,
+  riverwoodConservancyExtractor,
 ];
 
 export const CAMP_EXTRACTORS: readonly CampExtractor[] = [
@@ -75,6 +80,9 @@ export function suggestExtractorKey(source: Pick<CampSource, "canonicalUrl">): s
   }
   if (/nuttyscientistscanada\.ca/i.test(source.canonicalUrl)) {
     return NUTTY_SCIENTISTS_EXTRACTOR_KEY;
+  }
+  if (/theriverwoodconservancy\.org/i.test(source.canonicalUrl)) {
+    return RIVERWOOD_CONSERVANCY_EXTRACTOR_KEY;
   }
   return GENERIC_HTML_EXTRACTOR_KEY;
 }

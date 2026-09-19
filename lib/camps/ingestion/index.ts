@@ -198,6 +198,19 @@ export {
   type NuttyScientistsPriceTier,
 } from "@/lib/camps/ingestion/extractors/nuttyScientistsExtractor";
 export {
+  RIVERWOOD_CONSERVANCY_EXTRACTOR_KEY,
+  RIVERWOOD_CONSERVANCY_HOST,
+  RIVERWOOD_CONSERVANCY_PROVIDER_NAME,
+  RIVERWOOD_CONSERVANCY_PROGRAM_NAME,
+  RIVERWOOD_CONSERVANCY_VENUE_NAME,
+  riverwoodConservancyExtractor,
+  parseRiverwoodConservancyFacts,
+  parseRiverwoodSchedule,
+  parseRiverwoodGradeEligibility,
+  riverwoodSessionSourceIdentity,
+  type RiverwoodConservancyFacts,
+} from "@/lib/camps/ingestion/extractors/riverwoodConservancyExtractor";
+export {
   parseCreativeKidsPlaceSchedule,
   parseWeekAddOns,
   parseWeekDateWindows,
@@ -300,8 +313,12 @@ export {
   NUTTY_SCIENTISTS_PROVIDER_ID,
   NUTTY_SCIENTISTS_SOURCE_ID,
   NUTTY_SCIENTISTS_SOURCE_URL,
+  RIVERWOOD_CONSERVANCY_PROVIDER_ID,
+  RIVERWOOD_CONSERVANCY_SOURCE_ID,
+  RIVERWOOD_CONSERVANCY_SOURCE_URL,
   creativeKidsPlaceSource,
   nuttyScientistsSource,
+  riverwoodConservancySource,
   isFetchAllowlisted,
   registerSeedCampSources,
   seedCampSources,

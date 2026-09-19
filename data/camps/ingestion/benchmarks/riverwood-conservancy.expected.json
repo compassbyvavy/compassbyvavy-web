@@ -1,0 +1,229 @@
+{
+  "$comment": [
+    "Expected offline extraction for riverwood-conservancy-summercamp.html.",
+    "Official URL: https://theriverwoodconservancy.org/summercamp/",
+    "Captured 2026-09-19 from the live WordPress/WooCommerce page. Fixture is the official HTML as captured (nav, footer, scripts retained). The Information Guide PDF is linked and is not fetched or parsed.",
+    "Prompt 9B-B grain: one session per stated date window. The page lists 8 labelled weeks; Week 1 is two discontinuous windows, so gold is 9 windows / 9 offerings.",
+    "The official page states month/day windows only — ISO dates stay null. Footer copyright 2026, PDF href 2026, and wp-content years are not a camp year.",
+    "Identity: riverwood_conservancy:session:{MM-DD}_{MM-DD}",
+    "KNOWN LIMITATION: the same month/day window in a later year, still without a stated year, collides on identity and can look unchanged.",
+    "Grades 1–6 stay grades. ageMin/ageMax stay null.",
+    "Prices are literal $360 / $450 per child. Currency stays unknown: the HTML does not state CAD, and the generic `$`→CAD assumption is not adopted.",
+    "SOLD OUT maps to seatAvailability=confirmed_full and does not close registrationStatus.",
+    "Capacity 16 is an enrolment cap on policies/provenance — CampSession has no numeric capacity field.",
+    "Price is a semantic fact, not session identity.",
+    "Regenerate via scripts/rebuild-riverwood-expected.ts — never edit to make a failing extractor pass."
+  ],
+  "benchmark": {
+    "sourceFile": "riverwood-conservancy-summercamp.html",
+    "sourceUrl": "https://theriverwoodconservancy.org/summercamp/",
+    "capturedAt": "2026-09-19",
+    "extractorKey": "riverwood_conservancy",
+    "extractorVersion": "0.1.0",
+    "status": "success",
+    "labelledWeekCount": 8,
+    "weekCount": 9,
+    "offeringCount": 9
+  },
+  "identity": {
+    "formula": "riverwood_conservancy:session:{MM-DD}_{MM-DD}",
+    "keys": [
+      "riverwood_conservancy:session:06-29_06-30",
+      "riverwood_conservancy:session:07-02_07-03",
+      "riverwood_conservancy:session:07-06_07-10",
+      "riverwood_conservancy:session:07-13_07-17",
+      "riverwood_conservancy:session:07-20_07-24",
+      "riverwood_conservancy:session:07-27_07-31",
+      "riverwood_conservancy:session:08-04_08-07",
+      "riverwood_conservancy:session:08-10_08-14",
+      "riverwood_conservancy:session:08-17_08-21"
+    ]
+  },
+  "facts": {
+    "provider": {
+      "name": "The Riverwood Conservancy",
+      "registrationPlatform": null
+    },
+    "venue": {
+      "name": "Chappell House",
+      "addressLine": "4300 Riverwood Park Lane",
+      "city": null,
+      "province": null,
+      "postalCode": null,
+      "neighbourhood": null
+    },
+    "program": {
+      "name": "Camp Riverwood",
+      "ageMin": null,
+      "ageMax": null,
+      "seasonStartDate": null,
+      "seasonEndDate": null,
+      "coreHoursStart": "09:00",
+      "coreHoursEnd": "15:30",
+      "registrationUrl": null
+    },
+    "gradeEligibility": {
+      "gradeMin": 1,
+      "gradeMax": 6,
+      "copy": "Riverwood is abundant with plant life and wildlife in summer, making it the perfect time for kids to explore the park and learn about the natural world – under the guidance of our experienced nature educators, of course. Children who have completed Grade 1, 2, 3, 4, 5, or 6 can spend a week adventuring with other like-minded youth to create memories and deepen their connection to the local environment and the wider world of nature."
+    },
+    "enrolmentCapPerWeek": 16,
+    "prePostCampCareOffered": false,
+    "informationGuidePdfUrl": "https://theriverwoodconservancy.org/wp-content/uploads/2026/06/2026-Camp-Riverwood-Summer-Day-Camp-Information-Guide.pdf",
+    "policies": {
+      "gradeMin": 1,
+      "gradeMax": 6,
+      "gradeEligibilityCopy": "Riverwood is abundant with plant life and wildlife in summer, making it the perfect time for kids to explore the park and learn about the natural world – under the guidance of our experienced nature educators, of course. Children who have completed Grade 1, 2, 3, 4, 5, or 6 can spend a week adventuring with other like-minded youth to create memories and deepen their connection to the local environment and the wider world of nature.",
+      "enrolmentCapPerWeek": 16,
+      "soldOutCopy": [
+        "Week 1: June 29 – 30, July 2 – 3 | $360 per child – SOLD OUT",
+        "Week 2: July 6 – 10 | $450 per child – SOLD OUT",
+        "Week 3: July 13 – 17 | $450 per child – SOLD OUT",
+        "Week 4: July 20 – 24 | $450 per child – SOLD OUT",
+        "Week 5: July 27 – 31 | $450 per child – SOLD OUT",
+        "Week 6: August 4 – 7 | $360 per child – SOLD OUT",
+        "Week 7: August 10 – 14 | $450 per child – SOLD OUT",
+        "Week 8: August 17 – 21 | $450 per child – SOLD OUT"
+      ],
+      "prePostCampCareOffered": false,
+      "latePickupFeeCopy": "PLEASE NOTE: We will not provide pre- or post-camp care. If parents are late picking up their child(ren), an additional fee of $5 will be charged for every five minutes up to 30 minutes, and $10 for every five minutes thereafter.",
+      "lunchPackedByCamper": true,
+      "camperToStaffRatioCopy": "Campers’ well-being is supported by a 6:1 camper to staff ratio that allows kids to go at their own pace. Our approach encourages growth in children’s well-being, confidence, creativity and love of nature. We are intentional about building an inclusive and supportive camp community."
+    },
+    "derivedAvailableAgeMin": null,
+    "derivedAvailableAgeMax": null,
+    "marketingAgeMin": null,
+    "marketingAgeMax": null,
+    "warnings": [
+      "year_not_stated",
+      "price_unit_not_stated",
+      "currency_not_stated"
+    ],
+    "knownGaps": [
+      "session_iso_dates_unparsed_year_not_stated",
+      "camp_information_guide_pdf_not_fetched",
+      "no_registration_url_on_html",
+      "session_capacity_field_not_on_camp_session_contract",
+      "grades_not_converted_to_ages"
+    ],
+    "offerings": [
+      {
+        "listedWeekNumber": 1,
+        "weekIdentity": "06-29_06-30",
+        "listedDateWindow": "June 29 – 30",
+        "startDate": null,
+        "endDate": null,
+        "isShortWeek": true,
+        "dayCount": 2,
+        "priceAmount": 360,
+        "currency": "unknown",
+        "soldOut": true,
+        "sourceIdentity": "riverwood_conservancy:session:06-29_06-30"
+      },
+      {
+        "listedWeekNumber": 1,
+        "weekIdentity": "07-02_07-03",
+        "listedDateWindow": "July 2 – 3",
+        "startDate": null,
+        "endDate": null,
+        "isShortWeek": true,
+        "dayCount": 2,
+        "priceAmount": 360,
+        "currency": "unknown",
+        "soldOut": true,
+        "sourceIdentity": "riverwood_conservancy:session:07-02_07-03"
+      },
+      {
+        "listedWeekNumber": 2,
+        "weekIdentity": "07-06_07-10",
+        "listedDateWindow": "July 6 – 10",
+        "startDate": null,
+        "endDate": null,
+        "isShortWeek": false,
+        "dayCount": 5,
+        "priceAmount": 450,
+        "currency": "unknown",
+        "soldOut": true,
+        "sourceIdentity": "riverwood_conservancy:session:07-06_07-10"
+      },
+      {
+        "listedWeekNumber": 3,
+        "weekIdentity": "07-13_07-17",
+        "listedDateWindow": "July 13 – 17",
+        "startDate": null,
+        "endDate": null,
+        "isShortWeek": false,
+        "dayCount": 5,
+        "priceAmount": 450,
+        "currency": "unknown",
+        "soldOut": true,
+        "sourceIdentity": "riverwood_conservancy:session:07-13_07-17"
+      },
+      {
+        "listedWeekNumber": 4,
+        "weekIdentity": "07-20_07-24",
+        "listedDateWindow": "July 20 – 24",
+        "startDate": null,
+        "endDate": null,
+        "isShortWeek": false,
+        "dayCount": 5,
+        "priceAmount": 450,
+        "currency": "unknown",
+        "soldOut": true,
+        "sourceIdentity": "riverwood_conservancy:session:07-20_07-24"
+      },
+      {
+        "listedWeekNumber": 5,
+        "weekIdentity": "07-27_07-31",
+        "listedDateWindow": "July 27 – 31",
+        "startDate": null,
+        "endDate": null,
+        "isShortWeek": false,
+        "dayCount": 5,
+        "priceAmount": 450,
+        "currency": "unknown",
+        "soldOut": true,
+        "sourceIdentity": "riverwood_conservancy:session:07-27_07-31"
+      },
+      {
+        "listedWeekNumber": 6,
+        "weekIdentity": "08-04_08-07",
+        "listedDateWindow": "August 4 – 7",
+        "startDate": null,
+        "endDate": null,
+        "isShortWeek": true,
+        "dayCount": 4,
+        "priceAmount": 360,
+        "currency": "unknown",
+        "soldOut": true,
+        "sourceIdentity": "riverwood_conservancy:session:08-04_08-07"
+      },
+      {
+        "listedWeekNumber": 7,
+        "weekIdentity": "08-10_08-14",
+        "listedDateWindow": "August 10 – 14",
+        "startDate": null,
+        "endDate": null,
+        "isShortWeek": false,
+        "dayCount": 5,
+        "priceAmount": 450,
+        "currency": "unknown",
+        "soldOut": true,
+        "sourceIdentity": "riverwood_conservancy:session:08-10_08-14"
+      },
+      {
+        "listedWeekNumber": 8,
+        "weekIdentity": "08-17_08-21",
+        "listedDateWindow": "August 17 – 21",
+        "startDate": null,
+        "endDate": null,
+        "isShortWeek": false,
+        "dayCount": 5,
+        "priceAmount": 450,
+        "currency": "unknown",
+        "soldOut": true,
+        "sourceIdentity": "riverwood_conservancy:session:08-17_08-21"
+      }
+    ]
+  }
+}
