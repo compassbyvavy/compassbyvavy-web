@@ -17,6 +17,10 @@ import {
   frontLineHockeyExtractor,
 } from "@/lib/camps/ingestion/extractors/frontLineHockeyExtractor";
 import {
+  GYMNASTICS_MISSISSAUGA_EXTRACTOR_KEY,
+  gymnasticsMississaugaExtractor,
+} from "@/lib/camps/ingestion/extractors/gymnasticsMississaugaExtractor";
+import {
   GENERIC_HTML_EXTRACTOR_KEY,
   genericHtmlExtractor,
 } from "@/lib/camps/ingestion/extractors/genericHtmlExtractor";
@@ -39,6 +43,7 @@ export const SITE_EXTRACTORS: readonly CampExtractor[] = [
   nuttyScientistsExtractor,
   riverwoodConservancyExtractor,
   frontLineHockeyExtractor,
+  gymnasticsMississaugaExtractor,
 ];
 
 export const CAMP_EXTRACTORS: readonly CampExtractor[] = [
@@ -91,6 +96,9 @@ export function suggestExtractorKey(source: Pick<CampSource, "canonicalUrl">): s
   }
   if (/frontlinehockeyschool\.ca/i.test(source.canonicalUrl)) {
     return FRONT_LINE_HOCKEY_EXTRACTOR_KEY;
+  }
+  if (/gymmississauga\.org/i.test(source.canonicalUrl)) {
+    return GYMNASTICS_MISSISSAUGA_EXTRACTOR_KEY;
   }
   return GENERIC_HTML_EXTRACTOR_KEY;
 }

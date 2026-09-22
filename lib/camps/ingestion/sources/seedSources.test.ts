@@ -3,6 +3,7 @@ import { describe, it } from "node:test";
 import { canonicalizeSourceUrl } from "@/lib/camps/ingestion/canonicalizeUrl";
 import { CREATIVE_KIDS_PLACE_EXTRACTOR_KEY } from "@/lib/camps/ingestion/extractors/creativeKidsPlaceExtractor";
 import { FRONT_LINE_HOCKEY_EXTRACTOR_KEY } from "@/lib/camps/ingestion/extractors/frontLineHockeyExtractor";
+import { GYMNASTICS_MISSISSAUGA_EXTRACTOR_KEY } from "@/lib/camps/ingestion/extractors/gymnasticsMississaugaExtractor";
 import { NUTTY_SCIENTISTS_EXTRACTOR_KEY } from "@/lib/camps/ingestion/extractors/nuttyScientistsExtractor";
 import { RIVERWOOD_CONSERVANCY_EXTRACTOR_KEY } from "@/lib/camps/ingestion/extractors/riverwoodConservancyExtractor";
 import { resolveExtractor } from "@/lib/camps/ingestion/extractors/registry";
@@ -17,6 +18,8 @@ import {
   FRONT_LINE_HOCKEY_JULY_SOURCE_URL,
   FRONT_LINE_HOCKEY_PROVIDER_ID,
   FRONT_LINE_HOCKEY_SOURCE_IDS,
+  GYMNASTICS_MISSISSAUGA_SOURCE_ID,
+  GYMNASTICS_MISSISSAUGA_SOURCE_URL,
   NUTTY_SCIENTISTS_SOURCE_ID,
   NUTTY_SCIENTISTS_SOURCE_URL,
   RIVERWOOD_CONSERVANCY_SOURCE_ID,
@@ -24,6 +27,7 @@ import {
   creativeKidsPlaceSource,
   frontLineHockeySourceById,
   frontLineHockeySources,
+  gymnasticsMississaugaSource,
   isFetchAllowlisted,
   nuttyScientistsSource,
   registerSeedCampSources,
@@ -120,6 +124,25 @@ describe("seed camp sources", () => {
       FRONT_LINE_HOCKEY_JULY_SOURCE_URL,
     );
   });
+
+  it("registers Gymnastics Mississauga against the official summer-camp HTML page", () => {
+    const source = gymnasticsMississaugaSource(NOW);
+    assert.equal(source.sourceUrl, GYMNASTICS_MISSISSAUGA_SOURCE_URL);
+    assert.equal(source.canonicalUrl, canonicalizeSourceUrl(GYMNASTICS_MISSISSAUGA_SOURCE_URL));
+    assert.equal(source.crawlStrategy, "html");
+    assert.equal(source.extractorKey, GYMNASTICS_MISSISSAUGA_EXTRACTOR_KEY);
+    assert.equal(source.registrationPlatform, "Jackrabbit");
+    assert.doesNotMatch(source.sourceUrl, /jackrabbitclass\.com/i);
+  });
+
+  it("resolves Gymnastics Mississauga to the Gymnastics extractor", () => {
+    const extractor = resolveExtractor({
+      source: gymnasticsMississaugaSource(NOW),
+      document: { title: null, text: "", headings: [], links: [], metadata: {} },
+      rawHtml: "",
+    });
+    assert.equal(extractor.key, GYMNASTICS_MISSISSAUGA_EXTRACTOR_KEY);
+  });
 });
 
 describe("fetch allowlist", () => {
@@ -129,12 +152,14 @@ describe("fetch allowlist", () => {
       NUTTY_SCIENTISTS_SOURCE_ID,
       RIVERWOOD_CONSERVANCY_SOURCE_ID,
       ...FRONT_LINE_HOCKEY_SOURCE_IDS,
+      GYMNASTICS_MISSISSAUGA_SOURCE_ID,
     ]);
     assert.ok(isFetchAllowlisted(CREATIVE_KIDS_PLACE_SOURCE_ID));
     assert.ok(isFetchAllowlisted(NUTTY_SCIENTISTS_SOURCE_ID));
     assert.ok(isFetchAllowlisted(RIVERWOOD_CONSERVANCY_SOURCE_ID));
     assert.ok(isFetchAllowlisted(FRONT_LINE_HOCKEY_APRIL_SOURCE_ID));
     assert.ok(isFetchAllowlisted(FRONT_LINE_HOCKEY_JULY_SOURCE_ID));
+    assert.ok(isFetchAllowlisted(GYMNASTICS_MISSISSAUGA_SOURCE_ID));
     assert.ok(!isFetchAllowlisted("src-some-other-provider"));
     assert.ok(!isFetchAllowlisted("https://frontlinehockeyschool.ca/product-category/hockey-school/"));
     assert.ok(!isFetchAllowlisted("https://frontlinehockeyschool.ca/hockey-camps/july-camp/"));
@@ -143,6 +168,15 @@ describe("fetch allowlist", () => {
       !isFetchAllowlisted(
         "https://theriverwoodconservancy.org/wp-content/uploads/2026/06/2026-Camp-Riverwood-Summer-Day-Camp-Information-Guide.pdf",
       ),
+    );
+    assert.ok(!isFetchAllowlisted("https://app.jackrabbitclass.com/regv2.asp?id=537009"));
+    assert.ok(
+      !isFetchAllowlisted(
+        "https://app.jackrabbitclass.com/jr3.0/Openings/OpeningsJS?OrgID=537009&Cat2=Summcamp&Cat3=W1",
+      ),
+    );
+    assert.ok(
+      !isFetchAllowlisted("https://app.jackrabbitclass.com/jr4.0/ParentPortal/Login?orgId=537009"),
     );
   });
 
@@ -204,7 +238,7 @@ describe("registerSeedCampSources", () => {
     assert.equal(stored?.lastCheckedAt, "2026-09-12T13:00:00.000Z");
     assert.equal(stored?.nextCheckAt, "2026-09-13T13:00:00.000Z");
     assert.equal(stored?.updatedAt, "2026-09-12T14:00:00.000Z");
-    assert.equal((await store.sources.listSources()).length, 9);
+    assert.equal((await store.sources.listSources()).length, 10);
   });
 
   it("refreshes configuration from the seed", async () => {
