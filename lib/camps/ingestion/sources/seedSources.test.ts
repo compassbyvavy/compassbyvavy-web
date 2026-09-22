@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import { canonicalizeSourceUrl } from "@/lib/camps/ingestion/canonicalizeUrl";
 import { CREATIVE_KIDS_PLACE_EXTRACTOR_KEY } from "@/lib/camps/ingestion/extractors/creativeKidsPlaceExtractor";
+import { FRONT_LINE_HOCKEY_EXTRACTOR_KEY } from "@/lib/camps/ingestion/extractors/frontLineHockeyExtractor";
 import { NUTTY_SCIENTISTS_EXTRACTOR_KEY } from "@/lib/camps/ingestion/extractors/nuttyScientistsExtractor";
 import { RIVERWOOD_CONSERVANCY_EXTRACTOR_KEY } from "@/lib/camps/ingestion/extractors/riverwoodConservancyExtractor";
 import { resolveExtractor } from "@/lib/camps/ingestion/extractors/registry";
@@ -11,11 +12,18 @@ import {
   CAMP_FETCH_ALLOWLIST,
   CREATIVE_KIDS_PLACE_SOURCE_ID,
   CREATIVE_KIDS_PLACE_SOURCE_URL,
+  FRONT_LINE_HOCKEY_APRIL_SOURCE_ID,
+  FRONT_LINE_HOCKEY_JULY_SOURCE_ID,
+  FRONT_LINE_HOCKEY_JULY_SOURCE_URL,
+  FRONT_LINE_HOCKEY_PROVIDER_ID,
+  FRONT_LINE_HOCKEY_SOURCE_IDS,
   NUTTY_SCIENTISTS_SOURCE_ID,
   NUTTY_SCIENTISTS_SOURCE_URL,
   RIVERWOOD_CONSERVANCY_SOURCE_ID,
   RIVERWOOD_CONSERVANCY_SOURCE_URL,
   creativeKidsPlaceSource,
+  frontLineHockeySourceById,
+  frontLineHockeySources,
   isFetchAllowlisted,
   nuttyScientistsSource,
   registerSeedCampSources,
@@ -85,6 +93,33 @@ describe("seed camp sources", () => {
     });
     assert.equal(extractor.key, RIVERWOOD_CONSERVANCY_EXTRACTOR_KEY);
   });
+
+  it("registers six Front Line Hockey product pages under one provider", () => {
+    const sources = frontLineHockeySources(NOW);
+    assert.equal(sources.length, 6);
+    assert.ok(sources.every((source) => source.providerId === FRONT_LINE_HOCKEY_PROVIDER_ID));
+    assert.ok(sources.every((source) => source.extractorKey === FRONT_LINE_HOCKEY_EXTRACTOR_KEY));
+    assert.ok(sources.every((source) => source.crawlStrategy === "html"));
+    assert.ok(sources.every((source) => /\/product\//.test(source.sourceUrl)));
+    assert.ok(sources.every((source) => !/product-category/.test(source.sourceUrl)));
+    assert.equal(
+      new Set(sources.map((source) => source.sourceUrl)).size,
+      6,
+    );
+  });
+
+  it("resolves Front Line Hockey to the Front Line extractor", () => {
+    const extractor = resolveExtractor({
+      source: frontLineHockeySourceById(FRONT_LINE_HOCKEY_JULY_SOURCE_ID, NOW),
+      document: { title: null, text: "", headings: [], links: [], metadata: {} },
+      rawHtml: "",
+    });
+    assert.equal(extractor.key, FRONT_LINE_HOCKEY_EXTRACTOR_KEY);
+    assert.equal(
+      frontLineHockeySourceById(FRONT_LINE_HOCKEY_JULY_SOURCE_ID, NOW).sourceUrl,
+      FRONT_LINE_HOCKEY_JULY_SOURCE_URL,
+    );
+  });
 });
 
 describe("fetch allowlist", () => {
@@ -93,11 +128,16 @@ describe("fetch allowlist", () => {
       CREATIVE_KIDS_PLACE_SOURCE_ID,
       NUTTY_SCIENTISTS_SOURCE_ID,
       RIVERWOOD_CONSERVANCY_SOURCE_ID,
+      ...FRONT_LINE_HOCKEY_SOURCE_IDS,
     ]);
     assert.ok(isFetchAllowlisted(CREATIVE_KIDS_PLACE_SOURCE_ID));
     assert.ok(isFetchAllowlisted(NUTTY_SCIENTISTS_SOURCE_ID));
     assert.ok(isFetchAllowlisted(RIVERWOOD_CONSERVANCY_SOURCE_ID));
+    assert.ok(isFetchAllowlisted(FRONT_LINE_HOCKEY_APRIL_SOURCE_ID));
+    assert.ok(isFetchAllowlisted(FRONT_LINE_HOCKEY_JULY_SOURCE_ID));
     assert.ok(!isFetchAllowlisted("src-some-other-provider"));
+    assert.ok(!isFetchAllowlisted("https://frontlinehockeyschool.ca/product-category/hockey-school/"));
+    assert.ok(!isFetchAllowlisted("https://frontlinehockeyschool.ca/hockey-camps/july-camp/"));
     assert.ok(!isFetchAllowlisted("https://forms.gle/SGgvXZddvprHFjGC9"));
     assert.ok(
       !isFetchAllowlisted(
@@ -164,7 +204,7 @@ describe("registerSeedCampSources", () => {
     assert.equal(stored?.lastCheckedAt, "2026-09-12T13:00:00.000Z");
     assert.equal(stored?.nextCheckAt, "2026-09-13T13:00:00.000Z");
     assert.equal(stored?.updatedAt, "2026-09-12T14:00:00.000Z");
-    assert.equal((await store.sources.listSources()).length, 3);
+    assert.equal((await store.sources.listSources()).length, 9);
   });
 
   it("refreshes configuration from the seed", async () => {
