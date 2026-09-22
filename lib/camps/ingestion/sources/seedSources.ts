@@ -17,6 +17,7 @@ import type { CampSource } from "@/data/camps/ingestion/types";
 import { canonicalizeSourceUrl } from "@/lib/camps/ingestion/canonicalizeUrl";
 import { CREATIVE_KIDS_PLACE_EXTRACTOR_KEY } from "@/lib/camps/ingestion/extractors/creativeKidsPlaceExtractor";
 import { FRONT_LINE_HOCKEY_EXTRACTOR_KEY } from "@/lib/camps/ingestion/extractors/frontLineHockeyExtractor";
+import { GYMNASTICS_MISSISSAUGA_EXTRACTOR_KEY } from "@/lib/camps/ingestion/extractors/gymnasticsMississaugaExtractor";
 import { NUTTY_SCIENTISTS_EXTRACTOR_KEY } from "@/lib/camps/ingestion/extractors/nuttyScientistsExtractor";
 import { RIVERWOOD_CONSERVANCY_EXTRACTOR_KEY } from "@/lib/camps/ingestion/extractors/riverwoodConservancyExtractor";
 import { DEFAULT_CHECK_INTERVAL_HOURS } from "@/lib/camps/ingestion/freshness";
@@ -86,15 +87,24 @@ export const FRONT_LINE_HOCKEY_JULY_SOURCE_URL = FRONT_LINE_HOCKEY_PRODUCTS[1].u
 export const FRONT_LINE_HOCKEY_APRIL_SOURCE_ID = FRONT_LINE_HOCKEY_PRODUCTS[0].id;
 export const FRONT_LINE_HOCKEY_APRIL_SOURCE_URL = FRONT_LINE_HOCKEY_PRODUCTS[0].url;
 
+export const GYMNASTICS_MISSISSAUGA_SOURCE_ID = "src-gymnastics-mississauga-summer-camp";
+export const GYMNASTICS_MISSISSAUGA_PROVIDER_ID = "prov-gymnastics-mississauga";
+export const GYMNASTICS_MISSISSAUGA_PROVIDER_URL = "https://gymmississauga.org/";
+
+/** Official Gymnastics Mississauga summer-camp HTML page. Jackrabbit is not a fetch target. */
+export const GYMNASTICS_MISSISSAUGA_SOURCE_URL = "https://gymmississauga.org/summer-camps/";
+
 /**
  * Source ids `HttpCampSourceFetcher` is permitted to fetch. Reviewed HTML
- * pages only. Registration forms (including Google Forms) and PDFs are never allowlisted.
+ * pages only. Registration forms (including Google Forms), PDFs, and Jackrabbit
+ * portals are never allowlisted.
  */
 export const CAMP_FETCH_ALLOWLIST: readonly string[] = [
   CREATIVE_KIDS_PLACE_SOURCE_ID,
   NUTTY_SCIENTISTS_SOURCE_ID,
   RIVERWOOD_CONSERVANCY_SOURCE_ID,
   ...FRONT_LINE_HOCKEY_SOURCE_IDS,
+  GYMNASTICS_MISSISSAUGA_SOURCE_ID,
 ];
 
 export function isFetchAllowlisted(sourceId: string): boolean {
@@ -229,12 +239,40 @@ export function frontLineHockeySourceById(sourceId: string, now: Date = new Date
   return frontLineHockeySource(product, now);
 }
 
+export function gymnasticsMississaugaSource(now: Date = new Date()): CampSource {
+  const timestamp = now.toISOString();
+  return {
+    id: GYMNASTICS_MISSISSAUGA_SOURCE_ID,
+    providerId: GYMNASTICS_MISSISSAUGA_PROVIDER_ID,
+    sourceType: "provider_website",
+    sourceUrl: GYMNASTICS_MISSISSAUGA_SOURCE_URL,
+    canonicalUrl: canonicalizeSourceUrl(GYMNASTICS_MISSISSAUGA_SOURCE_URL),
+    registrationPlatform: "Jackrabbit",
+    isActive: true,
+    crawlStrategy: "html",
+    crawlFrequency: "daily",
+    checkIntervalHours: DEFAULT_CHECK_INTERVAL_HOURS,
+    nextCheckAt: null,
+    extractorKey: GYMNASTICS_MISSISSAUGA_EXTRACTOR_KEY,
+    lastCheckedAt: null,
+    lastSuccessfulAt: null,
+    lastChangedAt: null,
+    lastContentHash: null,
+    lastFactFingerprint: null,
+    lastErrorAt: null,
+    lastError: null,
+    createdAt: timestamp,
+    updatedAt: timestamp,
+  };
+}
+
 export function seedCampSources(now: Date = new Date()): CampSource[] {
   return [
     creativeKidsPlaceSource(now),
     nuttyScientistsSource(now),
     riverwoodConservancySource(now),
     ...frontLineHockeySources(now),
+    gymnasticsMississaugaSource(now),
   ];
 }
 
