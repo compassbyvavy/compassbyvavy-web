@@ -13,6 +13,10 @@ import {
   creativeKidsPlaceExtractor,
 } from "@/lib/camps/ingestion/extractors/creativeKidsPlaceExtractor";
 import {
+  FRONT_LINE_HOCKEY_EXTRACTOR_KEY,
+  frontLineHockeyExtractor,
+} from "@/lib/camps/ingestion/extractors/frontLineHockeyExtractor";
+import {
   GENERIC_HTML_EXTRACTOR_KEY,
   genericHtmlExtractor,
 } from "@/lib/camps/ingestion/extractors/genericHtmlExtractor";
@@ -34,6 +38,7 @@ export const SITE_EXTRACTORS: readonly CampExtractor[] = [
   creativeKidsPlaceExtractor,
   nuttyScientistsExtractor,
   riverwoodConservancyExtractor,
+  frontLineHockeyExtractor,
 ];
 
 export const CAMP_EXTRACTORS: readonly CampExtractor[] = [
@@ -83,6 +88,9 @@ export function suggestExtractorKey(source: Pick<CampSource, "canonicalUrl">): s
   }
   if (/theriverwoodconservancy\.org/i.test(source.canonicalUrl)) {
     return RIVERWOOD_CONSERVANCY_EXTRACTOR_KEY;
+  }
+  if (/frontlinehockeyschool\.ca/i.test(source.canonicalUrl)) {
+    return FRONT_LINE_HOCKEY_EXTRACTOR_KEY;
   }
   return GENERIC_HTML_EXTRACTOR_KEY;
 }

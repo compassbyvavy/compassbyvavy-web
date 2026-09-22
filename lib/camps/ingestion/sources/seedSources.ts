@@ -16,6 +16,7 @@
 import type { CampSource } from "@/data/camps/ingestion/types";
 import { canonicalizeSourceUrl } from "@/lib/camps/ingestion/canonicalizeUrl";
 import { CREATIVE_KIDS_PLACE_EXTRACTOR_KEY } from "@/lib/camps/ingestion/extractors/creativeKidsPlaceExtractor";
+import { FRONT_LINE_HOCKEY_EXTRACTOR_KEY } from "@/lib/camps/ingestion/extractors/frontLineHockeyExtractor";
 import { NUTTY_SCIENTISTS_EXTRACTOR_KEY } from "@/lib/camps/ingestion/extractors/nuttyScientistsExtractor";
 import { RIVERWOOD_CONSERVANCY_EXTRACTOR_KEY } from "@/lib/camps/ingestion/extractors/riverwoodConservancyExtractor";
 import { DEFAULT_CHECK_INTERVAL_HOURS } from "@/lib/camps/ingestion/freshness";
@@ -40,6 +41,51 @@ export const RIVERWOOD_CONSERVANCY_PROVIDER_ID = "prov-riverwood-conservancy";
 /** Official Riverwood Conservancy summer-camp HTML page. The camp guide PDF is not a fetch target. */
 export const RIVERWOOD_CONSERVANCY_SOURCE_URL = "https://theriverwoodconservancy.org/summercamp/";
 
+export const FRONT_LINE_HOCKEY_PROVIDER_ID = "prov-front-line-hockey-school";
+export const FRONT_LINE_HOCKEY_PROVIDER_URL = "https://frontlinehockeyschool.ca/";
+
+/**
+ * Reviewed Front Line Hockey School WooCommerce product pages. Each URL is its
+ * own CampSource under one provider. The category listing and marketing
+ * `/hockey-camps/` pages are not fetch targets.
+ */
+export const FRONT_LINE_HOCKEY_PRODUCTS = [
+  {
+    id: "src-front-line-hockey-april-pre-tryout",
+    url: "https://frontlinehockeyschool.ca/product/april-hockey-camp/",
+  },
+  {
+    id: "src-front-line-hockey-july-half-day",
+    url: "https://frontlinehockeyschool.ca/product/july-hockey-camp-2/",
+  },
+  {
+    id: "src-front-line-hockey-july-girls-only",
+    url: "https://frontlinehockeyschool.ca/product/july-2026-girls-only-half-day-hockey-camp/",
+  },
+  {
+    id: "src-front-line-hockey-august-full-day",
+    url: "https://frontlinehockeyschool.ca/product/august-full-day-hockey-camp-2/",
+  },
+  {
+    id: "src-front-line-hockey-fall-pre-evaluation",
+    url: "https://frontlinehockeyschool.ca/product/fall-pre-evaluation-hockey-camp/",
+  },
+  {
+    id: "src-front-line-hockey-december-mid-season",
+    url: "https://frontlinehockeyschool.ca/product/december-hockey-camp/",
+  },
+] as const;
+
+export const FRONT_LINE_HOCKEY_SOURCE_IDS: readonly string[] = FRONT_LINE_HOCKEY_PRODUCTS.map(
+  (product) => product.id,
+);
+
+/** July half-day product — used as the primary 9B-C1 fingerprint control. */
+export const FRONT_LINE_HOCKEY_JULY_SOURCE_ID = FRONT_LINE_HOCKEY_PRODUCTS[1].id;
+export const FRONT_LINE_HOCKEY_JULY_SOURCE_URL = FRONT_LINE_HOCKEY_PRODUCTS[1].url;
+export const FRONT_LINE_HOCKEY_APRIL_SOURCE_ID = FRONT_LINE_HOCKEY_PRODUCTS[0].id;
+export const FRONT_LINE_HOCKEY_APRIL_SOURCE_URL = FRONT_LINE_HOCKEY_PRODUCTS[0].url;
+
 /**
  * Source ids `HttpCampSourceFetcher` is permitted to fetch. Reviewed HTML
  * pages only. Registration forms (including Google Forms) and PDFs are never allowlisted.
@@ -48,6 +94,7 @@ export const CAMP_FETCH_ALLOWLIST: readonly string[] = [
   CREATIVE_KIDS_PLACE_SOURCE_ID,
   NUTTY_SCIENTISTS_SOURCE_ID,
   RIVERWOOD_CONSERVANCY_SOURCE_ID,
+  ...FRONT_LINE_HOCKEY_SOURCE_IDS,
 ];
 
 export function isFetchAllowlisted(sourceId: string): boolean {
@@ -140,8 +187,55 @@ export function riverwoodConservancySource(now: Date = new Date()): CampSource {
   };
 }
 
+function frontLineHockeySource(
+  product: (typeof FRONT_LINE_HOCKEY_PRODUCTS)[number],
+  now: Date,
+): CampSource {
+  const timestamp = now.toISOString();
+  return {
+    id: product.id,
+    providerId: FRONT_LINE_HOCKEY_PROVIDER_ID,
+    sourceType: "provider_website",
+    sourceUrl: product.url,
+    canonicalUrl: canonicalizeSourceUrl(product.url),
+    registrationPlatform: "WooCommerce",
+    isActive: true,
+    crawlStrategy: "html",
+    crawlFrequency: "daily",
+    checkIntervalHours: DEFAULT_CHECK_INTERVAL_HOURS,
+    nextCheckAt: null,
+    extractorKey: FRONT_LINE_HOCKEY_EXTRACTOR_KEY,
+    lastCheckedAt: null,
+    lastSuccessfulAt: null,
+    lastChangedAt: null,
+    lastContentHash: null,
+    lastFactFingerprint: null,
+    lastErrorAt: null,
+    lastError: null,
+    createdAt: timestamp,
+    updatedAt: timestamp,
+  };
+}
+
+export function frontLineHockeySources(now: Date = new Date()): CampSource[] {
+  return FRONT_LINE_HOCKEY_PRODUCTS.map((product) => frontLineHockeySource(product, now));
+}
+
+export function frontLineHockeySourceById(sourceId: string, now: Date = new Date()): CampSource {
+  const product = FRONT_LINE_HOCKEY_PRODUCTS.find((row) => row.id === sourceId);
+  if (!product) {
+    throw new Error(`Unknown Front Line Hockey source id: ${sourceId}`);
+  }
+  return frontLineHockeySource(product, now);
+}
+
 export function seedCampSources(now: Date = new Date()): CampSource[] {
-  return [creativeKidsPlaceSource(now), nuttyScientistsSource(now), riverwoodConservancySource(now)];
+  return [
+    creativeKidsPlaceSource(now),
+    nuttyScientistsSource(now),
+    riverwoodConservancySource(now),
+    ...frontLineHockeySources(now),
+  ];
 }
 
 /**

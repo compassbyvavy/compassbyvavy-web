@@ -1,0 +1,473 @@
+{
+  "$comment": [
+    "Expected offline extraction for Front Line Hockey School WooCommerce product pages.",
+    "Official provider: https://frontlinehockeyschool.ca/",
+    "Captured 2026-09-19. Each product URL is its own CampSource. Category and /hockey-camps/ marketing pages are not fetch targets.",
+    "Grain: one offering per product page. Player vs Goalie is a pricing variant, not identity.",
+    "Identity: front_line_hockey:session:{camp-token}:{date-token}",
+    "camp-token is the classified camp type from the product title (half_day, girls_only_half_day, full_day, …). WooCommerce product slugs are source-location only.",
+    "Dual age groups 5–9 and 10–14 stay one offering with envelope 5–14 plus recoverable ageBands.",
+    "Fall WooCommerce goalie variant amount 1 is retained as rawGoalieVariantAmount and is not a confirmed normalized goalie price.",
+    "Years come from product titles, never SKUs, image paths, or capture date.",
+    "Currency stays unknown: pages state $ and sometimes plus HST, never CAD.",
+    "WooCommerce stock counts are not remaining seats. Add to Cart is not registrationStatus.",
+    "Fall 2026 product HTML does not state dates, ages, or venue on this page — those gaps are preserved.",
+    "Regenerate via scripts/rebuild-front-line-expected.ts — never edit to make a failing extractor pass."
+  ],
+  "benchmark": {
+    "capturedAt": "2026-09-19",
+    "providerUrl": "https://frontlinehockeyschool.ca/",
+    "registeredSourceCount": 6,
+    "goldSourcePageCount": 6,
+    "goldOfferingCount": 6,
+    "extractorKey": "front_line_hockey",
+    "extractorVersion": "0.1.0"
+  },
+  "identity": {
+    "formula": "front_line_hockey:session:{camp-token}:{date-token}",
+    "keys": [
+      "front_line_hockey:session:pre_tryout_evening:2026-04-14_2026-04-23",
+      "front_line_hockey:session:half_day:2026-07-06_2026-07-10",
+      "front_line_hockey:session:girls_only_half_day:2026-07-20_2026-07-24",
+      "front_line_hockey:session:full_day:2026-08-17_2026-08-21",
+      "front_line_hockey:session:pre_evaluation:2026:dates_not_stated",
+      "front_line_hockey:session:mid_season:2026:dates_tbd"
+    ]
+  },
+  "sources": [
+    {
+      "sourceId": "src-front-line-hockey-april-pre-tryout",
+      "sourceUrl": "https://frontlinehockeyschool.ca/product/april-hockey-camp/",
+      "sourceFile": "front-line-hockey-april-hockey-camp.html",
+      "capturedAt": "2026-09-19",
+      "offering": {
+        "productSlug": "april-hockey-camp",
+        "productTitle": "April 2026 Pre-Tryout Evening Hockey Camp",
+        "productUrl": "https://frontlinehockeyschool.ca/product/april-hockey-camp/",
+        "weekIdentity": "2026-04-14_2026-04-23",
+        "listedDateWindow": "DATES/ TIMES: | WEEK 1 = April 14,15,16 (Tues., Wed., Thurs.) 6:30pm – 8:00pm | WEEK 2 = April 21,22, 23 (Tues., Wed., Thurs.) 6:30pm – 8:00pm | WEEK 1 = April 14,15,16 (Tues., Wed., Thurs.) 6:30pm – 8:00pm | WEEK 2 = April 21,22, 23 (Tues., Wed., Thurs.) 6:30pm – 8:00pm | WEEK 2 = April 21,22, 23 (Tues., Wed., Thurs.) 6:30pm – 8:00pm | NOTE: 6 x 1 1/2 hour sessions – 9 hours of ice time.",
+        "startDate": "2026-04-14",
+        "endDate": "2026-04-23",
+        "datesTbd": false,
+        "statedYear": 2026,
+        "ageMin": 8,
+        "ageMax": 14,
+        "ageBands": [
+          {
+            "ageMin": 8,
+            "ageMax": 14,
+            "hoursStart": null,
+            "hoursEnd": null,
+            "copy": "April 2026 Pre-Tryout Camp (Ages 8 – 14)"
+          }
+        ],
+        "eligibilityCopy": "April 2026 Pre-Tryout Camp (Ages 8 – 14)",
+        "campToken": "pre_tryout_evening",
+        "rawGoalieVariantAmount": 1,
+        "coreHoursStart": "18:30",
+        "coreHoursEnd": "20:00",
+        "hoursCopy": "DATES/ TIMES: | WEEK 1 = April 14,15,16 (Tues., Wed., Thurs.) 6:30pm – 8:00pm | WEEK 2 = April 21,22, 23 (Tues., Wed., Thurs.) 6:30pm – 8:00pm",
+        "venueName": "Vic Johnston Arena",
+        "venueCity": "Mississauga",
+        "venueNeighbourhood": "Streetsville",
+        "venueCopy": "LOCATION: Vic Johnston Arena, Streetsville, Mississauga",
+        "playerPriceAmount": 375,
+        "goaliePriceAmount": 0,
+        "playerPriceCopy": "Regular: – $375.00 plus HST",
+        "goaliePriceCopy": "Goalies: – FREE – limited to 3",
+        "currency": "unknown",
+        "taxExtra": true,
+        "girlsOnly": false,
+        "campType": "pre_tryout_evening",
+        "availabilityCopy": "1 in stock",
+        "soldOut": false,
+        "registrationUrl": "https://frontlinehockeyschool.ca/product/april-hockey-camp/",
+        "sourceIdentity": "front_line_hockey:session:pre_tryout_evening:2026-04-14_2026-04-23"
+      },
+      "venue": {
+        "name": "Vic Johnston Arena",
+        "addressLine": "Vic Johnston Arena",
+        "city": "Mississauga",
+        "province": null,
+        "postalCode": null,
+        "neighbourhood": "Streetsville"
+      },
+      "warnings": [
+        "hockey_level_copy_not_converted_to_ages",
+        "goalie_free_overrides_woocommerce_one_dollar",
+        "currency_not_stated",
+        "hst_stated_tax_not_folded_into_amount",
+        "woocommerce_stock_count_not_used_as_remaining_seats",
+        "availability_unknown_add_to_cart_is_not_a_lifecycle"
+      ],
+      "knownGaps": [
+        "remaining_seats_not_inferred_from_woocommerce_stock",
+        "registration_status_not_inferred_from_add_to_cart"
+      ]
+    },
+    {
+      "sourceId": "src-front-line-hockey-july-half-day",
+      "sourceUrl": "https://frontlinehockeyschool.ca/product/july-hockey-camp-2/",
+      "sourceFile": "front-line-hockey-july-half-day.html",
+      "capturedAt": "2026-09-19",
+      "offering": {
+        "productSlug": "july-hockey-camp-2",
+        "productTitle": "July 2026 Half Day Hockey Camp",
+        "productUrl": "https://frontlinehockeyschool.ca/product/july-hockey-camp-2/",
+        "weekIdentity": "2026-07-06_2026-07-10",
+        "listedDateWindow": "DATES: July 6 -10 (Monday – Friday) | TIMES: 9:00am – 1:00pm",
+        "startDate": "2026-07-06",
+        "endDate": "2026-07-10",
+        "datesTbd": false,
+        "statedYear": 2026,
+        "ageMin": 5,
+        "ageMax": 14,
+        "ageBands": [
+          {
+            "ageMin": 5,
+            "ageMax": 9,
+            "hoursStart": null,
+            "hoursEnd": null,
+            "copy": "5–9"
+          },
+          {
+            "ageMin": 10,
+            "ageMax": 14,
+            "hoursStart": null,
+            "hoursEnd": null,
+            "copy": "10–14"
+          }
+        ],
+        "eligibilityCopy": "Two available age groups: ages 5-9 and 10-14. On ice groups are further divided into like age and skill levels to ensure maximum learning and enjoyment for all players.",
+        "campToken": "half_day",
+        "rawGoalieVariantAmount": 100,
+        "coreHoursStart": "09:00",
+        "coreHoursEnd": "13:00",
+        "hoursCopy": "TIMES: 9:00am – 1:00pm",
+        "venueName": "Vic Johnston Arena",
+        "venueCity": "Mississauga",
+        "venueNeighbourhood": "Streetsville",
+        "venueCopy": "LOCATION: Vic Johnston Arena, Streetsville, Mississauga",
+        "playerPriceAmount": 395,
+        "goaliePriceAmount": 100,
+        "playerPriceCopy": "$395",
+        "goaliePriceCopy": "$100",
+        "currency": "unknown",
+        "taxExtra": false,
+        "girlsOnly": false,
+        "campType": "half_day",
+        "availabilityCopy": "10 in stock | 5 in stock",
+        "soldOut": false,
+        "registrationUrl": "https://frontlinehockeyschool.ca/product/july-hockey-camp-2/",
+        "sourceIdentity": "front_line_hockey:session:half_day:2026-07-06_2026-07-10"
+      },
+      "venue": {
+        "name": "Vic Johnston Arena",
+        "addressLine": "Vic Johnston Arena",
+        "city": "Mississauga",
+        "province": null,
+        "postalCode": null,
+        "neighbourhood": "Streetsville"
+      },
+      "warnings": [
+        "currency_not_stated",
+        "woocommerce_stock_count_not_used_as_remaining_seats",
+        "availability_unknown_add_to_cart_is_not_a_lifecycle"
+      ],
+      "knownGaps": [
+        "remaining_seats_not_inferred_from_woocommerce_stock",
+        "registration_status_not_inferred_from_add_to_cart"
+      ]
+    },
+    {
+      "sourceId": "src-front-line-hockey-july-girls-only",
+      "sourceUrl": "https://frontlinehockeyschool.ca/product/july-2026-girls-only-half-day-hockey-camp/",
+      "sourceFile": "front-line-hockey-july-girls-only.html",
+      "capturedAt": "2026-09-19",
+      "offering": {
+        "productSlug": "july-2026-girls-only-half-day-hockey-camp",
+        "productTitle": "July 2026 Girls Only Half Day Hockey Camp",
+        "productUrl": "https://frontlinehockeyschool.ca/product/july-2026-girls-only-half-day-hockey-camp/",
+        "weekIdentity": "2026-07-20_2026-07-24",
+        "listedDateWindow": "DATES: July 20 -24 (Monday – Friday) | TIMES: 9:00am – 1:00pm",
+        "startDate": "2026-07-20",
+        "endDate": "2026-07-24",
+        "datesTbd": false,
+        "statedYear": 2026,
+        "ageMin": 5,
+        "ageMax": 14,
+        "ageBands": [
+          {
+            "ageMin": 5,
+            "ageMax": 9,
+            "hoursStart": null,
+            "hoursEnd": null,
+            "copy": "5–9"
+          },
+          {
+            "ageMin": 10,
+            "ageMax": 14,
+            "hoursStart": null,
+            "hoursEnd": null,
+            "copy": "10–14"
+          }
+        ],
+        "eligibilityCopy": "Two available age groups: ages 5-9 and 10-14. On ice groups are divided into like age and skill levels to ensure maximum learning and enjoyment for all players.",
+        "campToken": "girls_only_half_day",
+        "rawGoalieVariantAmount": 100,
+        "coreHoursStart": "09:00",
+        "coreHoursEnd": "13:00",
+        "hoursCopy": "TIMES: 9:00am – 1:00pm",
+        "venueName": "Vic Johnston Arena",
+        "venueCity": "Mississauga",
+        "venueNeighbourhood": "Streetsville",
+        "venueCopy": "LOCATION: Vic Johnston Arena, Streetsville, Mississauga",
+        "playerPriceAmount": 395,
+        "goaliePriceAmount": 100,
+        "playerPriceCopy": "$395",
+        "goaliePriceCopy": "$100",
+        "currency": "unknown",
+        "taxExtra": false,
+        "girlsOnly": true,
+        "campType": "girls_only_half_day",
+        "availabilityCopy": "12 in stock | 5 in stock",
+        "soldOut": false,
+        "registrationUrl": "https://frontlinehockeyschool.ca/product/july-2026-girls-only-half-day-hockey-camp/",
+        "sourceIdentity": "front_line_hockey:session:girls_only_half_day:2026-07-20_2026-07-24"
+      },
+      "venue": {
+        "name": "Vic Johnston Arena",
+        "addressLine": "Vic Johnston Arena",
+        "city": "Mississauga",
+        "province": null,
+        "postalCode": null,
+        "neighbourhood": "Streetsville"
+      },
+      "warnings": [
+        "currency_not_stated",
+        "woocommerce_stock_count_not_used_as_remaining_seats",
+        "availability_unknown_add_to_cart_is_not_a_lifecycle"
+      ],
+      "knownGaps": [
+        "remaining_seats_not_inferred_from_woocommerce_stock",
+        "registration_status_not_inferred_from_add_to_cart"
+      ]
+    },
+    {
+      "sourceId": "src-front-line-hockey-august-full-day",
+      "sourceUrl": "https://frontlinehockeyschool.ca/product/august-full-day-hockey-camp-2/",
+      "sourceFile": "front-line-hockey-august-full-day.html",
+      "capturedAt": "2026-09-19",
+      "offering": {
+        "productSlug": "august-full-day-hockey-camp-2",
+        "productTitle": "August 2026 Full Day Hockey Camp",
+        "productUrl": "https://frontlinehockeyschool.ca/product/august-full-day-hockey-camp-2/",
+        "weekIdentity": "2026-08-17_2026-08-21",
+        "listedDateWindow": "DATES: | August 17-21 (Monday – Friday)",
+        "startDate": "2026-08-17",
+        "endDate": "2026-08-21",
+        "datesTbd": false,
+        "statedYear": 2026,
+        "ageMin": 5,
+        "ageMax": 14,
+        "ageBands": [
+          {
+            "ageMin": 5,
+            "ageMax": 9,
+            "hoursStart": null,
+            "hoursEnd": null,
+            "copy": "5–9"
+          },
+          {
+            "ageMin": 10,
+            "ageMax": 14,
+            "hoursStart": null,
+            "hoursEnd": null,
+            "copy": "10–14"
+          }
+        ],
+        "eligibilityCopy": "Two available age groups: ages 5-9 and 10-14, One group will be on the ice at a time.",
+        "campToken": "full_day",
+        "rawGoalieVariantAmount": 190,
+        "coreHoursStart": "09:00",
+        "coreHoursEnd": "16:00",
+        "hoursCopy": "TIMES: | 9:00am – 4:00pm",
+        "venueName": "Vic Johnston Arena",
+        "venueCity": "Mississauga",
+        "venueNeighbourhood": "Streetsville",
+        "venueCopy": "Vic Johnston Arena, Streetsville, Mississauga",
+        "playerPriceAmount": 565,
+        "goaliePriceAmount": 190,
+        "playerPriceCopy": "$565",
+        "goaliePriceCopy": "$190",
+        "currency": "unknown",
+        "taxExtra": false,
+        "girlsOnly": false,
+        "campType": "full_day",
+        "availabilityCopy": "33 in stock | 1 in stock",
+        "soldOut": false,
+        "registrationUrl": "https://frontlinehockeyschool.ca/product/august-full-day-hockey-camp-2/",
+        "sourceIdentity": "front_line_hockey:session:full_day:2026-08-17_2026-08-21"
+      },
+      "venue": {
+        "name": "Vic Johnston Arena",
+        "addressLine": "Vic Johnston Arena",
+        "city": "Mississauga",
+        "province": null,
+        "postalCode": null,
+        "neighbourhood": "Streetsville"
+      },
+      "warnings": [
+        "currency_not_stated",
+        "woocommerce_stock_count_not_used_as_remaining_seats",
+        "availability_unknown_add_to_cart_is_not_a_lifecycle"
+      ],
+      "knownGaps": [
+        "remaining_seats_not_inferred_from_woocommerce_stock",
+        "registration_status_not_inferred_from_add_to_cart"
+      ]
+    },
+    {
+      "sourceId": "src-front-line-hockey-fall-pre-evaluation",
+      "sourceUrl": "https://frontlinehockeyschool.ca/product/fall-pre-evaluation-hockey-camp/",
+      "sourceFile": "front-line-hockey-fall-pre-evaluation.html",
+      "capturedAt": "2026-09-19",
+      "offering": {
+        "productSlug": "fall-pre-evaluation-hockey-camp",
+        "productTitle": "Association / Team Training Fall 2026 Pre-Evaluation /Pre-Season",
+        "productUrl": "https://frontlinehockeyschool.ca/product/fall-pre-evaluation-hockey-camp/",
+        "weekIdentity": "2026:dates_not_stated",
+        "listedDateWindow": null,
+        "startDate": null,
+        "endDate": null,
+        "datesTbd": false,
+        "statedYear": 2026,
+        "ageMin": null,
+        "ageMax": null,
+        "ageBands": [],
+        "eligibilityCopy": null,
+        "campToken": "pre_evaluation",
+        "rawGoalieVariantAmount": 1,
+        "coreHoursStart": null,
+        "coreHoursEnd": null,
+        "hoursCopy": null,
+        "venueName": null,
+        "venueCity": null,
+        "venueNeighbourhood": null,
+        "venueCopy": null,
+        "playerPriceAmount": 375,
+        "goaliePriceAmount": null,
+        "playerPriceCopy": "$375",
+        "goaliePriceCopy": null,
+        "currency": "unknown",
+        "taxExtra": false,
+        "girlsOnly": false,
+        "campType": "pre_evaluation",
+        "availabilityCopy": "27 in stock | 2 in stock",
+        "soldOut": false,
+        "registrationUrl": "https://frontlinehockeyschool.ca/product/fall-pre-evaluation-hockey-camp/",
+        "sourceIdentity": "front_line_hockey:session:pre_evaluation:2026:dates_not_stated"
+      },
+      "venue": null,
+      "warnings": [
+        "dates_not_stated",
+        "hours_not_found",
+        "ages_not_stated",
+        "venue_not_stated_on_this_product",
+        "hockey_level_copy_not_converted_to_ages",
+        "variant_amount_not_confirmed_as_customer_facing_price",
+        "goalie_price_not_found",
+        "currency_not_stated",
+        "woocommerce_stock_count_not_used_as_remaining_seats",
+        "availability_unknown_add_to_cart_is_not_a_lifecycle"
+      ],
+      "knownGaps": [
+        "session_iso_dates_unparsed",
+        "age_eligibility_not_stated_on_product",
+        "venue_not_borrowed_from_other_front_line_pages",
+        "remaining_seats_not_inferred_from_woocommerce_stock",
+        "registration_status_not_inferred_from_add_to_cart"
+      ]
+    },
+    {
+      "sourceId": "src-front-line-hockey-december-mid-season",
+      "sourceUrl": "https://frontlinehockeyschool.ca/product/december-hockey-camp/",
+      "sourceFile": "front-line-hockey-december-mid-season.html",
+      "capturedAt": "2026-09-19",
+      "offering": {
+        "productSlug": "december-hockey-camp",
+        "productTitle": "December 2026 Mid Season Hockey Camp",
+        "productUrl": "https://frontlinehockeyschool.ca/product/december-hockey-camp/",
+        "weekIdentity": "2026:dates_tbd",
+        "listedDateWindow": "DATES : | TBD",
+        "startDate": null,
+        "endDate": null,
+        "datesTbd": true,
+        "statedYear": 2026,
+        "ageMin": 5,
+        "ageMax": 14,
+        "ageBands": [
+          {
+            "ageMin": 5,
+            "ageMax": 9,
+            "hoursStart": "10:00",
+            "hoursEnd": "11:30",
+            "copy": "10:00am - 11:30am: ages 5-9"
+          },
+          {
+            "ageMin": 10,
+            "ageMax": 14,
+            "hoursStart": "11:30",
+            "hoursEnd": "13:00",
+            "copy": "11:30am - 1:00pm: ages 10-14"
+          }
+        ],
+        "eligibilityCopy": "10:00am - 11:30am: ages 5-9 | 11:30am - 1:00pm: ages 10-14",
+        "campToken": "mid_season",
+        "rawGoalieVariantAmount": 1,
+        "coreHoursStart": null,
+        "coreHoursEnd": null,
+        "hoursCopy": "TIMES : | 10:00am - 11:30am: ages 5-9 | 11:30am - 1:00pm: ages 10-14",
+        "venueName": "Vic Johnston Arena",
+        "venueCity": "Mississauga",
+        "venueNeighbourhood": "Streetsville",
+        "venueCopy": "LOCATION: Vic Johnston Arena, Streetsville, Mississauga",
+        "playerPriceAmount": 250,
+        "goaliePriceAmount": 0,
+        "playerPriceCopy": "Regular: - $250.00 plus HST",
+        "goaliePriceCopy": "Goalies: - FREE - limited to 4 per age group",
+        "currency": "unknown",
+        "taxExtra": true,
+        "girlsOnly": false,
+        "campType": "mid_season",
+        "availabilityCopy": "28 in stock | Out of stock",
+        "soldOut": false,
+        "registrationUrl": "https://frontlinehockeyschool.ca/product/december-hockey-camp/",
+        "sourceIdentity": "front_line_hockey:session:mid_season:2026:dates_tbd"
+      },
+      "venue": {
+        "name": "Vic Johnston Arena",
+        "addressLine": "Vic Johnston Arena",
+        "city": "Mississauga",
+        "province": null,
+        "postalCode": null,
+        "neighbourhood": "Streetsville"
+      },
+      "warnings": [
+        "dates_tbd",
+        "core_hours_vary_by_age_group",
+        "goalie_free_overrides_woocommerce_one_dollar",
+        "currency_not_stated",
+        "hst_stated_tax_not_folded_into_amount",
+        "woocommerce_stock_count_not_used_as_remaining_seats",
+        "availability_unknown_add_to_cart_is_not_a_lifecycle"
+      ],
+      "knownGaps": [
+        "session_iso_dates_tbd",
+        "single_core_hours_not_stated",
+        "remaining_seats_not_inferred_from_woocommerce_stock",
+        "registration_status_not_inferred_from_add_to_cart"
+      ]
+    }
+  ]
+}
