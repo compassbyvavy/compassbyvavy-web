@@ -37,6 +37,7 @@ import {
   type ExtractorResult,
   type ExtractorSupportInput,
 } from "@/lib/camps/ingestion/extractors/types";
+import { FRONT_LINE_HOCKEY_OFFERING_GRAIN } from "@/lib/camps/ingestion/extractors/offeringGrain";
 import { documentLines } from "@/lib/camps/ingestion/extractors/textScan";
 import { normalizePriceCad } from "@/lib/camps/ingestion/normalize/price";
 import {
@@ -581,6 +582,7 @@ function extract(input: ExtractorInput): ExtractorResult {
 export const frontLineHockeyExtractor: CampExtractor = {
   key: FRONT_LINE_HOCKEY_EXTRACTOR_KEY,
   version: "0.1.0",
+  grain: FRONT_LINE_HOCKEY_OFFERING_GRAIN,
   supports,
   extract,
 };

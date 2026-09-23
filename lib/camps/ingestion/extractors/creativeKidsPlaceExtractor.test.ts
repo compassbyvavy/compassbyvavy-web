@@ -20,6 +20,7 @@ import {
   parseWeekDateWindows,
 } from "@/lib/camps/ingestion/extractors/creativeKidsPlaceSchedule";
 import { resolveExtractor } from "@/lib/camps/ingestion/extractors/registry";
+import { CREATIVE_KIDS_PLACE_OFFERING_GRAIN } from "@/lib/camps/ingestion/extractors/offeringGrain";
 import { cleanHtmlToDocument } from "@/lib/camps/ingestion/html/cleanHtml";
 import { hashSourceContent } from "@/lib/camps/ingestion/hash";
 import { createSequentialIdFactory } from "@/lib/camps/ingestion/ids";
@@ -433,6 +434,7 @@ describe("CKP session matcher identity (Prompt 8B)", () => {
           themeTitle: "STEM",
         }),
         catalog,
+        CREATIVE_KIDS_PLACE_OFFERING_GRAIN,
       ).catalogId,
       "sess-w1-stem-4-5",
     );
@@ -446,6 +448,7 @@ describe("CKP session matcher identity (Prompt 8B)", () => {
           themeTitle: "STEM",
         }),
         catalog,
+        CREATIVE_KIDS_PLACE_OFFERING_GRAIN,
       ).catalogId,
       "sess-w1-stem-6-9",
     );
@@ -462,6 +465,7 @@ describe("CKP session matcher identity (Prompt 8B)", () => {
           themeTitle: "Ultimate Detective",
         }),
         catalog,
+        CREATIVE_KIDS_PLACE_OFFERING_GRAIN,
       ).catalogId,
       "sess-w1-detective",
     );
@@ -478,6 +482,7 @@ describe("CKP session matcher identity (Prompt 8B)", () => {
           themeTitle: "STEM",
         }),
         catalog,
+        CREATIVE_KIDS_PLACE_OFFERING_GRAIN,
       ).catalogId,
       "sess-w3-stem-6-9",
     );
@@ -496,21 +501,24 @@ describe("CKP session matcher identity (Prompt 8B)", () => {
           priceAmount: 999,
         }),
         catalog,
+        CREATIVE_KIDS_PLACE_OFFERING_GRAIN,
       ).catalogId,
       "sess-w1-stem-4-5",
     );
   });
 
-  it("date-only match is ambiguous when multiple themes share a week", () => {
+  it("date-only match is incomplete grain, not a weak reconnect", () => {
     const match = exactSessionMatcher.match(
       sessionRecord({
         startDate: "2026-06-29",
         endDate: "2026-06-30",
       }),
       catalog,
+      CREATIVE_KIDS_PLACE_OFFERING_GRAIN,
     );
     assert.equal(match.catalogId, null);
-    assert.ok(match.reasons.some((reason) => reason.startsWith("ambiguous_")));
+    assert.ok(match.reasons.includes("grain_identity_incomplete"));
+    assert.ok(!match.reasons.some((reason) => reason.includes("program_and_date_window")));
   });
 
   it("Jun 29–30 and Jul 2–3 stay distinct session windows", () => {
@@ -524,6 +532,7 @@ describe("CKP session matcher identity (Prompt 8B)", () => {
           themeTitle: "STEM",
         }),
         catalog,
+        CREATIVE_KIDS_PLACE_OFFERING_GRAIN,
       ).catalogId,
       null,
     );
@@ -541,6 +550,7 @@ describe("CKP session matcher identity (Prompt 8B)", () => {
           themeTitle: "STEM",
         }),
         catalog,
+        CREATIVE_KIDS_PLACE_OFFERING_GRAIN,
       ),
       false,
     );

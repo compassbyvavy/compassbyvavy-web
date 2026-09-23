@@ -19,6 +19,7 @@ import {
   parseNuttyScientistsFacts,
   parseNuttyWeekWindows,
 } from "@/lib/camps/ingestion/extractors/nuttyScientistsExtractor";
+import { NUTTY_SCIENTISTS_OFFERING_GRAIN } from "@/lib/camps/ingestion/extractors/offeringGrain";
 import { resolveExtractor } from "@/lib/camps/ingestion/extractors/registry";
 import { statedDocumentYear } from "@/lib/camps/ingestion/extractors/textScan";
 import { cleanHtmlToDocument } from "@/lib/camps/ingestion/html/cleanHtml";
@@ -371,9 +372,9 @@ describe("Nutty Scientists benchmark (Prompt 9B-A grain)", () => {
         externalId: session.sourceIdentity,
       },
     };
-    const match = exactSessionMatcher.match(withProgram, catalog);
+    const match = exactSessionMatcher.match(withProgram, catalog, NUTTY_SCIENTISTS_OFFERING_GRAIN);
     assert.equal(match.catalogId, "catalog-nutty-july-6");
-    assert.equal(isNewSessionCandidate(withProgram, []), true);
+    assert.equal(isNewSessionCandidate(withProgram, [], NUTTY_SCIENTISTS_OFFERING_GRAIN), true);
   });
 
   it("does not silently rematch an identity-changing age-band", () => {
@@ -404,7 +405,7 @@ describe("Nutty Scientists benchmark (Prompt 9B-A grain)", () => {
         externalId: session.sourceIdentity,
         sourceUrl: NUTTY_SCIENTISTS_SOURCE_URL,
       },
-    ]);
+    ], NUTTY_SCIENTISTS_OFFERING_GRAIN);
     assert.equal(match.catalogId, null);
     assert.deepEqual(match.reasons, ["no_match"]);
   });

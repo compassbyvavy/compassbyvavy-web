@@ -14,16 +14,21 @@ import {
   isNewSessionCandidate,
   normalizeMatchText,
 } from "@/lib/camps/ingestion/matchers";
+import {
+  CREATIVE_KIDS_PLACE_OFFERING_GRAIN,
+  GYMNASTICS_MISSISSAUGA_OFFERING_GRAIN,
+} from "@/lib/camps/ingestion/extractors/offeringGrain";
 
 function record(
   recordType: CampExtractedRecord["recordType"],
   normalizedFields: Record<string, unknown>,
+  sourceIdentity = "test:identity",
 ): CampExtractedRecord {
   return {
     id: "ext-1",
     extractionRunId: "run-1",
     recordType,
-    sourceIdentity: "test:identity",
+    sourceIdentity,
     rawFields: {},
     normalizedFields,
     confidence: 0.9,
@@ -84,6 +89,7 @@ describe("exactProviderMatcher", () => {
       providers,
     );
     assert.deepEqual(result, {
+      kind: "EXACT_IDENTITY",
       catalogId: "prov-ckp",
       confidence: 1,
       reasons: ["exact_catalog_id"],
@@ -112,7 +118,12 @@ describe("exactProviderMatcher", () => {
       record("provider", { name: "Unknown Provider" }),
       providers,
     );
-    assert.deepEqual(result, { catalogId: null, confidence: 0, reasons: ["no_match"] });
+    assert.deepEqual(result, {
+      kind: "NO_MATCH",
+      catalogId: null,
+      confidence: 0,
+      reasons: ["no_match"],
+    });
   });
 });
 
@@ -169,6 +180,7 @@ describe("exactSessionMatcher", () => {
       sessions,
     );
     assert.equal(result.catalogId, "sess-jul-13");
+    assert.equal(result.kind, "SAFE_RECONCILIATION");
     assert.deepEqual(result.reasons, ["program_and_date_window"]);
   });
 
@@ -181,7 +193,8 @@ describe("exactSessionMatcher", () => {
       sessions,
     );
     assert.equal(result.catalogId, "sess-jul-20");
-    assert.deepEqual(result.reasons, ["source_url_and_start"]);
+    assert.equal(result.kind, "SAFE_RECONCILIATION");
+    assert.deepEqual(result.reasons, ["legacy_source_url_and_start"]);
   });
 
   it("accepts a start-date-only match at lower confidence", () => {
@@ -190,6 +203,7 @@ describe("exactSessionMatcher", () => {
       sessions,
     );
     assert.equal(result.catalogId, "sess-jul-13");
+    assert.equal(result.kind, "SAFE_RECONCILIATION");
     assert.equal(result.confidence, 0.75);
   });
 
@@ -207,6 +221,7 @@ describe("exactSessionMatcher", () => {
       duplicated,
     );
     assert.equal(result.catalogId, null);
+    assert.equal(result.kind, "AMBIGUOUS");
     assert.deepEqual(result.reasons, ["ambiguous_program_and_date_window", "candidates_2"]);
   });
 
@@ -238,9 +253,12 @@ describe("exactSessionMatcher", () => {
           "creative_kids_place:session:2026-06-29:creator-camp-battlebot-technicians:9-13",
       }),
       catalog,
+      CREATIVE_KIDS_PLACE_OFFERING_GRAIN,
     );
     assert.equal(result.catalogId, null);
+    assert.equal(result.kind, "NO_MATCH");
     assert.ok(!result.reasons.some((reason) => reason.includes("program_and_date_window")));
+    assert.ok(!result.reasons.some((reason) => reason.includes("source_url_and_start")));
     assert.deepEqual(result.reasons, ["no_match"]);
   });
 
@@ -260,23 +278,28 @@ describe("exactSessionMatcher", () => {
       },
     ];
     const result = exactSessionMatcher.match(
-      record("session", {
-        programId: "prog-ckp",
-        startDate: "2026-06-29",
-        endDate: "2026-06-30",
-        ageMin: 8,
-        ageMax: 13,
-        themeTitle: "Creator Camp: Battlebot Technicians",
-        themeTitleNormalized: "creator camp battlebot technicians",
-        externalId:
-          "creative_kids_place:session:2026-06-29:creator-camp-battlebot-technicians:8-13",
-        priceAmount: 365,
-      }),
+      record(
+        "session",
+        {
+          programId: "prog-ckp",
+          startDate: "2026-06-29",
+          endDate: "2026-06-30",
+          ageMin: 8,
+          ageMax: 13,
+          themeTitle: "Creator Camp: Battlebot Technicians",
+          themeTitleNormalized: "creator camp battlebot technicians",
+          externalId:
+            "creative_kids_place:session:2026-06-29:creator-camp-battlebot-technicians:8-13",
+          priceAmount: 365,
+        },
+        "creative_kids_place:session:2026-06-29:creator-camp-battlebot-technicians:8-13",
+      ),
       catalog,
+      CREATIVE_KIDS_PLACE_OFFERING_GRAIN,
     );
-    // Same external identity (ages unchanged) matches first via external_id.
     assert.equal(result.catalogId, "sess-battlebot-8-13");
-    assert.deepEqual(result.reasons, ["external_id"]);
+    assert.equal(result.kind, "EXACT_IDENTITY");
+    assert.deepEqual(result.reasons, ["exact_external_identity"]);
   });
 
   it("does not match Jun 29–30 to Jul 2–3 for the same theme and ages", () => {
@@ -307,9 +330,238 @@ describe("exactSessionMatcher", () => {
           "creative_kids_place:session:2026-07-02:creator-camp-battlebot-technicians:8-13",
       }),
       catalog,
+      CREATIVE_KIDS_PLACE_OFFERING_GRAIN,
     );
     assert.equal(result.catalogId, null);
     assert.deepEqual(result.reasons, ["no_match"]);
+  });
+
+  it("A: exact sourceIdentity/externalId is EXACT_IDENTITY", () => {
+    const result = exactSessionMatcher.match(
+      record(
+        "session",
+        {
+          programId: "prog-nutty-summer",
+          externalId: "nutty_scientists:session:07-13_07-17:6-10",
+        },
+        "nutty_scientists:session:07-13_07-17:6-10",
+      ),
+      [
+        {
+          id: "sess-jul-13",
+          programId: "prog-nutty-summer",
+          startDate: "2026-07-13",
+          externalId: "nutty_scientists:session:07-13_07-17:6-10",
+        },
+      ],
+    );
+    assert.equal(result.kind, "EXACT_IDENTITY");
+    assert.equal(result.catalogId, "sess-jul-13");
+    assert.deepEqual(result.reasons, ["exact_external_identity"]);
+  });
+
+  it("B: exact declared grain without externalId is EXACT_IDENTITY", () => {
+    const result = exactSessionMatcher.match(
+      record("session", {
+        programId: "prog-ckp",
+        startDate: "2026-06-29",
+        endDate: "2026-06-30",
+        ageMin: 8,
+        ageMax: 13,
+        themeTitle: "STEM",
+        themeTitleNormalized: "stem",
+      }),
+      [
+        {
+          id: "sess-stem-8-13",
+          programId: "prog-ckp",
+          startDate: "2026-06-29",
+          endDate: "2026-06-30",
+          ageMin: 8,
+          ageMax: 13,
+          themeTitle: "STEM",
+          themeTitleNormalized: "stem",
+        },
+      ],
+      CREATIVE_KIDS_PLACE_OFFERING_GRAIN,
+    );
+    assert.equal(result.kind, "EXACT_IDENTITY");
+    assert.equal(result.catalogId, "sess-stem-8-13");
+    assert.deepEqual(result.reasons, ["exact_declared_grain"]);
+  });
+
+  it("C: unique reconciliation with identity mismatch is IDENTITY_CHANGED", () => {
+    const result = exactSessionMatcher.match(
+      record(
+        "session",
+        {
+          programId: "prog-gm",
+          startDate: "2026-07-06",
+          endDate: "2026-07-11",
+          scheduleFormat: "full_day",
+          externalId: "gymnastics_mississauga:session:2026-07-06_2026-07-11:full_day",
+          sourceUrl: "https://gymmississauga.org/summer-camps/",
+        },
+        "gymnastics_mississauga:session:2026-07-06_2026-07-11:full_day",
+      ),
+      [
+        {
+          id: "sess-gm-full",
+          programId: "prog-gm",
+          startDate: "2026-07-06",
+          endDate: "2026-07-10",
+          scheduleFormat: "full_day",
+          externalId: "gymnastics_mississauga:session:2026-07-06_2026-07-10:full_day",
+          sourceUrl: "https://gymmississauga.org/summer-camps/",
+        },
+      ],
+      GYMNASTICS_MISSISSAUGA_OFFERING_GRAIN,
+    );
+    assert.equal(result.kind, "IDENTITY_CHANGED");
+    assert.equal(result.catalogId, null);
+    assert.ok(result.reasons.includes("identity_changed"));
+    assert.ok(result.reasons.includes("identity_changed:endDate"));
+    assert.ok(!result.reasons.some((reason) => reason.includes("source_url_and_start")));
+  });
+
+  it("D: reconciliation with more than one candidate is AMBIGUOUS", () => {
+    const result = exactSessionMatcher.match(
+      record("session", {
+        programId: "prog-gm",
+        startDate: "2026-07-06",
+        endDate: "2026-07-11",
+        scheduleFormat: "full_day",
+        sourceIdentity: "gymnastics_mississauga:session:2026-07-06_2026-07-11:full_day",
+      }),
+      [
+        {
+          id: "sess-gm-full-a",
+          programId: "prog-gm",
+          startDate: "2026-07-06",
+          endDate: "2026-07-10",
+          scheduleFormat: "full_day",
+          externalId: "gymnastics_mississauga:session:2026-07-06_2026-07-10:full_day",
+        },
+        {
+          id: "sess-gm-full-b",
+          programId: "prog-gm",
+          startDate: "2026-07-06",
+          endDate: "2026-07-12",
+          scheduleFormat: "full_day",
+          externalId: "gymnastics_mississauga:session:2026-07-06_2026-07-12:full_day",
+        },
+      ],
+      GYMNASTICS_MISSISSAUGA_OFFERING_GRAIN,
+    );
+    assert.equal(result.kind, "AMBIGUOUS");
+    assert.equal(result.catalogId, null);
+    assert.ok(result.reasons.includes("ambiguous_reconciliation"));
+  });
+
+  it("E: source URL + start must not match when externalIds differ", () => {
+    const result = exactSessionMatcher.match(
+      record(
+        "session",
+        {
+          programId: "prog-nutty-summer",
+          startDate: "2026-07-13",
+          sourceUrl: "https://www.nuttyscientists.ca/summer-camp",
+          externalId: "generic:session:new",
+        },
+        "generic:session:new",
+      ),
+      [
+        {
+          id: "sess-jul-13",
+          programId: "prog-nutty-summer",
+          startDate: "2026-07-13",
+          sourceUrl: "https://www.nuttyscientists.ca/summer-camp",
+          externalId: "generic:session:old",
+        },
+      ],
+      null,
+    );
+    assert.equal(result.kind, "NO_MATCH");
+    assert.equal(result.catalogId, null);
+    assert.ok(!result.reasons.some((reason) => reason.includes("source_url_and_start")));
+  });
+
+  it("F: null-grain source_url_and_start still works without an identity contradiction", () => {
+    const result = exactSessionMatcher.match(
+      record("session", {
+        sourceUrl: "https://www.nuttyscientists.ca/summer-camp/?utm_source=demo",
+        startDate: "2026-07-20",
+      }),
+      sessions,
+      null,
+    );
+    assert.equal(result.kind, "SAFE_RECONCILIATION");
+    assert.equal(result.catalogId, "sess-jul-20");
+    assert.deepEqual(result.reasons, ["legacy_source_url_and_start"]);
+  });
+
+  it("G: normalized-text grain comparison is case/format stable", () => {
+    const result = exactSessionMatcher.match(
+      record("session", {
+        programId: "prog-ckp",
+        startDate: "2026-06-29",
+        endDate: "2026-06-30",
+        ageMin: 8,
+        ageMax: 13,
+        themeTitle: "Creator Camp — Battlebot Technicians!",
+      }),
+      [
+        {
+          id: "sess-stem",
+          programId: "prog-ckp",
+          startDate: "2026-06-29",
+          endDate: "2026-06-30",
+          ageMin: 8,
+          ageMax: 13,
+          themeTitle: "creator camp battlebot technicians",
+        },
+      ],
+      CREATIVE_KIDS_PLACE_OFFERING_GRAIN,
+    );
+    assert.equal(result.kind, "EXACT_IDENTITY");
+    assert.equal(result.catalogId, "sess-stem");
+    assert.deepEqual(result.reasons, ["exact_declared_grain"]);
+  });
+
+  it("CKP theme identity change does not weakly reconnect", () => {
+    const result = exactSessionMatcher.match(
+      record("session", {
+        programId: "prog-ckp",
+        startDate: "2026-06-29",
+        endDate: "2026-06-30",
+        ageMin: 8,
+        ageMax: 13,
+        themeTitle: "Pokemon",
+        themeTitleNormalized: "pokemon",
+        sourceIdentity: "creative_kids_place:session:2026-06-29:pokemon:8-13",
+        externalId: "creative_kids_place:session:2026-06-29:pokemon:8-13",
+        sourceUrl: "https://www.creativekidsplace.ca/summer",
+      }),
+      [
+        {
+          id: "sess-stem",
+          programId: "prog-ckp",
+          startDate: "2026-06-29",
+          endDate: "2026-06-30",
+          ageMin: 8,
+          ageMax: 13,
+          themeTitle: "STEM",
+          themeTitleNormalized: "stem",
+          externalId: "creative_kids_place:session:2026-06-29:stem:8-13",
+          sourceUrl: "https://www.creativekidsplace.ca/summer",
+        },
+      ],
+      CREATIVE_KIDS_PLACE_OFFERING_GRAIN,
+    );
+    assert.equal(result.kind, "NO_MATCH");
+    assert.equal(result.catalogId, null);
+    assert.ok(!result.reasons.some((reason) => reason.includes("program_and_date_window")));
+    assert.ok(!result.reasons.some((reason) => reason.includes("source_url_and_start")));
   });
 });
 
@@ -387,7 +639,7 @@ describe("isNewSessionCandidate", () => {
   it("is false for a dateless, idless session block", () => {
     assert.equal(
       isNewSessionCandidate(
-        record("session", { programId: "prog-nutty-summer", priceAmount: 350 }),
+        record("session", { programId: "prog-nutty-summer", priceAmount: 350 }, ""),
         sessions,
       ),
       false,

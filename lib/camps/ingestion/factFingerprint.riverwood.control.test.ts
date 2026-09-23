@@ -31,6 +31,7 @@ import {
   hashFactFingerprint,
 } from "@/lib/camps/ingestion/factFingerprint";
 import { riverwoodConservancyExtractor } from "@/lib/camps/ingestion/extractors/riverwoodConservancyExtractor";
+import { RIVERWOOD_CONSERVANCY_OFFERING_GRAIN } from "@/lib/camps/ingestion/extractors/offeringGrain";
 import { FixtureSourceFetcher } from "@/lib/camps/ingestion/fetcher";
 import { cleanHtmlToDocument } from "@/lib/camps/ingestion/html/cleanHtml";
 import { hashSourceContent } from "@/lib/camps/ingestion/hash";
@@ -299,6 +300,7 @@ describe("Riverwood Conservancy semantic fingerprint control (Prompt 9B-B)", () 
           sourceUrl: RIVERWOOD_CONSERVANCY_SOURCE_URL,
         },
       ],
+      RIVERWOOD_CONSERVANCY_OFFERING_GRAIN,
     );
     assert.equal(match.catalogId, null);
     assert.deepEqual(match.reasons, ["no_match"]);
@@ -316,6 +318,7 @@ describe("Riverwood Conservancy semantic fingerprint control (Prompt 9B-B)", () 
   });
 
   it("yearless identity collides across seasons with the same month/day window", () => {
+    // KNOWN YEARLESS OCCURRENCE LIMITATION — A3
     const seasonPage = (footerYear: string, pdfYear: string, chrome: string) => `<html><body>
 <h1>Summer Camp</h1>
 <p>The Riverwood Conservancy</p>

@@ -52,6 +52,7 @@ import {
   type ExtractorResult,
   type ExtractorSupportInput,
 } from "@/lib/camps/ingestion/extractors/types";
+import { GYMNASTICS_MISSISSAUGA_OFFERING_GRAIN } from "@/lib/camps/ingestion/extractors/offeringGrain";
 import { documentLines, findAddress } from "@/lib/camps/ingestion/extractors/textScan";
 import { normalizeAgeRange } from "@/lib/camps/ingestion/normalize/ageRange";
 import { normalizeTimeRange } from "@/lib/camps/ingestion/normalize/timeRange";
@@ -666,6 +667,7 @@ function extract(input: ExtractorInput): ExtractorResult {
 export const gymnasticsMississaugaExtractor: CampExtractor = {
   key: GYMNASTICS_MISSISSAUGA_EXTRACTOR_KEY,
   version: "0.1.0",
+  grain: GYMNASTICS_MISSISSAUGA_OFFERING_GRAIN,
   supports,
   extract,
 };

@@ -24,6 +24,7 @@ import {
   hashFactFingerprint,
 } from "@/lib/camps/ingestion/factFingerprint";
 import { creativeKidsPlaceExtractor } from "@/lib/camps/ingestion/extractors/creativeKidsPlaceExtractor";
+import { CREATIVE_KIDS_PLACE_OFFERING_GRAIN } from "@/lib/camps/ingestion/extractors/offeringGrain";
 import { FixtureSourceFetcher } from "@/lib/camps/ingestion/fetcher";
 import { cleanHtmlToDocument } from "@/lib/camps/ingestion/html/cleanHtml";
 import { hashSourceContent } from "@/lib/camps/ingestion/hash";
@@ -246,10 +247,16 @@ describe("CKP semantic fingerprint control (Prompt 9A)", () => {
       },
     };
 
-    const baseMatch = exactSessionMatcher.match(withProgram, [catalogSession]);
-    const changedMatch = exactSessionMatcher.match(changedWithProgram, [
-      catalogSession,
-    ]);
+    const baseMatch = exactSessionMatcher.match(
+      withProgram,
+      [catalogSession],
+      CREATIVE_KIDS_PLACE_OFFERING_GRAIN,
+    );
+    const changedMatch = exactSessionMatcher.match(
+      changedWithProgram,
+      [catalogSession],
+      CREATIVE_KIDS_PLACE_OFFERING_GRAIN,
+    );
     assert.equal(baseMatch.catalogId, "catalog-sess");
     assert.equal(changedMatch.catalogId, "catalog-sess");
   });
@@ -320,7 +327,9 @@ describe("CKP semantic fingerprint control (Prompt 9A)", () => {
         },
       },
       [catalogRow],
+      CREATIVE_KIDS_PLACE_OFFERING_GRAIN,
     );
+    assert.equal(match.kind, "NO_MATCH");
     assert.equal(match.catalogId, null);
     assert.deepEqual(match.reasons, ["no_match"]);
     assert.ok(!match.reasons.some((reason) => reason.includes("program_and_date_window")));

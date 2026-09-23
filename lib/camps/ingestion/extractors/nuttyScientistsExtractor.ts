@@ -49,6 +49,7 @@ import {
   type ExtractorResult,
   type ExtractorSupportInput,
 } from "@/lib/camps/ingestion/extractors/types";
+import { NUTTY_SCIENTISTS_OFFERING_GRAIN } from "@/lib/camps/ingestion/extractors/offeringGrain";
 import {
   documentLines,
   findAddress,
@@ -718,6 +719,7 @@ function extract(input: ExtractorInput): ExtractorResult {
 export const nuttyScientistsExtractor: CampExtractor = {
   key: NUTTY_SCIENTISTS_EXTRACTOR_KEY,
   version: "0.1.0",
+  grain: NUTTY_SCIENTISTS_OFFERING_GRAIN,
   supports,
   extract,
 };

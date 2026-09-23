@@ -158,6 +158,8 @@ export type IngestionCatalogSnapshot = {
     ageMax?: number | null;
     themeTitle?: string | null;
     themeTitleNormalized?: string | null;
+    /** Published session format — TypeScript/read-model only; no migration. */
+    scheduleFormat?: string | null;
     priceAmount?: number | null;
     coreHoursStart?: string | null;
     coreHoursEnd?: string | null;

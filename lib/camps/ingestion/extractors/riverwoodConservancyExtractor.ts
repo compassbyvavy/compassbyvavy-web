@@ -50,6 +50,7 @@ import {
   type ExtractorResult,
   type ExtractorSupportInput,
 } from "@/lib/camps/ingestion/extractors/types";
+import { RIVERWOOD_CONSERVANCY_OFFERING_GRAIN } from "@/lib/camps/ingestion/extractors/offeringGrain";
 import {
   documentLines,
   statedDocumentYear,
@@ -619,6 +620,7 @@ function extract(input: ExtractorInput): ExtractorResult {
 export const riverwoodConservancyExtractor: CampExtractor = {
   key: RIVERWOOD_CONSERVANCY_EXTRACTOR_KEY,
   version: "0.1.0",
+  grain: RIVERWOOD_CONSERVANCY_OFFERING_GRAIN,
   supports,
   extract,
 };

@@ -580,7 +580,14 @@ async function processSource(input: ProcessSourceInput): Promise<void> {
       pipelineWarnings.push("changed_facts");
     }
     summary.sourcesChanged += 1;
-    await buildCandidates({ ...input, snapshot, result, checkedAtIso, pipelineWarnings });
+    await buildCandidates({
+      ...input,
+      snapshot,
+      result,
+      checkedAtIso,
+      pipelineWarnings,
+      extractor,
+    });
   }
 
   await store.extractions.saveExtractionRun({
@@ -673,10 +680,12 @@ type BuildCandidatesInput = ProcessSourceInput & {
   checkedAtIso: string;
   /** Warnings recorded on the extraction run (not the candidates). */
   pipelineWarnings: string[];
+  extractor: CampExtractor;
 };
 
 async function buildCandidates(input: BuildCandidatesInput): Promise<void> {
-  const { store, catalog, source, snapshot, result, summary, checkedAtIso, newId } = input;
+  const { store, catalog, source, snapshot, result, summary, checkedAtIso, newId, extractor } =
+    input;
   const extractionPartial = result.status === "partial";
 
   // Programs first: a session's program is how it finds its catalog sibling.
@@ -696,6 +705,7 @@ async function buildCandidates(input: BuildCandidatesInput): Promise<void> {
       record,
       catalog,
       programIdByName,
+      grain: extractor.grain,
     });
     if (record.recordType === "session") {
       sessionRecordsSeen += 1;
@@ -771,13 +781,14 @@ type MatchRecordInput = {
   record: CampExtractedRecord;
   catalog: IngestionCatalogSnapshot;
   programIdByName: Map<string, MatchResult>;
+  grain: CampExtractor["grain"];
 };
 
 function matchRecord(input: MatchRecordInput): {
   match: MatchResult;
   resolvedProgramId: string | null;
 } {
-  const { record, catalog, programIdByName } = input;
+  const { record, catalog, programIdByName, grain } = input;
 
   switch (record.recordType) {
     case "provider":
@@ -795,7 +806,7 @@ function matchRecord(input: MatchRecordInput): {
           }
         : record;
       return {
-        match: exactSessionMatcher.match(forMatching, catalog.sessions),
+        match: exactSessionMatcher.match(forMatching, catalog.sessions, grain),
         resolvedProgramId,
       };
     }
