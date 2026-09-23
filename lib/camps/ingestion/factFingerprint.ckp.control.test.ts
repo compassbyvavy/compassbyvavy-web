@@ -145,7 +145,7 @@ function findBattlebot(records: CampExtractedRecord[]): CampExtractedRecord {
 }
 
 describe("CKP semantic fingerprint control (Prompt 9A)", () => {
-  it("fingerprints all 93 session offerings under camp-facts-v1", () => {
+  it("fingerprints all 93 session offerings under camp-facts-v2", () => {
     const records = extractRecords(goldHtml);
     assert.equal(sessionsOf(records).length, 93);
     const fingerprint = hashFactFingerprint(records);

@@ -13,6 +13,7 @@ import type {
   IngestionQualityFlag,
   PipelineOutcome,
 } from "@/data/camps/ingestion/types";
+import { needsFingerprintRebaseline } from "@/lib/camps/ingestion/factFingerprint";
 import { sourceContentUnchanged } from "@/lib/camps/ingestion/hash";
 
 export type ExtractionDecisionReason =
@@ -20,6 +21,7 @@ export type ExtractionDecisionReason =
   | "no_previous_hash"
   | "content_changed"
   | "content_unchanged"
+  | "fingerprint_rebaseline"
   | "fetch_not_modified"
   | "fetch_blocked"
   | "fetch_error"
@@ -38,12 +40,28 @@ export type DecideExtractionInput = {
     Partial<Pick<CampSourceSnapshot, "rawContent">>;
   /** Hash recorded on the source (or its previous snapshot). */
   previousHash?: string | null;
+  /**
+   * Persisted semantic fingerprint on the source. When the raw hash is
+   * unchanged but this value is an older fingerprint version, extraction
+   * still runs so the current version can be persisted (no candidate storm).
+   */
+  previousFactFingerprint?: string | null;
   /** Re-extract even when the hash is unchanged (operator override). */
   force?: boolean;
 };
 
+function fingerprintRebaselineDecision(hasContent: boolean, previousFactFingerprint?: string | null) {
+  if (!hasContent) return null;
+  if (!needsFingerprintRebaseline(previousFactFingerprint)) return null;
+  return {
+    shouldExtract: true,
+    reason: "fingerprint_rebaseline" as const,
+    outcome: null,
+  };
+}
+
 export function decideExtraction(input: DecideExtractionInput): ExtractionDecision {
-  const { snapshot, previousHash, force = false } = input;
+  const { snapshot, previousHash, previousFactFingerprint, force = false } = input;
   const hasContent = typeof snapshot.rawContent === "string" && snapshot.rawContent !== "";
 
   switch (snapshot.fetchStatus) {
@@ -57,11 +75,13 @@ export function decideExtraction(input: DecideExtractionInput): ExtractionDecisi
       if (force && hasContent) {
         return { shouldExtract: true, reason: "forced", outcome: null };
       }
-      return {
-        shouldExtract: false,
-        reason: "fetch_not_modified",
-        outcome: "UNCHANGED_SOURCE",
-      };
+      return (
+        fingerprintRebaselineDecision(hasContent, previousFactFingerprint) ?? {
+          shouldExtract: false,
+          reason: "fetch_not_modified",
+          outcome: "UNCHANGED_SOURCE",
+        }
+      );
     case "success":
       break;
   }
@@ -77,11 +97,13 @@ export function decideExtraction(input: DecideExtractionInput): ExtractionDecisi
     return { shouldExtract: true, reason: "no_previous_hash", outcome: null };
   }
   if (sourceContentUnchanged(previousHash, snapshot.contentHash)) {
-    return {
-      shouldExtract: false,
-      reason: "content_unchanged",
-      outcome: "UNCHANGED_SOURCE",
-    };
+    return (
+      fingerprintRebaselineDecision(hasContent, previousFactFingerprint) ?? {
+        shouldExtract: false,
+        reason: "content_unchanged",
+        outcome: "UNCHANGED_SOURCE",
+      }
+    );
   }
   return { shouldExtract: true, reason: "content_changed", outcome: null };
 }

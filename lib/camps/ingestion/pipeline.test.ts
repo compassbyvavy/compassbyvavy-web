@@ -121,6 +121,78 @@ describe("decideExtraction", () => {
       { shouldExtract: false, reason: "no_content", outcome: "FAILED" },
     );
   });
+
+  it("extracts unchanged raw when the stored fingerprint is camp-facts-v1", () => {
+    const decision = decideExtraction({
+      snapshot: snapshot(),
+      previousHash: hashSourceContent(html),
+      previousFactFingerprint:
+        "camp-facts-v1:sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    });
+    assert.deepEqual(decision, {
+      shouldExtract: true,
+      reason: "fingerprint_rebaseline",
+      outcome: null,
+    });
+  });
+
+  it("does not rebaseline unchanged raw already stored as camp-facts-v2", () => {
+    const decision = decideExtraction({
+      snapshot: snapshot(),
+      previousHash: hashSourceContent(html),
+      previousFactFingerprint:
+        "camp-facts-v2:sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    });
+    assert.deepEqual(decision, {
+      shouldExtract: false,
+      reason: "content_unchanged",
+      outcome: "UNCHANGED_SOURCE",
+    });
+  });
+
+  it("does not treat a v1 stored fingerprint as rebaseline when raw also changed", () => {
+    const decision = decideExtraction({
+      snapshot: snapshot({
+        contentHash: hashSourceContent(changedHtml),
+        rawContent: changedHtml,
+      }),
+      previousHash: hashSourceContent(html),
+      previousFactFingerprint:
+        "camp-facts-v1:sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    });
+    assert.deepEqual(decision, {
+      shouldExtract: true,
+      reason: "content_changed",
+      outcome: null,
+    });
+  });
+
+  it("force still wins over a v1 rebaseline opportunity", () => {
+    assert.deepEqual(
+      decideExtraction({
+        snapshot: snapshot(),
+        previousHash: hashSourceContent(html),
+        previousFactFingerprint:
+          "camp-facts-v1:sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        force: true,
+      }),
+      { shouldExtract: true, reason: "forced", outcome: null },
+    );
+  });
+
+  it("does not silent-rebaseline an unknown future fingerprint version", () => {
+    const decision = decideExtraction({
+      snapshot: snapshot(),
+      previousHash: hashSourceContent(html),
+      previousFactFingerprint:
+        "camp-facts-v9:sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    });
+    assert.deepEqual(decision, {
+      shouldExtract: false,
+      reason: "content_unchanged",
+      outcome: "UNCHANGED_SOURCE",
+    });
+  });
 });
 
 describe("resolveCandidateOutcome", () => {

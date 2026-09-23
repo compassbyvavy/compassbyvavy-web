@@ -27,6 +27,7 @@ import type {
 } from "@/data/camps/ingestion/types";
 import {
   FACT_FINGERPRINT_VERSION,
+  buildFactFingerprintPayload,
   hashFactFingerprint,
 } from "@/lib/camps/ingestion/factFingerprint";
 import { riverwoodConservancyExtractor } from "@/lib/camps/ingestion/extractors/riverwoodConservancyExtractor";
@@ -163,7 +164,7 @@ async function runPair(firstHtml: string, secondHtml: string, prefix: string) {
 }
 
 describe("Riverwood Conservancy semantic fingerprint control (Prompt 9B-B)", () => {
-  it("fingerprints 9 date-window sessions under camp-facts-v1", () => {
+  it("fingerprints 9 date-window sessions under camp-facts-v2", () => {
     const records = extractRecords(goldHtml);
     assert.equal(sessionsOf(records).length, 9);
     const fingerprint = hashFactFingerprint(records);
@@ -211,6 +212,12 @@ describe("Riverwood Conservancy semantic fingerprint control (Prompt 9B-B)", () 
     assert.equal(changedWeek2.normalizedFields.seatAvailability, null);
     assert.equal(changedWeek2.normalizedFields.registrationStatus, null);
     assert.notEqual(changedWeek2.normalizedFields.seatAvailability, 0);
+    const goldPayload = buildFactFingerprintPayload([goldWeek2])[0]?.fields;
+    const changedPayload = buildFactFingerprintPayload([changedWeek2])[0]?.fields;
+    assert.equal(goldPayload?.seatAvailability, "confirmed_full");
+    assert.equal(changedPayload?.seatAvailability, null);
+    assert.equal(goldPayload?.registrationStatus, null);
+    assert.equal(changedPayload?.registrationStatus, null);
     assert.equal(goldWeek2.sourceIdentity, changedWeek2.sourceIdentity);
     const { first, second } = await runPair(goldHtml, changedHtml, "riverwood-soldout");
     assert.equal(first.status, "baseline");
@@ -223,6 +230,12 @@ describe("Riverwood Conservancy semantic fingerprint control (Prompt 9B-B)", () 
     const changedCap = extractRecords(changedHtml).find((record) => record.recordType === "program");
     assert.equal((goldCap?.normalizedFields.policies as { enrolmentCapPerWeek: number }).enrolmentCapPerWeek, 16);
     assert.equal((changedCap?.normalizedFields.policies as { enrolmentCapPerWeek: number }).enrolmentCapPerWeek, 20);
+    const goldSessionCap = sessionsOf(extractRecords(goldHtml))[0];
+    const changedSessionCap = sessionsOf(extractRecords(changedHtml))[0];
+    assert.equal(goldSessionCap.normalizedFields.enrolmentCapPerWeek, 16);
+    assert.equal(changedSessionCap.normalizedFields.enrolmentCapPerWeek, 20);
+    assert.equal(goldSessionCap.normalizedFields.seatAvailability, changedSessionCap.normalizedFields.seatAvailability);
+    assert.equal(goldSessionCap.normalizedFields.registrationStatus, changedSessionCap.normalizedFields.registrationStatus);
     const { second } = await runPair(goldHtml, changedHtml, "riverwood-cap");
     assert.equal(second.status, "changed_facts");
   });
@@ -249,7 +262,11 @@ describe("Riverwood Conservancy semantic fingerprint control (Prompt 9B-B)", () 
     assert.ok(goldSessions.every((session) => session.normalizedFields.ageMin === null));
     assert.ok(changedSessions.every((session) => session.normalizedFields.ageMin === null));
     assert.ok(changedSessions.every((session) => session.normalizedFields.ageMax === null));
+    assert.ok(goldSessions.every((session) => session.normalizedFields.gradeMin === 1));
+    assert.ok(goldSessions.every((session) => session.normalizedFields.gradeMax === 6));
     assert.ok(changedSessions.every((session) => session.normalizedFields.gradeMax === 5));
+    assert.equal(buildFactFingerprintPayload(goldSessions)[0]?.fields.gradeMax, 6);
+    assert.equal(buildFactFingerprintPayload(changedSessions)[0]?.fields.gradeMax, 5);
     assert.equal(goldSessions[0].sourceIdentity, changedSessions[0].sourceIdentity);
     const { second } = await runPair(goldHtml, changedHtml, "riverwood-grade");
     assert.equal(second.status, "changed_facts");

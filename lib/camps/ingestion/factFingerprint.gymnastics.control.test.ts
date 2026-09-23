@@ -2,7 +2,7 @@
  * Prompt 9B-C2 — Gymnastics Mississauga semantic fingerprint + pipeline.
  *
  * Proves the official marketing HTML CampSource passes through fixture →
- * Gymnastics extractor → camp-facts-v1 → matcher → change set → review
+ * Gymnastics extractor → camp-facts-v2 → matcher → change set → review
  * candidate, without a generic runner redesign. Jackrabbit stays outside
  * the crawl boundary.
  */
@@ -17,6 +17,8 @@ import type {
 } from "@/data/camps/ingestion/types";
 import {
   FACT_FINGERPRINT_VERSION,
+  buildFactFingerprintPayload,
+  compareFactFingerprints,
   hashFactFingerprint,
 } from "@/lib/camps/ingestion/factFingerprint";
 import { gymnasticsMississaugaExtractor } from "@/lib/camps/ingestion/extractors/gymnasticsMississaugaExtractor";
@@ -162,12 +164,36 @@ async function runPair(firstHtml: string, secondHtml: string, prefix: string) {
 }
 
 describe("Gymnastics Mississauga semantic fingerprint control (Prompt 9B-C2)", () => {
-  it("fingerprints the official page under camp-facts-v1", () => {
+  it("fingerprints the official page under camp-facts-v2", () => {
     const records = extractRecords(goldHtml);
     assert.equal(sessionsOf(records).length, 20);
     const fingerprint = hashFactFingerprint(records);
     assert.match(fingerprint, new RegExp(`^${FACT_FINGERPRINT_VERSION}:sha256:[0-9a-f]{64}$`));
     assert.equal(hashFactFingerprint([...records].reverse()), fingerprint);
+  });
+
+  it("scheduleFormat structured change is fingerprint-visible without changing matcher grain", () => {
+    const records = extractRecords(goldHtml);
+    const session = sessionsOf(records).find((candidate) =>
+      String(candidate.sourceIdentity).includes("2026-07-06_2026-07-10:full_day"),
+    );
+    assert.ok(session);
+    assert.equal(session.normalizedFields.scheduleFormat, "full_day");
+    assert.equal(buildFactFingerprintPayload([session])[0]?.fields.scheduleFormat, "full_day");
+    const mutated = records.map((candidate) =>
+      candidate.id === session.id
+        ? {
+            ...candidate,
+            normalizedFields: { ...candidate.normalizedFields, scheduleFormat: "half_day" },
+          }
+        : candidate,
+    );
+    assert.equal(
+      mutated.find((candidate) => candidate.id === session.id)?.sourceIdentity,
+      session.sourceIdentity,
+    );
+    assert.notEqual(hashFactFingerprint(records), hashFactFingerprint(mutated));
+    assert.equal(compareFactFingerprints(hashFactFingerprint(records), hashFactFingerprint(mutated)).kind, "changed");
   });
 
   it("exact repeat → unchanged_raw", async () => {
@@ -242,7 +268,7 @@ describe("Gymnastics Mississauga semantic fingerprint control (Prompt 9B-C2)", (
     assert.deepEqual(match.reasons, ["no_match"]);
   });
 
-  it("end-date-only change: identity and camp-facts-v1 change; matcher still hits source_url_and_start", async () => {
+  it("end-date-only change: identity and camp-facts-v2 change; matcher still hits source_url_and_start", async () => {
     const gold = sessionsOf(extractRecords(goldHtml)).find((session) =>
       String(session.sourceIdentity).includes("2026-07-06_2026-07-10:full_day"),
     );

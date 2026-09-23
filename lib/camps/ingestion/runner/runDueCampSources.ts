@@ -54,6 +54,7 @@ import {
   compareFactFingerprints,
   hashFactFingerprint,
 } from "@/lib/camps/ingestion/factFingerprint";
+import { sourceContentUnchanged } from "@/lib/camps/ingestion/hash";
 import { decideExtraction, resolveCandidateOutcome } from "@/lib/camps/ingestion/pipeline";
 import {
   applyMatchQualityFlags,
@@ -172,7 +173,8 @@ export type RunCampSourceOptions = Omit<RunDueCampSourcesOptions, "limit"> & {
  * FACTS UNCHANGED → `unchanged_facts` (alias: `non_semantic_change`)
  * FACTS CHANGED → `changed_facts` (alias: `changed`)
  * First successful facts → `baseline`
- * Fingerprint algorithm version moved → `fingerprint_version_changed`
+ * Fingerprint algorithm version moved with raw also changed → `fingerprint_version_changed`
+ * Stored older fingerprint recomputed on unchanged raw → `fingerprint_rebaseline`
  */
 export type CampSourceRunStatus =
   | "unchanged_raw"
@@ -183,6 +185,7 @@ export type CampSourceRunStatus =
   | "changed"
   | "baseline"
   | "fingerprint_version_changed"
+  | "fingerprint_rebaseline"
   | "partial"
   | "blocked"
   | "failed";
@@ -339,7 +342,9 @@ export async function runCampSource(
   ];
 
   let status: CampSourceRunStatus = "failed";
-  if (summary.sourcesNonSemanticChange > 0) status = "unchanged_facts";
+  if (warnings.includes("fingerprint_rebaseline")) {
+    status = "fingerprint_rebaseline";
+  } else if (summary.sourcesNonSemanticChange > 0) status = "unchanged_facts";
   else if (summary.sourcesUnchanged > 0) status = "unchanged_raw";
   else if (warnings.includes("fingerprint_version_changed")) {
     status = "fingerprint_version_changed";
@@ -409,9 +414,11 @@ async function processSource(input: ProcessSourceInput): Promise<void> {
   });
   const snapshot = await store.snapshots.saveSnapshot(fetched);
 
+  const previousHash = previousContentHash(source, previousSnapshot);
   const decision = decideExtraction({
     snapshot,
-    previousHash: previousContentHash(source, previousSnapshot),
+    previousHash,
+    previousFactFingerprint: source.lastFactFingerprint,
     force: input.force,
   });
 
@@ -484,8 +491,47 @@ async function processSource(input: ProcessSourceInput): Promise<void> {
     source.lastFactFingerprint,
     factFingerprint,
   );
+  const rawUnchanged = Boolean(
+    previousHash && sourceContentUnchanged(previousHash, snapshot.contentHash),
+  );
   const factsSame =
     !input.force && fingerprintComparison.kind === "unchanged";
+
+  if (
+    result.status !== "failed" &&
+    !input.force &&
+    fingerprintComparison.kind === "version_mismatch" &&
+    rawUnchanged
+  ) {
+    // CASE A: stored older fingerprint + same raw → persist v2, no candidates.
+    pipelineWarnings.push("fingerprint_rebaseline");
+    pipelineWarnings.push(
+      `fingerprint_version:${fingerprintComparison.previousVersion}->${fingerprintComparison.nextVersion}`,
+    );
+    await store.extractions.saveExtractionRun({
+      id: extractionRunId,
+      snapshotId: snapshot.id,
+      extractorVersion,
+      startedAt: checkedAtIso,
+      completedAt: now().toISOString(),
+      status: result.status,
+      warnings: [...result.warnings, ...pipelineWarnings],
+      error: null,
+    });
+    summary.sourcesSucceeded += 1;
+    summary.extractionsSucceeded += 1;
+    await markCheckedSafely(store, {
+      sourceId: source.id,
+      checkedAt: checkedAtIso,
+      contentHash: snapshot.contentHash,
+      factFingerprint,
+      changed: false,
+      successful: true,
+      nextCheckAt,
+      error: null,
+    });
+    return;
+  }
 
   if (result.status !== "failed" && factsSame) {
     // REGISTERED → FETCH → RAW HASH different → EXTRACT → FACT FINGERPRINT same.
@@ -526,6 +572,10 @@ async function processSource(input: ProcessSourceInput): Promise<void> {
       pipelineWarnings.push(
         `fingerprint_version:${fingerprintComparison.previousVersion}->${fingerprintComparison.nextVersion}`,
       );
+      if (!rawUnchanged) {
+        pipelineWarnings.push("fingerprint_version_transition");
+        pipelineWarnings.push("fingerprint_version_transition_with_raw_change");
+      }
     } else if (fingerprintComparison.kind === "changed") {
       pipelineWarnings.push("changed_facts");
     }
@@ -685,6 +735,12 @@ async function buildCandidates(input: BuildCandidatesInput): Promise<void> {
     const candidateData = { ...record.normalizedFields };
     delete candidateData.observations;
 
+    const transitionNote = input.pipelineWarnings.includes(
+      "fingerprint_version_transition_with_raw_change",
+    )
+      ? " fingerprint_version_transition_with_raw_change"
+      : "";
+
     const candidate: CampCandidate = {
       id: newId(),
       candidateType: record.recordType,
@@ -694,7 +750,7 @@ async function buildCandidates(input: BuildCandidatesInput): Promise<void> {
       candidateData,
       changeSet,
       status: resolution.status,
-      reviewReason: `${resolution.reviewReason} (${match.reasons.join(", ")})`,
+      reviewReason: `${resolution.reviewReason} (${match.reasons.join(", ")})${transitionNote}`,
       qualityFlags,
       pipelineOutcome: resolution.pipelineOutcome,
       sourceId: source.id,
