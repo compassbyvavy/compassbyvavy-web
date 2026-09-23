@@ -104,7 +104,7 @@ function sessionsOf(records: CampExtractedRecord[]): CampExtractedRecord[] {
 }
 
 describe("Nutty Scientists semantic fingerprint control (Prompt 9B-A)", () => {
-  it("fingerprints 8 week × age-band sessions under camp-facts-v1", () => {
+  it("fingerprints 8 week × age-band sessions under camp-facts-v2", () => {
     const records = extractRecords(goldHtml);
     assert.equal(sessionsOf(records).length, 8);
     const fingerprint = hashFactFingerprint(records);

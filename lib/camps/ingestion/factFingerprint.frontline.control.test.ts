@@ -16,6 +16,7 @@ import type {
 } from "@/data/camps/ingestion/types";
 import {
   FACT_FINGERPRINT_VERSION,
+  buildFactFingerprintPayload,
   hashFactFingerprint,
 } from "@/lib/camps/ingestion/factFingerprint";
 import { frontLineHockeyExtractor } from "@/lib/camps/ingestion/extractors/frontLineHockeyExtractor";
@@ -29,6 +30,7 @@ import type { IngestionCatalogSnapshot } from "@/lib/camps/ingestion/repositorie
 import { runCampSource } from "@/lib/camps/ingestion/runner/runDueCampSources";
 import {
   FRONT_LINE_HOCKEY_APRIL_SOURCE_ID,
+  FRONT_LINE_HOCKEY_DECEMBER_SOURCE_ID,
   FRONT_LINE_HOCKEY_JULY_SOURCE_ID,
   FRONT_LINE_HOCKEY_JULY_SOURCE_URL,
   frontLineHockeySourceById,
@@ -76,7 +78,11 @@ function playerPriceChanged(html: string): string {
 }
 
 function goaliePriceChanged(html: string): string {
-  return html.replace(/&quot;display_price&quot;:100/g, "&quot;display_price&quot;:115");
+  return html.replace(/&quot;display_price&quot;:100/g, "&quot;display_price&quot;:125");
+}
+
+function ageBandHoursChanged(html: string): string {
+  return html.replace("10:00am - 11:30am: ages 5-9", "10:30am - 11:30am: ages 5-9");
 }
 
 function venueChanged(html: string): string {
@@ -133,16 +139,21 @@ function sessionsOf(records: CampExtractedRecord[]): CampExtractedRecord[] {
   return records.filter((record) => record.recordType === "session");
 }
 
-async function runPair(firstHtml: string, secondHtml: string, prefix: string) {
+async function runPair(
+  firstHtml: string,
+  secondHtml: string,
+  prefix: string,
+  sourceId: string = FRONT_LINE_HOCKEY_JULY_SOURCE_ID,
+) {
   const store = createMemoryIngestionStore({
-    sources: [frontLineHockeySourceById(FRONT_LINE_HOCKEY_JULY_SOURCE_ID, new Date("2026-09-19T12:00:00.000Z"))],
+    sources: [frontLineHockeySourceById(sourceId, new Date("2026-09-19T12:00:00.000Z"))],
   });
   const newId = createSequentialIdFactory(prefix);
   const first = await runCampSource({
-    sourceId: FRONT_LINE_HOCKEY_JULY_SOURCE_ID,
+    sourceId,
     store,
     fetcher: new FixtureSourceFetcher(
-      { [FRONT_LINE_HOCKEY_JULY_SOURCE_ID]: { content: firstHtml, fetchStatus: "success" } },
+      { [sourceId]: { content: firstHtml, fetchStatus: "success" } },
       { newId },
     ),
     catalog: emptyCatalog(),
@@ -150,10 +161,10 @@ async function runPair(firstHtml: string, secondHtml: string, prefix: string) {
     newId,
   });
   const second = await runCampSource({
-    sourceId: FRONT_LINE_HOCKEY_JULY_SOURCE_ID,
+    sourceId,
     store,
     fetcher: new FixtureSourceFetcher(
-      { [FRONT_LINE_HOCKEY_JULY_SOURCE_ID]: { content: secondHtml, fetchStatus: "success" } },
+      { [sourceId]: { content: secondHtml, fetchStatus: "success" } },
       { newId },
     ),
     catalog: emptyCatalog(),
@@ -164,7 +175,7 @@ async function runPair(firstHtml: string, secondHtml: string, prefix: string) {
 }
 
 describe("Front Line Hockey semantic fingerprint control (Prompt 9B-C1)", () => {
-  it("fingerprints the July product under camp-facts-v1", () => {
+  it("fingerprints the July product under camp-facts-v2", () => {
     const records = extractRecords(julyHtml);
     assert.equal(sessionsOf(records).length, 1);
     const fingerprint = hashFactFingerprint(records);
@@ -201,22 +212,26 @@ describe("Front Line Hockey semantic fingerprint control (Prompt 9B-C1)", () => 
     assert.equal(second.status, "changed_facts");
   });
 
-  it("goalie price change → changed_facts without changing identity", async () => {
+  it("goalie price change on the July product → changed_facts via structured priceOptions", async () => {
     const changedHtml = goaliePriceChanged(julyHtml);
-    const goldProgram = extractRecords(julyHtml).find((record) => record.recordType === "program");
-    const changedProgram = extractRecords(changedHtml).find((record) => record.recordType === "program");
-    assert.equal(
-      (goldProgram?.normalizedFields.policies as { goaliePriceAmount: number }).goaliePriceAmount,
-      100,
-    );
-    assert.equal(
-      (changedProgram?.normalizedFields.policies as { goaliePriceAmount: number }).goaliePriceAmount,
-      115,
-    );
-    assert.equal(
-      sessionsOf(extractRecords(julyHtml))[0].sourceIdentity,
-      sessionsOf(extractRecords(changedHtml))[0].sourceIdentity,
-    );
+    const gold = sessionsOf(extractRecords(julyHtml))[0];
+    const changed = sessionsOf(extractRecords(changedHtml))[0];
+    const goldOptions = gold.normalizedFields.priceOptions as Array<{ key: string; amount: number }>;
+    const changedOptions = changed.normalizedFields.priceOptions as Array<{
+      key: string;
+      amount: number;
+    }>;
+    assert.equal(goldOptions.find((option) => option.key === "player")?.amount, 395);
+    assert.equal(goldOptions.find((option) => option.key === "goalie")?.amount, 100);
+    assert.equal(changedOptions.find((option) => option.key === "goalie")?.amount, 125);
+    assert.equal(gold.normalizedFields.priceAmount, 395);
+    assert.equal(changed.normalizedFields.priceAmount, 395);
+    assert.equal(gold.sourceIdentity, changed.sourceIdentity);
+    const goldPayload = buildFactFingerprintPayload([gold])[0]?.fields.priceOptions as Array<{
+      key: string;
+      amount: number;
+    }>;
+    assert.equal(goldPayload.find((option) => option.key === "goalie")?.amount, 100);
     const { second } = await runPair(julyHtml, changedHtml, "fl-goalie");
     assert.equal(second.status, "changed_facts");
   });
@@ -282,6 +297,95 @@ describe("Front Line Hockey semantic fingerprint control (Prompt 9B-C1)", () => 
     assert.equal(gold.sourceIdentity, changed.sourceIdentity);
     const { second } = await runPair(julyHtml, changedHtml, "fl-age");
     assert.equal(second.status, "changed_facts");
+  });
+
+  it("December structured age-band hour change → changed_facts without flattening bands", async () => {
+    const changedHtml = ageBandHoursChanged(decemberHtml);
+    const gold = sessionsOf(extractRecords(decemberHtml, FRONT_LINE_HOCKEY_DECEMBER_SOURCE_ID))[0];
+    const changed = sessionsOf(
+      extractRecords(changedHtml, FRONT_LINE_HOCKEY_DECEMBER_SOURCE_ID),
+    )[0];
+    const goldBands = gold.normalizedFields.ageBands as Array<{
+      ageMin: number;
+      hoursStart: string | null;
+      hoursEnd: string | null;
+    }>;
+    const changedBands = changed.normalizedFields.ageBands as Array<{
+      ageMin: number;
+      hoursStart: string | null;
+      hoursEnd: string | null;
+    }>;
+    assert.equal(goldBands.length, 2);
+    assert.equal(changedBands.length, 2);
+    assert.equal(goldBands.find((band) => band.ageMin === 5)?.hoursStart, "10:00");
+    assert.equal(goldBands.find((band) => band.ageMin === 5)?.hoursEnd, "11:30");
+    assert.equal(changedBands.find((band) => band.ageMin === 5)?.hoursStart, "10:30");
+    assert.equal(gold.normalizedFields.ageMin, 5);
+    assert.equal(gold.normalizedFields.ageMax, 14);
+    assert.equal(changed.normalizedFields.ageMin, 5);
+    assert.equal(changed.normalizedFields.ageMax, 14);
+    assert.equal(gold.sourceIdentity, changed.sourceIdentity);
+    assert.notEqual(
+      hashFactFingerprint(extractRecords(decemberHtml, FRONT_LINE_HOCKEY_DECEMBER_SOURCE_ID)),
+      hashFactFingerprint(extractRecords(changedHtml, FRONT_LINE_HOCKEY_DECEMBER_SOURCE_ID)),
+    );
+    const { first, second } = await runPair(
+      decemberHtml,
+      changedHtml,
+      "fl-hours",
+      FRONT_LINE_HOCKEY_DECEMBER_SOURCE_ID,
+    );
+    assert.ok(first.status === "baseline" || first.status === "partial");
+    assert.ok(second.candidateIds.length > 0);
+    assert.ok(second.warnings.includes("changed_facts"));
+    assert.notEqual(second.status, "unchanged_facts");
+    assert.notEqual(second.status, "unchanged_raw");
+    assert.notEqual(second.status, "fingerprint_rebaseline");
+    // December gold is a thin/partial extraction; the runner reports `partial`
+    // ahead of `changed_facts` even when the fact fingerprint moved.
+    assert.ok(second.status === "changed_facts" || second.status === "partial");
+  });
+
+  it("ageBands reorder only → unchanged fingerprint", () => {
+    const gold = sessionsOf(extractRecords(julyHtml))[0];
+    const bands = [...((gold.normalizedFields.ageBands as unknown[]) ?? [])];
+    const reordered = {
+      ...gold,
+      normalizedFields: {
+        ...gold.normalizedFields,
+        ageBands: [...bands].reverse(),
+      },
+    };
+    assert.equal(hashFactFingerprint([gold]), hashFactFingerprint([reordered]));
+  });
+
+  it("priceOptions reorder only → unchanged fingerprint", () => {
+    const gold = sessionsOf(extractRecords(julyHtml))[0];
+    const options = [...((gold.normalizedFields.priceOptions as unknown[]) ?? [])];
+    const reordered = {
+      ...gold,
+      normalizedFields: {
+        ...gold.normalizedFields,
+        priceOptions: [...options].reverse(),
+      },
+    };
+    assert.equal(hashFactFingerprint([gold]), hashFactFingerprint([reordered]));
+  });
+
+  it("Fall goalie stays unresolved: null structured price, raw $1 retained", () => {
+    const session = sessionsOf(
+      extractRecords(fallHtml, "src-front-line-hockey-fall-pre-evaluation"),
+    )[0];
+    const options = (session.normalizedFields.priceOptions as Array<{ key: string; amount: number }>) ?? [];
+    assert.equal(options.find((option) => option.key === "player")?.amount, 375);
+    assert.equal(options.find((option) => option.key === "goalie"), undefined);
+    assert.equal(session.rawFields.rawGoalieVariantAmount, 1);
+    const observations = session.normalizedFields.observations as {
+      goaliePriceAmount?: { value: number | null };
+      rawGoalieVariantAmount?: { value: number | null };
+    };
+    assert.equal(observations.goaliePriceAmount?.value, null);
+    assert.equal(observations.rawGoalieVariantAmount?.value, 1);
   });
 });
 

@@ -63,11 +63,11 @@ describe("factFingerprint", () => {
         normalizedFields: sessionFields(),
       }),
     ]);
-    assert.match(fingerprint, /^camp-facts-v1:sha256:[0-9a-f]{64}$/);
-    assert.equal(FACT_FINGERPRINT_VERSION, "camp-facts-v1");
+    assert.match(fingerprint, /^camp-facts-v2:sha256:[0-9a-f]{64}$/);
+    assert.equal(FACT_FINGERPRINT_VERSION, "camp-facts-v2");
     const parsed = parseSemanticFingerprint(fingerprint);
     assert.ok(parsed);
-    assert.equal(parsed.version, "camp-facts-v1");
+    assert.equal(parsed.version, "camp-facts-v2");
     assert.equal(parsed.algorithm, "sha256");
   });
 
@@ -380,7 +380,7 @@ describe("factFingerprint", () => {
     assert.equal(comparison.kind, "version_mismatch");
     if (comparison.kind === "version_mismatch") {
       assert.equal(comparison.previousVersion, "legacy-unversioned");
-      assert.equal(comparison.nextVersion, "camp-facts-v1");
+      assert.equal(comparison.nextVersion, "camp-facts-v2");
     }
     assert.equal(factsUnchanged(legacy, next), false);
   });

@@ -316,6 +316,55 @@ function supports(input: ExtractorSupportInput): boolean {
   return /frontlinehockeyschool\.ca/i.test(input.source.canonicalUrl);
 }
 
+function structuredAgeBands(bands: FrontLineAgeBand[]): Array<{
+  ageMin: number;
+  ageMax: number;
+  hoursStart: string | null;
+  hoursEnd: string | null;
+}> {
+  return bands.map((band) => ({
+    ageMin: band.ageMin,
+    ageMax: band.ageMax,
+    hoursStart: band.hoursStart,
+    hoursEnd: band.hoursEnd,
+  }));
+}
+
+function structuredPriceOptions(offering: FrontLineOffering): Array<{
+  key: "player" | "goalie";
+  label: "Player" | "Goalie";
+  amount: number;
+  unit: null;
+  currency: FrontLineOffering["currency"];
+}> {
+  const options: Array<{
+    key: "player" | "goalie";
+    label: "Player" | "Goalie";
+    amount: number;
+    unit: null;
+    currency: FrontLineOffering["currency"];
+  }> = [];
+  if (offering.playerPriceAmount != null) {
+    options.push({
+      key: "player",
+      label: "Player",
+      amount: offering.playerPriceAmount,
+      unit: null,
+      currency: offering.currency,
+    });
+  }
+  if (offering.goaliePriceAmount != null) {
+    options.push({
+      key: "goalie",
+      label: "Goalie",
+      amount: offering.goaliePriceAmount,
+      unit: null,
+      currency: offering.currency,
+    });
+  }
+  return options;
+}
+
 function extract(input: ExtractorInput): ExtractorResult {
   const { document, source, snapshot, extractionRunId, newId, rawHtml } = input;
   const observedAt = (input.now ?? new Date()).toISOString();
@@ -477,11 +526,13 @@ function extract(input: ExtractorInput): ExtractorResult {
           listedDateWindow: offering.listedDateWindow,
           ageMin: offering.ageMin,
           ageMax: offering.ageMax,
+          ageBands: structuredAgeBands(offering.ageBands),
           priceTierKey: "player",
           priceTierLabel: "player",
           priceAmount: offering.playerPriceAmount,
           priceUnit: null,
           currency: offering.currency,
+          priceOptions: structuredPriceOptions(offering),
           shortWeekPriceAmount: null,
           outingLabel: null,
           addOnFeeCad: null,
