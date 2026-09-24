@@ -25,6 +25,7 @@ import { cleanHtmlToDocument } from "@/lib/camps/ingestion/html/cleanHtml";
 import { hashSourceContent } from "@/lib/camps/ingestion/hash";
 import { createSequentialIdFactory } from "@/lib/camps/ingestion/ids";
 import { exactSessionMatcher } from "@/lib/camps/ingestion/matchers";
+import { FRONT_LINE_HOCKEY_OFFERING_GRAIN } from "@/lib/camps/ingestion/extractors/offeringGrain";
 import { createMemoryIngestionStore } from "@/lib/camps/ingestion/repositories/memoryStore";
 import type { IngestionCatalogSnapshot } from "@/lib/camps/ingestion/repositories/types";
 import { runCampSource } from "@/lib/camps/ingestion/runner/runDueCampSources";
@@ -283,9 +284,68 @@ describe("Front Line Hockey semantic fingerprint control (Prompt 9B-C1)", () => 
           sourceUrl: FRONT_LINE_HOCKEY_JULY_SOURCE_URL,
         },
       ],
+      FRONT_LINE_HOCKEY_OFFERING_GRAIN,
     );
     assert.equal(match.catalogId, null);
     assert.deepEqual(match.reasons, ["no_match"]);
+  });
+
+  it("duplicate semantic URL with the same sourceIdentity is EXACT_IDENTITY", () => {
+    const gold = sessionsOf(extractRecords(julyHtml))[0];
+    const match = exactSessionMatcher.match(
+      {
+        ...gold,
+        normalizedFields: {
+          ...gold.normalizedFields,
+          programId: "prog-fl",
+          externalId: gold.sourceIdentity,
+          sourceUrl: "https://frontlinehockeyschool.ca/product/july-hockey-camp/?ref=duplicate",
+        },
+      },
+      [
+        {
+          id: "catalog-july-6-10",
+          programId: "prog-fl",
+          startDate: "2026-07-06",
+          endDate: "2026-07-10",
+          externalId: gold.sourceIdentity,
+          sourceUrl: FRONT_LINE_HOCKEY_JULY_SOURCE_URL,
+        },
+      ],
+      FRONT_LINE_HOCKEY_OFFERING_GRAIN,
+    );
+    assert.equal(match.kind, "EXACT_IDENTITY");
+    assert.equal(match.catalogId, "catalog-july-6-10");
+  });
+
+  it("Player/Goalie price-option change keeps offering identity", () => {
+    const gold = sessionsOf(extractRecords(julyHtml))[0];
+    const changed = sessionsOf(extractRecords(goaliePriceChanged(julyHtml)))[0];
+    assert.equal(gold.sourceIdentity, changed.sourceIdentity);
+    const match = exactSessionMatcher.match(
+      {
+        ...changed,
+        normalizedFields: {
+          ...changed.normalizedFields,
+          programId: "prog-fl",
+          externalId: changed.sourceIdentity,
+        },
+      },
+      [
+        {
+          id: "catalog-july-6-10",
+          programId: "prog-fl",
+          startDate: String(gold.normalizedFields.startDate),
+          endDate: String(gold.normalizedFields.endDate),
+          externalId: gold.sourceIdentity,
+          sourceUrl: FRONT_LINE_HOCKEY_JULY_SOURCE_URL,
+        },
+      ],
+      FRONT_LINE_HOCKEY_OFFERING_GRAIN,
+    );
+    assert.equal(match.kind, "EXACT_IDENTITY");
+    assert.notEqual(match.kind, "IDENTITY_CHANGED");
+    assert.equal(match.catalogId, "catalog-july-6-10");
   });
 
   it("eligibility/age-group change → changed_facts without inventing a hockey-level age model", async () => {

@@ -20,6 +20,10 @@ import type {
   ExtractionMethod,
   ExtractionRunStatus,
   FieldObservation,
+  GrainComparison,
+  GrainFieldRef,
+  OfferingGrain,
+  OfferingGrainDimension,
 } from "@/data/camps/ingestion/types";
 import type { IdFactory } from "@/lib/camps/ingestion/ids";
 
@@ -43,11 +47,23 @@ export type ExtractorResult = {
   warnings: string[];
 };
 
+export type {
+  GrainComparison,
+  GrainFieldRef,
+  OfferingGrain,
+  OfferingGrainDimension,
+};
+
 export interface CampExtractor {
   /** Registry key stored on `CampSource.extractorKey`. */
   readonly key: string;
   /** Recorded on the extraction run (`extractorVersion`). */
   readonly version: string;
+  /**
+   * Reviewed offering grain, or `null` for a generic extractor with no
+   * reviewed semantic identity. Not persisted.
+   */
+  readonly grain: OfferingGrain | null;
   /** Cheap recognition check — no fetching, no side effects. */
   supports(input: ExtractorSupportInput): boolean;
   extract(input: ExtractorInput): ExtractorResult;

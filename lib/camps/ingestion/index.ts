@@ -171,7 +171,19 @@ export {
   type ExtractorInput,
   type ExtractorResult,
   type ExtractorSupportInput,
+  type GrainComparison,
+  type GrainFieldRef,
+  type OfferingGrain,
+  type OfferingGrainDimension,
 } from "@/lib/camps/ingestion/extractors/types";
+
+export {
+  CREATIVE_KIDS_PLACE_OFFERING_GRAIN,
+  FRONT_LINE_HOCKEY_OFFERING_GRAIN,
+  GYMNASTICS_MISSISSAUGA_OFFERING_GRAIN,
+  NUTTY_SCIENTISTS_OFFERING_GRAIN,
+  RIVERWOOD_CONSERVANCY_OFFERING_GRAIN,
+} from "@/lib/camps/ingestion/extractors/offeringGrain";
 
 export {
   CREATIVE_KIDS_PLACE_EXTRACTOR_KEY,

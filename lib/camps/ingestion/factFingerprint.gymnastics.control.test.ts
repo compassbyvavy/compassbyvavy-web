@@ -22,6 +22,7 @@ import {
   hashFactFingerprint,
 } from "@/lib/camps/ingestion/factFingerprint";
 import { gymnasticsMississaugaExtractor } from "@/lib/camps/ingestion/extractors/gymnasticsMississaugaExtractor";
+import { GYMNASTICS_MISSISSAUGA_OFFERING_GRAIN } from "@/lib/camps/ingestion/extractors/offeringGrain";
 import { FixtureSourceFetcher } from "@/lib/camps/ingestion/fetcher";
 import { cleanHtmlToDocument } from "@/lib/camps/ingestion/html/cleanHtml";
 import { hashSourceContent } from "@/lib/camps/ingestion/hash";
@@ -227,6 +228,30 @@ describe("Gymnastics Mississauga semantic fingerprint control (Prompt 9B-C2)", (
     assert.equal(gold.normalizedFields.themeTitle, "Heroes in Action Week");
     assert.equal(changed.normalizedFields.themeTitle, "Heroes in Space Week");
     assert.equal(gold.sourceIdentity, changed.sourceIdentity);
+    const match = exactSessionMatcher.match(
+      {
+        ...changed,
+        normalizedFields: {
+          ...changed.normalizedFields,
+          programId: "prog-gm",
+          externalId: changed.sourceIdentity,
+        },
+      },
+      [
+        {
+          id: "catalog-gm-heroes",
+          programId: "prog-gm",
+          startDate: String(gold.normalizedFields.startDate),
+          endDate: String(gold.normalizedFields.endDate),
+          scheduleFormat: "full_day",
+          externalId: gold.sourceIdentity,
+          sourceUrl: GYMNASTICS_MISSISSAUGA_SOURCE_URL,
+        },
+      ],
+      GYMNASTICS_MISSISSAUGA_OFFERING_GRAIN,
+    );
+    assert.equal(match.kind, "EXACT_IDENTITY");
+    assert.equal(match.catalogId, "catalog-gm-heroes");
     const { second } = await runPair(goldHtml, changedHtml, "gm-theme");
     assert.equal(second.status, "changed_facts");
   });
@@ -257,26 +282,32 @@ describe("Gymnastics Mississauga semantic fingerprint control (Prompt 9B-C2)", (
           programId: "prog-gm",
           startDate: "2026-07-06",
           endDate: "2026-07-10",
+          scheduleFormat: "full_day",
           ageMin: null,
           ageMax: null,
           externalId: gold.sourceIdentity,
           sourceUrl: GYMNASTICS_MISSISSAUGA_SOURCE_URL,
         },
       ],
+      GYMNASTICS_MISSISSAUGA_OFFERING_GRAIN,
     );
     assert.equal(match.catalogId, null);
     assert.deepEqual(match.reasons, ["no_match"]);
   });
 
-  it("end-date-only change: identity and camp-facts-v2 change; matcher still hits source_url_and_start", async () => {
+  it("end-date-only change is IDENTITY_CHANGED, not a silent overlay", async () => {
     const gold = sessionsOf(extractRecords(goldHtml)).find((session) =>
       String(session.sourceIdentity).includes("2026-07-06_2026-07-10:full_day"),
+    );
+    const halfDay = sessionsOf(extractRecords(goldHtml)).find((session) =>
+      String(session.sourceIdentity).includes("2026-07-06_2026-07-10:half_day"),
     );
     const changedHtml = endDateOnlyChanged(goldHtml);
     const changed = sessionsOf(extractRecords(changedHtml)).find((session) =>
       String(session.sourceIdentity).includes("2026-07-06_2026-07-11:full_day"),
     );
     assert.ok(gold);
+    assert.ok(halfDay);
     assert.ok(changed);
     assert.equal(gold.normalizedFields.startDate, "2026-07-06");
     assert.equal(gold.normalizedFields.endDate, "2026-07-10");
@@ -284,6 +315,17 @@ describe("Gymnastics Mississauga semantic fingerprint control (Prompt 9B-C2)", (
     assert.equal(changed.normalizedFields.endDate, "2026-07-11");
     assert.notEqual(changed.sourceIdentity, gold.sourceIdentity);
     assert.notEqual(hashFactFingerprint(extractRecords(goldHtml)), hashFactFingerprint(extractRecords(changedHtml)));
+    const catalogRow = {
+      id: "catalog-gm-july-6-full",
+      programId: "prog-gm",
+      startDate: "2026-07-06",
+      endDate: "2026-07-10",
+      scheduleFormat: "full_day",
+      ageMin: null,
+      ageMax: null,
+      externalId: gold.sourceIdentity,
+      sourceUrl: GYMNASTICS_MISSISSAUGA_SOURCE_URL,
+    };
     const match = exactSessionMatcher.match(
       {
         ...changed,
@@ -294,26 +336,143 @@ describe("Gymnastics Mississauga semantic fingerprint control (Prompt 9B-C2)", (
         },
       },
       [
+        catalogRow,
+        {
+          id: "catalog-gm-july-6-half",
+          programId: "prog-gm",
+          startDate: "2026-07-06",
+          endDate: "2026-07-10",
+          scheduleFormat: "half_day",
+          externalId: halfDay.sourceIdentity,
+          sourceUrl: GYMNASTICS_MISSISSAUGA_SOURCE_URL,
+        },
+      ],
+      GYMNASTICS_MISSISSAUGA_OFFERING_GRAIN,
+    );
+    assert.equal(match.kind, "IDENTITY_CHANGED");
+    assert.equal(match.catalogId, null);
+    assert.ok(match.reasons.includes("identity_changed"));
+    assert.ok(match.reasons.includes("identity_changed:endDate"));
+    assert.ok(!match.reasons.some((reason) => reason.includes("source_url_and_start")));
+
+    const goldRecords = extractRecords(goldHtml);
+    const catalog: IngestionCatalogSnapshot = {
+      providers: [{ id: "prov-gm", name: "Gymnastics Mississauga" }],
+      programs: [
+        {
+          id: "prog-gm",
+          providerId: "prov-gm",
+          name: String(programOf(goldRecords).normalizedFields.name),
+          slug: "summer-camps",
+        },
+      ],
+      sessions: sessionsOf(goldRecords).map((session, index) => ({
+        id: `catalog-gm-${index}`,
+        programId: "prog-gm",
+        startDate: String(session.normalizedFields.startDate ?? ""),
+        endDate: String(session.normalizedFields.endDate ?? ""),
+        scheduleFormat:
+          typeof session.normalizedFields.scheduleFormat === "string"
+            ? session.normalizedFields.scheduleFormat
+            : null,
+        externalId: session.sourceIdentity,
+        sourceUrl: GYMNASTICS_MISSISSAUGA_SOURCE_URL,
+        themeTitle:
+          typeof session.normalizedFields.themeTitle === "string"
+            ? session.normalizedFields.themeTitle
+            : null,
+      })),
+      venues: [],
+    };
+    const store = createMemoryIngestionStore({
+      sources: [gymnasticsMississaugaSource(new Date("2026-09-22T12:00:00.000Z"))],
+    });
+    const newId = createSequentialIdFactory("gm-end-a2");
+    const result = await runCampSource({
+      sourceId: GYMNASTICS_MISSISSAUGA_SOURCE_ID,
+      store,
+      fetcher: new FixtureSourceFetcher(
+        { [GYMNASTICS_MISSISSAUGA_SOURCE_ID]: { content: changedHtml, fetchStatus: "success" } },
+        { newId },
+      ),
+      catalog,
+      now: () => new Date("2026-09-22T13:00:00.000Z"),
+      newId,
+    });
+    const candidates = store.snapshotState().candidates;
+    const newFullDay = candidates.find(
+      (candidate) =>
+        candidate.candidateType === "session" &&
+        String(candidate.candidateData.externalId ?? "").includes("2026-07-06_2026-07-11:full_day"),
+    );
+    assert.ok(newFullDay);
+    assert.equal(newFullDay.matchedCatalogId, null);
+    assert.equal(newFullDay.status, "new");
+    assert.equal(newFullDay.pipelineOutcome, "NEW");
+    assert.match(String(newFullDay.reviewReason), /identity_changed/);
+    const removedOldFullDay = candidates.find(
+      (candidate) =>
+        candidate.qualityFlags.includes("possible_removed_session") &&
+        catalog.sessions.some(
+          (session) =>
+            session.id === candidate.matchedCatalogId &&
+            session.externalId === gold.sourceIdentity,
+        ),
+    );
+    assert.ok(removedOldFullDay);
+    const halfDayMatch = exactSessionMatcher.match(
+      {
+        ...halfDay,
+        normalizedFields: {
+          ...halfDay.normalizedFields,
+          programId: "prog-gm",
+          externalId: halfDay.sourceIdentity,
+        },
+      },
+      catalog.sessions,
+      GYMNASTICS_MISSISSAUGA_OFFERING_GRAIN,
+    );
+    assert.equal(halfDayMatch.kind, "EXACT_IDENTITY");
+    assert.notEqual(halfDayMatch.catalogId, null);
+    assert.notEqual(result.status, "fingerprint_rebaseline");
+  });
+
+  it("full_day vs half_day never silently overlays one format onto the other", () => {
+    const gold = sessionsOf(extractRecords(goldHtml)).find((session) =>
+      String(session.sourceIdentity).includes("2026-07-06_2026-07-10:full_day"),
+    );
+    const halfDay = sessionsOf(extractRecords(goldHtml)).find((session) =>
+      String(session.sourceIdentity).includes("2026-07-06_2026-07-10:half_day"),
+    );
+    assert.ok(gold);
+    assert.ok(halfDay);
+    const swapped = {
+      ...gold,
+      sourceIdentity: String(halfDay.sourceIdentity),
+      normalizedFields: {
+        ...gold.normalizedFields,
+        programId: "prog-gm",
+        scheduleFormat: "half_day",
+        externalId: halfDay.sourceIdentity,
+      },
+    };
+    const match = exactSessionMatcher.match(
+      swapped,
+      [
         {
           id: "catalog-gm-july-6-full",
           programId: "prog-gm",
           startDate: "2026-07-06",
           endDate: "2026-07-10",
-          ageMin: null,
-          ageMax: null,
+          scheduleFormat: "full_day",
           externalId: gold.sourceIdentity,
           sourceUrl: GYMNASTICS_MISSISSAUGA_SOURCE_URL,
         },
       ],
+      GYMNASTICS_MISSISSAUGA_OFFERING_GRAIN,
     );
-    assert.equal(
-      match.catalogId,
-      "catalog-gm-july-6-full",
-      "existing matcher falls through to source_url_and_start when session ages are null",
-    );
-    assert.deepEqual(match.reasons, ["source_url_and_start"]);
-    const { second } = await runPair(goldHtml, changedHtml, "gm-end");
-    assert.equal(second.status, "changed_facts");
+    assert.notEqual(match.catalogId, "catalog-gm-july-6-full");
+    assert.ok(match.kind === "NO_MATCH" || match.kind === "IDENTITY_CHANGED");
   });
 
   it("date-window change → changed_facts because identity includes the dated window", async () => {

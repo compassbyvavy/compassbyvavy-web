@@ -24,6 +24,7 @@ import {
   parseGymnasticsWeekTitle,
 } from "@/lib/camps/ingestion/extractors/gymnasticsMississaugaSchedule";
 import { resolveExtractor } from "@/lib/camps/ingestion/extractors/registry";
+import { GYMNASTICS_MISSISSAUGA_OFFERING_GRAIN } from "@/lib/camps/ingestion/extractors/offeringGrain";
 import { statedDocumentYear } from "@/lib/camps/ingestion/extractors/textScan";
 import { cleanHtmlToDocument } from "@/lib/camps/ingestion/html/cleanHtml";
 import { hashSourceContent } from "@/lib/camps/ingestion/hash";
@@ -493,6 +494,7 @@ describe("Gymnastics Mississauga benchmark (Prompt 9B-C2 grain)", () => {
         ageMax: null,
         externalId: session.sourceIdentity,
         sourceUrl: GYMNASTICS_MISSISSAUGA_SOURCE_URL,
+        scheduleFormat: "full_day",
       },
     ];
     const withProgram = {
@@ -503,9 +505,9 @@ describe("Gymnastics Mississauga benchmark (Prompt 9B-C2 grain)", () => {
         externalId: session.sourceIdentity,
       },
     };
-    const match = exactSessionMatcher.match(withProgram, catalog);
+    const match = exactSessionMatcher.match(withProgram, catalog, GYMNASTICS_MISSISSAUGA_OFFERING_GRAIN);
     assert.equal(match.catalogId, "catalog-gm-july-6-full");
-    assert.equal(isNewSessionCandidate(withProgram, []), true);
+    assert.equal(isNewSessionCandidate(withProgram, [], GYMNASTICS_MISSISSAUGA_OFFERING_GRAIN), true);
     assert.equal(result.records.filter((record) => record.recordType === "provider").length, 1);
     assert.equal(result.records.filter((record) => record.recordType === "venue").length, 0);
     assert.equal(result.records.filter((record) => record.recordType === "program").length, 1);
@@ -538,12 +540,13 @@ describe("Gymnastics Mississauga benchmark (Prompt 9B-C2 grain)", () => {
         programId: "prog-gm",
         startDate: "2026-07-06",
         endDate: "2026-07-10",
+        scheduleFormat: "full_day",
         ageMin: null,
         ageMax: null,
         externalId: session.sourceIdentity,
         sourceUrl: GYMNASTICS_MISSISSAUGA_SOURCE_URL,
       },
-    ]);
+    ], GYMNASTICS_MISSISSAUGA_OFFERING_GRAIN);
     assert.equal(match.catalogId, null);
     assert.deepEqual(match.reasons, ["no_match"]);
   });

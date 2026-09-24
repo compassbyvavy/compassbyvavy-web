@@ -184,6 +184,7 @@ function extract(input: ExtractorInput): ExtractorResult {
 export const genericHtmlExtractor: CampExtractor = {
   key: GENERIC_HTML_EXTRACTOR_KEY,
   version: "0.2.0",
+  grain: null,
   /** Last-resort extractor: it accepts any HTML page. */
   supports: () => true,
   extract,

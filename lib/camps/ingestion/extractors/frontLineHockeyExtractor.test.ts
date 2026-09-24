@@ -24,6 +24,7 @@ import { statedDocumentYear } from "@/lib/camps/ingestion/extractors/textScan";
 import { cleanHtmlToDocument } from "@/lib/camps/ingestion/html/cleanHtml";
 import { hashSourceContent } from "@/lib/camps/ingestion/hash";
 import { createSequentialIdFactory } from "@/lib/camps/ingestion/ids";
+import { FRONT_LINE_HOCKEY_OFFERING_GRAIN } from "@/lib/camps/ingestion/extractors/offeringGrain";
 import { exactSessionMatcher } from "@/lib/camps/ingestion/matchers";
 import { normalizePriceCad } from "@/lib/camps/ingestion/normalize/price";
 import {
@@ -335,6 +336,7 @@ describe("Front Line Hockey product gold (Prompt 9B-C1)", () => {
           sourceUrl: april.url,
         },
       ],
+      FRONT_LINE_HOCKEY_OFFERING_GRAIN,
     );
     assert.equal(match.catalogId, null);
     assert.deepEqual(match.reasons, ["no_match"]);

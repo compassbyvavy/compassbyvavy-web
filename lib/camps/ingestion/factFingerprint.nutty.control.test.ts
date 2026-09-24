@@ -26,6 +26,7 @@ import {
   hashFactFingerprint,
 } from "@/lib/camps/ingestion/factFingerprint";
 import { nuttyScientistsExtractor } from "@/lib/camps/ingestion/extractors/nuttyScientistsExtractor";
+import { NUTTY_SCIENTISTS_OFFERING_GRAIN } from "@/lib/camps/ingestion/extractors/offeringGrain";
 import { FixtureSourceFetcher } from "@/lib/camps/ingestion/fetcher";
 import { cleanHtmlToDocument } from "@/lib/camps/ingestion/html/cleanHtml";
 import { hashSourceContent } from "@/lib/camps/ingestion/hash";
@@ -253,18 +254,22 @@ describe("Nutty Scientists semantic fingerprint control (Prompt 9B-A)", () => {
     assert.notEqual(hashFactFingerprint(records), hashFactFingerprint(
       records.map((record) => (record.sourceIdentity === oldIdentity ? changed : record)),
     ));
-    const match = exactSessionMatcher.match(changed, [
-      {
-        id: "catalog-nutty-5-7",
-        programId: "prog-nutty",
-        startDate: null,
-        endDate: null,
-        ageMin: 5,
-        ageMax: 7,
-        externalId: oldIdentity,
-        sourceUrl: NUTTY_SCIENTISTS_SOURCE_URL,
-      },
-    ]);
+    const match = exactSessionMatcher.match(
+      changed,
+      [
+        {
+          id: "catalog-nutty-5-7",
+          programId: "prog-nutty",
+          startDate: null,
+          endDate: null,
+          ageMin: 5,
+          ageMax: 7,
+          externalId: oldIdentity,
+          sourceUrl: NUTTY_SCIENTISTS_SOURCE_URL,
+        },
+      ],
+      NUTTY_SCIENTISTS_OFFERING_GRAIN,
+    );
     assert.equal(match.catalogId, null);
     assert.deepEqual(match.reasons, ["no_match"]);
   });
@@ -287,18 +292,22 @@ describe("Nutty Scientists semantic fingerprint control (Prompt 9B-A)", () => {
         externalId: newIdentity,
       },
     };
-    const match = exactSessionMatcher.match(changed, [
-      {
-        id: "catalog-nutty-july-6-10",
-        programId: "prog-nutty",
-        startDate: null,
-        endDate: null,
-        ageMin: 5,
-        ageMax: 7,
-        externalId: target.sourceIdentity,
-        sourceUrl: NUTTY_SCIENTISTS_SOURCE_URL,
-      },
-    ]);
+    const match = exactSessionMatcher.match(
+      changed,
+      [
+        {
+          id: "catalog-nutty-july-6-10",
+          programId: "prog-nutty",
+          startDate: null,
+          endDate: null,
+          ageMin: 5,
+          ageMax: 7,
+          externalId: target.sourceIdentity,
+          sourceUrl: NUTTY_SCIENTISTS_SOURCE_URL,
+        },
+      ],
+      NUTTY_SCIENTISTS_OFFERING_GRAIN,
+    );
     assert.equal(match.catalogId, null);
     assert.deepEqual(match.reasons, ["no_match"]);
   });
@@ -352,6 +361,7 @@ describe("Nutty Scientists semantic fingerprint control (Prompt 9B-A)", () => {
   });
 
   it("yearless identity collides across seasons with the same month/day and age band", () => {
+    // KNOWN YEARLESS OCCURRENCE LIMITATION — A3
     const seasonPage = (chrome: string) => `<html><body>
 <h1>Science Camp</h1>
 <p>Nutty Summer Science Camp</p>

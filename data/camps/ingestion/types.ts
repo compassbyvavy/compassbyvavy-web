@@ -281,10 +281,62 @@ export type CleanSourceDocument = {
   metadata: Record<string, string>;
 };
 
+export type MatchResultKind =
+  | "EXACT_IDENTITY"
+  | "SAFE_RECONCILIATION"
+  | "IDENTITY_CHANGED"
+  | "AMBIGUOUS"
+  | "NO_MATCH";
+
 export type MatchResult = {
+  kind: MatchResultKind;
   catalogId: string | null;
   confidence: number;
   reasons: string[];
+};
+
+export type GrainComparison = "exact" | "normalized_text" | "number";
+
+export type GrainFieldRef = {
+  scope: "record" | "normalized";
+  fields: readonly string[];
+};
+
+export type OfferingGrainDimension = {
+  /** Human/debug name only; matcher must not branch on this name. */
+  name: string;
+  /** First stated extracted field wins. */
+  extracted: GrainFieldRef;
+  /** First stated catalog field wins. */
+  catalogFields: readonly string[];
+  compare: GrainComparison;
+};
+
+/**
+ * Extractor-declared offering grain. Identity defines the same semantic row;
+ * reconciliation may locate a prior row when identity itself changed, but never
+ * overrides an identity mismatch. Descriptive / pricingVariant are A2 docs only.
+ */
+export type OfferingGrain = {
+  identity: readonly OfferingGrainDimension[];
+  reconciliation: readonly OfferingGrainDimension[];
+  descriptive: readonly string[];
+  pricingVariant: readonly string[];
+};
+
+export type SessionCatalogMatchRow = {
+  id: string;
+  programId: string;
+  startDate?: string | null;
+  endDate?: string | null;
+  sourceUrl?: string | null;
+  externalId?: string | null;
+  ageMin?: number | null;
+  ageMax?: number | null;
+  themeTitle?: string | null;
+  themeTitleNormalized?: string | null;
+  /** Published session format — read-only match field; not a new persistence column. */
+  scheduleFormat?: string | null;
 };
 
 export type ProviderMatcher = {
@@ -309,18 +361,8 @@ export type ProgramMatcher = {
 export type SessionMatcher = {
   match(
     extracted: CampExtractedRecord,
-    catalog: ReadonlyArray<{
-      id: string;
-      programId: string;
-      startDate?: string | null;
-      endDate?: string | null;
-      sourceUrl?: string | null;
-      externalId?: string | null;
-      ageMin?: number | null;
-      ageMax?: number | null;
-      themeTitle?: string | null;
-      themeTitleNormalized?: string | null;
-    }>,
+    catalog: ReadonlyArray<SessionCatalogMatchRow>,
+    grain?: OfferingGrain | null,
   ): MatchResult;
 };
 

@@ -21,6 +21,7 @@ import {
   parseRiverwoodSchedule,
   riverwoodConservancyExtractor,
 } from "@/lib/camps/ingestion/extractors/riverwoodConservancyExtractor";
+import { RIVERWOOD_CONSERVANCY_OFFERING_GRAIN } from "@/lib/camps/ingestion/extractors/offeringGrain";
 import { parseMonthDayWindows } from "@/lib/camps/ingestion/normalize/monthDayWindow";
 import { normalizePriceCad } from "@/lib/camps/ingestion/normalize/price";
 import { resolveExtractor } from "@/lib/camps/ingestion/extractors/registry";
@@ -362,9 +363,13 @@ describe("Riverwood Conservancy benchmark (Prompt 9B-B grain)", () => {
         externalId: session.sourceIdentity,
       },
     };
-    const match = exactSessionMatcher.match(withProgram, catalog);
+    const match = exactSessionMatcher.match(
+      withProgram,
+      catalog,
+      RIVERWOOD_CONSERVANCY_OFFERING_GRAIN,
+    );
     assert.equal(match.catalogId, "catalog-riverwood-july-6");
-    assert.equal(isNewSessionCandidate(withProgram, []), true);
+    assert.equal(isNewSessionCandidate(withProgram, [], RIVERWOOD_CONSERVANCY_OFFERING_GRAIN), true);
   });
 
   it("does not silently rematch an identity-changing date window", () => {
@@ -396,7 +401,7 @@ describe("Riverwood Conservancy benchmark (Prompt 9B-B grain)", () => {
         externalId: session.sourceIdentity,
         sourceUrl: RIVERWOOD_CONSERVANCY_SOURCE_URL,
       },
-    ]);
+    ], RIVERWOOD_CONSERVANCY_OFFERING_GRAIN);
     assert.equal(match.catalogId, null);
     assert.deepEqual(match.reasons, ["no_match"]);
   });

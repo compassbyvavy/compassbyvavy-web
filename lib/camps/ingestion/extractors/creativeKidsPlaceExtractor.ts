@@ -31,6 +31,7 @@ import {
   type ExtractorResult,
   type ExtractorSupportInput,
 } from "@/lib/camps/ingestion/extractors/types";
+import { CREATIVE_KIDS_PLACE_OFFERING_GRAIN } from "@/lib/camps/ingestion/extractors/offeringGrain";
 import {
   documentLines,
   findAddress,
@@ -934,6 +935,7 @@ function extract(input: ExtractorInput): ExtractorResult {
 export const creativeKidsPlaceExtractor: CampExtractor = {
   key: CREATIVE_KIDS_PLACE_EXTRACTOR_KEY,
   version: "0.2.0",
+  grain: CREATIVE_KIDS_PLACE_OFFERING_GRAIN,
   supports,
   extract,
 };
