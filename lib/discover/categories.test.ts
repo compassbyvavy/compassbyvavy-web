@@ -20,21 +20,20 @@ const VISION_TITLES = [
 ] as const;
 
 describe("Discover category map", () => {
-  it("covers the vision map in order, without inventing extra live directories", () => {
+  it("covers the vision map in order and exposes only reviewed live directories", () => {
     assert.deepEqual(
       DISCOVER_CATEGORIES.map((c) => c.title),
       [...VISION_TITLES],
     );
     const live = liveDiscoverCategories();
-    assert.equal(live.length, 1);
-    assert.equal(live[0].slug, "camps");
-    assert.equal(live[0].href, "/camps");
-    assert.equal(live[0].status, "available");
+    assert.deepEqual(live.map((category) => category.slug), ["play", "camps"]);
+    assert.deepEqual(live.map((category) => category.href), ["/play", "/camps"]);
+    assert.ok(live.every((category) => category.status === "available"));
   });
 
-  it("keeps every non-camps category as an honest coming-soon placeholder", () => {
+  it("keeps every category except Play and Camps as an honest placeholder", () => {
     for (const category of DISCOVER_CATEGORIES) {
-      if (category.slug === "camps") continue;
+      if (category.slug === "camps" || category.slug === "play") continue;
       assert.equal(category.status, "coming_soon");
       assert.equal(category.href, `/discover/${category.slug}`);
       assert.equal(category.cta, "Coming soon");
@@ -42,11 +41,12 @@ describe("Discover category map", () => {
     }
   });
 
-  it("groups Play & Entertainment honestly instead of shipping fake splash-pad listings", () => {
+  it("links Play & Entertainment to its verified venue directory", () => {
     const play = getDiscoverCategory("play");
     assert.ok(play);
-    assert.match(play.groupingNote ?? "", /splash pads/i);
-    assert.match(play.groupingNote ?? "", /not live/i);
+    assert.equal(play.status, "available");
+    assert.equal(play.href, "/play");
+    assert.match(play.blurb, /verified/i);
   });
 
   it("does not present Services as a live directory", () => {
