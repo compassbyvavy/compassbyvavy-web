@@ -52,6 +52,7 @@ export default function RootLayout({
               <nav className="nav" aria-label="Main navigation">
                 <a className="nav-link" href="/#discover">Discover</a>
                 <a className="nav-link" href="/#how-it-works">How it works</a>
+                <Link className="nav-link" href="/play">Play</Link>
                 <Link className="nav-link" href="/camps">Camps</Link>
                 <SavedNavLink />
                 <Link href="/saved/tracker" className="nav-link">Tracker</Link>
@@ -76,6 +77,7 @@ export default function RootLayout({
               </div>
               <div className="footer-links">
                 <a href="/#discover">Discover</a>
+                <Link href="/play">Play</Link>
                 <Link href="/camps">Camps</Link>
                 <Link href="/saved">Saved</Link>
                 <Link href="/saved/tracker">Tracker</Link>

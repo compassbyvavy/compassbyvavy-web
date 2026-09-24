@@ -20,6 +20,9 @@ export async function generateMetadata({ params }: PageProps) {
   if (slug === "camps") {
     return { title: "Camps" };
   }
+  if (slug === "play") {
+    return { title: "Play & Entertainment" };
+  }
   const category = getDiscoverCategory(slug);
   if (!category) {
     return { title: "Discover" };
@@ -35,6 +38,9 @@ export default async function DiscoverCategoryPage({ params }: PageProps) {
   const { slug } = await params;
   if (slug === "camps") {
     redirect("/camps");
+  }
+  if (slug === "play") {
+    redirect("/play");
   }
   const category = getDiscoverCategory(slug);
   if (!category) {
