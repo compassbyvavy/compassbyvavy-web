@@ -37,12 +37,10 @@ export const DISCOVER_CATEGORIES: readonly DiscoverCategory[] = [
     slug: "play",
     title: "Play & Entertainment",
     icon: "🎠",
-    blurb: "Indoor play, splash pads, and rainy-day fun.",
-    status: "coming_soon",
-    href: "/discover/play",
-    cta: "Coming soon",
-    groupingNote:
-      "This card groups splash pads, indoor play, and other entertainment. Listings for each are not live yet — nothing here is a directory.",
+    blurb: "Verified indoor play, active attractions, arcades and family entertainment.",
+    status: "available",
+    href: "/play",
+    cta: "Browse play venues",
   },
   {
     slug: "learning",
