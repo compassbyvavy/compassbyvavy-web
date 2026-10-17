@@ -1,7 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ShortlistProvider } from "@/components/shortlist/ShortlistProvider";
+import { CommandMenu } from "@/components/site/CommandMenu";
+import { OpenSearchButton } from "@/components/site/OpenSearchButton";
 import { SiteNav } from "@/components/site/SiteNav";
+import { loadCampsCatalogForRequest } from "@/lib/camps/campsServerCatalog";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -36,19 +39,30 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
+  const catalog = await loadCampsCatalogForRequest();
+  const providers = new Map((catalog?.providers ?? []).map((provider) => [provider.id, provider.name]));
   return (
     <html lang="en">
       <body>
         <ShortlistProvider>
+          <CommandMenu
+            camps={(catalog?.programs ?? []).map((program) => ({
+              id: program.id,
+              slug: program.slug,
+              name: program.name,
+              providerName: providers.get(program.providerId) ?? null,
+            }))}
+          />
           <header className="site-header">
             <div className="container header-inner">
               <Link className="brand" href="/" aria-label="Compass by Vavy home">
                 <span className="brand-mark" aria-hidden="true">✦</span>
                 <span>Compass by Vavy</span>
               </Link>
+              <OpenSearchButton />
               <SiteNav />
             </div>
           </header>

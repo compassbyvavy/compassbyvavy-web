@@ -42,6 +42,77 @@ a {
   width: min(780px, calc(100% - 40px));
 }
 
+.cmdk-root {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+}
+
+.cmdk-backdrop {
+  position: absolute;
+  inset: 0;
+  border: 0;
+  background: rgba(31, 46, 37, 0.35);
+}
+
+.cmdk-dialog {
+  position: relative;
+  width: min(560px, calc(100% - 24px));
+  margin: 12vh auto 0;
+  background: #fff;
+  border-radius: 16px;
+  padding: 12px;
+  box-shadow: 0 20px 60px rgba(31, 42, 42, 0.16);
+}
+
+.cmdk-dialog input {
+  width: 100%;
+  min-height: 48px;
+  border: 1px solid #e4dfd2;
+  border-radius: 12px;
+  padding: 0 12px;
+  font: inherit;
+}
+
+.cmdk-scroll {
+  max-height: 50vh;
+  overflow: auto;
+  margin-top: 8px;
+}
+
+.cmdk-dialog h2 {
+  margin: 10px 0 4px;
+  font-size: 0.75rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #8a5f2a;
+}
+
+.cmdk-dialog ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.cmdk-dialog a {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 8px;
+  text-decoration: none;
+  border-radius: 8px;
+}
+
+.cmdk-dialog a:hover,
+.cmdk-dialog a:focus-visible {
+  background: #f1f4ef;
+}
+
+.cmdk-dialog small,
+.cmdk-dialog > p {
+  color: #6e7568;
+}
+
 .site-header {
   position: sticky;
   top: 0;
