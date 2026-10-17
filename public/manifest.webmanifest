@@ -1,0 +1,17 @@
+{
+  "name": "Compass by Vavy",
+  "short_name": "Compass",
+  "description": "Family activities and camps. Cached pages stay available offline.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#FAF8F3",
+  "theme_color": "#33503E",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ShortlistProvider } from "@/components/shortlist/ShortlistProvider";
 import { CommandMenu } from "@/components/site/CommandMenu";
+import { OfflineCache } from "@/components/site/OfflineCache";
 import { OpenSearchButton } from "@/components/site/OpenSearchButton";
 import { SiteNav } from "@/components/site/SiteNav";
 import { loadCampsCatalogForRequest } from "@/lib/camps/campsServerCatalog";
@@ -37,6 +38,7 @@ export const metadata: Metadata = {
     index: true,
     follow: true,
   },
+  manifest: "/manifest.webmanifest",
 };
 
 export default async function RootLayout({
@@ -56,6 +58,7 @@ export default async function RootLayout({
               providerName: providers.get(program.providerId) ?? null,
             }))}
           />
+          <OfflineCache />
           <header className="site-header">
             <div className="container header-inner">
               <Link className="brand" href="/" aria-label="Compass by Vavy home">

@@ -111,6 +111,15 @@ a {
 .cmdk-dialog small,
 .cmdk-dialog > p {
   color: #6e7568;
+
+.offline-badge,
+.camps-offline-banner {
+  margin: 0;
+  padding: 10px 16px;
+  background: #f3e7d3;
+  color: #1f2e25;
+  text-align: center;
+  font-weight: 700;
 }
 
 .site-header {
