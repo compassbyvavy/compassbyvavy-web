@@ -328,12 +328,6 @@ export const UNSUPPORTED_LISTING_FILTERS: ReadonlyArray<{
     reason: "Grade bands are not modelled on sessions yet.",
   },
   {
-    id: "weather",
-    label: "Live rainy-day weather pivot",
-    reason:
-      "Compass does not show live weather badges. Indoor vs outdoor is not a verified session field — we do not invent cover from the camp name.",
-  },
-  {
     id: "school_board",
     label: "School-board calendar overlay",
     reason:

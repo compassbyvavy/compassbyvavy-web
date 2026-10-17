@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import { CampsListingClient } from "@/components/camps/CampsListingClient";
+import { CampsWithRainyDay } from "@/components/camps/CampsWithRainyDay";
 import { loadCampsCatalogForRequest } from "@/lib/camps/campsServerCatalog";
 import { formatCampsCatalogBanner } from "@/lib/camps/catalog";
 
@@ -45,7 +45,7 @@ export default async function CampsListingPage() {
   return (
     <div className="container camps-listing-page">
       <Suspense fallback={<p className="camp-card-note">Loading camps…</p>}>
-        <CampsListingClient
+        <CampsWithRainyDay
           programs={catalog.programs}
           providers={catalog.providers}
           sessions={catalog.sessions}
