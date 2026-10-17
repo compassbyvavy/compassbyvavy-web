@@ -189,7 +189,8 @@ export function BoardCalendar({
         </div>
       ) : (
         <p className="board-note" role="status">
-          {isoDate} is not a {panel} break on this calendar.
+          {isoDate} is not {panel === "elementary" ? "an" : "a"} {panel} break
+          on this calendar.
         </p>
       )}
 
