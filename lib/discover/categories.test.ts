@@ -1,7 +1,11 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
+import type { DiscoverDbCategory } from "@/data/discover/types";
 import {
+  DB_CATEGORIES_BY_SLUG,
   DISCOVER_CATEGORIES,
+  dbCategoriesFor,
+  discoverCategoryForDb,
   getDiscoverCategory,
   liveDiscoverCategories,
 } from "@/lib/discover/categories";
@@ -59,5 +63,51 @@ describe("Discover category map", () => {
   it("returns undefined for unknown slugs rather than a substitute category", () => {
     assert.equal(getDiscoverCategory("community"), undefined);
     assert.equal(getDiscoverCategory("camps-2"), undefined);
+  });
+});
+
+/** Every value of public.discover_category after migration 20261017020000. */
+const DB_CATEGORIES: readonly DiscoverDbCategory[] = [
+  "parks_nature",
+  "play_entertainment",
+  "splash_pads",
+  "indoor_play",
+  "learning_culture",
+  "events",
+  "classes",
+  "camps",
+  "food_treats",
+  "getaways",
+  "shopping",
+  "other",
+];
+
+describe("Discover card to database category map", () => {
+  it("has an entry for every UI card and nothing else", () => {
+    assert.deepEqual(
+      Object.keys(DB_CATEGORIES_BY_SLUG).sort(),
+      DISCOVER_CATEGORIES.map((c) => c.slug).sort(),
+    );
+  });
+
+  it("files every database category except 'other' under exactly one card", () => {
+    for (const db of DB_CATEGORIES) {
+      const owners = Object.entries(DB_CATEGORIES_BY_SLUG).filter(([, dbs]) =>
+        dbs.includes(db),
+      );
+      assert.equal(owners.length, db === "other" ? 0 : 1, db);
+    }
+  });
+
+  it("groups legacy splash pads and indoor play under Play & Entertainment", () => {
+    assert.equal(discoverCategoryForDb("splash_pads")?.slug, "play");
+    assert.equal(discoverCategoryForDb("indoor_play")?.slug, "play");
+    assert.equal(discoverCategoryForDb("play_entertainment")?.slug, "play");
+  });
+
+  it("keeps Services and unknown slugs empty instead of borrowing another card's rows", () => {
+    assert.deepEqual(dbCategoriesFor("services"), []);
+    assert.deepEqual(dbCategoriesFor("community"), []);
+    assert.equal(discoverCategoryForDb("other"), undefined);
   });
 });
