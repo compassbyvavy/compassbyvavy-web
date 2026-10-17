@@ -438,6 +438,21 @@
   margin: -4px 0 0;
 }
 
+.camps-toolbar-city-value {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  margin: 0;
+  padding: 8px 11px;
+  border: 1px solid var(--camps-line);
+  border-radius: 10px;
+  background: var(--camps-paper);
+  color: var(--camps-pine-ink);
+  font-size: 1rem;
+  font-weight: 600;
+}
+
 .camps-view-toggle {
   display: flex;
   flex-wrap: wrap;

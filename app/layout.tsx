@@ -1,7 +1,12 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { Suspense } from "react";
 import { ShortlistProvider } from "@/components/shortlist/ShortlistProvider";
 import { SavedNavLink } from "@/components/site/SavedNavLink";
+import {
+  SiteSearchBar,
+  SiteSearchBarShell,
+} from "@/components/site/SiteSearchBar";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -60,6 +65,11 @@ export default function RootLayout({
                   Join waitlist
                 </a>
               </nav>
+            </div>
+            <div className="container site-search-row">
+              <Suspense fallback={<SiteSearchBarShell />}>
+                <SiteSearchBar />
+              </Suspense>
             </div>
           </header>
 
