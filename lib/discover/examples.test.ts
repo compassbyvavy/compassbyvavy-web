@@ -3,8 +3,10 @@ import { describe, it } from "node:test";
 import { EXAMPLE_LISTING_NOTE } from "@/lib/discover/exampleListing";
 import {
   allExampleListings,
+  listingsForCategory,
   registeredDiscoverCategories,
 } from "@/lib/discover/catalog";
+import { CATEGORY_PAGES } from "@/lib/discover/categoryPages";
 import {
   DISCOVER_CATEGORIES,
   liveDiscoverCategories,
@@ -61,6 +63,19 @@ describe("discover example catalog", () => {
     }
     for (const value of strings) {
       assert.doesNotMatch(value, /\blive\b/i);
+    }
+  });
+
+  it("covers every kind once a category is registered", () => {
+    for (const page of CATEGORY_PAGES) {
+      const rows = listingsForCategory(page.slug);
+      if (!rows) continue;
+      for (const kind of page.placeKinds) {
+        assert.ok(
+          rows.some((row) => row.extension.placeKind === kind.id),
+          `${page.slug} is missing ${kind.id}`,
+        );
+      }
     }
   });
 

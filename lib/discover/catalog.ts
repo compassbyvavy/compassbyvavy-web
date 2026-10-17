@@ -7,7 +7,9 @@
  * unpublished candidates into this function.
  */
 
+import { LEARNING_EXAMPLES } from "@/data/discover/examples/learning";
 import { PARKS_EXAMPLES } from "@/data/discover/examples/parks";
+import { PLAY_EXAMPLES } from "@/data/discover/examples/play";
 import {
   isDiscoverCategoryId,
   type DiscoverCategoryId,
@@ -18,6 +20,8 @@ const EXAMPLE_LISTINGS_BY_CATEGORY: Partial<
   Record<DiscoverCategoryId, readonly DiscoverPlaceListing[]>
 > = {
   parks: PARKS_EXAMPLES,
+  play: PLAY_EXAMPLES,
+  learning: LEARNING_EXAMPLES,
 };
 
 export function registeredDiscoverCategories(): DiscoverCategoryId[] {

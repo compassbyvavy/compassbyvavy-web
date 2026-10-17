@@ -32,7 +32,7 @@ describe("Discover category map", () => {
     const live = liveDiscoverCategories();
     assert.deepEqual(
       live.map((category) => category.slug),
-      ["parks", "camps"],
+      ["parks", "play", "learning", "camps"],
     );
   });
 
@@ -61,11 +61,12 @@ describe("Discover category map", () => {
     }
   });
 
-  it("groups Play & Entertainment honestly instead of shipping fake splash-pad listings", () => {
+  it("keeps splash pads out of the Play blurb", () => {
     const play = getDiscoverCategory("play");
     assert.ok(play);
-    assert.match(play.groupingNote ?? "", /splash pads/i);
-    assert.match(play.groupingNote ?? "", /not published/i);
+    assert.equal(play.status, "available");
+    assert.doesNotMatch(play.blurb, /splash pad/i);
+    assert.match(play.blurb, /rainy-day/i);
   });
 
   it("does not present Services as a live directory", () => {
