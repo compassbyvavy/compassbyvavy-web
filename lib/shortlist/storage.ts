@@ -51,6 +51,10 @@ function parseRef(raw: unknown): ShortlistRef | null {
     if (!isSafePublicId(rec.programId)) return null;
     return { kind: "camp_program", programId: rec.programId.trim() };
   }
+  if (rec.kind === "discover_listing") {
+    if (!isSafePublicId(rec.listingId)) return null;
+    return { kind: "discover_listing", listingId: rec.listingId.trim() };
+  }
   return null;
 }
 

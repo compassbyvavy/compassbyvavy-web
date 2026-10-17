@@ -1,8 +1,9 @@
 /**
  * Discover information architecture — public browse categories.
  *
- * Camps is the only live directory in this increment. Every other category is
- * an honest coming-soon placeholder. Do not attach fake listings.
+ * Camps links to the existing camp listing. Other categories stay coming soon
+ * until a labelled example catalog is registered for them. Example rows are
+ * not a verified directory.
  */
 
 import type { DiscoverDbCategory } from "@/data/discover/types";
@@ -23,6 +24,8 @@ export type DiscoverCategory = {
    * Shown on the placeholder page; never used to invent coverage.
    */
   groupingNote?: string;
+  /** Set when the category page is example seed data, not a verified directory. */
+  dataLabel?: string;
 };
 
 export const DISCOVER_CATEGORIES: readonly DiscoverCategory[] = [
@@ -30,10 +33,11 @@ export const DISCOVER_CATEGORIES: readonly DiscoverCategory[] = [
     slug: "parks",
     title: "Parks & Nature",
     icon: "🌳",
-    blurb: "Playgrounds, trails, beaches, and outdoor time.",
-    status: "coming_soon",
+    blurb: "Playgrounds, splash pads, trails, conservation areas, and beaches.",
+    status: "available",
     href: "/discover/parks",
-    cta: "Coming soon",
+    cta: "Browse",
+    dataLabel: "Example data",
   },
   {
     slug: "play",
@@ -44,7 +48,7 @@ export const DISCOVER_CATEGORIES: readonly DiscoverCategory[] = [
     href: "/discover/play",
     cta: "Coming soon",
     groupingNote:
-      "This card groups splash pads, indoor play, and other entertainment. Listings for each are not live yet — nothing here is a directory.",
+      "This card groups indoor play and other entertainment. Splash pads are listed with Parks. Play listings are not published yet — nothing here is a directory.",
   },
   {
     slug: "learning",

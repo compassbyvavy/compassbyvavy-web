@@ -94,7 +94,7 @@ export default async function RootLayout({
               <div className="footer-links">
                 <a href="/#discover">Discover</a>
                 <Link href="/camps">Camps</Link>
-                <Link href="/saved">Saved</Link>
+                <Link href="/saved">Plan</Link>
                 <Link href="/saved/tracker">Tracker</Link>
                 <Link href="/about">About</Link>
                 <Link href="/privacy">Privacy</Link>

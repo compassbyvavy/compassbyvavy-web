@@ -128,14 +128,41 @@ export function applyMarkRegistered(
  * Move active refs that are no longer in the public catalog into Past.
  * Catalog-unavailable is not the same as "catalog not loaded".
  */
+export type ShortlistPublicIds = {
+  programIds: Set<string>;
+  sessionIds: Set<string>;
+  discoverListingIds?: Set<string>;
+  /**
+   * False while the camps catalog is not loaded. Camp refs stay put.
+   * Omitted means the camps catalog was checked.
+   */
+  campsCatalogLoaded?: boolean;
+};
+
 export function applyReconcileUnavailable(
   state: ShortlistState,
-  publicIds: { programIds: Set<string>; sessionIds: Set<string> },
+  publicIds: ShortlistPublicIds,
   now: Date,
 ): ShortlistState {
   const stillActive: ShortlistItem[] = [];
   const newlyPast: ShortlistPastItem[] = [];
   for (const item of state.items) {
+    if (item.ref.kind === "discover_listing") {
+      if (!publicIds.discoverListingIds) {
+        stillActive.push(item);
+        continue;
+      }
+      if (publicIds.discoverListingIds.has(item.ref.listingId)) {
+        stillActive.push(item);
+      } else {
+        newlyPast.push(toPast(item, "unavailable", nowIso(now)));
+      }
+      continue;
+    }
+    if (publicIds.campsCatalogLoaded === false) {
+      stillActive.push(item);
+      continue;
+    }
     const available =
       item.ref.kind === "camp_program"
         ? publicIds.programIds.has(item.ref.programId)

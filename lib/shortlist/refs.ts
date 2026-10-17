@@ -2,10 +2,18 @@ import type { CampProgram, CampSession } from "@/data/camps/types";
 import type { ShortlistRef } from "@/lib/shortlist/types";
 
 export function shortlistEntryId(ref: ShortlistRef): string {
-  if (ref.kind === "camp_session") {
-    return `camp_session:${ref.programId}:${ref.sessionId}`;
+  switch (ref.kind) {
+    case "camp_session":
+      return `camp_session:${ref.programId}:${ref.sessionId}`;
+    case "camp_program":
+      return `camp_program:${ref.programId}`;
+    case "discover_listing":
+      return `discover_listing:${ref.listingId}`;
+    default: {
+      const neverRef: never = ref;
+      return neverRef;
+    }
   }
-  return `camp_program:${ref.programId}`;
 }
 
 export function refsEqual(a: ShortlistRef, b: ShortlistRef): boolean {
@@ -16,7 +24,14 @@ export function refsEqual(a: ShortlistRef, b: ShortlistRef): boolean {
   if (a.kind === "camp_program" && b.kind === "camp_program") {
     return a.programId === b.programId;
   }
+  if (a.kind === "discover_listing" && b.kind === "discover_listing") {
+    return a.listingId === b.listingId;
+  }
   return false;
+}
+
+export function saveRefForDiscoverListing(listingId: string): ShortlistRef {
+  return { kind: "discover_listing", listingId };
 }
 
 /**

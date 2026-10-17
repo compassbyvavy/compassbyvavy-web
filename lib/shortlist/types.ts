@@ -10,7 +10,8 @@ export const SHORTLIST_VERSION = 1 as const;
 
 export type ShortlistRef =
   | { kind: "camp_session"; programId: string; sessionId: string }
-  | { kind: "camp_program"; programId: string };
+  | { kind: "camp_program"; programId: string }
+  | { kind: "discover_listing"; listingId: string };
 
 export type ShortlistItem = {
   /** Deterministic from the ref — not a catalog id. */

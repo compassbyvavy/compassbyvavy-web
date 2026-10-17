@@ -305,7 +305,12 @@ export function buildRegistrationTracker(
     href: REGISTRATION_TRACKER_HREF,
   };
 
-  if (source.items.length === 0) {
+  const campItems = source.items.filter(
+    (item) =>
+      item.ref.kind === "camp_session" || item.ref.kind === "camp_program",
+  );
+
+  if (campItems.length === 0) {
     return {
       ...emptyBase,
       catalogPending: catalog == null,
@@ -314,19 +319,24 @@ export function buildRegistrationTracker(
     };
   }
 
-  const resolved = resolveShortlist(sourceState(source), catalog, options);
+  const resolved = resolveShortlist(
+    { ...sourceState(source), items: campItems },
+    catalog,
+    options,
+  );
 
   if (resolved.catalogPending) {
     return {
       ...emptyBase,
       catalogPending: true,
       empty: false,
-      rows: source.items.map((entry) => catalogPendingRow(source, entry.entryId)),
+      rows: campItems.map((entry) => catalogPendingRow(source, entry.entryId)),
     };
   }
 
   const rows: TrackerRow[] = [];
   for (const item of resolved.active) {
+    if (item.kind === "discover") continue;
     if (item.kind === "catalog_pending") {
       rows.push(catalogPendingRow(source, item.entry.entryId));
       continue;

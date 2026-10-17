@@ -586,6 +586,16 @@ a.category-card {
   text-transform: uppercase;
 }
 
+.category-data-label {
+  display: inline-block;
+  margin-left: 8px;
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
 .category-available {
   color: var(--green);
   font-size: 0.72rem;

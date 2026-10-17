@@ -23,7 +23,7 @@ export default function HomePage() {
             </p>
             <div className="hero-actions">
               <a className="button button-primary" href="#discover">
-                Explore what is coming
+                Explore Discover
               </a>
               <a
                 className="button button-secondary"
@@ -87,6 +87,9 @@ export default function HomePage() {
                 >
                   {category.cta}
                 </span>
+                {category.dataLabel ? (
+                  <span className="category-data-label">{category.dataLabel}</span>
+                ) : null}
               </a>
             ))}
           </div>
