@@ -119,7 +119,7 @@ export const CATEGORY_PAGES: readonly CategoryPage[] = [
     slug: "play",
     lede: "Indoor play, trampoline parks, arcades, and rainy-day fallbacks.",
     exampleBanner: EXAMPLE_PAGE_BANNER,
-    trustNote: `${DISCOVER_TRUST_NOTE} Splash pads live under Parks & Nature.`,
+    trustNote: `${DISCOVER_TRUST_NOTE} Splash pads are listed with Parks & Nature.`,
     emptyTitle: "No play spots match",
     emptyBody: SHARED_EMPTY_BODY,
     placeKinds: [
