@@ -32,7 +32,18 @@ describe("Discover category map", () => {
     const live = liveDiscoverCategories();
     assert.deepEqual(
       live.map((category) => category.slug),
-      ["parks", "play", "learning", "events", "classes", "camps", "food", "travel"],
+      [
+        "parks",
+        "play",
+        "learning",
+        "events",
+        "classes",
+        "camps",
+        "food",
+        "travel",
+        "shopping",
+        "services",
+      ],
     );
   });
 
@@ -69,11 +80,14 @@ describe("Discover category map", () => {
     assert.match(play.blurb, /rainy-day/i);
   });
 
-  it("does not present Services as a live directory", () => {
+  it("presents Services as an example directory of facts", () => {
     const services = getDiscoverCategory("services");
     assert.ok(services);
-    assert.equal(services.status, "coming_soon");
-    assert.match(services.groupingNote ?? "", /not a provider directory/i);
+    assert.equal(services.status, "available");
+    assert.equal(services.dataLabel, "Example data");
+    assert.match(services.blurb, /directory facts only/i);
+    assert.match(services.groupingNote ?? "", /does not rank/i);
+    assert.doesNotMatch(services.blurb, /\b(best|recommend)\b/i);
   });
 
   it("returns undefined for unknown slugs rather than a substitute category", () => {

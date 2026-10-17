@@ -13,6 +13,8 @@ import { FOOD_EXAMPLES } from "@/data/discover/examples/food";
 import { LEARNING_EXAMPLES } from "@/data/discover/examples/learning";
 import { PARKS_EXAMPLES } from "@/data/discover/examples/parks";
 import { PLAY_EXAMPLES } from "@/data/discover/examples/play";
+import { SERVICES_EXAMPLES } from "@/data/discover/examples/services";
+import { SHOPPING_EXAMPLES } from "@/data/discover/examples/shopping";
 import { TRAVEL_EXAMPLES } from "@/data/discover/examples/travel";
 import {
   isDiscoverCategoryId,
@@ -30,6 +32,8 @@ const EXAMPLE_LISTINGS_BY_CATEGORY: Partial<
   classes: CLASSES_EXAMPLES,
   food: FOOD_EXAMPLES,
   travel: TRAVEL_EXAMPLES,
+  shopping: SHOPPING_EXAMPLES,
+  services: SERVICES_EXAMPLES,
 };
 
 export function registeredDiscoverCategories(): DiscoverCategoryId[] {

@@ -79,6 +79,18 @@ describe("discover example catalog", () => {
     }
   });
 
+  it("keeps service rows free of quality judgments", () => {
+    const rows = listingsForCategory("services");
+    assert.ok(rows);
+    for (const listing of rows) {
+      assert.equal(listing.extension.category, "services");
+      assert.doesNotMatch(
+        JSON.stringify(listing),
+        /rating|ranking|recommend|\bbest\b|\bstar\b/i,
+      );
+    }
+  });
+
   it("does not put a quality ranking on the services directory note", () => {
     assert.match(SERVICES_GOVERNANCE_NOTE, /does not rank/i);
     assert.match(SERVICES_GOVERNANCE_NOTE, /not medical advice/i);
