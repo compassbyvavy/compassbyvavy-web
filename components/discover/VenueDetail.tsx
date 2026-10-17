@@ -168,8 +168,17 @@ export function VenueDetail({
         <h2 id="at-a-glance-h">At a glance</h2>
         <dl className="venue-facts">
           <div>
-            <dt>Best-fit ages</dt>
-            <dd>{snapshot.bestFitAges ?? "Not confirmed"}</dd>
+            <dt>Official ages</dt>
+            <dd>{snapshot.officialAgeRange ?? "Not confirmed"}</dd>
+          </div>
+          <div>
+            <dt>Compass best fit</dt>
+            <dd>
+              {snapshot.bestFitAges ?? "Not confirmed"}
+              {snapshot.bestFitExplanation ? (
+                <span className="venue-checked"> {snapshot.bestFitExplanation}</span>
+              ) : null}
+            </dd>
           </div>
           <div>
             <dt>Rainy day</dt>

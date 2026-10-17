@@ -88,6 +88,9 @@ describe("published venue page", () => {
       "Toddler Play Area",
     ]);
     assert.equal(v.overview.setting, "Indoor");
+    assert.equal(v.snapshot.officialAgeRange, "Ages 1–12");
+    assert.equal(v.snapshot.bestFitAges, "Ages 0–9");
+    assert.match(v.snapshot.bestFitExplanation ?? "", /not the operator's admission rule/i);
   });
 
   it("renders all sections with source links and checked dates", () => {
@@ -95,6 +98,8 @@ describe("published venue page", () => {
     for (const heading of ["At a glance", "Plan your visit", "Prices", "Activities", "Amenities and access", "What to expect", "Sources and freshness"]) {
       assert.match(page, new RegExp(`>${heading}<`), heading);
     }
+    assert.match(page, /Official ages/);
+    assert.match(page, /Compass best fit/);
     assert.match(page, /Checked Oct 10, 2026/);
     assert.match(page, /href="https:\/\/example\.org\/maple-leap\/heartland\/book"/);
     assert.match(page, /<h1>Maple Leap Play Centre<span class="venue-branch"> — Heartland<\/span><\/h1>/);

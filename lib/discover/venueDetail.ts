@@ -275,8 +275,16 @@ export type AgeBandView = {
   meta: FactMeta | null;
 };
 
+/** Shown beside Compass best-fit ages so they are not read as an operator rule. */
+export const COMPASS_BEST_FIT_EXPLANATION =
+  "Compass recommendation from verified age-band fit. It is not the operator's admission rule.";
+
 export type SnapshotView = {
+  /** Operator age range from the place record. Null when not confirmed. */
+  officialAgeRange: string | null;
+  /** Good-fit age bands only. Null when Compass has not confirmed a best fit. */
   bestFitAges: string | null;
+  bestFitExplanation: string | null;
   ageBands: AgeBandView[];
   restrictions: RuleLine[];
   supervision: RuleLine[];
@@ -286,16 +294,57 @@ export type SnapshotView = {
   rainyDay: string | null;
 };
 
+/** Official admission ages. `allAges` is a verified fact; missing bounds stay null. */
+export function officialAgeLabel(place: {
+  allAges: boolean;
+  ageMin?: number | null;
+  ageMax?: number | null;
+}): string | null {
+  if (place.allAges) return "All ages";
+  return ageText(place.ageMin, place.ageMax);
+}
+
+/**
+ * Compass best fit: public age bands marked "good", collapsed when they are
+ * consecutive. "Some" and "limited" stay in the age table and are not folded
+ * into the recommendation.
+ */
+export function compassBestFitLabel(record: VenueRecord): string | null {
+  const good = new Set(
+    record.ageBands.filter((band) => isPublicFact(band) && band.fit === "good").map((band) => band.band),
+  );
+  const selected = AGE_BANDS.filter((band) => good.has(band.band));
+  if (!selected.length) return null;
+  const groups: Array<Array<(typeof AGE_BANDS)[number]>> = [];
+  for (const band of selected) {
+    const current = groups[groups.length - 1];
+    const previous = current?.[current.length - 1];
+    if (previous && band.min === previous.max + 1) current.push(band);
+    else groups.push([band]);
+  }
+  const parts = groups.map((group) => {
+    const first = group[0];
+    const last = group[group.length - 1];
+    if (first.band === "adults") return "Adults";
+    if (last.band === "adults") return `Ages ${first.min}–17 and adults`;
+    if (first.min === last.max) return `Age ${first.min}`;
+    return `Ages ${first.min}–${last.max}`;
+  });
+  if (parts.length === 1) return parts[0];
+  return `${parts.slice(0, -1).join(", ")} and ${parts[parts.length - 1]}`;
+}
+
 function snapshot(record: VenueRecord, policies: VenuePolicy[], themes: ThemeView[]): SnapshotView {
   const p = record.place;
   const bands = record.ageBands.filter(isPublicFact);
   const placeChecked = formatCheckedDate(p.sourceCheckedDate);
   const rule = (kinds: VenuePolicyKind[]) =>
     policies.filter((x) => kinds.includes(x.kind)).map(ruleLine);
+  const bestFitAges = compassBestFitLabel(record);
   return {
-    bestFitAges: p.allAges
-      ? "All ages"
-      : ageText(p.ageMin, p.ageMax),
+    officialAgeRange: officialAgeLabel(p),
+    bestFitAges,
+    bestFitExplanation: bestFitAges ? COMPASS_BEST_FIT_EXPLANATION : null,
     ageBands: AGE_BANDS.map(({ band, label }) => {
       const hit = bands.find((b) => b.band === band);
       return {
