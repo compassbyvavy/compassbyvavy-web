@@ -94,6 +94,87 @@ function currencyLabel(currency: string | null | undefined): string {
   return currency;
 }
 
+export const PLAN_COMPARE_ROWS = [
+  { id: "dates", label: "Dates" },
+  { id: "ages", label: "Ages" },
+  { id: "hours", label: "Hours" },
+  { id: "care", label: "Care" },
+  { id: "venue", label: "Venue" },
+  { id: "total_cost", label: "Total cost" },
+  { id: "status", label: "Status" },
+] as const;
+
+export type PlanCompareRowId = (typeof PLAN_COMPARE_ROWS)[number]["id"];
+
+export type PlanCompareCell = {
+  text: string;
+  unknown: boolean;
+};
+
+const UNKNOWN_CELL: PlanCompareCell = { text: "Unknown", unknown: true };
+
+function missingFact(label: string): boolean {
+  const text = label.trim();
+  if (!text) return true;
+  return /^(unknown|hours to confirm|care to confirm|ages to confirm|venue to confirm|fee notes to confirm|check with provider|upcoming dates not yet verified)$/i.test(
+    text,
+  );
+}
+
+function knownCell(label: string): PlanCompareCell {
+  return missingFact(label) ? UNKNOWN_CELL : { text: label, unknown: false };
+}
+
+/**
+ * Status is the registration helper's label, dated. Never a live badge.
+ * A missing check date stays unknown; the helper label is still shown.
+ */
+export function latestVerifiedStatusLabel(
+  registrationLabel: string,
+  sourceCheckedDate: string | null | undefined,
+): string {
+  const status = registrationLabel.trim() || "Unknown";
+  if (
+    sourceCheckedDate &&
+    /^\d{4}-\d{2}-\d{2}$/.test(sourceCheckedDate)
+  ) {
+    return `Latest verified ${sourceCheckedDate} — ${status}`;
+  }
+  return `Latest verified date unknown — ${status}`;
+}
+
+export function planCompareCells(
+  column: CompareColumn,
+): Record<PlanCompareRowId, PlanCompareCell> {
+  const row = column.row;
+  const ages = knownCell(row.ageEligibilityLabel);
+  const agesText =
+    ages.unknown
+      ? ages
+      : row.ageAssessmentNote && /as of/i.test(row.ageAssessmentNote)
+        ? { text: `${ages.text} (${row.ageAssessmentNote})`, unknown: false }
+        : {
+            text: `${ages.text} (assessment date unknown)`,
+            unknown: false,
+          };
+
+  return {
+    dates: knownCell(row.datesLabel),
+    ages: agesText,
+    hours: knownCell(row.hoursLabel),
+    care: knownCell(row.careLabel),
+    venue: knownCell(row.venueLabel),
+    total_cost: knownCell(row.priceLabel),
+    status: {
+      text: latestVerifiedStatusLabel(
+        row.registration.label,
+        column.evidenceDate,
+      ),
+      unknown: false,
+    },
+  };
+}
+
 export function comparePriceNoteForSessions(
   columns: CompareColumn[],
 ): ComparePriceNote {

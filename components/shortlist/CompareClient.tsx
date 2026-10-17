@@ -4,13 +4,11 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useMemo } from "react";
 import type { CampsCatalogBundle } from "@/lib/camps/catalog";
-import { buildCompareTable } from "@/lib/shortlist/compare";
-
-function UnknownFact({ text }: { text: string }) {
-  const unknown = /to confirm|not yet verified|unknown/i.test(text);
-  if (!unknown) return <>{text}</>;
-  return <span className="camps-unknown-chip">{text}</span>;
-}
+import {
+  PLAN_COMPARE_ROWS,
+  buildCompareTable,
+  planCompareCells,
+} from "@/lib/shortlist/compare";
 
 export type CompareClientProps = {
   catalog: CampsCatalogBundle | null;
@@ -76,9 +74,9 @@ export function CompareClient({ catalog, nowIso }: CompareClientProps) {
         <p className="camps-listing-kicker">Compare</p>
         <h1>Side by side</h1>
         <p className="camps-listing-lede">
-          Each column is one session. Facts stay on that session — Compass
-          does not stitch hours from one week onto the price of another, and
-          does not invent a family package total.
+          Dates, exact eligibility, hours, care, venue, total cost, and
+          status. A missing fact says Unknown. Compass does not guess a
+          family package or rank prices.
         </p>
       </header>
 
@@ -110,7 +108,7 @@ export function CompareClient({ catalog, nowIso }: CompareClientProps) {
             <table className="saved-compare-table">
               <thead>
                 <tr>
-                  <th scope="col">Fact</th>
+                  <th className="saved-compare-label" scope="col" />
                   {columns.map((col) => (
                     <th key={col.sessionId} scope="col">
                       <Link href={col.href}>{col.programName}</Link>
@@ -120,111 +118,24 @@ export function CompareClient({ catalog, nowIso }: CompareClientProps) {
                 </tr>
               </thead>
               <tbody>
-                <tr>
-                  <th scope="row">Dates</th>
-                  {columns.map((col) => (
-                    <td key={col.sessionId}>
-                      <UnknownFact text={col.row.datesLabel} />
-                    </td>
-                  ))}
-                </tr>
-                <tr>
-                  <th scope="row">Eligibility</th>
-                  {columns.map((col) => (
-                    <td key={col.sessionId}>
-                      {col.row.ageEligibilityLabel}
-                      {col.row.ageAssessmentNote ? (
-                        <span className="camp-card-note">
-                          {" "}
-                          · {col.row.ageAssessmentNote}
-                        </span>
-                      ) : null}
-                    </td>
-                  ))}
-                </tr>
-                <tr>
-                  <th scope="row">Hours</th>
-                  {columns.map((col) => (
-                    <td key={col.sessionId}>{col.row.hoursLabel}</td>
-                  ))}
-                </tr>
-                <tr>
-                  <th scope="row">Care</th>
-                  {columns.map((col) => (
-                    <td key={col.sessionId}>{col.row.careLabel}</td>
-                  ))}
-                </tr>
-                <tr>
-                  <th scope="row">Venue</th>
-                  {columns.map((col) => (
-                    <td key={col.sessionId}>
-                      <UnknownFact text={col.row.venueLabel} />
-                    </td>
-                  ))}
-                </tr>
-                <tr>
-                  <th scope="row">Price</th>
-                  {columns.map((col) => (
-                    <td key={col.sessionId}>
-                      <UnknownFact text={col.row.priceLabel} />
-                    </td>
-                  ))}
-                </tr>
-                <tr>
-                  <th scope="row">Currency</th>
-                  {columns.map((col) => (
-                    <td key={col.sessionId}>{col.currencyLabel}</td>
-                  ))}
-                </tr>
-                <tr>
-                  <th scope="row">Unit</th>
-                  {columns.map((col) => (
-                    <td key={col.sessionId}>{col.unitLabel}</td>
-                  ))}
-                </tr>
-                <tr>
-                  <th scope="row">Fees</th>
-                  {columns.map((col) => (
-                    <td key={col.sessionId}>
-                      <UnknownFact
-                        text={col.feeNotes ?? "Fee notes to confirm"}
-                      />
-                    </td>
-                  ))}
-                </tr>
-                <tr>
-                  <th scope="row">Registration</th>
-                  {columns.map((col) => (
-                    <td key={col.sessionId}>
-                      <p>{col.row.registration.label}</p>
-                      {col.row.registration.buttonText &&
-                      col.row.registration.href ? (
-                        <a
-                          className="camp-card-cta"
-                          href={col.row.registration.href}
-                          target="_blank"
-                          rel="noopener noreferrer"
+                {PLAN_COMPARE_ROWS.map((fact) => (
+                  <tr key={fact.id}>
+                    <th className="saved-compare-label" scope="row">
+                      {fact.label}
+                    </th>
+                    {columns.map((col) => {
+                      const cell = planCompareCells(col)[fact.id];
+                      return (
+                        <td
+                          key={col.sessionId}
+                          className={cell.unknown ? "is-unknown" : undefined}
                         >
-                          {col.row.registration.buttonText}
-                        </a>
-                      ) : (
-                        <p className="camp-card-note">
-                          No verified outbound registration link.
-                        </p>
-                      )}
-                    </td>
-                  ))}
-                </tr>
-                <tr>
-                  <th scope="row">Evidence date</th>
-                  {columns.map((col) => (
-                    <td key={col.sessionId}>
-                      {col.evidenceDate
-                        ? `Source checked ${col.evidenceDate}`
-                        : "Source check date to confirm"}
-                    </td>
-                  ))}
-                </tr>
+                          {cell.text}
+                        </td>
+                      );
+                    })}
+                  </tr>
+                ))}
               </tbody>
             </table>
           </div>

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ShortlistProvider } from "@/components/shortlist/ShortlistProvider";
-import { SavedNavLink } from "@/components/site/SavedNavLink";
+import { SiteNav } from "@/components/site/SiteNav";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -49,17 +49,7 @@ export default function RootLayout({
                 <span className="brand-mark" aria-hidden="true">✦</span>
                 <span>Compass by Vavy</span>
               </Link>
-              <nav className="nav" aria-label="Main navigation">
-                <a className="nav-link" href="/#discover">Discover</a>
-                <a className="nav-link" href="/#how-it-works">How it works</a>
-                <Link className="nav-link" href="/camps">Camps</Link>
-                <SavedNavLink />
-                <Link href="/saved/tracker" className="nav-link">Tracker</Link>
-                <Link className="nav-link nav-link-secondary" href="/about">About</Link>
-                <a className="nav-cta" href="mailto:hello@compassbyvavy.ca?subject=Join%20the%20Compass%20by%20Vavy%20waitlist">
-                  Join waitlist
-                </a>
-              </nav>
+              <SiteNav />
             </div>
           </header>
 

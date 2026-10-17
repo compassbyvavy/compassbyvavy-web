@@ -10,6 +10,7 @@ import type { CampsCatalogBundle } from "@/lib/camps/catalog";
 import {
   buildCompareHref,
   buildCompareTable,
+  planCompareCells,
   parseCompareSessionIds,
 } from "@/lib/shortlist/compare";
 
@@ -111,6 +112,26 @@ describe("compare table", () => {
     assert.deepEqual(table.missingIds, ["sess-unpublished-secret"]);
     assert.equal(table.columns.length, 1);
     assert.doesNotMatch(JSON.stringify(table.columns), /unpublished-secret/);
+  });
+
+  it("shows Plan v1 rows and the word Unknown for missing facts", () => {
+    const table = buildCompareTable(
+      catalog,
+      "sess-dev-stem-w1,sess-dev-nature-sparse",
+      { now: NOW },
+    );
+    assert.equal(table.kind, "ready");
+    if (table.kind !== "ready") throw new Error("kind");
+    const known = planCompareCells(table.columns[0]);
+    const sparse = planCompareCells(table.columns[1]);
+    assert.equal(known.dates.unknown, false);
+    assert.match(known.status.text, /^Latest verified 2026-08-01 — /);
+    assert.doesNotMatch(known.status.text, /live/i);
+    assert.equal(sparse.total_cost.text, "Unknown");
+    assert.equal(sparse.ages.text, "Unknown");
+    assert.equal(sparse.venue.text, "Unknown");
+    assert.equal(sparse.total_cost.unknown, true);
+    assert.doesNotMatch(sparse.total_cost.text, /\$0/);
   });
 
   it("waits when the public catalog is not loaded", () => {
