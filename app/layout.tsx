@@ -78,6 +78,7 @@ export default function RootLayout({
                 <a href="/#discover">Discover</a>
                 <Link href="/camps">Camps</Link>
                 <Link href="/saved">Saved</Link>
+                <Link href="/account/signup">Keep your list</Link>
                 <Link href="/saved/tracker">Tracker</Link>
                 <Link href="/about">About</Link>
                 <Link href="/privacy">Privacy</Link>

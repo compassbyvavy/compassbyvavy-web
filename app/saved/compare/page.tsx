@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import { RememberCompareIds } from "@/components/account/RememberCompareIds";
 import { CompareClient } from "@/components/shortlist/CompareClient";
 import { loadCampsCatalogForRequest } from "@/lib/camps/campsServerCatalog";
 
@@ -14,6 +15,9 @@ export default async function ComparePage() {
   const catalog = await loadCampsCatalogForRequest();
   return (
     <div className="container camps-listing-page">
+      <Suspense fallback={null}>
+        <RememberCompareIds />
+      </Suspense>
       <Suspense fallback={<p className="camp-card-note">Loading comparison…</p>}>
         <CompareClient
           catalog={catalog}
