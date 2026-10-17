@@ -5,6 +5,8 @@
  * an honest coming-soon placeholder. Do not attach fake listings.
  */
 
+import type { DiscoverDbCategory } from "@/data/discover/types";
+
 export type DiscoverCategoryStatus = "available" | "coming_soon";
 
 export type DiscoverCategory = {
@@ -119,6 +121,44 @@ export const DISCOVER_CATEGORIES: readonly DiscoverCategory[] = [
       "Services (and Community) stay out of scope for now. This page is a placeholder only — not a provider directory.",
   },
 ] as const;
+
+/**
+ * Which public.discover_category values each UI card browses.
+ *
+ * Play & Entertainment groups the legacy splash_pads and indoor_play values
+ * with play_entertainment. Services has no places category: it stays out of
+ * scope as a separately governed directory. "other" belongs to no card, so a
+ * row filed as other never appears under a category by accident.
+ */
+export const DB_CATEGORIES_BY_SLUG: Readonly<
+  Record<string, readonly DiscoverDbCategory[]>
+> = {
+  parks: ["parks_nature"],
+  play: ["play_entertainment", "splash_pads", "indoor_play"],
+  learning: ["learning_culture"],
+  events: ["events"],
+  classes: ["classes"],
+  camps: ["camps"],
+  food: ["food_treats"],
+  travel: ["getaways"],
+  shopping: ["shopping"],
+  services: [],
+};
+
+/** Database categories a UI card browses; empty for unknown slugs. */
+export function dbCategoriesFor(slug: string): readonly DiscoverDbCategory[] {
+  return DB_CATEGORIES_BY_SLUG[slug] ?? [];
+}
+
+/** The UI card a database category belongs to, or undefined for "other". */
+export function discoverCategoryForDb(
+  dbCategory: DiscoverDbCategory,
+): DiscoverCategory | undefined {
+  const slug = Object.keys(DB_CATEGORIES_BY_SLUG).find((s) =>
+    DB_CATEGORIES_BY_SLUG[s].includes(dbCategory),
+  );
+  return slug ? getDiscoverCategory(slug) : undefined;
+}
 
 export function getDiscoverCategory(
   slug: string,

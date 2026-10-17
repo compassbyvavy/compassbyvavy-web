@@ -8,6 +8,8 @@ This folder documents the website domain model. The migration lives at:
 
 It creates **empty structure only**. It does not seed catalog rows and it does not publish anything.
 
+Plan-ready place fields (setting, cost tier, visit length, toddler/stroller facts, coordinates, hours, verified date) and `cities.tourism_region` are added by `supabase/migrations/20261017020000_discover_places_plan_fields.sql`. See [docs/discover/README.md](../discover/README.md).
+
 ## Domain tables
 
 | Table | Role |
@@ -16,6 +18,7 @@ It creates **empty structure only**. It does not seed catalog rows and it does n
 | `providers` | Organizations. Research columns follow the Camp Research Master **Providers** sheet. Draft until explicitly published. |
 | `venues` | Physical/online locations. Nullable lat/lng. Accessibility facts as yes/no/unknown tri-states. |
 | `places` | Discover listings (`discover_category` required). Parks, splash pads, indoor play, food, getaways, and other place-like rows. |
+| `place_hours` | Weekly opening hours per place (ISO weekday), optional seasonal window. Readable when the place is published. Added in `20261017020000_discover_places_plan_fields.sql`. |
 | `events` | Dated public events. |
 | `class_programs` | Stable class program identity. |
 | `class_sessions` | Dated class offerings. |
