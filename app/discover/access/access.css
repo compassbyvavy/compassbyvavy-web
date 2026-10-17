@@ -1,0 +1,62 @@
+.access-page,
+.access-banner {
+  color: #1f2e25;
+}
+
+.access-banner,
+.access-page {
+  padding-top: 20px;
+}
+
+.access-kicker {
+  color: #8a5f2a;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.access-page h1 {
+  font-family: Georgia, serif;
+  color: #33503e;
+}
+
+.access-toggles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 12px 0 20px;
+}
+
+.access-toggles button {
+  min-height: 44px;
+  border-radius: 999px;
+  border: 1px solid #e4dfd2;
+  background: #fff;
+  padding: 0 14px;
+  font-weight: 700;
+  color: #33503e;
+}
+
+.access-toggles button[aria-pressed="true"] {
+  background: #33503e;
+  color: #faf8f3;
+}
+
+.access-list {
+  list-style: none;
+  padding: 0;
+  display: grid;
+  gap: 12px;
+}
+
+.access-badge {
+  display: inline-block;
+  margin-right: 6px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: #e7ede6;
+  color: #33503e;
+  font-size: 0.8rem;
+  font-weight: 700;
+}

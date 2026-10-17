@@ -103,6 +103,9 @@ export type Venue = {
   latitude?: number | null;
   longitude?: number | null;
   notes?: string | null;
+  /** Free-text transit note only when a source states one. Null is not "no transit". */
+  transitAccess?: string | null;
+  wheelchairAccessible?: ConfirmedTriState | null;
 };
 
 /**
@@ -181,6 +184,15 @@ export type CampProgram = {
   packingItems?: CampPackingItem[] | null;
   preparationNotes?: string | null;
   notes?: string | null;
+  /**
+   * Verified access facts. Omit or "unknown" — never inferred.
+   * A "yes" is safe to badge. "no" is an explicit absence. Missing is unknown.
+   */
+  accessibilityFacts?: {
+    sensoryRoom?: ConfirmedTriState | null;
+    elevatorAccess?: ConfirmedTriState | null;
+    lowStepAccess?: ConfirmedTriState | null;
+  } | null;
 };
 
 export type CareWindow = {
