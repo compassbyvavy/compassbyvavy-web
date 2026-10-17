@@ -44,6 +44,11 @@ export default async function CampsListingPage() {
 
   return (
     <div className="container camps-listing-page">
+      <p className="camp-card-note">
+        <a href="/community/camp-buddies">Camp Buddies</a>
+        {" — "}
+        a private link of titles and dates. It does not change your saved list.
+      </p>
       <Suspense fallback={<p className="camp-card-note">Loading camps…</p>}>
         <CampsListingClient
           programs={catalog.programs}
