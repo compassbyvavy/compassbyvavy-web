@@ -7,6 +7,7 @@ import {
   ackClearsLocalCopy,
   captureGuestState,
   clearSyncedGuestCopies,
+  notifyGuestCopiesCleared,
   type GuestStateSnapshot,
 } from "@/lib/account/guestState";
 
@@ -52,5 +53,6 @@ export async function syncGuestState(input: {
     return { ok: false, reason: "The server did not confirm the save." };
   }
   clearSyncedGuestCopies(input.localStorage, input.sessionStorage);
+  notifyGuestCopiesCleared();
   return { ok: true, acceptedAt: ack.acceptedAt as string };
 }

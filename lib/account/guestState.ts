@@ -15,6 +15,14 @@ export const COMPARE_IDS_KEY = "compass.compare.ids.v1";
 
 export const GUEST_STATE_VERSION = 1 as const;
 
+/** Fired in this tab after an ack clears guest copies, so in-memory lists reload. */
+export const GUEST_STATE_CLEARED_EVENT = "compass:guest-state-cleared";
+
+export function notifyGuestCopiesCleared(): void {
+  if (typeof window === "undefined") return;
+  window.dispatchEvent(new Event(GUEST_STATE_CLEARED_EVENT));
+}
+
 export type ViewHistoryEntry = {
   listingId: string;
   href: string;

@@ -22,6 +22,7 @@ import {
   readShortlistFromStorage,
   writeShortlistToStorage,
 } from "@/lib/shortlist/storage";
+import { GUEST_STATE_CLEARED_EVENT } from "@/lib/account/guestState";
 import {
   EMPTY_SHORTLIST,
   SHORTLIST_STORAGE_KEY,
@@ -65,8 +66,15 @@ export function ShortlistProvider({ children }: { children: ReactNode }) {
       if (event.key && event.key !== SHORTLIST_STORAGE_KEY) return;
       setState(readShortlistFromStorage(window.localStorage));
     };
+    const onCleared = () => {
+      setState(readShortlistFromStorage(window.localStorage));
+    };
     window.addEventListener("storage", onStorage);
-    return () => window.removeEventListener("storage", onStorage);
+    window.addEventListener(GUEST_STATE_CLEARED_EVENT, onCleared);
+    return () => {
+      window.removeEventListener("storage", onStorage);
+      window.removeEventListener(GUEST_STATE_CLEARED_EVENT, onCleared);
+    };
   }, []);
 
   const save = useCallback((ref: ShortlistRef) => {
