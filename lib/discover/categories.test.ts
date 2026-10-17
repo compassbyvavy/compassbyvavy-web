@@ -32,7 +32,7 @@ describe("Discover category map", () => {
     const live = liveDiscoverCategories();
     assert.deepEqual(
       live.map((category) => category.slug),
-      ["parks", "play", "learning", "camps"],
+      ["parks", "play", "learning", "events", "classes", "camps"],
     );
   });
 

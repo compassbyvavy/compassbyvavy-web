@@ -7,6 +7,8 @@
  * unpublished candidates into this function.
  */
 
+import { CLASSES_EXAMPLES } from "@/data/discover/examples/classes";
+import { EVENTS_EXAMPLES } from "@/data/discover/examples/events";
 import { LEARNING_EXAMPLES } from "@/data/discover/examples/learning";
 import { PARKS_EXAMPLES } from "@/data/discover/examples/parks";
 import { PLAY_EXAMPLES } from "@/data/discover/examples/play";
@@ -22,6 +24,8 @@ const EXAMPLE_LISTINGS_BY_CATEGORY: Partial<
   parks: PARKS_EXAMPLES,
   play: PLAY_EXAMPLES,
   learning: LEARNING_EXAMPLES,
+  events: EVENTS_EXAMPLES,
+  classes: CLASSES_EXAMPLES,
 };
 
 export function registeredDiscoverCategories(): DiscoverCategoryId[] {
