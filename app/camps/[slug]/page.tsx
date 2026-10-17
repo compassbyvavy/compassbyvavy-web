@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
+import { ViewHistoryRecorder } from "@/components/account/ViewHistoryRecorder";
 import { CampDetailClient } from "@/components/camps/CampDetailClient";
 import { loadCampsCatalogForRequest } from "@/lib/camps/campsServerCatalog";
 import {
@@ -32,6 +33,10 @@ export default async function CampDetailPage({ params }: PageProps) {
 
   return (
     <div className="container camp-detail-page">
+      <ViewHistoryRecorder
+        listingId={published.program.id}
+        href={`/camps/${published.program.slug}`}
+      />
       <Suspense fallback={<p className="camp-card-note">Loading session details…</p>}>
         <CampDetailClient
           program={published.program}
