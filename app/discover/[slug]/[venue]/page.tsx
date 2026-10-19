@@ -1,5 +1,8 @@
 import { notFound } from "next/navigation";
+import { DiscoverDetail } from "@/components/discover/DiscoverDetail";
 import { VenueDetail } from "@/components/discover/VenueDetail";
+import { getExampleListing } from "@/lib/discover/catalog";
+import { getDiscoverCategory } from "@/lib/discover/categories";
 import {
   buildVenueDetailView,
   resolvePublicVenue,
@@ -29,36 +32,66 @@ async function loadVenue(slug: string, venue: string) {
   return record ? { record, catalog } : null;
 }
 
+/** Example Discover listing for this category, if the slug isn't a published venue. */
+function loadExampleListing(slug: string, listingSlug: string) {
+  const listing = getExampleListing(slug, listingSlug);
+  return listing && listing.category === slug ? listing : null;
+}
+
 export async function generateMetadata({ params }: PageProps) {
   const { slug, venue } = await params;
   const found = await loadVenue(slug, venue);
-  if (!found) return { title: "Venue not found", robots: { index: false } };
-  const p = found.record.place;
-  const name = p.branchName ? `${p.name} — ${p.branchName}` : p.name;
-  return {
-    title: found.record.cityName ? `${name}, ${found.record.cityName}` : name,
-    description: p.description ?? undefined,
-    // Dev fixtures are never indexed.
-    robots: { index: false, follow: true },
-  };
+  if (found) {
+    const p = found.record.place;
+    const name = p.branchName ? `${p.name} — ${p.branchName}` : p.name;
+    return {
+      title: found.record.cityName ? `${name}, ${found.record.cityName}` : name,
+      description: p.description ?? undefined,
+      // Dev fixtures are never indexed.
+      robots: { index: false, follow: true },
+    };
+  }
+  const listing = loadExampleListing(slug, venue);
+  if (listing) {
+    const category = getDiscoverCategory(slug);
+    return {
+      title: `${listing.title} — ${category?.title ?? "Discover"} example`,
+      description: listing.exampleNote ?? listing.summary ?? undefined,
+      robots: { index: false, follow: true },
+    };
+  }
+  return { title: "Not found", robots: { index: false } };
 }
 
 /**
- * One page per venue location: /discover/<category>/<venue-slug>.
- * Unknown slug, wrong category, unpublished, unverified or closed → 404.
- * Never substitutes another branch.
+ * One detail page per place: /discover/<category>/<slug>.
+ * A published venue location wins; otherwise an example listing in the same
+ * category is shown. Unknown slug, wrong category, unpublished, unverified or
+ * closed → 404. Never substitutes another branch or another category.
+ *
+ * Venue pages (plan-ready fields) and example listings (shared Discover
+ * contract) share this one route because Next.js can't tell two dynamic
+ * segments at the same level apart.
  */
-export default async function VenuePage({ params }: PageProps) {
+export default async function DiscoverDetailPage({ params }: PageProps) {
   const { slug, venue } = await params;
   const found = await loadVenue(slug, venue);
-  if (!found) notFound();
-  const view = buildVenueDetailView(found.record, { today: torontoToday() });
+  if (found) {
+    const view = buildVenueDetailView(found.record, { today: torontoToday() });
+    return (
+      <div className="container venue-container">
+        <VenueDetail
+          view={view}
+          banner={found.catalog.sourceLabel === "dev_fixtures" ? VENUE_DEV_BANNER : null}
+        />
+      </div>
+    );
+  }
+  const listing = loadExampleListing(slug, venue);
+  if (!listing) notFound();
   return (
-    <div className="container venue-container">
-      <VenueDetail
-        view={view}
-        banner={found.catalog.sourceLabel === "dev_fixtures" ? VENUE_DEV_BANNER : null}
-      />
+    <div className="container camps-listing-page">
+      <DiscoverDetail listing={listing} />
     </div>
   );
 }
