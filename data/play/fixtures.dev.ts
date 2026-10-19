@@ -16,8 +16,10 @@ const PRICE_CHECKED = "2026-10-12";
 const SRC = "https://example.org/indoor-play/dev";
 
 /**
- * Weekday 10–18, weekend 09–17. Opens at 10:00 — that IS a weekday morning
- * (open before 12:00 on any Mon–Fri). The only morning miss is 12:00 exactly.
+ * Mon–Thu 10–18 (weekday morning: 10:00 opens before 12:00). Friday is split
+ * 10:30–14:30 and 15:30–20:00 — morning (10:30), after school (second row
+ * overlaps 15:30–17:30), and evenings (Friday closes at 20:00, after 19:00).
+ * Weekend 09–17. The only morning miss is a weekday open at 12:00 exactly.
  */
 const daytimeHours = {
   checkedAt: HOURS_CHECKED,
