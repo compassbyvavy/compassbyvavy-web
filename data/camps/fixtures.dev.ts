@@ -40,6 +40,7 @@ export const campsDevVenues: Venue[] = [
     addressLine: "123 Example Rd",
     city: "Mississauga",
     province: "ON",
+    transitAccess: "Example only — not a real MiWay stop.",
   },
   {
     id: "venue-dev-port-credit",
@@ -77,6 +78,11 @@ export const campsDevPrograms: CampProgram[] = [
     audience: "child_only",
     indoorOutdoor: "indoor",
     accessibilitySupportTags: [],
+    accessibilityFacts: {
+      sensoryRoom: "yes",
+      elevatorAccess: "unknown",
+      lowStepAccess: "no",
+    },
     experienceSummary:
       "Fictional week of hands-on builds and robotics stations (dev fixture narrative).",
     prerequisites: ["Closed-toe shoes"],

@@ -44,6 +44,11 @@ export default async function CampsListingPage() {
 
   return (
     <div className="container camps-listing-page">
+      <p className="camp-card-note">
+        <a href="/discover/access">Sensory and transit access</a>
+        {" — "}
+        badges only when a fact is yes.
+      </p>
       <Suspense fallback={<p className="camp-card-note">Loading camps…</p>}>
         <CampsWithRainyDay
           programs={catalog.programs}
