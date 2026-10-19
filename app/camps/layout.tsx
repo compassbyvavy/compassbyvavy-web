@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import { CampsChromeNav } from "@/components/camps/CampsChromeNav";
+import { DiscoverCategoryNav } from "@/components/discover/DiscoverCategoryNav";
 import { campsFontVariables } from "@/lib/camps/fonts";
 import "./camps.css";
+import "../discover/discover.css";
 
 export const metadata: Metadata = {
   title: "Mississauga camps",
@@ -18,6 +20,9 @@ export default function CampsLayout({
         <div className="container">
           <CampsChromeNav />
         </div>
+      </div>
+      <div className="container">
+        <DiscoverCategoryNav />
       </div>
       {children}
     </div>

@@ -16,6 +16,7 @@ import {
   buildSessionDetailRow,
   type CampSessionDetailRow,
 } from "@/lib/camps/campDetail";
+import type { DiscoverPlaceListing } from "@/lib/listings/discoverPlace";
 import type {
   ShortlistItem,
   ShortlistPastItem,
@@ -70,6 +71,11 @@ export type ResolvedActiveItem =
       program: CampProgram;
       provider: Provider;
       sessions: CampSession[];
+    }
+  | {
+      kind: "discover";
+      entry: ShortlistItem;
+      listing: DiscoverPlaceListing;
     };
 
 export type CatalogPendingItem = {
@@ -94,11 +100,18 @@ function providerForProgram(
   return index.providersById.get(program.providerId) ?? null;
 }
 
+function discoverIndex(
+  listings: readonly DiscoverPlaceListing[] | undefined,
+): Map<string, DiscoverPlaceListing> {
+  return new Map((listings ?? []).map((listing) => [listing.id, listing]));
+}
+
 export function resolveActiveItem(
   entry: ShortlistItem,
   index: PublicCatalogIndex,
   options?: { now?: Date },
 ): ResolvedActiveItem | null {
+  if (entry.ref.kind === "discover_listing") return null;
   const program = index.programsById.get(entry.ref.programId);
   if (!program) return null;
   const provider = providerForProgram(program, index);
@@ -132,7 +145,13 @@ export function resolveActiveItem(
 export function resolvePastDisplay(
   entry: ShortlistPastItem,
   index: PublicCatalogIndex | null,
+  discoverById?: Map<string, DiscoverPlaceListing>,
 ): UnresolvedPastDisplay {
+  if (entry.ref.kind === "discover_listing") {
+    const listing = discoverById?.get(entry.ref.listingId);
+    if (!listing) return { entry, publicLabel: null, href: null };
+    return { entry, publicLabel: listing.title, href: listing.href };
+  }
   if (!index) {
     return { entry, publicLabel: null, href: null };
   }
@@ -164,30 +183,44 @@ export type ResolvedShortlist = {
 export function resolveShortlist(
   state: ShortlistState,
   catalog: CampsCatalogBundle | null,
-  options?: { now?: Date },
+  options?: { now?: Date; discoverListings?: readonly DiscoverPlaceListing[] },
 ): ResolvedShortlist {
+  const discoverById = discoverIndex(options?.discoverListings);
+
   if (!catalog) {
+    const active: ResolvedShortlist["active"] = [];
+    for (const entry of state.items) {
+      if (entry.ref.kind === "discover_listing") {
+        const listing = discoverById.get(entry.ref.listingId);
+        if (listing) active.push({ kind: "discover", entry, listing });
+        continue;
+      }
+      active.push({ kind: "catalog_pending", entry });
+    }
     return {
       catalogPending: true,
-      active: state.items.map((entry) => ({ kind: "catalog_pending", entry })),
-      past: state.past.map((entry) => ({
-        entry,
-        publicLabel: null,
-        href: null,
-      })),
+      active,
+      past: state.past.map((entry) =>
+        resolvePastDisplay(entry, null, discoverById),
+      ),
     };
   }
 
   const index = indexPublicCatalog(catalog);
   const active: ResolvedShortlist["active"] = [];
   for (const entry of state.items) {
+    if (entry.ref.kind === "discover_listing") {
+      const listing = discoverById.get(entry.ref.listingId);
+      if (listing) active.push({ kind: "discover", entry, listing });
+      continue;
+    }
     const resolved = resolveActiveItem(entry, index, options);
     if (resolved) active.push(resolved);
   }
   return {
     catalogPending: false,
     active,
-    past: state.past.map((entry) => resolvePastDisplay(entry, index)),
+    past: state.past.map((entry) => resolvePastDisplay(entry, index, discoverById)),
   };
 }
 
@@ -195,6 +228,7 @@ export function refIsPublic(
   ref: ShortlistRef,
   catalog: CampsCatalogBundle,
 ): boolean {
+  if (ref.kind === "discover_listing") return false;
   const ids = publicIdsFromCatalog(catalog);
   if (ref.kind === "camp_program") return ids.programIds.has(ref.programId);
   return (

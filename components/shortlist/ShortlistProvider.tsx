@@ -17,6 +17,7 @@ import {
   applyToggleSave,
   countActive,
   isSaved,
+  type ShortlistPublicIds,
 } from "@/lib/shortlist/actions";
 import {
   readShortlistFromStorage,
@@ -38,10 +39,7 @@ type ShortlistContextValue = {
   remove: (ref: ShortlistRef) => void;
   toggleSave: (ref: ShortlistRef) => void;
   markRegistered: (ref: ShortlistRef, marked: boolean) => void;
-  reconcileUnavailable: (publicIds: {
-    programIds: Set<string>;
-    sessionIds: Set<string>;
-  }) => void;
+  reconcileUnavailable: (publicIds: ShortlistPublicIds) => void;
 };
 
 const ShortlistContext = createContext<ShortlistContextValue | null>(null);
@@ -86,7 +84,7 @@ export function ShortlistProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const reconcileUnavailable = useCallback(
-    (publicIds: { programIds: Set<string>; sessionIds: Set<string> }) => {
+    (publicIds: ShortlistPublicIds) => {
       setState((current) =>
         applyReconcileUnavailable(current, publicIds, new Date()),
       );
