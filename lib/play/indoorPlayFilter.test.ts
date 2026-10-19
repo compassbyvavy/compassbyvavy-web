@@ -27,6 +27,8 @@ import {
   deriveRainyWeekdayMorning,
   deriveWhen,
   formatIndoorPlayCounts,
+  hoursAsOfLabel,
+  indoorPlayEmptyCopy,
   listActiveFilterChips,
   parseIndoorPlayHrefSearch,
   removeActiveFilterChip,
@@ -566,5 +568,16 @@ describe("chips and URL sync", () => {
       buildIndoorPlayHref({ filters: EMPTY_INDOOR_PLAY_FILTERS }),
       INDOOR_PLAY_LISTING_PATH,
     );
+  });
+});
+
+describe("card copy", () => {
+  it("wording for hours and empty-state loosening is exact", () => {
+    assert.equal(hoursAsOfLabel("2026-10-12"), "Hours as of 2026-10-12");
+    assert.match(
+      indoorPlayEmptyCopy(filters({ priceBand: "free" })),
+      /Try clearing Free/,
+    );
+    assert.doesNotMatch(hoursAsOfLabel("2026-10-12"), /Open now/i);
   });
 });

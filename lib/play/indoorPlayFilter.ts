@@ -123,7 +123,7 @@ const MIXED_OLDER: ReadonlySet<IndoorPlayAgeGroup> = new Set([
   "tweens_teens",
 ]);
 
-const AGE_GROUP_IDS: ReadonlySet<string> = new Set(
+const AGE_GROUP_IDS: ReadonlySet<IndoorPlayAgeGroup> = new Set(
   AGE_BANDS.map((band) => band.id),
 );
 
@@ -555,6 +555,22 @@ export function buildIndoorPlayResults(
 export function formatIndoorPlayCounts(results: IndoorPlayResultSet): string {
   const word = results.count === 1 ? "place" : "places";
   return `${results.count} ${word}`;
+}
+
+/** Card line — never “Open now”. Uses the hours checkedAt date. */
+export function hoursAsOfLabel(checkedAt: string): string {
+  return `Hours as of ${checkedAt}`;
+}
+
+/**
+ * Empty-state hint: name one active chip to loosen. Does not invent a match.
+ */
+export function indoorPlayEmptyCopy(filters: IndoorPlayFilters): string {
+  const suggestion = listActiveFilterChips(filters)[0];
+  if (!suggestion) {
+    return "No indoor play places match yet. Coverage is ongoing — we do not invent listings.";
+  }
+  return `Nothing matches these filters. Try clearing ${suggestion.label} — we do not silently widen area or guess a price.`;
 }
 
 export function countActiveFilters(filters: IndoorPlayFilters): number {
