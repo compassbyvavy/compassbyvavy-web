@@ -8,9 +8,9 @@ import "../camps/camps.css";
 import "./saved.css";
 
 export const metadata: Metadata = {
-  title: "Saved camps",
+  title: "Plan",
   description:
-    "Your device-local shortlist of camp sessions. No account required. Compass does not process provider registration.",
+    "One saved list and a side-by-side compare. No account required. Compass does not process provider registration.",
 };
 
 export default async function SavedLayout({

@@ -146,13 +146,124 @@
   margin-top: 4px;
 }
 
-.saved-compare-table tbody th {
-  width: 7.5rem;
-  color: var(--camps-muted);
-  font-weight: 600;
-  background: var(--camps-ivory);
+.saved-compare-label {
   position: sticky;
   left: 0;
+  z-index: 1;
+  background: var(--camps-pine-soft-2);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--camps-amber-deep);
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.saved-compare-table thead .saved-compare-label {
+  z-index: 2;
+}
+
+.saved-compare-table td.is-unknown {
+  color: var(--camps-muted);
+  font-style: italic;
+}
+
+.saved-item-top {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+.saved-item-check {
+  margin-top: 4px;
+  width: 18px;
+  height: 18px;
+  accent-color: var(--camps-pine);
+}
+
+.saved-item-kind {
+  margin: 0 0 2px;
+  font-size: 10.5px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--camps-amber-deep);
+  font-weight: 700;
+}
+
+.saved-item-meta {
+  margin: 0 0 8px;
+  color: var(--camps-muted);
+  font-size: 0.85rem;
+}
+
+.saved-status-pill {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 9px;
+  border-radius: 20px;
+  background: var(--camps-status-open-bg);
+  color: var(--camps-status-open-fg);
+}
+
+.saved-status-pill.is-registered {
+  background: var(--camps-amber-soft);
+  color: var(--camps-amber-deep);
+}
+
+.saved-item-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.saved-action {
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: 16px;
+  border: 1px solid var(--camps-line);
+  background: var(--camps-paper);
+  color: var(--camps-pine-ink);
+}
+
+.saved-compare-dock {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 30;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 12px 20px;
+  background: var(--camps-pine);
+  color: var(--camps-ivory);
+  box-shadow: 0 -4px 20px -6px rgba(31, 46, 37, 0.3);
+}
+
+.saved-compare-go,
+.saved-compare-wait {
+  border-radius: 16px;
+  padding: 8px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  background: var(--camps-amber);
+  color: var(--camps-ivory);
+  text-decoration: none;
+}
+
+.saved-compare-wait {
+  opacity: 0.55;
+}
+
+.saved-compare-dock-spacer {
+  height: 72px;
 }
 
 .saved-compare-table .camp-card-cta {

@@ -5,7 +5,10 @@ import { useEffect, useMemo, useState } from "react";
 import { useShortlist } from "@/components/shortlist/ShortlistProvider";
 import type { CampsCatalogBundle } from "@/lib/camps/catalog";
 import { formatSessionDatesLabel } from "@/lib/camps/campDetail";
-import { buildCompareHref } from "@/lib/shortlist/compare";
+import {
+  buildCompareHref,
+  latestVerifiedStatusLabel,
+} from "@/lib/shortlist/compare";
 import { publicIdsFromCatalog, resolveShortlist } from "@/lib/shortlist/resolve";
 import { COMPARE_MAX, COMPARE_MIN } from "@/lib/shortlist/types";
 
@@ -85,11 +88,12 @@ export function SavedListClient({ catalog, nowIso }: SavedListClientProps) {
     <div className="saved-page">
       <header className="camps-listing-intro">
         <p className="camps-listing-kicker">Your list</p>
-        <h1>Saved camps</h1>
+        <h1>Saved</h1>
         <p className="camps-listing-lede">
-          One shortlist on this device — no account needed. Compass stores
-          public camp IDs, not copied prices. Marking a camp as registered is
-          yours to do; opening a provider link never does it for you.
+          One list on this device — camps and, later, anywhere else you tap
+          a heart. No account. Compass stores ids, then reads dates, price,
+          and status from the same session record as the listing. Mark as
+          registered is your note, not a booking.
         </p>
         <p className="tracker-saved-entry">
           <Link href="/saved/tracker">Registration Tracker</Link>
@@ -106,25 +110,23 @@ export function SavedListClient({ catalog, nowIso }: SavedListClientProps) {
         </p>
       ) : null}
 
-      <div className="saved-compare-bar" role="region" aria-label="Compare sessions">
-        <p>
-          Select {COMPARE_MIN}–{COMPARE_MAX} sessions to compare dates,
-          eligibility, hours, care, venue, and cost side by side. Compass does
-          not rank incomparable prices.
-        </p>
+      <div className="saved-compare-dock" role="region" aria-label="Compare sessions">
+        <span>
+          {selectedSessionIds.length} selected
+          {selectedSessionIds.length < COMPARE_MIN
+            ? ` — choose ${COMPARE_MIN} to ${COMPARE_MAX}`
+            : ""}
+          {selectedSessionIds.length >= COMPARE_MAX ? " — four is the limit" : ""}
+        </span>
         {compareReady ? (
-          <a className="camp-card-cta" href={buildCompareHref(selectedSessionIds)}>
-            Compare {selectedSessionIds.length} sessions
+          <a className="saved-compare-go" href={buildCompareHref(selectedSessionIds)}>
+            Compare
           </a>
         ) : (
-          <p className="camp-card-note">
-            {selectedSessionIds.length} selected — choose at least {COMPARE_MIN}
-            {selectedSessionIds.length >= COMPARE_MAX
-              ? `, and no more than ${COMPARE_MAX}.`
-              : "."}
-          </p>
+          <span className="saved-compare-wait">Compare</span>
         )}
       </div>
+      <div className="saved-compare-dock-spacer" />
 
       {resolved.active.length === 0 ? (
         <div className="camps-empty" role="status">
@@ -225,71 +227,78 @@ export function SavedListClient({ catalog, nowIso }: SavedListClientProps) {
               );
             }
 
+            const registered = item.entry.registeredMarkedAt != null;
+            const statusLabel = latestVerifiedStatusLabel(
+              item.row.registration.label,
+              item.row.sourceCheckedDate,
+            );
+            const venueKnown = !/to confirm/i.test(item.row.venueLabel);
             return (
               <li
                 key={item.entry.entryId}
                 className="saved-item"
                 data-session-id={item.session.id}
               >
-                <div className="saved-item-head">
-                  <div>
-                    <p className="camp-card-provider">{item.provider.name}</p>
+                <div className="saved-item-top">
+                  <input
+                    type="checkbox"
+                    className="saved-item-check"
+                    aria-label={`Select ${item.program.name} to compare`}
+                    checked={selectedSessionIds.includes(item.session.id)}
+                    disabled={
+                      !selectedSessionIds.includes(item.session.id) &&
+                      selectedSessionIds.length >= COMPARE_MAX
+                    }
+                    onChange={(e) =>
+                      toggleSession(item.session.id, e.target.checked)
+                    }
+                  />
+                  <div className="saved-item-body">
+                    <p className="saved-item-kind">Camp</p>
                     <h2>
-                      <Link href={item.row ? `/camps/${item.program.slug}?session=${item.session.id}` : `/camps/${item.program.slug}`}>
+                      <Link href={`/camps/${item.program.slug}?session=${item.session.id}`}>
                         {item.program.name}
                       </Link>
                     </h2>
+                    <p className="saved-item-meta">
+                      {item.provider.name}
+                      {" · "}
+                      {venueKnown ? item.row.venueLabel : "Unknown"}
+                    </p>
+                    <span
+                      className={
+                        registered
+                          ? "saved-status-pill is-registered"
+                          : "saved-status-pill"
+                      }
+                    >
+                      {registered ? "Marked as registered" : statusLabel}
+                    </span>
+                    {registered ? (
+                      <p className="camp-card-note">{statusLabel}</p>
+                    ) : null}
+                    <div className="saved-item-actions">
+                      <button
+                        type="button"
+                        className="saved-action"
+                        onClick={() =>
+                          markRegistered(item.entry.ref, !registered)
+                        }
+                      >
+                        {registered
+                          ? "Clear registered mark"
+                          : "Mark as registered"}
+                      </button>
+                      <button
+                        type="button"
+                        className="saved-action"
+                        onClick={() => remove(item.entry.ref)}
+                      >
+                        Remove
+                      </button>
+                    </div>
                   </div>
-                  <label className="saved-compare-pick">
-                    <input
-                      type="checkbox"
-                      checked={selectedSessionIds.includes(item.session.id)}
-                      disabled={
-                        !selectedSessionIds.includes(item.session.id) &&
-                        selectedSessionIds.length >= COMPARE_MAX
-                      }
-                      onChange={(e) =>
-                        toggleSession(item.session.id, e.target.checked)
-                      }
-                    />
-                    <span>Compare</span>
-                  </label>
                 </div>
-                <dl className="camp-card-meta">
-                  <div className="camp-card-meta-row">
-                    <dt>Dates</dt>
-                    <dd>{item.row.datesLabel}</dd>
-                  </div>
-                  <div className="camp-card-meta-row">
-                    <dt>Eligibility</dt>
-                    <dd>{item.row.ageEligibilityLabel}</dd>
-                  </div>
-                  <div className="camp-card-meta-row">
-                    <dt>Venue</dt>
-                    <dd>{item.row.venueLabel}</dd>
-                  </div>
-                  <div className="camp-card-meta-row">
-                    <dt>Price</dt>
-                    <dd>{item.row.priceLabel}</dd>
-                  </div>
-                </dl>
-                <label className="saved-registered">
-                  <input
-                    type="checkbox"
-                    checked={item.entry.registeredMarkedAt != null}
-                    onChange={(e) =>
-                      markRegistered(item.entry.ref, e.target.checked)
-                    }
-                  />
-                  <span>Mark as registered (parent-marked only)</span>
-                </label>
-                <button
-                  type="button"
-                  className="camps-text-btn"
-                  onClick={() => remove(item.entry.ref)}
-                >
-                  Remove from list
-                </button>
               </li>
             );
           })}
