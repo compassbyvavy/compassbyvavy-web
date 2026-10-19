@@ -1581,16 +1581,40 @@
   gap: 8px;
 }
 
+.bag-check-progress {
+  margin: 0 0 8px;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--camps-pine);
+}
+
 .bag-check-item {
   display: flex;
   align-items: center;
-  gap: 12px;
-  min-height: 44px;
-  font-weight: 600;
+  gap: 14px;
+  min-height: 56px;
+  padding: 8px 12px;
+  border-radius: 14px;
+  background: var(--camps-pine-soft-2);
+  font-size: 1.15rem;
+  font-weight: 700;
 }
 
 .bag-check-item input {
-  width: 1.25rem;
-  height: 1.25rem;
+  width: 1.75rem;
+  height: 1.75rem;
   accent-color: var(--camps-pine);
+}
+
+.bag-check-item.is-checked span {
+  animation: bag-check-pop 220ms ease;
+}
+
+@keyframes bag-check-pop {
+  from {
+    transform: translateY(2px);
+  }
+  to {
+    transform: none;
+  }
 }
