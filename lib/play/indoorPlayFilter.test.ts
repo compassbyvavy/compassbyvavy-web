@@ -581,7 +581,7 @@ describe("card copy", () => {
     );
     assert.equal(
       formatWeeklyHoursSummary(cedarNook.weeklyHours),
-      "Mon–Fri 9–8 · Sat 10–12:30 a.m. · Sun 9–8",
+      "Mon–Fri 9–8 · Sat 10 a.m.–12:30 a.m. · Sun 9–8",
     );
     assert.equal(formatHoursCheckedAt("2026-10-12"), "as of Oct 12, 2026");
     assert.doesNotMatch(formatHoursCheckedAt("2026-10-12"), /Open now/i);

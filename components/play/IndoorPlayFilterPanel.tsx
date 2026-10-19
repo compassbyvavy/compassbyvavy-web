@@ -61,6 +61,8 @@ export function IndoorPlayFilterPanel({
   const patch = (partial: Partial<IndoorPlayFilters>) =>
     onChange({ ...filters, ...partial });
 
+  const showTopRowFilters = variant !== "sidebar";
+
   return (
     <div className="play-filter-panel" id={id} data-variant={variant}>
       <div className="play-filter-panel-head">
@@ -70,57 +72,61 @@ export function IndoorPlayFilterPanel({
         </button>
       </div>
 
-      <div
-        className="play-chip-block"
-        role="group"
-        aria-label="Combined shortcuts"
-      >
-        <p className="play-chip-legend">Shortcuts</p>
-        <div className="play-chip-row">
-          <button
-            type="button"
-            className={
-              filters.mixedAges ? "play-chip play-chip-active" : "play-chip"
-            }
-            aria-pressed={filters.mixedAges}
-            onClick={() => patch({ mixedAges: !filters.mixedAges })}
+      {showTopRowFilters ? (
+        <>
+          <div
+            className="play-chip-block"
+            role="group"
+            aria-label="Combined shortcuts"
           >
-            Mixed ages
-          </button>
-          <button
-            type="button"
-            className={
-              filters.rainyWeekdayMorning
-                ? "play-chip play-chip-active"
-                : "play-chip"
-            }
-            aria-pressed={filters.rainyWeekdayMorning}
-            onClick={() =>
-              patch({ rainyWeekdayMorning: !filters.rainyWeekdayMorning })
-            }
-          >
-            Rainy weekday morning
-          </button>
-        </div>
-      </div>
+            <p className="play-chip-legend">Shortcuts</p>
+            <div className="play-chip-row">
+              <button
+                type="button"
+                className={
+                  filters.mixedAges ? "play-chip play-chip-active" : "play-chip"
+                }
+                aria-pressed={filters.mixedAges}
+                onClick={() => patch({ mixedAges: !filters.mixedAges })}
+              >
+                Mixed ages
+              </button>
+              <button
+                type="button"
+                className={
+                  filters.rainyWeekdayMorning
+                    ? "play-chip play-chip-active"
+                    : "play-chip"
+                }
+                aria-pressed={filters.rainyWeekdayMorning}
+                onClick={() =>
+                  patch({ rainyWeekdayMorning: !filters.rainyWeekdayMorning })
+                }
+              >
+                Rainy weekday morning
+              </button>
+            </div>
+          </div>
 
-      <PlayChipRow<IndoorPlayAgeGroup>
-        legend="Age group"
-        options={entries(AGE_GROUP_CHIP_LABELS)}
-        selected={filters.ageGroups}
-        onToggle={(id) =>
-          patch({ ageGroups: toggleInList(filters.ageGroups, id) })
-        }
-      />
+          <PlayChipRow<IndoorPlayAgeGroup>
+            legend="Age group"
+            options={entries(AGE_GROUP_CHIP_LABELS)}
+            selected={filters.ageGroups}
+            onToggle={(id) =>
+              patch({ ageGroups: toggleInList(filters.ageGroups, id) })
+            }
+          />
 
-      <PlayChipRow<IndoorPlayPriceBand>
-        legend="Price per child"
-        options={entries(PRICE_BAND_CHIP_LABELS)}
-        selected={filters.priceBand}
-        onToggle={(id) =>
-          patch({ priceBand: toggleOne(filters.priceBand, id) })
-        }
-      />
+          <PlayChipRow<IndoorPlayPriceBand>
+            legend="Price per child"
+            options={entries(PRICE_BAND_CHIP_LABELS)}
+            selected={filters.priceBand}
+            onToggle={(id) =>
+              patch({ priceBand: toggleOne(filters.priceBand, id) })
+            }
+          />
+        </>
+      ) : null}
 
       <PlayChipRow<IndoorPlayWhenWindow>
         legend="When"

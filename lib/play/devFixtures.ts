@@ -11,6 +11,10 @@ import {
   indoorPlayDevVenues,
 } from "@/data/play/fixtures.dev";
 import type { IndoorPlayVenue } from "@/data/play/types";
+import {
+  PLAY_REVIEW_PREVIEW_FLAG,
+  isPlayReviewPreviewEnabled,
+} from "@/lib/play/reviewPreviewGate";
 
 export type IndoorPlayDevFixturesBundle = {
   DEV_ONLY_INDOOR_PLAY_FIXTURES: true;
@@ -18,7 +22,10 @@ export type IndoorPlayDevFixturesBundle = {
 };
 
 export type IndoorPlayDevFixtureLoadOptions = {
+  allowReviewPreview?: boolean;
+  hostname?: string | null;
   nodeEnv?: string;
+  reviewFlag?: string | null;
 };
 
 function isProductionNodeEnv(nodeEnv?: string): boolean {
@@ -32,11 +39,23 @@ function bundle(): IndoorPlayDevFixturesBundle {
   };
 }
 
-/** Soft gate: null in production; fixture bundle otherwise. */
+/**
+ * Soft gate: null in production unless the Cloudflare review-preview dual
+ * gate is on. Public Discover play stays coming_soon either way.
+ */
 export function loadIndoorPlayDevFixtures(
   options: IndoorPlayDevFixtureLoadOptions = {},
 ): IndoorPlayDevFixturesBundle | null {
-  if (isProductionNodeEnv(options.nodeEnv)) return null;
+  const reviewPreview =
+    options.allowReviewPreview ??
+    isPlayReviewPreviewEnabled({
+      reviewFlag:
+        options.reviewFlag !== undefined
+          ? options.reviewFlag
+          : process.env[PLAY_REVIEW_PREVIEW_FLAG],
+      hostname: options.hostname,
+    });
+  if (isProductionNodeEnv(options.nodeEnv) && !reviewPreview) return null;
   return bundle();
 }
 

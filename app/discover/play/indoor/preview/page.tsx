@@ -1,17 +1,18 @@
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { IndoorPlayListingClient } from "@/components/play/IndoorPlayListingClient";
-import { loadIndoorPlayDevFixtures } from "@/lib/play/devFixtures";
+import { loadIndoorPlayDevFixturesForRequest } from "@/lib/play/playServerFixtures";
 
 export const dynamic = "force-dynamic";
 
 /**
  * Development-only Indoor Play listing preview.
- * Uses the fixture gate — production receives 404. Discover play stays
- * coming_soon. Cloudflare dual-gate tightening is phase 4.
+ * Local non-production loads fixtures. Production is 404 unless the
+ * Cloudflare review-preview dual gate is on (preview Host + env flag).
+ * Discover → Play stays coming soon.
  */
-export default function IndoorPlayPreviewPage() {
-  const fixtures = loadIndoorPlayDevFixtures();
+export default async function IndoorPlayPreviewPage() {
+  const fixtures = await loadIndoorPlayDevFixturesForRequest();
   if (!fixtures) {
     notFound();
   }

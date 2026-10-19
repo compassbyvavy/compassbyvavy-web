@@ -562,11 +562,12 @@ const DAY_SHORT = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"] as const;
 
 /**
  * Casual clock for card hours: 10:00 → "10", 18:00 → "6", 15:30 → "3:30".
- * After-midnight closes keep a.m. so 00:30 next day is "12:30 a.m.".
+ * When a row crosses midnight, both ends get a.m./p.m.
+ * ("10 a.m.–12:30 a.m."), derived from the 24-hour hour.
  */
 export function formatCompactClock(
   hhmm: string,
-  options?: { nextDay?: boolean },
+  options?: { withMeridiem?: boolean },
 ): string | null {
   const minutes = clockToMinutes(hhmm);
   if (minutes == null) return null;
@@ -574,13 +575,16 @@ export function formatCompactClock(
   const min = minutes % 60;
   const hour12 = h % 12 === 0 ? 12 : h % 12;
   const body = min === 0 ? String(hour12) : `${hour12}:${String(min).padStart(2, "0")}`;
-  if (options?.nextDay && h < 12) return `${body} a.m.`;
-  return body;
+  if (!options?.withMeridiem) return body;
+  return `${body} ${h < 12 ? "a.m." : "p.m."}`;
 }
 
 function formatRowSlot(row: IndoorPlayHoursRow): string | null {
-  const open = formatCompactClock(row.opensAt);
-  const close = formatCompactClock(row.closesAt, { nextDay: row.closesNextDay });
+  const crossesMidnight = Boolean(row.closesNextDay);
+  const open = formatCompactClock(row.opensAt, { withMeridiem: crossesMidnight });
+  const close = formatCompactClock(row.closesAt, {
+    withMeridiem: crossesMidnight,
+  });
   if (!open || !close) return null;
   return `${open}–${close}`;
 }
