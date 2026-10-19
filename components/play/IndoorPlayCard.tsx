@@ -1,13 +1,15 @@
 import type { IndoorPlayVenue } from "@/data/play/types";
 import {
   AGE_GROUP_CHIP_LABELS,
+  AGE_RANGE_NOT_RECORDED,
   AREA_CHIP_LABELS,
-  PRICE_BAND_CHIP_LABELS,
   VISIT_CHIP_LABELS,
   bookingOnlyLabel,
   deriveAgeGroups,
   derivePriceBand,
-  hoursAsOfLabel,
+  formatHoursCheckedAt,
+  formatWeekdayChildPrice,
+  formatWeeklyHoursSummary,
 } from "@/lib/play/indoorPlayFilter";
 
 export type IndoorPlayCardProps = {
@@ -15,11 +17,14 @@ export type IndoorPlayCardProps = {
 };
 
 export function IndoorPlayCard({ venue }: IndoorPlayCardProps) {
+  const priceLabel = formatWeekdayChildPrice(venue.weekdayChildPrice);
   const priceBand = derivePriceBand(venue);
-  const priceLabel = PRICE_BAND_CHIP_LABELS[priceBand];
   const ages = deriveAgeGroups(venue);
   const booking = bookingOnlyLabel(venue.status);
-  const hoursChecked = venue.weeklyHours?.checkedAt ?? null;
+  const hoursSummary = formatWeeklyHoursSummary(venue.weeklyHours);
+  const hoursAsOf = venue.weeklyHours
+    ? formatHoursCheckedAt(venue.weeklyHours.checkedAt)
+    : null;
   const areaLabel = venue.area ? AREA_CHIP_LABELS[venue.area] : null;
   const visitLabel = venue.visitMode
     ? VISIT_CHIP_LABELS[venue.visitMode]
@@ -60,11 +65,14 @@ export function IndoorPlayCard({ venue }: IndoorPlayCardProps) {
             ))}
           </ul>
         ) : (
-          <p className="play-card-note">Age range not published by the venue</p>
+          <p className="play-card-note">{AGE_RANGE_NOT_RECORDED}</p>
         )}
 
-        {hoursChecked ? (
-          <p className="play-card-hours">{hoursAsOfLabel(hoursChecked)}</p>
+        {hoursSummary && hoursAsOf ? (
+          <p className="play-card-hours">
+            <span>{hoursSummary}</span>
+            <span className="play-card-hours-as-of">{hoursAsOf}</span>
+          </p>
         ) : (
           <p className="play-card-note">Hours not recorded</p>
         )}

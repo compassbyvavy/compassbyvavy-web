@@ -145,7 +145,7 @@ export function IndoorPlayFilterPanel({
         onToggle={(id) => patch({ area: toggleOne(filters.area, id) })}
       />
 
-      <details className="play-more-filters">
+      <details className="play-more-filters" id={`${id}-more`}>
         <summary>More filters</summary>
         <div className="play-more-filters-body">
           <PlayChipRow<IndoorPlayActivity>

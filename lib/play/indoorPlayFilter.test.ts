@@ -26,8 +26,10 @@ import {
   derivePriceBand,
   deriveRainyWeekdayMorning,
   deriveWhen,
+  formatHoursCheckedAt,
   formatIndoorPlayCounts,
-  hoursAsOfLabel,
+  formatWeekdayChildPrice,
+  formatWeeklyHoursSummary,
   indoorPlayEmptyCopy,
   listActiveFilterChips,
   parseIndoorPlayHrefSearch,
@@ -572,12 +574,39 @@ describe("chips and URL sync", () => {
 });
 
 describe("card copy", () => {
-  it("wording for hours and empty-state loosening is exact", () => {
-    assert.equal(hoursAsOfLabel("2026-10-12"), "Hours as of 2026-10-12");
+  it("summarizes weekly hours, including split days and closesNextDay", () => {
+    assert.equal(
+      formatWeeklyHoursSummary(northQuay.weeklyHours),
+      "Mon–Thu 10–6 · Fri 10:30–2:30, 3:30–8 · Sat–Sun 9–5",
+    );
+    assert.equal(
+      formatWeeklyHoursSummary(cedarNook.weeklyHours),
+      "Mon–Fri 9–8 · Sat 10–12:30 a.m. · Sun 9–8",
+    );
+    assert.equal(formatHoursCheckedAt("2026-10-12"), "as of Oct 12, 2026");
+    assert.doesNotMatch(formatHoursCheckedAt("2026-10-12"), /Open now/i);
+  });
+
+  it("shows the weekday child price, not the filter band", () => {
+    assert.equal(formatWeekdayChildPrice(cedarNook.weekdayChildPrice), "Free");
+    assert.equal(
+      formatWeekdayChildPrice(northQuay.weekdayChildPrice),
+      "Call for price",
+    );
+    assert.equal(
+      formatWeekdayChildPrice(heightGate.weekdayChildPrice),
+      "$22 per child",
+    );
+    assert.equal(
+      formatWeekdayChildPrice(privateLoft.weekdayChildPrice),
+      "$29 per child",
+    );
+  });
+
+  it("names one filter to loosen in the empty state", () => {
     assert.match(
       indoorPlayEmptyCopy(filters({ priceBand: "free" })),
       /Try clearing Free/,
     );
-    assert.doesNotMatch(hoursAsOfLabel("2026-10-12"), /Open now/i);
   });
 });

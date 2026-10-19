@@ -11,21 +11,15 @@ import {
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { IndoorPlayCard } from "@/components/play/IndoorPlayCard";
 import { IndoorPlayFilterPanel } from "@/components/play/IndoorPlayFilterPanel";
-import { PlayChipRow } from "@/components/play/PlayChipRow";
 import type {
   IndoorPlayAgeGroup,
-  IndoorPlayArea,
   IndoorPlayVenue,
-  IndoorPlayVisitMode,
 } from "@/data/play/types";
 import {
   AGE_GROUP_CHIP_LABELS,
-  AREA_CHIP_LABELS,
   EMPTY_INDOOR_PLAY_FILTERS,
   INDOOR_PLAY_LISTING_PATH,
   PRICE_BAND_CHIP_LABELS,
-  VISIT_CHIP_LABELS,
-  WHEN_CHIP_LABELS,
   buildIndoorPlayHref,
   buildIndoorPlayResults,
   countActiveFilters,
@@ -36,19 +30,12 @@ import {
   removeActiveFilterChip,
   type IndoorPlayFilters,
   type IndoorPlayPriceBand,
-  type IndoorPlayWhenWindow,
 } from "@/lib/play/indoorPlayFilter";
 
 export type IndoorPlayListingClientProps = {
   venues: IndoorPlayVenue[];
   showDevBanner?: boolean;
 };
-
-function entries<T extends string>(
-  labels: Record<T, string>,
-): { id: T; label: string }[] {
-  return (Object.keys(labels) as T[]).map((id) => ({ id, label: labels[id] }));
-}
 
 function toggleInList<T extends string>(list: T[], value: T): T[] {
   return list.includes(value)
@@ -59,6 +46,14 @@ function toggleInList<T extends string>(list: T[], value: T): T[] {
 function toggleOne<T>(current: T | null, next: T): T | null {
   return current === next ? null : next;
 }
+
+const AGE_OPTIONS = (Object.keys(AGE_GROUP_CHIP_LABELS) as IndoorPlayAgeGroup[]).map(
+  (id) => ({ id, label: AGE_GROUP_CHIP_LABELS[id] }),
+);
+
+const PRICE_OPTIONS = (Object.keys(PRICE_BAND_CHIP_LABELS) as IndoorPlayPriceBand[]).map(
+  (id) => ({ id, label: PRICE_BAND_CHIP_LABELS[id] }),
+);
 
 export function IndoorPlayListingClient({
   venues,
@@ -74,8 +69,11 @@ export function IndoorPlayListingClient({
   const [urlHydrated, setUrlHydrated] = useState(false);
   const drawerTitleId = useId();
   const filterPanelId = useId();
+  const sidebarPanelId = `${filterPanelId}-sidebar`;
   const closeBtnRef = useRef<HTMLButtonElement>(null);
   const filtersBtnRef = useRef<HTMLButtonElement>(null);
+  const moreDesktopBtnRef = useRef<HTMLButtonElement>(null);
+  const sidebarRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
     const parsed = parseIndoorPlayHrefSearch(searchParams);
@@ -126,6 +124,15 @@ export function IndoorPlayListingClient({
     setFilters((current) => removeActiveFilterChip(current, chipId));
   }, []);
 
+  const revealSidebarMore = useCallback(() => {
+    sidebarRef.current?.scrollIntoView({ block: "nearest" });
+    const more = document.getElementById(`${sidebarPanelId}-more`);
+    if (more instanceof HTMLDetailsElement) {
+      more.open = true;
+      more.querySelector("summary")?.focus();
+    }
+  }, [sidebarPanelId]);
+
   const empty = results.count === 0;
 
   return (
@@ -147,13 +154,12 @@ export function IndoorPlayListingClient({
       </header>
 
       <div className="play-listing-top">
-        <div
-          className="play-chip-block"
-          role="group"
-          aria-label="Combined shortcuts"
-        >
-          <p className="play-chip-legend">Shortcuts</p>
-          <div className="play-chip-row">
+        <div className="play-compact-bar">
+          <div
+            className="play-compact-chips"
+            role="group"
+            aria-label="Quick filters"
+          >
             <button
               type="button"
               className={
@@ -186,73 +192,57 @@ export function IndoorPlayListingClient({
             >
               Rainy weekday morning
             </button>
+            {AGE_OPTIONS.map((option) => {
+              const pressed = filters.ageGroups.includes(option.id);
+              return (
+                <button
+                  key={option.id}
+                  type="button"
+                  className={pressed ? "play-chip play-chip-active" : "play-chip"}
+                  aria-pressed={pressed}
+                  onClick={() =>
+                    setFilters((current) => ({
+                      ...current,
+                      ageGroups: toggleInList(current.ageGroups, option.id),
+                    }))
+                  }
+                >
+                  {option.label}
+                </button>
+              );
+            })}
+            {PRICE_OPTIONS.map((option) => {
+              const pressed = filters.priceBand === option.id;
+              return (
+                <button
+                  key={option.id}
+                  type="button"
+                  className={
+                    pressed
+                      ? "play-chip play-chip-active play-chip-desktop"
+                      : "play-chip play-chip-desktop"
+                  }
+                  aria-pressed={pressed}
+                  onClick={() =>
+                    setFilters((current) => ({
+                      ...current,
+                      priceBand: toggleOne(current.priceBand, option.id),
+                    }))
+                  }
+                >
+                  {option.label}
+                </button>
+              );
+            })}
+            <button
+              ref={moreDesktopBtnRef}
+              type="button"
+              className="play-chip play-more-desktop"
+              onClick={revealSidebarMore}
+            >
+              More filters
+            </button>
           </div>
-        </div>
-
-        <PlayChipRow<IndoorPlayAgeGroup>
-          legend="Age group"
-          options={entries(AGE_GROUP_CHIP_LABELS)}
-          selected={filters.ageGroups}
-          onToggle={(id) =>
-            setFilters((current) => ({
-              ...current,
-              ageGroups: toggleInList(current.ageGroups, id),
-            }))
-          }
-        />
-
-        <PlayChipRow<IndoorPlayPriceBand>
-          legend="Price per child"
-          options={entries(PRICE_BAND_CHIP_LABELS)}
-          selected={filters.priceBand}
-          onToggle={(id) =>
-            setFilters((current) => ({
-              ...current,
-              priceBand: toggleOne(current.priceBand, id),
-            }))
-          }
-        />
-
-        <PlayChipRow<IndoorPlayWhenWindow>
-          legend="When"
-          options={entries(WHEN_CHIP_LABELS)}
-          selected={filters.when}
-          onToggle={(id) =>
-            setFilters((current) => ({
-              ...current,
-              when: toggleInList(current.when, id),
-            }))
-          }
-        />
-
-        <PlayChipRow<IndoorPlayVisitMode>
-          legend="How to visit"
-          options={entries(VISIT_CHIP_LABELS)}
-          selected={filters.visitMode}
-          onToggle={(id) =>
-            setFilters((current) => ({
-              ...current,
-              visitMode: toggleOne(current.visitMode, id),
-            }))
-          }
-        />
-
-        <PlayChipRow<IndoorPlayArea>
-          legend="Area"
-          options={entries(AREA_CHIP_LABELS)}
-          selected={filters.area}
-          onToggle={(id) =>
-            setFilters((current) => ({
-              ...current,
-              area: toggleOne(current.area, id),
-            }))
-          }
-        />
-
-        <div className="play-result-controls">
-          <p className="play-result-count" aria-live="polite">
-            {formatIndoorPlayCounts(results)}
-          </p>
           <button
             ref={filtersBtnRef}
             type="button"
@@ -263,6 +253,12 @@ export function IndoorPlayListingClient({
           >
             Filters{activeFilterCount > 0 ? ` (${activeFilterCount})` : ""}
           </button>
+        </div>
+
+        <div className="play-result-controls">
+          <p className="play-result-count" aria-live="polite">
+            {formatIndoorPlayCounts(results)}
+          </p>
         </div>
 
         {activeChips.length > 0 ? (
@@ -290,9 +286,13 @@ export function IndoorPlayListingClient({
       </div>
 
       <div className="play-listing-layout">
-        <aside className="play-listing-sidebar" aria-label="Indoor play filters">
+        <aside
+          ref={sidebarRef}
+          className="play-listing-sidebar"
+          aria-label="Indoor play filters"
+        >
           <IndoorPlayFilterPanel
-            id={`${filterPanelId}-sidebar`}
+            id={sidebarPanelId}
             variant="sidebar"
             filters={filters}
             onChange={setFilters}

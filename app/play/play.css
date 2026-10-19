@@ -22,6 +22,7 @@
 }
 
 .play-listing {
+  --play-header-offset: 76px;
   padding: 28px 0 72px;
   display: grid;
   gap: 22px;
@@ -61,7 +62,27 @@
 
 .play-listing-top {
   display: grid;
-  gap: 16px;
+  gap: 10px;
+}
+
+.play-compact-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.play-compact-chips {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  min-width: 0;
+}
+
+.play-more-desktop {
+  font-weight: 700;
 }
 
 .play-chip-block {
@@ -190,10 +211,13 @@
 
 .play-listing-sidebar {
   position: sticky;
-  top: 92px;
-  max-height: calc(100vh - 110px);
-  overflow: auto;
+  top: var(--play-header-offset);
+  max-height: calc(100vh - var(--play-header-offset));
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
   padding-right: 4px;
+  padding-bottom: 16px;
 }
 
 .play-filter-panel {
@@ -320,6 +344,15 @@
   font-size: 0.86rem;
 }
 
+.play-card-hours {
+  display: grid;
+  gap: 2px;
+}
+
+.play-card-hours-as-of {
+  font-size: 0.8rem;
+}
+
 .play-card-booking {
   margin: 0;
   padding: 6px 11px;
@@ -413,6 +446,25 @@
 }
 
 @media (max-width: 960px) {
+  .play-listing {
+    padding-top: 16px;
+    gap: 12px;
+  }
+
+  .play-listing-intro h1 {
+    font-size: 1.45rem;
+    max-width: none;
+  }
+
+  .play-listing-lede {
+    display: none;
+  }
+
+  .play-preview-banner {
+    font-size: 0.78rem;
+    padding: 8px 10px;
+  }
+
   .play-listing-layout {
     grid-template-columns: 1fr;
   }
@@ -421,9 +473,34 @@
     display: none;
   }
 
+  .play-compact-chips {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  .play-compact-chips::-webkit-scrollbar {
+    display: none;
+  }
+
+  .play-compact-chips .play-chip {
+    flex: 0 0 auto;
+  }
+
+  .play-chip-desktop,
+  .play-more-desktop {
+    display: none;
+  }
+
   .play-filters-open {
     display: inline-flex;
     align-items: center;
+    flex: 0 0 auto;
+  }
+
+  .play-results-grid {
+    grid-template-columns: 1fr;
   }
 
   .play-drawer-root {

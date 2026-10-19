@@ -14,6 +14,7 @@ import type {
   IndoorPlayActivity,
   IndoorPlayAgeGroup,
   IndoorPlayArea,
+  IndoorPlayDatedPrice,
   IndoorPlayHoursRow,
   IndoorPlaySessionType,
   IndoorPlayStatus,
@@ -557,9 +558,113 @@ export function formatIndoorPlayCounts(results: IndoorPlayResultSet): string {
   return `${results.count} ${word}`;
 }
 
-/** Card line — never “Open now”. Uses the hours checkedAt date. */
-export function hoursAsOfLabel(checkedAt: string): string {
-  return `Hours as of ${checkedAt}`;
+const DAY_SHORT = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"] as const;
+
+/**
+ * Casual clock for card hours: 10:00 → "10", 18:00 → "6", 15:30 → "3:30".
+ * After-midnight closes keep a.m. so 00:30 next day is "12:30 a.m.".
+ */
+export function formatCompactClock(
+  hhmm: string,
+  options?: { nextDay?: boolean },
+): string | null {
+  const minutes = clockToMinutes(hhmm);
+  if (minutes == null) return null;
+  const h = Math.floor(minutes / 60);
+  const min = minutes % 60;
+  const hour12 = h % 12 === 0 ? 12 : h % 12;
+  const body = min === 0 ? String(hour12) : `${hour12}:${String(min).padStart(2, "0")}`;
+  if (options?.nextDay && h < 12) return `${body} a.m.`;
+  return body;
+}
+
+function formatRowSlot(row: IndoorPlayHoursRow): string | null {
+  const open = formatCompactClock(row.opensAt);
+  const close = formatCompactClock(row.closesAt, { nextDay: row.closesNextDay });
+  if (!open || !close) return null;
+  return `${open}–${close}`;
+}
+
+function formatDaySpan(start: IsoWeekday, end: IsoWeekday): string {
+  const from = DAY_SHORT[start - 1];
+  const to = DAY_SHORT[end - 1];
+  return start === end ? from : `${from}–${to}`;
+}
+
+/**
+ * Compact weekly hours for cards, e.g. "Mon–Fri 10–6 · Sat–Sun 9–5".
+ * Consecutive days with the same slots collapse. Split days list both slots.
+ */
+export function formatWeeklyHoursSummary(
+  hours: IndoorPlayWeeklyHours | null,
+): string | null {
+  if (!hours || hours.rows.length === 0) return null;
+  const slotsByDay: Array<string | null> = [null, null, null, null, null, null, null];
+  for (const weekday of [1, 2, 3, 4, 5, 6, 7] as const) {
+    const dayRows = hours.rows
+      .filter((row) => row.weekday === weekday)
+      .slice()
+      .sort((a, b) => (clockToMinutes(a.opensAt) ?? 0) - (clockToMinutes(b.opensAt) ?? 0));
+    if (dayRows.length === 0) continue;
+    const slots = dayRows.map(formatRowSlot).filter((slot): slot is string => Boolean(slot));
+    if (slots.length === 0) continue;
+    slotsByDay[weekday - 1] = slots.join(", ");
+  }
+
+  const groups: string[] = [];
+  let index = 0;
+  while (index < 7) {
+    const slots = slotsByDay[index];
+    if (!slots) {
+      index += 1;
+      continue;
+    }
+    let end = index;
+    while (end + 1 < 7 && slotsByDay[end + 1] === slots) end += 1;
+    groups.push(
+      `${formatDaySpan((index + 1) as IsoWeekday, (end + 1) as IsoWeekday)} ${slots}`,
+    );
+    index = end + 1;
+  }
+  return groups.length ? groups.join(" · ") : null;
+}
+
+const MONTHS_EN = [
+  "Jan",
+  "Feb",
+  "Mar",
+  "Apr",
+  "May",
+  "Jun",
+  "Jul",
+  "Aug",
+  "Sep",
+  "Oct",
+  "Nov",
+  "Dec",
+] as const;
+
+/** Human checked date for cards — "as of Oct 12, 2026". Never "Open now". */
+export function formatHoursCheckedAt(checkedAt: string): string {
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(checkedAt.trim());
+  if (!match) return `as of ${checkedAt}`;
+  const year = Number(match[1]);
+  const month = Number(match[2]);
+  const day = Number(match[3]);
+  if (month < 1 || month > 12 || day < 1 || day > 31) return `as of ${checkedAt}`;
+  return `as of ${MONTHS_EN[month - 1]} ${day}, ${year}`;
+}
+
+export const AGE_RANGE_NOT_RECORDED = "Age range not recorded";
+
+/** Card price: verified Free, Call for price, or "$22 per child". Band is filter-only. */
+export function formatWeekdayChildPrice(price: IndoorPlayDatedPrice): string {
+  if (price.isFree) return "Free";
+  if (price.amount == null) return "Call for price";
+  const amount = Number.isInteger(price.amount)
+    ? String(price.amount)
+    : price.amount.toFixed(2);
+  return `$${amount} per child`;
 }
 
 /**
