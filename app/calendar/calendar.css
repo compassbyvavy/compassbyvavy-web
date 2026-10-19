@@ -1,0 +1,67 @@
+.board-cal {
+  padding: 28px 0 72px;
+  color: #1f2e25;
+}
+
+.board-kicker {
+  margin: 0 0 6px;
+  color: #8a5f2a;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.board-cal h1 {
+  margin: 0 0 8px;
+  font-family: Georgia, "Times New Roman", serif;
+  color: #33503e;
+}
+
+.board-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin: 16px 0;
+}
+
+.board-controls label {
+  display: grid;
+  gap: 4px;
+  font-size: 0.85rem;
+}
+
+.board-controls select,
+.board-controls input,
+.board-upcoming button {
+  min-height: 44px;
+  border: 1px solid #e4dfd2;
+  border-radius: 10px;
+  padding: 0 10px;
+  background: #fff;
+}
+
+.board-note {
+  max-width: 42rem;
+  color: #6e7568;
+}
+
+.board-alert {
+  margin: 16px 0;
+  padding: 14px 16px;
+  background: #f3e7d3;
+  border-radius: 14px;
+}
+
+.board-upcoming {
+  list-style: none;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.board-upcoming li {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}

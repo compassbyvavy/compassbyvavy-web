@@ -328,12 +328,6 @@ export const UNSUPPORTED_LISTING_FILTERS: ReadonlyArray<{
     reason: "Grade bands are not modelled on sessions yet.",
   },
   {
-    id: "school_board",
-    label: "School-board calendar overlay",
-    reason:
-      "Verified TDSB/Peel/etc. calendars are not loaded. Use the PA Days timing shortcut for sessions already labelled PA Days.",
-  },
-  {
     id: "camp_buddies",
     label: "Camp Buddies",
     reason:

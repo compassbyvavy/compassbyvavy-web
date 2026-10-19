@@ -49,6 +49,11 @@ export default async function CampsListingPage() {
         {" — "}
         badges only when a fact is yes.
       </p>
+      <p className="camp-card-note">
+        <a href="/calendar">School-board PA days</a>
+        {" — "}
+        a separate calendar. It does not change your saved list.
+      </p>
       <Suspense fallback={<p className="camp-card-note">Loading camps…</p>}>
         <CampsWithRainyDay
           programs={catalog.programs}

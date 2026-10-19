@@ -734,10 +734,10 @@ describe("listing URL state and selected-filter chips", () => {
 });
 
 describe("playbook features that stay unsupported until verified data exists", () => {
-  it("does not invent school boards or Camp Buddies inside the camps filter", () => {
+  it("does not invent weather, school boards or Camp Buddies inside the camps filter", () => {
     const ids = UNSUPPORTED_LISTING_FILTERS.map((item) => item.id);
     assert.ok(!ids.includes("weather"));
-    assert.ok(ids.includes("school_board"));
+    assert.ok(!ids.includes("school_board"));
     assert.ok(ids.includes("camp_buddies"));
     const blob = UNSUPPORTED_LISTING_FILTERS.map((i) => i.reason).join(" ");
     assert.match(blob, /not part of this release/i);
