@@ -1,0 +1,126 @@
+.ages-page {
+  padding: 28px 0 72px;
+  color: var(--camps-pine-ink, #1f2e25);
+}
+
+.ages-kicker {
+  margin: 0 0 6px;
+  color: #8a5f2a;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.ages-intro h1 {
+  margin: 0 0 8px;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 2rem;
+  color: #33503e;
+}
+
+.ages-intro p,
+.ages-note {
+  max-width: 42rem;
+  color: #6e7568;
+}
+
+.ages-toolbar,
+.ages-add {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: end;
+  margin: 16px 0;
+}
+
+.ages-badge,
+.ages-add button {
+  min-width: 44px;
+  min-height: 44px;
+  border-radius: 999px;
+  border: 1px solid #e4dfd2;
+  background: #fff;
+  font-weight: 700;
+  color: #33503e;
+}
+
+.ages-badge.is-on {
+  background: #33503e;
+  color: #faf8f3;
+  border-color: #33503e;
+}
+
+.ages-add label {
+  display: grid;
+  gap: 4px;
+  font-size: 0.85rem;
+}
+
+.ages-add input {
+  min-height: 44px;
+  border: 1px solid #e4dfd2;
+  border-radius: 10px;
+  padding: 0 10px;
+}
+
+.ages-only {
+  display: flex !important;
+  align-items: center;
+  gap: 8px;
+}
+
+.ages-scroll {
+  overflow-x: auto;
+  border: 1px solid #e4dfd2;
+  border-radius: 14px;
+  background: #fff;
+}
+
+.ages-table {
+  border-collapse: collapse;
+  min-width: 640px;
+  width: 100%;
+}
+
+.ages-table th,
+.ages-table td {
+  padding: 12px 14px;
+  text-align: left;
+  border-bottom: 1px solid #e4dfd2;
+  vertical-align: top;
+}
+
+.ages-row-label {
+  position: sticky;
+  left: 0;
+  background: #f1f4ef;
+  min-width: 220px;
+}
+
+.ages-meta,
+.ages-example {
+  display: block;
+  margin-top: 4px;
+  color: #6e7568;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.ages-table td[data-fit="fit"] {
+  color: #33503e;
+  font-weight: 700;
+}
+
+.ages-table td[data-fit="no"] {
+  color: #8c4a34;
+}
+
+.ages-table td[data-fit="unknown"] {
+  color: #6e7568;
+  font-style: italic;
+}
+
+.ages-empty {
+  color: #6e7568;
+}

@@ -54,6 +54,12 @@ export default async function CampsListingPage() {
         {" — "}
         a separate calendar. It does not change your saved list.
       </p>
+      <p className="camp-card-note">
+        <a href="/discover/ages">Sibling age overlap</a>
+        {" — "}
+        a separate matrix for whether one session fits every child. It does
+        not change your saved list.
+      </p>
       <Suspense fallback={<p className="camp-card-note">Loading camps…</p>}>
         <CampsWithRainyDay
           programs={catalog.programs}
