@@ -13,30 +13,57 @@ export const DEV_ONLY_INDOOR_PLAY_FIXTURES = true as const;
 
 const HOURS_CHECKED = "2026-10-12";
 const PRICE_CHECKED = "2026-10-12";
+const SRC = "https://example.org/indoor-play/dev";
 
-/** Weekday 10–18, weekend 09–17. Opens at 10:00 — not a weekday morning. */
+/**
+ * Weekday 10–18, weekend 09–17. Opens at 10:00 — that IS a weekday morning
+ * (open before 12:00 on any Mon–Fri). The only morning miss is 12:00 exactly.
+ */
 const daytimeHours = {
   checkedAt: HOURS_CHECKED,
+  sourceUrl: SRC,
   rows: [
-    ...([1, 2, 3, 4, 5] as const).map((weekday) => ({
+    ...([1, 2, 3, 4] as const).map((weekday) => ({
       weekday,
       opensAt: "10:00",
       closesAt: "18:00",
     })),
+    // Split Friday: two rows; derivers treat either as open.
+    { weekday: 5 as const, opensAt: "10:30", closesAt: "14:30" },
+    { weekday: 5 as const, opensAt: "15:30", closesAt: "20:00" },
     { weekday: 6 as const, opensAt: "09:00", closesAt: "17:00" },
     { weekday: 7 as const, opensAt: "09:00", closesAt: "17:00" },
   ],
 };
 
-/** Opens 09:00 weekdays (is a weekday morning) and stays to 20:00 (evenings). */
+/**
+ * Opens 09:00 every day (weekday morning) and stays to 20:00 (evenings).
+ * Saturday closes after midnight.
+ */
 const earlyAndLateHours = {
   checkedAt: HOURS_CHECKED,
-  rows: ([1, 2, 3, 4, 5, 6, 7] as const).map((weekday) => ({
-    weekday,
-    opensAt: "09:00",
-    closesAt: "20:00",
-  })),
+  sourceUrl: SRC,
+  rows: [
+    ...([1, 2, 3, 4, 5, 7] as const).map((weekday) => ({
+      weekday,
+      opensAt: "09:00",
+      closesAt: "20:00",
+    })),
+    {
+      weekday: 6 as const,
+      opensAt: "10:00",
+      closesAt: "00:30",
+      closesNextDay: true,
+    },
+  ],
 };
+
+function price(
+  amount: number | null,
+  isFree: boolean,
+): IndoorPlayVenue["weekdayChildPrice"] {
+  return { amount, isFree, checkedAt: PRICE_CHECKED, sourceUrl: SRC };
+}
 
 const unsetManuals = {
   hasToddlerZone: null,
@@ -72,7 +99,7 @@ const cedarNook: IndoorPlayVenue = {
   adminNotes: "DEV fixture — free venue. Do not publish.",
   ageMinMonths: 6,
   ageMaxYears: 5,
-  weekdayChildPrice: { amount: 0, isFree: true, checkedAt: PRICE_CHECKED },
+  weekdayChildPrice: price(0, true),
   weeklyHours: earlyAndLateHours,
   visitMode: "walk_in",
   area: "city_centre",
@@ -96,7 +123,7 @@ const northQuay: IndoorPlayVenue = {
   ageMinMonths: 36,
   ageMaxYears: 12,
   hardMinimumAge: 6,
-  weekdayChildPrice: { amount: null, isFree: false, checkedAt: PRICE_CHECKED },
+  weekdayChildPrice: price(null, false),
   weeklyHours: daytimeHours,
   visitMode: "book_ahead",
   area: "meadowvale",
@@ -119,7 +146,7 @@ const privateLoft: IndoorPlayVenue = {
   adminNotes: "DEV fixture — booking_only. Do not publish.",
   ageMinMonths: 12,
   ageMaxYears: 10,
-  weekdayChildPrice: { amount: 29, isFree: false, checkedAt: PRICE_CHECKED },
+  weekdayChildPrice: price(29, false),
   weeklyHours: daytimeHours,
   visitMode: "private_booking_only",
   area: "heartland_argentia",
@@ -143,7 +170,7 @@ const heightGate: IndoorPlayVenue = {
   checkedAt: "2026-10-09",
   adminNotes: "DEV fixture — height-only age override. Do not publish.",
   ageGroupsOverride: ["kids", "big_kids"],
-  weekdayChildPrice: { amount: 22, isFree: false, checkedAt: PRICE_CHECKED },
+  weekdayChildPrice: price(22, false),
   weeklyHours: earlyAndLateHours,
   visitMode: "walk_in",
   area: "erin_mills_ridgeway",

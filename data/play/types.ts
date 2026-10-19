@@ -10,6 +10,7 @@
  * - Unknown is preserved. null never means "no", "free", or "not suitable".
  * - Prices and hours always carry a checkedAt date. UI shows hours
  *   "as of [checked date]" — never "Open now".
+ * - sourceUrl on a price or hours set is admin-only — never shown publicly.
  * - adminNotes is for researchers only and must never be rendered publicly.
  * - A missing venue-published fact is "Not published by the venue". A fact
  *   we have not confirmed is "Not recorded". Do not guess a price.
@@ -79,6 +80,8 @@ export type IndoorPlayDatedPrice = {
   isFree: boolean;
   /** ISO date (YYYY-MM-DD). */
   checkedAt: string;
+  /** Researcher source. Never shown on cards, filters, or preview pages. */
+  sourceUrl: string | null;
 };
 
 export type IndoorPlayAdultPrice = IndoorPlayDatedPrice & {
@@ -90,15 +93,32 @@ export type IndoorPlayHoursRow = {
   weekday: IsoWeekday;
   /** "HH:MM" 24-hour local time. */
   opensAt: string;
-  /** "HH:MM" 24-hour local time; later than opensAt. */
+  /**
+   * "HH:MM" 24-hour local time. Later than opensAt on the same calendar day
+   * unless closesNextDay is true (GlowZone-style Fri/Sat 10:00–00:30).
+   */
   closesAt: string;
+  /**
+   * True when closesAt is on the following calendar day. Required for
+   * after-midnight closes; do not encode those as "26:00".
+   */
+  closesNextDay?: boolean;
 };
 
-/** Weekly hours as a set. checkedAt is required — never imply live status. */
+/**
+ * Weekly hours as a set. checkedAt is required — never imply live status.
+ *
+ * A weekday may have multiple rows (split sessions, e.g. 10:30–14:30 and
+ * 15:30–20:00). Phase 2 derivers treat the venue as open for a window if
+ * any row on that day covers it. Weekday mornings means any Mon–Fri row
+ * with opensAt before 12:00; opening at exactly 12:00 is not a morning.
+ */
 export type IndoorPlayWeeklyHours = {
   rows: IndoorPlayHoursRow[];
   /** ISO date (YYYY-MM-DD) the hours were last verified. */
   checkedAt: string;
+  /** Researcher source. Never shown on cards, filters, or preview pages. */
+  sourceUrl: string | null;
 };
 
 /**
