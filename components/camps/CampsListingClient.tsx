@@ -17,6 +17,10 @@ import type {
 } from "@/data/camps/types";
 import { CampCard } from "@/components/camps/CampCard";
 import { CampsFilterPanel } from "@/components/camps/CampsFilterPanel";
+import {
+  announceBrowseLocation,
+  useLocationIndex,
+} from "@/components/location/useBrowseLocation";
 import { buildCampDetailHref, formatSessionDatesLabel } from "@/lib/camps/campDetail";
 import {
   DATE_RANGE_OVERLAP_LABEL,
@@ -40,6 +44,22 @@ import {
   type ListingViewId,
   type TimingShortcutId,
 } from "@/lib/camps/listingFilter";
+import {
+  BROWSE_LOCATION_EVENT,
+  browseLocationEmptyMessage,
+  browseVenueIdsFor,
+  browserStorage,
+  buildCampsCoverage,
+  isValidLocationId,
+  readStoredBrowseLocation,
+  resolveBrowseLocation,
+  writeStoredBrowseLocation,
+  type BrowseLocationEventDetail,
+} from "@/lib/location/browseLocation";
+import {
+  locationLabel,
+  nameFromLocationId,
+} from "@/lib/location/ontarioLocations";
 
 const LISTING_VIEW_KEY = "compass.camps.listingView";
 
@@ -106,7 +126,13 @@ export function CampsListingClient({
   // Restore listing state from URL (detail → back) once on mount.
   useEffect(() => {
     const parsed = parseListingHrefSearch(searchParams);
-    setFilters(parsed.filters);
+    // URL wins; otherwise use the location remembered from the site header.
+    const whereId =
+      parsed.filters.whereId ?? readStoredBrowseLocation(browserStorage());
+    if (parsed.filters.whereId) {
+      writeStoredBrowseLocation(browserStorage(), parsed.filters.whereId);
+    }
+    setFilters({ ...parsed.filters, whereId });
     setKeywordDraft(parsed.filters.keyword);
     setSort(parsed.sort);
     const hasViewParam = searchParams.has("view") || searchParams.has("group");
@@ -123,6 +149,19 @@ export function CampsListingClient({
       /* ignore */
     }
   }, [listingView]);
+
+  // The site header announces location changes; the listing owns the URL.
+  useEffect(() => {
+    const onLocation = (event: Event) => {
+      const detail = (event as CustomEvent<BrowseLocationEventDetail>).detail;
+      const next = detail && isValidLocationId(detail.id) ? detail.id : null;
+      setFilters((current) =>
+        current.whereId === next ? current : { ...current, whereId: next },
+      );
+    };
+    window.addEventListener(BROWSE_LOCATION_EVENT, onLocation);
+    return () => window.removeEventListener(BROWSE_LOCATION_EVENT, onLocation);
+  }, []);
 
   // Keep address bar in sync so Back from detail restores filters/sort/group.
   useEffect(() => {
@@ -198,14 +237,61 @@ export function CampsListingClient({
     [filters.childAge],
   );
 
+  const [locationIndex] = useLocationIndex(Boolean(filters.whereId));
+  const coverage = useMemo(
+    () => buildCampsCoverage(sessions, venues),
+    [sessions, venues],
+  );
+  const browseResolution = useMemo(
+    () =>
+      locationIndex
+        ? resolveBrowseLocation(locationIndex, filters.whereId, coverage)
+        : null,
+    [locationIndex, filters.whereId, coverage],
+  );
+  const locationPending = Boolean(filters.whereId) && !browseResolution;
+  const browseLabel = !filters.whereId
+    ? null
+    : browseResolution &&
+        browseResolution.status !== "none" &&
+        browseResolution.status !== "unknown_location" &&
+        locationIndex
+      ? locationLabel(locationIndex, browseResolution.location)
+      : nameFromLocationId(filters.whereId);
+  const browseEmpty = browseResolution
+    ? browseLocationEmptyMessage(browseResolution, browseLabel ?? "")
+    : null;
+  const clearBrowseLocation = useCallback(() => {
+    setFilters((current) => ({ ...current, whereId: null }));
+    announceBrowseLocation(null);
+  }, []);
+
   const results = useMemo(
     () =>
       buildListingResults(
         { programs, providers, sessions, venuesById },
         appliedFilters,
-        { sort },
+        {
+          sort,
+          // While the place list loads, match nothing rather than flash
+          // results from every area.
+          browseVenueIds: browseResolution
+            ? browseVenueIdsFor(browseResolution)
+            : filters.whereId
+              ? new Set<string>()
+              : null,
+        },
       ),
-    [programs, providers, sessions, venuesById, appliedFilters, sort],
+    [
+      programs,
+      providers,
+      sessions,
+      venuesById,
+      appliedFilters,
+      sort,
+      browseResolution,
+      filters.whereId,
+    ],
   );
 
   const flatRows = useMemo(() => toFlatRows(results), [results]);
@@ -230,7 +316,12 @@ export function CampsListingClient({
   );
 
   const resetFilters = useCallback(() => {
-    setFilters(EMPTY_LISTING_FILTERS);
+    // "Clear all" clears refinements; the browse location stays until the
+    // family changes or clears it.
+    setFilters((current) => ({
+      ...EMPTY_LISTING_FILTERS,
+      whereId: current.whereId,
+    }));
     setKeywordDraft("");
   }, []);
 
@@ -306,15 +397,24 @@ export function CampsListingClient({
 
       <div className="camps-listing-top">
         <div className="camps-toolbar">
-          <label className="camps-field camps-toolbar-city">
-            <span>Browse location</span>
-            <input
-              type="text"
-              value={LISTING_BROWSE_CITY}
-              readOnly
-              aria-readonly="true"
-            />
-          </label>
+          <div className="camps-field camps-toolbar-city">
+            <span id="camps-browse-location-label">Browse location</span>
+            <p
+              className="camps-toolbar-city-value"
+              aria-labelledby="camps-browse-location-label"
+            >
+              {browseLabel ?? "All listed areas"}
+              {filters.whereId ? (
+                <button
+                  type="button"
+                  className="camps-text-btn"
+                  onClick={clearBrowseLocation}
+                >
+                  Clear
+                </button>
+              ) : null}
+            </p>
+          </div>
           <p className="camps-toolbar-distance" role="note">
             <span className="camps-field">
               <span>Distance</span>
@@ -335,8 +435,10 @@ export function CampsListingClient({
           </label>
         </div>
         <p className="camps-field-hint camps-toolbar-city-hint">
-          Browse stays in {LISTING_BROWSE_CITY}. We do not silently widen to
-          another city or invent kilometres.
+          {filters.whereId
+            ? `Showing camps held in ${browseLabel ?? "this place"} only. Change the location in the bar at the top of the page.`
+            : `Camps are listed in ${LISTING_BROWSE_CITY} so far. Choose a location at the top of the page to narrow results.`}{" "}
+          We do not silently widen to another city or invent kilometres.
         </p>
 
         <form
@@ -472,13 +574,29 @@ export function CampsListingClient({
         </aside>
 
         <div className="camps-listing-main">
-          {empty ? (
+          {locationPending ? (
+            <div className="camps-empty" role="status">
+              <p>Checking listings for {browseLabel}…</p>
+            </div>
+          ) : browseEmpty ? (
+            <div className="camps-empty" role="status">
+              <h2>{browseEmpty.title}</h2>
+              <p>{browseEmpty.body}</p>
+              <button
+                type="button"
+                className="camps-text-btn"
+                onClick={clearBrowseLocation}
+              >
+                Clear location
+              </button>
+            </div>
+          ) : empty ? (
             <div className="camps-empty" role="status">
               <h2>No matching camps</h2>
               <p>
-                Nothing matches these filters in Mississauga for the current
-                data. Try clearing a filter — we do not silently widen dates or
-                city.
+                Nothing matches these filters in{" "}
+                {browseLabel ?? LISTING_BROWSE_CITY} for the current data. Try
+                clearing a filter — we do not silently widen dates or city.
               </p>
               <button type="button" className="camps-text-btn" onClick={resetFilters}>
                 Clear all

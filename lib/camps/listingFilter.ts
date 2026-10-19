@@ -21,6 +21,7 @@ import {
   type ChildAgeStatement,
 } from "@/lib/camps/sessionEligibility";
 import { sessionFitsAllSiblings, uniqueWholeAges } from "@/lib/camps/siblingOverlap";
+import { isValidLocationId } from "@/lib/location/browseLocation";
 
 export type TimingShortcutId =
   | "all"
@@ -140,6 +141,12 @@ export type CampsListingFilters = {
    * Unknown never matches open/closed/waitlist.
    */
   registrationFilter: RegistrationFilterId;
+  /**
+   * Browse location chosen in the site header (Ontario location id, e.g.
+   * "mississauga--r5"). Resolved against published venues by
+   * lib/location/browseLocation — never widened to a nearby city.
+   */
+  whereId: string | null;
 };
 
 export const EMPTY_LISTING_FILTERS: CampsListingFilters = {
@@ -162,6 +169,7 @@ export const EMPTY_LISTING_FILTERS: CampsListingFilters = {
   requireAfterCare: false,
   stayTypes: [],
   registrationFilter: "all",
+  whereId: null,
 };
 
 export const AGE_FILTER_MISSING_DATE_NOTICE =
@@ -785,9 +793,19 @@ function sortSessions(sessions: CampSession[], sort: ListingSortId): CampSession
 export function buildListingResults(
   catalog: ListingCatalog,
   filters: CampsListingFilters,
-  options?: { sort?: ListingSortId },
+  options?: {
+    sort?: ListingSortId;
+    /**
+     * Venues at the resolved browse location (see resolveBrowseLocation).
+     * When set, a session must be held at one of them, and programs without
+     * dated sessions are left out — their location cannot be confirmed.
+     * Null or omitted applies no location constraint.
+     */
+    browseVenueIds?: ReadonlySet<string> | null;
+  },
 ): ListingResultSet {
   const sort = options?.sort ?? "soonest_start";
+  const browseVenueIds = options?.browseVenueIds ?? null;
   const providersById = Object.fromEntries(
     catalog.providers.map((p) => [p.id, p]),
   );
@@ -807,14 +825,17 @@ export function buildListingResults(
 
     const programSessions = sessionsByProgram.get(program.id) ?? [];
     const matching = sortSessions(
-      programSessions.filter((session) =>
-        sessionMatchesListingFilters(
-          session,
-          program,
-          provider,
-          catalog.venuesById,
-          filters,
-        ),
+      programSessions.filter(
+        (session) =>
+          (!browseVenueIds ||
+            (Boolean(session.venueId) && browseVenueIds.has(session.venueId!))) &&
+          sessionMatchesListingFilters(
+            session,
+            program,
+            provider,
+            catalog.venuesById,
+            filters,
+          ),
       ),
       sort,
     );
@@ -833,6 +854,7 @@ export function buildListingResults(
     // no session-level filter rules them out.
     if (
       programSessions.length === 0 &&
+      !browseVenueIds &&
       !hasActiveSessionLevelFilters(filters) &&
       programPassesNonSessionFilters(program, provider, filters)
     ) {
@@ -1218,6 +1240,11 @@ function splitCsv(raw: string | null): string[] {
     .filter(Boolean);
 }
 
+/** `where` must look like an Ontario location id; anything else is dropped. */
+function parseWhereParam(raw: string | null): string | null {
+  return isValidLocationId(raw) ? raw : null;
+}
+
 /**
  * Serialize listing search/filters/sort/grouping into `/camps?...`.
  * Used for the address bar and as the detail `from` return path.
@@ -1256,6 +1283,7 @@ export function buildListingHref(state: CampsListingUrlState): string {
   const stays = csv(f.stayTypes);
   if (stays) p.set("stay", stays);
   if (f.registrationFilter !== "all") p.set("reg", f.registrationFilter);
+  if (f.whereId) p.set("where", f.whereId);
   if (state.sort !== "soonest_start") p.set("sort", state.sort);
   p.set("view", state.listingView);
   // Legacy group flag so older return URLs still parse grouped vs flat.
@@ -1348,6 +1376,7 @@ export function parseListingHrefSearch(
     requireAfterCare: p.get("after") === "1",
     stayTypes: splitCsv(p.get("stay")) as CampStayType[],
     registrationFilter,
+    whereId: parseWhereParam(p.get("where")),
   };
 
   return { filters, sort, listingView };
