@@ -20,8 +20,7 @@ export function CampsOfflineBanner() {
 
   return (
     <p className="camps-offline-banner" role="status">
-      You are offline. Compass is not refreshing directory data — this is not a
-      live cache of every camp.
+      Offline Mode - Displaying cached data
     </p>
   );
 }

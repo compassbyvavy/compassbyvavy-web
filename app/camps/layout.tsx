@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { CampsChromeNav } from "@/components/camps/CampsChromeNav";
-import { CampsOfflineBanner } from "@/components/camps/CampsOfflineBanner";
 import { campsFontVariables } from "@/lib/camps/fonts";
 import "./camps.css";
 
@@ -15,7 +14,6 @@ export default function CampsLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <div className={`camps-theme ${campsFontVariables}`}>
-      <CampsOfflineBanner />
       <div className="camps-chrome-bar">
         <div className="container">
           <CampsChromeNav />
