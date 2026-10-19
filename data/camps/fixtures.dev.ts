@@ -75,6 +75,7 @@ export const campsDevPrograms: CampProgram[] = [
     typicalAgeMaxInclusive: true,
     typicalAgeAssessedAtDate: "2026-07-01",
     audience: "child_only",
+    indoorOutdoor: "indoor",
     accessibilitySupportTags: [],
     experienceSummary:
       "Fictional week of hands-on builds and robotics stations (dev fixture narrative).",
@@ -103,6 +104,7 @@ export const campsDevPrograms: CampProgram[] = [
     typicalAgeMaxInclusive: true,
     typicalAgeAssessedAtDate: "2026-07-01",
     audience: "child_only",
+    indoorOutdoor: "both",
   },
   {
     id: "prog-dev-missing-info",
@@ -114,6 +116,7 @@ export const campsDevPrograms: CampProgram[] = [
     typicalAgeMin: 4,
     typicalAgeMax: 8,
     audience: "parent_and_child",
+    indoorOutdoor: "outdoor",
   },
   {
     id: "prog-dev-multi-age",

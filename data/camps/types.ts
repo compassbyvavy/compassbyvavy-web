@@ -150,6 +150,19 @@ export type CampProgram = {
   audience?: CampAudience | null;
   /** Provider-confirmed accessibility / support tags — not a generic "inclusive" badge. */
   accessibilitySupportTags?: string[];
+  /**
+   * Lookup Guide indoor/outdoor. Omit or unknown — never inferred from the name.
+   * Dev fixtures may set this; unpublished research rows must not.
+   */
+  indoorOutdoor?:
+    | "indoor"
+    | "outdoor"
+    | "both"
+    | "primarily_indoor"
+    | "primarily_outdoor"
+    | "virtual"
+    | "unknown"
+    | null;
   imageSrc?: string | null;
   imageAlt?: string | null;
   /**

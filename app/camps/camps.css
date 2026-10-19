@@ -1600,6 +1600,43 @@
   font-weight: 700;
 }
 
+.rainy-pivot {
+  margin: 0 0 18px;
+  padding: 14px 16px;
+  background: var(--camps-paper);
+  border: 1px solid var(--camps-line);
+  border-radius: var(--camps-radius);
+}
+
+.rainy-pivot-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+
+.rainy-toggle,
+.rainy-pivot select {
+  min-height: 44px;
+  border-radius: 999px;
+  border: 1px solid var(--camps-line);
+  background: var(--camps-paper);
+  color: var(--camps-pine);
+  font-weight: 700;
+  padding: 0 14px;
+}
+
+.rainy-toggle[aria-pressed="true"] {
+  background: var(--camps-pine);
+  color: var(--camps-ivory);
+}
+
+.rainy-note {
+  margin: 8px 0 0;
+  color: var(--camps-muted);
+  font-size: 0.92rem;
+}
+
 .bag-check-item input {
   width: 1.75rem;
   height: 1.75rem;
