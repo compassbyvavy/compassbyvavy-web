@@ -30,17 +30,6 @@ export function CampsChromeNav() {
               </li>
             );
           })}
-          <li>
-            <button
-              type="button"
-              className="camps-chrome-nav-link"
-              onClick={() =>
-                window.dispatchEvent(new Event("compass:open-command-palette"))
-              }
-            >
-              Search
-            </button>
-          </li>
       </ul>
     </nav>
   );

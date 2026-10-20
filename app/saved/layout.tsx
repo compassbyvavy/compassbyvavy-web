@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { CampsChromeNav } from "@/components/camps/CampsChromeNav";
-import { DiscoverCategoryNav } from "@/components/discover/DiscoverCategoryNav";
 import { campsFontVariables } from "@/lib/camps/fonts";
 import "../camps/camps.css";
 import "../discover/discover.css";
@@ -21,9 +20,6 @@ export default function SavedLayout({
         <div className="container">
           <CampsChromeNav />
         </div>
-      </div>
-      <div className="container">
-        <DiscoverCategoryNav />
       </div>
       {children}
     </div>

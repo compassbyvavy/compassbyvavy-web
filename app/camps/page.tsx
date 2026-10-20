@@ -44,22 +44,12 @@ export default async function CampsListingPage() {
 
   return (
     <div className="container camps-listing-page">
-      <p className="camp-card-note">
-        <a href="/discover/access">Sensory and transit access</a>
-        {" — "}
-        badges only when a fact is yes.
-      </p>
-      <p className="camp-card-note">
-        <a href="/calendar">School-board PA days</a>
-        {" — "}
-        a separate calendar. It does not change your saved list.
-      </p>
-      <p className="camp-card-note">
-        <a href="/discover/ages">Sibling age overlap</a>
-        {" — "}
-        a separate matrix for whether one session fits every child. It does
-        not change your saved list.
-      </p>
+      <nav className="camps-tools" aria-label="Camp planning tools">
+        <span className="camps-tools-label">Planning tools</span>
+        <a href="/calendar">School PA days</a>
+        <a href="/discover/ages">Sibling age check</a>
+        <a href="/discover/access">Sensory &amp; transit access</a>
+      </nav>
       <Suspense fallback={<p className="camp-card-note">Loading camps…</p>}>
         <CampsWithRainyDay
           programs={catalog.programs}

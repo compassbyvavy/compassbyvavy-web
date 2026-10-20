@@ -210,7 +210,7 @@ export function LocationCombobox({
         autoCapitalize="words"
         spellCheck={false}
         enterKeyHint="search"
-        placeholder="Town, city or region"
+        placeholder="City or region"
         value={state.query}
         onFocus={(e) => {
           onRequestData?.();
