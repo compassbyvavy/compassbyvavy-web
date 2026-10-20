@@ -54,10 +54,6 @@ export type NuttyRegistrationLink = {
   text: string;
 };
 
-export function pad2(value: number): string {
-  return String(value).padStart(2, "0");
-}
-
 export function nuttyWeekIdentity(
   startMonth: number,
   startDay: number,

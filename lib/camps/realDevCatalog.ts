@@ -60,7 +60,3 @@ export function loadCampsRealDevCatalog(): CampsRealDevCatalogBundle | null {
   }
   return bundle();
 }
-
-export function areCampsRealDevCatalogAllowed(): boolean {
-  return !isProductionNodeEnv();
-}

@@ -223,15 +223,3 @@ export function resolveShortlist(
     past: state.past.map((entry) => resolvePastDisplay(entry, index, discoverById)),
   };
 }
-
-export function refIsPublic(
-  ref: ShortlistRef,
-  catalog: CampsCatalogBundle,
-): boolean {
-  if (ref.kind === "discover_listing") return false;
-  const ids = publicIdsFromCatalog(catalog);
-  if (ref.kind === "camp_program") return ids.programIds.has(ref.programId);
-  return (
-    ids.programIds.has(ref.programId) && ids.sessionIds.has(ref.sessionId)
-  );
-}

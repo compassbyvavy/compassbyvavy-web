@@ -185,9 +185,6 @@ export const AGE_FILTER_INVALID_AGE_NOTICE =
  */
 export const DATE_RANGE_OVERLAP_LABEL = "Overlaps these dates.";
 
-/** @deprecated Prefer AGE_FILTER_MISSING_DATE_NOTICE — kept as the missing-date copy. */
-export const AGE_FILTER_INCOMPLETE_NOTICE = AGE_FILTER_MISSING_DATE_NOTICE;
-
 /**
  * Resolve sidebar/drawer age drafts into an applied eligibility statement.
  * Incomplete or invalid drafts never count as an applied age filter.

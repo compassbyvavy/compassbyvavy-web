@@ -79,29 +79,6 @@
   object-fit: cover;
 }
 
-.camp-card-media-fallback {
-  min-height: 72px;
-}
-
-.camp-card-media-fallback .camp-card-media-placeholder {
-  display: grid;
-  place-content: center;
-  min-height: 72px;
-  padding: 12px;
-}
-
-.camp-card-media-mark {
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  border: 1.5px solid rgba(51, 80, 62, 0.22);
-  background: rgba(255, 255, 255, 0.5);
-}
-
-.camp-card-media-label {
-  display: none;
-}
-
 .camp-card-body {
   display: grid;
   gap: 10px;
@@ -621,7 +598,6 @@
 .camps-chip:focus-visible,
 .camps-text-btn:focus-visible,
 .camps-filters-open:focus-visible,
-.camps-group-toggle input:focus-visible,
 .camp-card-cta:focus-visible {
   outline: 2px solid var(--camps-pine);
   outline-offset: 2px;
@@ -685,22 +661,6 @@
   font: inherit;
   font-weight: 700;
   cursor: pointer;
-}
-
-.camps-group-toggle {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 0.9rem;
-  font-weight: 600;
-  color: var(--camps-pine-ink);
-  cursor: pointer;
-}
-
-.camps-group-toggle input {
-  width: 1.15rem;
-  height: 1.15rem;
-  accent-color: var(--camps-pine);
 }
 
 .camps-listing-layout {
@@ -1505,87 +1465,6 @@
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
-}
-
-.camps-offline-banner {
-  margin: 0;
-  padding: 10px 16px;
-  background: var(--camps-amber-soft);
-  color: var(--camps-amber-deep);
-  font-size: 0.9rem;
-  font-weight: 600;
-  text-align: center;
-}
-
-.camps-unknown-chip {
-  display: inline-flex;
-  align-items: center;
-  padding: 2px 8px;
-  border-radius: 999px;
-  background: var(--camps-amber-soft);
-  color: var(--camps-amber-deep);
-  font-size: 0.85rem;
-  font-weight: 700;
-}
-
-.camps-cmd-root {
-  position: fixed;
-  inset: 0;
-  z-index: 80;
-}
-
-.camps-cmd-backdrop {
-  position: absolute;
-  inset: 0;
-  border: 0;
-  background: rgba(31, 46, 37, 0.35);
-}
-
-.camps-cmd-dialog {
-  position: relative;
-  z-index: 1;
-  width: min(40rem, calc(100% - 32px));
-  margin: 12vh auto 0;
-  padding: 16px;
-  background: var(--camps-paper);
-  border: 1px solid var(--camps-line);
-  border-radius: var(--camps-radius);
-  box-shadow: var(--camps-shadow);
-  display: grid;
-  gap: 12px;
-}
-
-.camps-cmd-input {
-  width: 100%;
-  min-height: 44px;
-  padding: 10px 12px;
-  border: 1px solid var(--camps-line);
-  border-radius: 10px;
-  font: inherit;
-}
-
-.camps-cmd-list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: grid;
-  gap: 6px;
-  max-height: 50vh;
-  overflow: auto;
-}
-
-.camps-cmd-list a {
-  display: block;
-  padding: 10px 12px;
-  border-radius: 10px;
-  text-decoration: none;
-  color: var(--camps-pine);
-  font-weight: 700;
-}
-
-.camps-cmd-list a:hover,
-.camps-cmd-list a:focus-visible {
-  background: var(--camps-pine-soft);
 }
 
 .bag-check-list {

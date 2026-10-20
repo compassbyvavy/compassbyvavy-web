@@ -111,9 +111,9 @@ a {
 .cmdk-dialog small,
 .cmdk-dialog > p {
   color: #6e7568;
+}
 
-.offline-badge,
-.camps-offline-banner {
+.offline-badge {
   margin: 0;
   padding: 10px 16px;
   background: #f3e7d3;
@@ -202,13 +202,6 @@ a {
   text-decoration: none;
 }
 
-.nav-cta {
-  padding: 11px 18px;
-  color: white;
-  background: var(--green);
-  border-radius: 999px;
-}
-
 .hero {
   position: relative;
   overflow: hidden;
@@ -288,8 +281,7 @@ h2 {
   color: white;
 }
 
-.button-primary:hover,
-.nav-cta:hover {
+.button-primary:hover {
   background: var(--green-dark);
 }
 
@@ -474,23 +466,7 @@ h2 {
   font-size: 1.08rem;
 }
 
-.nav-saved {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  text-decoration: none;
-}
 
-.nav-count {
-  min-width: 1.35rem;
-  padding: 1px 6px;
-  border-radius: 999px;
-  background: var(--green);
-  color: white;
-  font-size: 0.72rem;
-  font-weight: 800;
-  text-align: center;
-}
 
 .coming-soon-page .coming-soon-icon {
   margin: 0 0 8px;
@@ -728,10 +704,6 @@ a.category-card {
     font-size: 0.82rem;
   }
 
-  .nav-link-secondary {
-    display: none;
-  }
-
   .hero-grid,
   .two-column {
     grid-template-columns: 1fr;
@@ -765,11 +737,6 @@ a.category-card {
 
   .brand {
     font-size: 1rem;
-  }
-
-  .nav-cta {
-    padding: 9px 13px;
-    font-size: 0.8rem;
   }
 
   .hero {
