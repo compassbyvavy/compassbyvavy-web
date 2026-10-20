@@ -2,44 +2,31 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { SITE_NAV_LINKS, isSiteNavActive } from "@/lib/site/siteNav";
 
-const LINKS = [
-  { href: "/#discover", label: "Discover", match: "discover" },
-  { href: "/camps", label: "Camps", match: "camps" },
-  { href: "/saved", label: "Plan", match: "plan" },
-] as const;
-
-const LATER = ["Profile", "Learn", "Services", "Community"] as const;
-
-function isActive(pathname: string, match: (typeof LINKS)[number]["match"]): boolean {
-  if (match === "plan") return pathname === "/saved" || pathname.startsWith("/saved/");
-  if (match === "camps") return pathname === "/camps" || pathname.startsWith("/camps/");
-  return pathname === "/" || pathname.startsWith("/discover");
-}
-
+/**
+ * Main navigation: Discover · Plan · Learn · Account.
+ * Search lives in the header search bar beside it. No bottom tab bar on
+ * phones — the same links sit under the brand instead.
+ */
 export function SiteNav() {
   const pathname = usePathname() || "/";
 
   return (
-    <nav className="nav-row" aria-label="Main navigation">
-      {LINKS.map((item) => (
-        <Link
-          key={item.label}
-          href={item.href}
-          className={
-            isActive(pathname, item.match)
-              ? "nav-pill is-active"
-              : "nav-pill"
-          }
-        >
-          {item.label}
-        </Link>
-      ))}
-      {LATER.map((label) => (
-        <span key={label} className="nav-pill is-later" title="Not designed yet">
-          {label}
-        </span>
-      ))}
+    <nav className="site-nav" aria-label="Main navigation">
+      {SITE_NAV_LINKS.map((item) => {
+        const active = isSiteNavActive(pathname, item.id);
+        return (
+          <Link
+            key={item.id}
+            href={item.href}
+            className={active ? "site-nav-link is-active" : "site-nav-link"}
+            aria-current={active ? "page" : undefined}
+          >
+            {item.label}
+          </Link>
+        );
+      })}
     </nav>
   );
 }

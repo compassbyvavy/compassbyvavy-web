@@ -4,9 +4,9 @@ import { Suspense } from "react";
 import { ShortlistProvider } from "@/components/shortlist/ShortlistProvider";
 import { CommandMenu } from "@/components/site/CommandMenu";
 import { OfflineCache } from "@/components/site/OfflineCache";
-import { OpenSearchButton } from "@/components/site/OpenSearchButton";
 import { SiteNav } from "@/components/site/SiteNav";
 import { loadCampsCatalogForRequest } from "@/lib/camps/campsServerCatalog";
+import { campsFontVariables } from "@/lib/camps/fonts";
 import {
   SiteSearchBar,
   SiteSearchBarShell,
@@ -53,7 +53,7 @@ export default async function RootLayout({
   const providers = new Map((catalog?.providers ?? []).map((provider) => [provider.id, provider.name]));
   return (
     <html lang="en">
-      <body>
+      <body className={campsFontVariables}>
         <ShortlistProvider>
           <CommandMenu
             camps={(catalog?.programs ?? []).map((program) => ({
@@ -70,13 +70,12 @@ export default async function RootLayout({
                 <span className="brand-mark" aria-hidden="true">✦</span>
                 <span>Compass by Vavy</span>
               </Link>
-              <OpenSearchButton />
+              <div className="header-search">
+                <Suspense fallback={<SiteSearchBarShell />}>
+                  <SiteSearchBar />
+                </Suspense>
+              </div>
               <SiteNav />
-            </div>
-            <div className="container site-search-row">
-              <Suspense fallback={<SiteSearchBarShell />}>
-                <SiteSearchBar />
-              </Suspense>
             </div>
           </header>
 

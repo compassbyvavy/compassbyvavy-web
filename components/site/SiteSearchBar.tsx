@@ -15,7 +15,7 @@ import {
   nameFromLocationId,
 } from "@/lib/location/ontarioLocations";
 
-const SEARCH_PLACEHOLDER = "Search camps, providers or themes";
+const SEARCH_PLACEHOLDER = "Search camps or providers";
 
 /**
  * Site-wide header bar: browse location beside the separate content search.
@@ -111,7 +111,7 @@ export function SiteSearchBar() {
           <circle cx="12" cy="9.5" r="2.5" />
         </svg>
         <span className="site-location-trigger-label">
-          {selectedLabel ?? "Choose a location"}
+          {selectedLabel ?? "Location"}
         </span>
         <span className="visually-hidden">, change location</span>
         <svg
@@ -253,13 +253,13 @@ export function SiteSearchBarShell() {
             className="location-combobox-input"
             type="text"
             aria-label="Location"
-            placeholder="Town, city or region"
+            placeholder="City or region"
             disabled
           />
         </div>
       </div>
       <button type="button" className="site-location-trigger" disabled>
-        <span className="site-location-trigger-label">Choose a location</span>
+        <span className="site-location-trigger-label">Location</span>
       </button>
       <span className="site-search-divider" aria-hidden="true" />
       <form

@@ -1,8 +1,9 @@
 /**
  * Camps-scoped font loaders (next/font).
  *
- * Used by the Camps, Discover and Plan (saved list) layouts. Do not apply to the root
- * layout. Combine the variables with `.camps-theme` from camps.css.
+ * Compass type pair: Newsreader (display) and Inter (body). The root layout
+ * puts these variables on <body> for the whole site; section layouts also
+ * add them with `.camps-theme` from camps.css.
  */
 
 import { Inter, Newsreader } from "next/font/google";
