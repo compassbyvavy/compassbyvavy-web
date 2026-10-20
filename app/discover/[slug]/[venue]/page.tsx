@@ -8,7 +8,11 @@ import {
   buildVenueDetailView,
   resolvePublicVenue,
 } from "@/lib/discover/venueDetail";
-import { VENUE_DEV_BANNER, loadVenueCatalog } from "@/lib/discover/venuesCatalog";
+import {
+  VENUE_DEV_BANNER,
+  loadVenueCatalog,
+  venueIndexable,
+} from "@/lib/discover/venuesCatalog";
 
 export const dynamic = "force-dynamic";
 
@@ -27,7 +31,7 @@ function torontoToday(): string {
 }
 
 async function loadVenue(slug: string, venue: string) {
-  const catalog = await loadVenueCatalog();
+  const catalog = await loadVenueCatalog({ venueSlug: venue });
   if (!catalog) return null;
   const record = resolvePublicVenue(catalog.records, slug, venue);
   return record ? { record, catalog } : null;
@@ -48,9 +52,17 @@ export async function generateMetadata({ params }: PageProps) {
     const p = found.record.place;
     const name = p.branchName ? `${p.name} — ${p.branchName}` : p.name;
     return {
-      title: found.record.cityName ? `${name}, ${found.record.cityName}` : name,
+      // "Sky Zone — Mississauga", not "Sky Zone — Mississauga, Mississauga".
+      title:
+        found.record.cityName && found.record.cityName !== p.branchName
+          ? `${name}, ${found.record.cityName}`
+          : name,
       description: p.description ?? undefined,
-      robots: { index: false, follow: true },
+      // Only venues read from the published production catalog are indexed;
+      // dev fixtures and dev previews never are.
+      robots: venueIndexable(found.catalog.sourceLabel)
+        ? { index: true, follow: true }
+        : { index: false, follow: false },
     };
   }
   const listing = await loadExampleListing(slug, venue);
@@ -80,7 +92,7 @@ export default async function DiscoverDetailPage({ params }: PageProps) {
       <div className="container venue-container">
         <VenueDetail
           view={view}
-          banner={found.catalog.sourceLabel === "dev_fixtures" ? VENUE_DEV_BANNER : null}
+          banner={found.catalog.sourceLabel === "dev_preview" ? VENUE_DEV_BANNER : null}
         />
       </div>
     );

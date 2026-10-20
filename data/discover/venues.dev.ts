@@ -133,7 +133,7 @@ const heartland: VenueRecord = {
     { ...ok, id: "p2", kind: "admission", label: "Toddler admission", audience: "infant", ageMin: 1, ageMax: 2, amount: 12.99, isFree: false, currency: "CAD", requiredAddon: false, plusTax: true },
     { ...ok, id: "p3", kind: "admission", label: "Under 1", audience: "infant", ageMax: 0, isFree: true, currency: "CAD", requiredAddon: false },
     { ...ok, id: "p4", kind: "admission", label: "Accompanying adult", audience: "non_participant", isFree: true, currency: "CAD", requiredAddon: false },
-    { ...ok, id: "p5", kind: "addon", label: "Grip socks", audience: "child", amount: 3.5, isFree: false, currency: "CAD", requiredAddon: true, plusTax: true },
+    { ...ok, id: "p5", kind: "addon", label: "Grip socks", audience: "child", amount: 3.5, isFree: false, currency: "CAD", requiredAddon: true, chargeBasis: "per_child", plusTax: true },
     { ...ok, id: "p6", kind: "membership", label: "Monthly play pass", audience: "child", amount: 59, isFree: false, currency: "CAD", requiredAddon: false, plusTax: true, includesNote: "unlimited weekday visits" },
     { ...ok, id: "p7", kind: "party", label: "Birthday party (10 children)", audience: "group", amount: 349, isFree: false, currency: "CAD", requiredAddon: false, plusTax: true, durationMinutes: 120 },
     { ...ok, id: "p8", kind: "promotion", label: "Weekday morning toddler rate", audience: "infant", amount: 9.99, isFree: false, currency: "CAD", requiredAddon: false, eligibility: "Monday to Friday before noon", validTo: "2026-12-19" },

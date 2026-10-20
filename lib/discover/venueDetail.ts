@@ -31,6 +31,7 @@ import type {
   VenueLink,
   VenuePolicy,
   VenuePolicyKind,
+  PriceChargeBasis,
   VenuePrice,
   VenuePriceAudience,
   VenuePriceKind,
@@ -96,17 +97,29 @@ export function isPublicFact(fact: Provenance): boolean {
 /** What every displayed fact carries so the page can show where it came from. */
 export type FactMeta = {
   checked: string;
-  sourceUrl: string;
+  /** Null only for first-hand visit notes. */
+  sourceUrl: string | null;
   conflict: string | null;
 };
 
-function meta(fact: Provenance): FactMeta {
+function meta(fact: Omit<Provenance, "sourceUrl"> & { sourceUrl?: string | null }): FactMeta {
   return {
     checked: formatCheckedDate(fact.sourceCheckedDate)!,
-    sourceUrl: fact.sourceUrl,
+    sourceUrl: isHttps(fact.sourceUrl) ? fact.sourceUrl : null,
     conflict:
       fact.verificationStatus === "conflicting" ? fact.conflictNote?.trim() || null : null,
   };
+}
+
+/** Themes follow isPublicFact, except a first-hand visit note needs no web source. */
+export function isPublicTheme(t: VenueExperienceTheme): boolean {
+  if (t.basis === "first_hand_visit") {
+    if (!isIsoDate(t.sourceCheckedDate)) return false;
+    if (t.verificationStatus === "verified") return true;
+    return t.verificationStatus === "conflicting" && Boolean(t.conflictNote?.trim());
+  }
+  if (t.basis === "reviewer_reported" && !t.reviewSourceId) return false;
+  return isPublicFact({ ...t, sourceUrl: t.sourceUrl ?? "" });
 }
 
 // ---------------------------------------------------------------------------
@@ -315,7 +328,9 @@ function snapshot(record: VenueRecord, policies: VenuePolicy[], themes: ThemeVie
       typeof p.typicalVisitMinutes === "number" && p.typicalVisitMinutes > 0 && placeChecked
         ? {
             text: `About ${durationText(p.typicalVisitMinutes)}`,
-            basis: "Compass estimate from the venue's published session lengths and activities — not a venue guarantee",
+            basis: p.typicalVisitNote?.trim()
+              ? `${p.typicalVisitNote.trim()} — a Compass estimate, not a venue guarantee`
+              : "Compass estimate from the venue's published session lengths and activities — not a venue guarantee",
             checked: placeChecked,
           }
         : null,
@@ -646,6 +661,7 @@ export type PriceLine = {
   value: number;
   details: string[];
   requiredAddon: boolean;
+  chargeBasis: PriceChargeBasis;
   plusTax: boolean | null;
   meta: FactMeta;
 };
@@ -684,6 +700,7 @@ function priceLine(price: VenuePrice): PriceLine | null {
     value,
     details,
     requiredAddon: price.requiredAddon,
+    chargeBasis: price.chargeBasis ?? "unknown",
     plusTax: price.plusTax ?? null,
     meta: meta(price),
   };
@@ -705,53 +722,174 @@ function priceSections(prices: VenuePrice[], today: string): PriceSection[] {
 }
 
 export type CostEstimatorModel = {
+  /** Admission lines a child can use (child, baby/toddler, or any-participant tickets). */
   childOptions: PriceLine[];
-  adultOptions: PriceLine[];
+  /** Admission lines an adult who takes part can use (adult or any-participant tickets). */
+  participatingAdultOptions: PriceLine[];
+  /** Admission lines for adults who only watch. */
+  watchingAdultOptions: PriceLine[];
+  /** Required extras with a stated charging rule — included in the estimate. */
   requiredAddons: PriceLine[];
+  /** Required extras whose charging rule is not stated — left out, and named. */
+  unpricedAddons: PriceLine[];
+  /** Requirements with no recorded price (e.g. "SkySocks required") — left out, and named. */
+  unpricedRequirements: string[];
   /** Assumptions shown beside the estimate. */
   assumptions: string[];
 };
 
-/**
- * Inputs for the family cost estimator, or null when the venue has no
- * verified child admission price to estimate from.
- */
-export function costEstimatorModel(sections: PriceSection[]): CostEstimatorModel | null {
-  const admission = sections.find((s) => s.kind === "admission")?.lines ?? [];
-  const childOptions = admission.filter((l) => l.audience === "child" || l.audience === "infant");
-  if (childOptions.length === 0) return null;
-  const adultOptions = admission.filter((l) => l.audience === "adult" || l.audience === "non_participant");
-  const requiredAddons = (sections.find((s) => s.kind === "addon")?.lines ?? []).filter((l) => l.requiredAddon);
-  const assumptions = [
-    "Uses the admission prices listed above for each person you add.",
-    requiredAddons.length
-      ? "Adds each required extra once per child."
-      : "No required extras are listed for this venue.",
-    adultOptions.length
-      ? "Adults are charged only if you add them."
-      : "No adult price is listed — check with the venue whether adults pay.",
-    "Excludes optional extras, food, parking, memberships and offers.",
-  ];
-  if ([...childOptions, ...adultOptions, ...requiredAddons].some((l) => l.plusTax)) {
-    assumptions.push("Some prices are before tax; the estimate does not add tax.");
+const BASIS_TEXT: Record<Exclude<PriceChargeBasis, "unknown">, string> = {
+  per_child: "once per child",
+  per_participant: "once per person taking part, adults who join in included",
+  per_person: "once per person in your group, watchers included",
+  per_booking: "once per visit",
+};
+
+function addonRuleText(l: Pick<PriceLine, "audience" | "chargeBasis">): string {
+  const base = BASIS_TEXT[l.chargeBasis as Exclude<PriceChargeBasis, "unknown">];
+  if (l.chargeBasis === "per_booking" || l.chargeBasis === "per_child") return base;
+  if (l.audience === "child" || l.audience === "infant") return "once per child";
+  if (l.audience === "adult") {
+    return l.chargeBasis === "per_participant" ? "once per adult taking part" : "once per adult, watchers included";
   }
-  return { childOptions, adultOptions, requiredAddons, assumptions };
+  if (l.audience === "non_participant") return "once per adult who only watches";
+  return base;
 }
 
-/** Estimate for given counts and chosen price lines. Pure; used by the estimator. */
-export function estimateFamilyCost(
-  model: CostEstimatorModel,
-  input: { childLineId: string | null; children: number; adultLineId: string | null; adults: number },
-): number | null {
-  const children = Math.max(0, Math.floor(input.children));
-  const adults = Math.max(0, Math.floor(input.adults));
-  const child = model.childOptions.find((l) => l.id === input.childLineId);
-  if (children > 0 && !child) return null;
-  const adult = model.adultOptions.find((l) => l.id === input.adultLineId);
-  if (adults > 0 && !adult) return null;
-  const addons = model.requiredAddons.reduce((sum, l) => sum + l.value, 0);
-  const total = children * ((child?.value ?? 0) + addons) + adults * (adult?.value ?? 0);
-  return Math.round(total * 100) / 100;
+/**
+ * Inputs for the family cost estimator, or null when there is no verified
+ * admission price a child could use.
+ */
+export function costEstimatorModel(
+  sections: PriceSection[],
+  unpricedRequirements: string[] = [],
+): CostEstimatorModel | null {
+  const admission = sections.find((s) => s.kind === "admission")?.lines ?? [];
+  const childOptions = admission.filter((l) => ["child", "infant", "other"].includes(l.audience));
+  if (childOptions.length === 0) return null;
+  const participatingAdultOptions = admission.filter((l) => l.audience === "adult" || l.audience === "other");
+  const watchingAdultOptions = admission.filter((l) => l.audience === "non_participant");
+  const required = (sections.find((s) => s.kind === "addon")?.lines ?? []).filter((l) => l.requiredAddon);
+  const requiredAddons = required.filter((l) => l.chargeBasis !== "unknown");
+  const unpricedAddons = required.filter((l) => l.chargeBasis === "unknown");
+  const used = [...childOptions, ...participatingAdultOptions, ...watchingAdultOptions, ...requiredAddons];
+  const assumptions = [
+    "Uses only the verified prices listed above, for the people you add.",
+    ...requiredAddons.map((l) => `Adds ${l.label.toLowerCase()} (${l.amount}) ${addonRuleText(l)}, as the venue states.`),
+    ...unpricedAddons.map(
+      (l) => `Leaves out ${l.label.toLowerCase()} (${l.amount}): required, but the venue doesn't say who it's charged for.`,
+    ),
+    ...unpricedRequirements.map((r) => `Leaves out a required item whose price isn't recorded — ${r}.`),
+    watchingAdultOptions.length
+      ? "Adults who only watch are charged the watching-adult price listed."
+      : "No price is recorded for adults who only watch, so they are left out — check with the venue.",
+    "Excludes optional extras, food, parking, memberships and offers.",
+  ];
+  if (used.some((l) => l.plusTax === true)) {
+    assumptions.push("Prices marked \"plus tax\" are before tax; the estimate does not add tax.");
+  }
+  if (used.some((l) => l.plusTax === null)) {
+    assumptions.push("The venue doesn't say whether some prices include tax.");
+  }
+  return {
+    childOptions,
+    participatingAdultOptions,
+    watchingAdultOptions,
+    requiredAddons,
+    unpricedAddons,
+    unpricedRequirements,
+    assumptions,
+  };
+}
+
+export type CostEstimateInput = {
+  children: number;
+  childLineId: string | null;
+  participatingAdults: number;
+  participatingAdultLineId: string | null;
+  watchingAdults: number;
+  watchingAdultLineId: string | null;
+};
+
+export type CostEstimate = {
+  total: number;
+  /** Which prices were used, line by line. */
+  lines: Array<{ label: string; quantity: number; unit: string; subtotal: number }>;
+  /** People or items left out because no verified price applies. */
+  excluded: string[];
+};
+
+function roundCents(n: number): number {
+  return Math.round(n * 100) / 100;
+}
+
+/**
+ * How many of a required extra a group needs, from the extra's audience and
+ * charging rule. The audience narrows who it applies to (a child-only extra is
+ * never charged to adults; an adult extra never to children); the charging
+ * rule says whether watchers count and whether it is once per visit.
+ */
+export function requiredAddonQuantity(
+  addon: Pick<PriceLine, "audience" | "chargeBasis">,
+  group: { children: number; playingAdults: number; watchers: number; people: number },
+): number {
+  const { children, playingAdults, watchers, people } = group;
+  const childOnly = addon.audience === "child" || addon.audience === "infant";
+  switch (addon.chargeBasis) {
+    case "per_child":
+      return children;
+    case "per_participant":
+      if (childOnly) return children;
+      if (addon.audience === "adult") return playingAdults;
+      if (addon.audience === "non_participant") return 0;
+      return children + playingAdults;
+    case "per_person":
+      if (childOnly) return children;
+      if (addon.audience === "adult") return playingAdults + watchers;
+      if (addon.audience === "non_participant") return watchers;
+      return people;
+    case "per_booking":
+      return people > 0 ? 1 : 0;
+    default:
+      return 0;
+  }
+}
+
+/** Estimate a family's cost. Returns null when a chosen price line is not valid for its group. */
+export function estimateFamilyCost(model: CostEstimatorModel, input: CostEstimateInput): CostEstimate | null {
+  const count = (n: number) => Math.max(0, Math.floor(Number.isFinite(n) ? n : 0));
+  const children = count(input.children);
+  const playingAdults = count(input.participatingAdults);
+  const watchers = count(input.watchingAdults);
+  const lines: CostEstimate["lines"] = [];
+  const excluded: string[] = [];
+
+  const admit = (qty: number, options: PriceLine[], id: string | null, who: string): boolean => {
+    if (qty === 0) return true;
+    if (options.length === 0) {
+      excluded.push(`${qty} ${who}: no verified price`);
+      return true;
+    }
+    const line = options.find((l) => l.id === id);
+    if (!line) return false;
+    lines.push({ label: `${line.label} (${who})`, quantity: qty, unit: line.amount, subtotal: roundCents(qty * line.value) });
+    return true;
+  };
+  if (!admit(children, model.childOptions, input.childLineId, children === 1 ? "child" : "children")) return null;
+  if (!admit(playingAdults, model.participatingAdultOptions, input.participatingAdultLineId, playingAdults === 1 ? "adult taking part" : "adults taking part")) return null;
+  if (!admit(watchers, model.watchingAdultOptions, input.watchingAdultLineId, watchers === 1 ? "adult watching" : "adults watching")) return null;
+
+  const people = children + playingAdults + watchers;
+  for (const addon of model.requiredAddons) {
+    const qty = requiredAddonQuantity(addon, { children, playingAdults, watchers, people });
+    if (qty > 0) {
+      lines.push({ label: addon.label, quantity: qty, unit: addon.amount, subtotal: roundCents(qty * addon.value) });
+    }
+  }
+  for (const a of model.unpricedAddons) excluded.push(`${a.label}: charging rule not stated`);
+  for (const r of model.unpricedRequirements) excluded.push(`a required item with no recorded price (${r.replace(/\.$/, "")})`);
+
+  return { total: roundCents(lines.reduce((sum, l) => sum + l.subtotal, 0)), lines, excluded };
 }
 
 // ---------------------------------------------------------------------------
@@ -810,7 +948,7 @@ const MIN_REVIEWER_SOURCES = 2;
 
 function experienceView(record: VenueRecord, usableSources: VenueReviewSource[]): ExperienceView {
   const sources = new Map(usableSources.map((s) => [s.id, s]));
-  const facts = record.experienceThemes.filter(isPublicFact);
+  const facts = record.experienceThemes.filter(isPublicTheme);
   const reviewerFacts = facts.filter(
     (t) => t.basis === "reviewer_reported" && t.reviewSourceId && sources.has(t.reviewSourceId),
   );
@@ -1011,7 +1149,16 @@ function beforeYouGo(
   if (!has("booking_rule").length && bookingLinks.length) items.push("Check availability with the booking link before you go.");
   for (const p of has("waiver")) items.push(p.body.trim());
   for (const p of has("dress_socks")) items.push(p.body.trim());
-  for (const a of requiredAddons) items.push(`Budget for ${a.label.toLowerCase()} (${a.amount}) — required for each child.`);
+  const who: Record<PriceChargeBasis, string> = {
+    per_child: "required for each child",
+    per_participant: "required for each person taking part",
+    per_person: "required for each person",
+    per_booking: "required once per visit",
+    unknown: "required; check with the venue who needs it",
+  };
+  for (const a of requiredAddons) {
+    items.push(`Budget for ${a.label.toLowerCase()} (${a.amount}) — ${who[a.chargeBasis]}.`);
+  }
   for (const p of has("arrival")) items.push(p.body.trim());
   for (const p of has("food_rule")) items.push(p.body.trim());
   return [...new Set(items.filter(Boolean))];
@@ -1090,7 +1237,9 @@ export function buildVenueDetailView(record: VenueRecord, options: BuildVenueOpt
     ...record.amenities.filter(isPublicFact).map((f) => ({ label: `Amenity: ${AMENITY_LABELS[f.amenity]}`, fact: f })),
     ...policies.map((f) => ({ label: "Visit rules", fact: f })),
     ...links.map((f) => ({ label: "Links and contact", fact: f })),
-    ...record.experienceThemes.filter(isPublicFact).map((f) => ({ label: "Parent experience", fact: f })),
+    ...record.experienceThemes
+      .filter((t) => isPublicTheme(t) && isHttps(t.sourceUrl))
+      .map((f) => ({ label: "Parent experience", fact: { ...f, sourceUrl: f.sourceUrl! } })),
     ...usableSources.map((f) => ({ label: `Reviews: ${f.sourceName}`, fact: f })),
   ];
   const { sources, conflicts } = sourcesView(record, visibleFacts);
@@ -1125,7 +1274,13 @@ export function buildVenueDetailView(record: VenueRecord, options: BuildVenueOpt
       phone: pick("phone"),
     },
     prices,
-    costEstimator: costEstimatorModel(prices),
+    costEstimator: costEstimatorModel(
+      prices,
+      // A required item the venue sells but whose price isn't recorded (e.g. grip socks).
+      requiredAddons.length === 0
+        ? policies.filter((p) => p.kind === "dress_socks" && /required|must/i.test(p.body)).map((p) => p.body.trim().replace(/\.$/, ""))
+        : [],
+    ),
     amenities,
     experience,
     reviews: reviewsView(usableSources, record.reviewSources.length - usableSources.length),

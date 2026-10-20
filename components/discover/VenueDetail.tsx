@@ -17,10 +17,15 @@ import type {
 function Checked({ meta }: { meta: FactMeta }) {
   return (
     <span className="venue-checked">
-      Checked {meta.checked} ·{" "}
-      <a href={meta.sourceUrl} rel="noopener noreferrer" target="_blank">
-        Source
-      </a>
+      Checked {meta.checked}
+      {meta.sourceUrl ? (
+        <>
+          {" · "}
+          <a href={meta.sourceUrl} rel="noopener noreferrer" target="_blank">
+            Source
+          </a>
+        </>
+      ) : null}
       {meta.conflict ? (
         <span className="venue-conflict"> Sources disagree: {meta.conflict}</span>
       ) : null}
@@ -67,10 +72,11 @@ function Activity({ a }: { a: ActivityView }) {
   );
 }
 
-function Theme({ t }: { t: ThemeView }) {
+function Theme({ t, showHeading = true }: { t: ThemeView; showHeading?: boolean }) {
   return (
     <li>
-      <strong>{t.heading}:</strong> {t.summary}
+      {showHeading ? <strong>{t.heading}: </strong> : null}
+      {t.summary}
       {t.mixed ? <span className="venue-conflict"> Reports are mixed.</span> : null}{" "}
       <span className="venue-checked">
         {t.sourceName ? `${t.sourceName} · ` : ""}checked {t.meta.checked}
@@ -514,7 +520,7 @@ export function VenueDetail({
             <h3>From a visit</h3>
             <ul className="venue-list">
               {experience.firstHand.map((t, i) => (
-                <Theme key={i} t={t} />
+                <Theme key={i} t={t} showHeading={t.theme !== "other"} />
               ))}
             </ul>
           </>

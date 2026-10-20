@@ -5,6 +5,7 @@ import {
   ageCheck,
   estimateFamilyCost,
   type CostEstimatorModel,
+  type PriceLine,
   type VenueDetailView,
 } from "@/lib/discover/venueDetail";
 
@@ -76,74 +77,100 @@ export function AgeCheckTool({ tool }: { tool: VenueDetailView["ageTool"] }) {
   );
 }
 
-/** Family cost estimate from verified prices, with its assumptions shown. */
-export function CostEstimator({ model }: { model: CostEstimatorModel }) {
-  const id = useId();
-  const [childLine, setChildLine] = useState(model.childOptions[0]?.id ?? "");
-  const [children, setChildren] = useState(1);
-  const [adultLine, setAdultLine] = useState(model.adultOptions[0]?.id ?? "");
-  const [adults, setAdults] = useState(model.adultOptions.length ? 1 : 0);
-  const total = estimateFamilyCost(model, {
-    childLineId: childLine || null,
-    children,
-    adultLineId: adultLine || null,
-    adults,
-  });
-
+function PersonGroup({
+  id,
+  label,
+  options,
+  count,
+  setCount,
+  lineId,
+  setLineId,
+}: {
+  id: string;
+  label: string;
+  options: PriceLine[];
+  count: number;
+  setCount: (n: number) => void;
+  lineId: string;
+  setLineId: (id: string) => void;
+}) {
   return (
-    <div className="venue-tool">
-      <h3>Family cost estimate</h3>
-      <div className="venue-estimator-grid">
-        <label className="venue-field" htmlFor={`${id}-child-line`}>
-          <span>Child price</span>
-          <select id={`${id}-child-line`} value={childLine} onChange={(e) => setChildLine(e.target.value)}>
-            {model.childOptions.map((l) => (
+    <>
+      <label className="venue-field" htmlFor={`${id}-count`}>
+        <span>{label}</span>
+        <input
+          id={`${id}-count`}
+          type="number"
+          min={0}
+          max={10}
+          value={count}
+          onChange={(e) => setCount(Math.max(0, Math.min(10, Number(e.target.value) || 0)))}
+        />
+      </label>
+      {options.length > 1 ? (
+        <label className="venue-field" htmlFor={`${id}-line`}>
+          <span>{label} price</span>
+          <select id={`${id}-line`} value={lineId} onChange={(e) => setLineId(e.target.value)}>
+            {options.map((l) => (
               <option key={l.id} value={l.id}>
                 {l.label} — {l.amount}
               </option>
             ))}
           </select>
         </label>
-        <label className="venue-field" htmlFor={`${id}-children`}>
-          <span>Children</span>
-          <input
-            id={`${id}-children`}
-            type="number"
-            min={0}
-            max={10}
-            value={children}
-            onChange={(e) => setChildren(Math.max(0, Number(e.target.value) || 0))}
-          />
-        </label>
-        {model.adultOptions.length ? (
-          <>
-            <label className="venue-field" htmlFor={`${id}-adult-line`}>
-              <span>Adult price</span>
-              <select id={`${id}-adult-line`} value={adultLine} onChange={(e) => setAdultLine(e.target.value)}>
-                {model.adultOptions.map((l) => (
-                  <option key={l.id} value={l.id}>
-                    {l.label} — {l.amount}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label className="venue-field" htmlFor={`${id}-adults`}>
-              <span>Adults</span>
-              <input
-                id={`${id}-adults`}
-                type="number"
-                min={0}
-                max={10}
-                value={adults}
-                onChange={(e) => setAdults(Math.max(0, Number(e.target.value) || 0))}
-              />
-            </label>
-          </>
-        ) : null}
+      ) : null}
+    </>
+  );
+}
+
+/** Family cost estimate from verified prices, with the prices used and assumptions shown. */
+export function CostEstimator({ model }: { model: CostEstimatorModel }) {
+  const id = useId();
+  const [children, setChildren] = useState(1);
+  const [childLine, setChildLine] = useState(model.childOptions[0]?.id ?? "");
+  const [playing, setPlaying] = useState(0);
+  const [playingLine, setPlayingLine] = useState(model.participatingAdultOptions[0]?.id ?? "");
+  const [watching, setWatching] = useState(1);
+  const [watchingLine, setWatchingLine] = useState(model.watchingAdultOptions[0]?.id ?? "");
+  const estimate = estimateFamilyCost(model, {
+    children,
+    childLineId: childLine || null,
+    participatingAdults: playing,
+    participatingAdultLineId: playingLine || null,
+    watchingAdults: watching,
+    watchingAdultLineId: watchingLine || null,
+  });
+
+  return (
+    <div className="venue-tool">
+      <h3>Family cost estimate</h3>
+      <div className="venue-estimator-grid">
+        <PersonGroup id={`${id}-c`} label="Children" options={model.childOptions} count={children} setCount={setChildren} lineId={childLine} setLineId={setChildLine} />
+        <PersonGroup id={`${id}-p`} label="Adults taking part" options={model.participatingAdultOptions} count={playing} setCount={setPlaying} lineId={playingLine} setLineId={setPlayingLine} />
+        <PersonGroup id={`${id}-w`} label="Adults watching" options={model.watchingAdultOptions} count={watching} setCount={setWatching} lineId={watchingLine} setLineId={setWatchingLine} />
       </div>
-      <p className="venue-estimate" aria-live="polite">
-        {total === null ? "Choose a price for each person." : `Estimated total: $${total.toFixed(2)}`}
-      </p>
+      <div aria-live="polite">
+        {estimate ? (
+          <>
+            <p className="venue-estimate">Estimated total: ${estimate.total.toFixed(2)}</p>
+            {estimate.lines.length ? (
+              <ul className="venue-assumptions">
+                {estimate.lines.map((l) => (
+                  <li key={l.label}>
+                    {l.quantity} × {l.label} at {l.unit} = ${l.subtotal.toFixed(2)}
+                  </li>
+                ))}
+              </ul>
+            ) : null}
+            {estimate.excluded.length ? (
+              <p className="venue-muted">Not included: {estimate.excluded.join("; ")}.</p>
+            ) : null}
+          </>
+        ) : (
+          <p className="venue-estimate">Choose a price for each group.</p>
+        )}
+      </div>
+      <h4>Assumptions</h4>
       <ul className="venue-assumptions">
         {model.assumptions.map((a) => (
           <li key={a}>{a}</li>

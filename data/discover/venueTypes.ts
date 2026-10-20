@@ -42,6 +42,8 @@ export type VenuePlace = DiscoverPlace & {
   /** Former names and aliases. */
   aliases?: string[];
   postalCode?: string | null;
+  /** How the typical visit length was judged, as researched. */
+  typicalVisitNote?: string | null;
 };
 
 export type VenueHours = PlaceHours & Partial<Pick<Provenance, "sourceUrl" | "sourceCheckedDate">>;
@@ -96,6 +98,19 @@ export type VenuePriceKind =
   | "promotion"
   | "fee";
 
+/**
+ * Who a required extra is charged for:
+ * per_child — each child; per_participant — each person taking part, adults
+ * who join in included; per_person — everyone in the group, watchers
+ * included; per_booking — once per visit; unknown — not stated.
+ */
+export type PriceChargeBasis =
+  | "per_child"
+  | "per_participant"
+  | "per_person"
+  | "per_booking"
+  | "unknown";
+
 export type VenuePrice = Provenance & {
   id: string;
   kind: VenuePriceKind;
@@ -110,8 +125,13 @@ export type VenuePrice = Provenance & {
   amount?: number | null;
   isFree: boolean;
   currency: CampCurrency;
-  /** An extra every participant must buy (e.g. grip socks). */
+  /** An extra that must be bought to take part (e.g. grip socks). */
   requiredAddon: boolean;
+  /**
+   * Who a required extra is charged for, as the venue states it.
+   * "unknown" when not stated — the estimator then leaves it out.
+   */
+  chargeBasis?: PriceChargeBasis;
   /** True when the venue says tax is added; null when not stated. */
   plusTax?: boolean | null;
   eligibility?: string | null;
@@ -243,7 +263,9 @@ export type ExperienceTheme =
   | "friction"
   | "other";
 
-export type VenueExperienceTheme = Provenance & {
+export type VenueExperienceTheme = Omit<Provenance, "sourceUrl"> & {
+  /** Required except for first_hand_visit notes, which have no web source. */
+  sourceUrl?: string | null;
   theme: ExperienceTheme;
   /** Compass's own words, no long quotations (max 400 characters). */
   summary: string;
