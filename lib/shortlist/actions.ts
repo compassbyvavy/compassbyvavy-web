@@ -3,7 +3,7 @@
  * an outbound click handler.
  */
 
-import { refsEqual, shortlistEntryId } from "@/lib/shortlist/refs";
+import { shortlistEntryId } from "@/lib/shortlist/refs";
 import {
   PAST_LIST_CAP,
   type ShortlistItem,
@@ -197,8 +197,4 @@ export function applyOutboundClickDoesNotMarkRegistered(
 ): ShortlistState {
   void _href;
   return state;
-}
-
-export function hasRef(state: ShortlistState, ref: ShortlistRef): boolean {
-  return state.items.some((item) => refsEqual(item.ref, ref));
 }

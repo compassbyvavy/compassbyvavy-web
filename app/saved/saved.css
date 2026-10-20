@@ -2,24 +2,6 @@
   padding: 28px 0 64px;
 }
 
-.saved-compare-bar {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: 14px;
-  margin: 0 0 24px;
-  padding: 16px 18px;
-  background: var(--camps-paper);
-  border: 1px solid var(--camps-line);
-  border-radius: var(--camps-radius);
-}
-
-.saved-compare-bar p {
-  margin: 0;
-  max-width: 46rem;
-}
-
 .saved-list,
 .saved-past-list,
 .saved-session-picks {
@@ -65,7 +47,6 @@
   align-items: flex-start;
 }
 
-.saved-compare-pick,
 .saved-registered,
 .saved-session-picks label {
   display: inline-flex;
@@ -287,10 +268,5 @@
 @media (max-width: 620px) {
   .saved-page {
     padding-top: 18px;
-  }
-
-  .saved-compare-bar {
-    align-items: flex-start;
-    flex-direction: column;
   }
 }

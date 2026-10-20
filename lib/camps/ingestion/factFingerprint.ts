@@ -175,10 +175,6 @@ export type FactFingerprintComparison =
       nextVersion: string;
     };
 
-export function isFactFingerprintVersion(value: string): value is FactFingerprintVersion {
-  return value === FACT_FINGERPRINT_VERSION_V1 || value === FACT_FINGERPRINT_VERSION_V2;
-}
-
 /**
  * True when a stored fingerprint is an older known version and the current
  * algorithm may recompute/persist a new version without treating that as a

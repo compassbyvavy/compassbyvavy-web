@@ -1,8 +1,8 @@
 /**
  * Camps-scoped font loaders (next/font).
  *
- * Import from a future `app/camps/layout.tsx` / preview only — do not apply to
- * the root layout. Combine variables with `.camps-theme` from camps.css.
+ * Used by the Camps, Discover and Plan (saved list) layouts. Do not apply to the root
+ * layout. Combine the variables with `.camps-theme` from camps.css.
  */
 
 import { Inter, Newsreader } from "next/font/google";
