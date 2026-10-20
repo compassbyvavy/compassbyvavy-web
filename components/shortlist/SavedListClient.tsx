@@ -9,15 +9,28 @@ import {
   buildCompareHref,
   latestVerifiedStatusLabel,
 } from "@/lib/shortlist/compare";
+import { getDiscoverCategory } from "@/lib/discover/categories";
+import {
+  displayCost,
+  displayProviderHref,
+  displayText,
+  latestVerifiedLabel,
+} from "@/lib/discover/display";
+import type { DiscoverPlaceListing } from "@/lib/listings/discoverPlace";
 import { publicIdsFromCatalog, resolveShortlist } from "@/lib/shortlist/resolve";
 import { COMPARE_MAX, COMPARE_MIN } from "@/lib/shortlist/types";
 
 export type SavedListClientProps = {
   catalog: CampsCatalogBundle | null;
+  discoverListings?: readonly DiscoverPlaceListing[];
   nowIso?: string;
 };
 
-export function SavedListClient({ catalog, nowIso }: SavedListClientProps) {
+export function SavedListClient({
+  catalog,
+  discoverListings = [],
+  nowIso,
+}: SavedListClientProps) {
   const {
     state,
     hydrated,
@@ -30,15 +43,37 @@ export function SavedListClient({ catalog, nowIso }: SavedListClientProps) {
     [nowIso],
   );
   const [selectedSessionIds, setSelectedSessionIds] = useState<string[]>([]);
+  const discoverListingIds = useMemo(
+    () => new Set(discoverListings.map((listing) => listing.id)),
+    [discoverListings],
+  );
 
   useEffect(() => {
-    if (!hydrated || !catalog) return;
-    reconcileUnavailable(publicIdsFromCatalog(catalog));
-  }, [hydrated, catalog, reconcileUnavailable, state.items.length]);
+    if (!hydrated) return;
+    if (!catalog) {
+      reconcileUnavailable({
+        programIds: new Set(),
+        sessionIds: new Set(),
+        campsCatalogLoaded: false,
+        discoverListingIds,
+      });
+      return;
+    }
+    reconcileUnavailable({
+      ...publicIdsFromCatalog(catalog),
+      discoverListingIds,
+    });
+  }, [
+    hydrated,
+    catalog,
+    reconcileUnavailable,
+    state.items.length,
+    discoverListingIds,
+  ]);
 
   const resolved = useMemo(
-    () => resolveShortlist(state, catalog, { now }),
-    [state, catalog, now],
+    () => resolveShortlist(state, catalog, { now, discoverListings }),
+    [state, catalog, now, discoverListings],
   );
 
   const selectableSessionIds = useMemo(() => {
@@ -132,8 +167,8 @@ export function SavedListClient({ catalog, nowIso }: SavedListClientProps) {
         <div className="camps-empty" role="status">
           <h2>Nothing saved yet</h2>
           <p>
-            Heart a camp card or a selected session to keep it here. Browsing
-            does not require an account.
+            Heart a camp or a Discover listing (when preview examples are on)
+            to keep it here. Browsing does not require an account.
           </p>
           <p>
             <Link href="/camps">Browse camps</Link>
@@ -150,6 +185,72 @@ export function SavedListClient({ catalog, nowIso }: SavedListClientProps) {
                     Details to load. Compass is not showing unpublished names
                     or prices for this saved ID.
                   </p>
+                  <button
+                    type="button"
+                    className="camps-text-btn"
+                    onClick={() => remove(item.entry.ref)}
+                  >
+                    Remove from list
+                  </button>
+                </li>
+              );
+            }
+
+            if (item.kind === "discover") {
+              const providerHref = displayProviderHref(item.listing.providerUrl);
+              const kind =
+                getDiscoverCategory(item.listing.category)?.title ?? "Place";
+              return (
+                <li key={item.entry.entryId} className="saved-item" data-listing-id={item.listing.id}>
+                  <div className="saved-item-head">
+                    <div>
+                      <p className="camp-card-provider">{kind}</p>
+                      <h2>
+                        <Link href={item.listing.href}>{item.listing.title}</Link>
+                      </h2>
+                      <p className="camp-card-note">
+                        {displayText(item.listing.areaLabel)}
+                        {item.listing.verification === "example"
+                          ? " · Example data"
+                          : ""}
+                      </p>
+                    </div>
+                  </div>
+                  <p className="camp-status-chip camp-status-muted">
+                    {latestVerifiedLabel(item.listing.lastVerifiedOn)}
+                  </p>
+                  <dl className="camp-card-meta">
+                    <div className="camp-card-meta-row">
+                      <dt>Provider</dt>
+                      <dd>{displayText(item.listing.providerName)}</dd>
+                    </div>
+                    <div className="camp-card-meta-row">
+                      <dt>Cost</dt>
+                      <dd>{displayCost(item.listing)}</dd>
+                    </div>
+                  </dl>
+                  {providerHref ? (
+                    <a
+                      className="camp-card-cta"
+                      href={providerHref}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      Continue on the provider site
+                    </a>
+                  ) : (
+                    <p className="camp-card-note">Provider link: Unknown</p>
+                  )}
+                  <label className="saved-registered">
+                    <input
+                      type="checkbox"
+                      checked={item.entry.registeredMarkedAt != null}
+                      onChange={(event) =>
+                        markRegistered(item.entry.ref, event.target.checked)
+                      }
+                    />
+                    <span>Mark as done (parent-marked only)</span>
+                  </label>
                   <button
                     type="button"
                     className="camps-text-btn"
@@ -328,7 +429,9 @@ export function SavedListClient({ catalog, nowIso }: SavedListClientProps) {
                   </>
                 ) : (
                   <span>
-                    A saved camp is no longer listed.
+                    {item.entry.ref.kind === "discover_listing"
+                      ? "A saved place is no longer listed."
+                      : "A saved camp is no longer listed."}
                     {item.entry.reason === "removed"
                       ? " You removed it earlier."
                       : ""}

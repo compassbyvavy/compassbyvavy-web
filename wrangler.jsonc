@@ -15,6 +15,7 @@
   // each *ReviewPreviewEnabled helper also requires a Cloudflare Preview URL host.
   "vars": {
     "COMPASS_CAMPS_REVIEW_PREVIEW": "true",
-    "COMPASS_PLAY_REVIEW_PREVIEW": "true"
+    "COMPASS_PLAY_REVIEW_PREVIEW": "true",
+    "COMPASS_DISCOVER_REVIEW_PREVIEW": "true"
   }
 }

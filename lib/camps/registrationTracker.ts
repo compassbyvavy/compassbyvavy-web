@@ -335,6 +335,7 @@ export function buildRegistrationTracker(
       rows.push(...rowsFromProgram(source, item));
       continue;
     }
+    if (item.kind === "discover") continue;
     rows.push(rowFromSession(source, item));
   }
 
