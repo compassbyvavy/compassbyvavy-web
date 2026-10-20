@@ -74,7 +74,7 @@ describe("venue routing and publication gate", () => {
     assert.equal(await loadVenueCatalog({ venueSlug: "sky-zone-mississauga", nodeEnv: "production", supabase: null }), null);
     const dev = await loadVenueCatalog({ venueSlug: "sky-zone-mississauga", nodeEnv: "development" });
     assert.equal(dev?.sourceLabel, "dev_preview");
-    assert.ok(dev?.records.some((r) => r.place.id === "PE-001"));
+    assert.ok(dev?.records.some((r) => r.place.id === "PE-033"));
   });
 });
 

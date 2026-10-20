@@ -6,10 +6,10 @@ import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { VenueDetail } from "@/components/discover/VenueDetail";
 import {
-  PE001_LAST_RESEARCHED,
-  PE001_OFFICIAL_SITE,
-  pe001SkyZoneMississauga as pe001,
-} from "@/data/discover/venues/pe001SkyZoneMississauga";
+  PE033_LAST_RESEARCHED,
+  PE033_OFFICIAL_SITE,
+  pe033SkyZoneMississauga as pe033,
+} from "@/data/discover/venues/pe033SkyZoneMississauga";
 import { ageCheck, buildVenueDetailView, estimateFamilyCost, resolvePublicVenue } from "@/lib/discover/venueDetail";
 import { loadVenueCatalog, previewAsPublished, venueIndexable } from "@/lib/discover/venuesCatalog";
 import { venueRecordToRows } from "@/lib/discover/venueRows";
@@ -22,12 +22,12 @@ import {
 } from "@/lib/discover/venuesSupabase";
 
 const TODAY = "2026-10-16";
-const preview = previewAsPublished(pe001);
+const preview = previewAsPublished(pe033);
 const view = () => buildVenueDetailView(preview, { today: TODAY });
 const html = () => renderToStaticMarkup(createElement(VenueDetail, { view: view() }));
-/** The rows anon can read for PE-001, captured from the migrated schema after running the seed. */
+/** The rows anon can read for PE-033, captured from the migrated schema after running the seed. */
 const anonResponse = JSON.parse(
-  readFileSync(join(process.cwd(), "lib/discover/__fixtures__/pe001-anon-response.json"), "utf8"),
+  readFileSync(join(process.cwd(), "lib/discover/__fixtures__/pe033-anon-response.json"), "utf8"),
 ) as Record<string, unknown>[];
 
 function jsonResponse(body: unknown, status = 200): Response {
@@ -45,11 +45,11 @@ function withoutIds(value: unknown): unknown {
   return value;
 }
 
-describe("PE-001 Sky Zone Mississauga record", () => {
+describe("PE-033 Sky Zone Mississauga record", () => {
   it("is stored as a draft and is only public once published", () => {
-    assert.equal(pe001.place.publicationState, "draft");
-    assert.equal(resolvePublicVenue([pe001], "play", "sky-zone-mississauga"), null);
-    assert.equal(resolvePublicVenue([preview], "play", "sky-zone-mississauga")?.place.id, "PE-001");
+    assert.equal(pe033.place.publicationState, "draft");
+    assert.equal(resolvePublicVenue([pe033], "play", "sky-zone-mississauga"), null);
+    assert.equal(resolvePublicVenue([preview], "play", "sky-zone-mississauga")?.place.id, "PE-033");
   });
 
   it("keeps the supplied identity, address, location note and setting", () => {
@@ -68,7 +68,7 @@ describe("PE-001 Sky Zone Mississauga record", () => {
       "Adventure Courses",
       "Family Entertainment Centres",
     ]);
-    assert.deepEqual(pe001.types.filter((t) => t.isPrimary).map((t) => t.placeType), ["Trampoline Parks"]);
+    assert.deepEqual(pe033.types.filter((t) => t.isPrimary).map((t) => t.placeType), ["Trampoline Parks"]);
   });
 
   it("shows all ten confirmed activities", () => {
@@ -80,7 +80,7 @@ describe("PE-001 Sky Zone Mississauga record", () => {
     const sources = view().sources;
     assert.ok(sources.length > 0);
     assert.ok(sources.every((s) => s.lastChecked === "Sep 24, 2026"));
-    assert.equal(PE001_LAST_RESEARCHED, "2026-09-24");
+    assert.equal(PE033_LAST_RESEARCHED, "2026-09-24");
   });
 
   it("shows the verified prices and hides the undated offer and also-seen tiers", () => {
@@ -102,7 +102,7 @@ describe("PE-001 Sky Zone Mississauga record", () => {
     const v = view();
     assert.equal(v.visit.hours.kind, "unknown");
     assert.deepEqual(v.visit.bookingLinks, []);
-    assert.equal(v.visit.website?.href, PE001_OFFICIAL_SITE);
+    assert.equal(v.visit.website?.href, PE033_OFFICIAL_SITE);
     const confirmed = v.amenities.filter((a) => a.status === "confirmed").map((a) => a.kind).sort();
     assert.deepEqual(confirmed, ["food_onsite", "grip_socks", "party_rooms"]);
     assert.ok(v.amenities.filter((a) => a.status !== "confirmed").every((a) => a.status === "not_confirmed"));
@@ -123,8 +123,8 @@ describe("PE-001 Sky Zone Mississauga record", () => {
     assert.doesNotMatch(page, /birthday-party hosts|overheating|air-freshener/);
     assert.match(view().reviews.coverage, /No permitted review or editorial sources/);
     // The themes are kept, awaiting sources.
-    assert.equal(pe001.experienceThemes.filter((t) => t.basis === "reviewer_reported").length, 8);
-    assert.ok(pe001.experienceThemes.filter((t) => t.basis === "reviewer_reported").every((t) => t.verificationStatus === "needs_follow_up" && !t.reviewSourceId));
+    assert.equal(pe033.experienceThemes.filter((t) => t.basis === "reviewer_reported").length, 8);
+    assert.ok(pe033.experienceThemes.filter((t) => t.basis === "reviewer_reported").every((t) => t.verificationStatus === "needs_follow_up" && !t.reviewSourceId));
   });
 
   it("keeps official eligibility and the best-fit range apart", () => {
@@ -142,9 +142,9 @@ describe("PE-001 Sky Zone Mississauga record", () => {
     assert.ok(model.assumptions.some((a) => /doesn't say whether some prices include tax/.test(a)));
     const est = estimateFamilyCost(model, {
       children: 2,
-      childLineId: "pe001-ticket-120",
+      childLineId: "pe033-ticket-120",
       participatingAdults: 1,
-      participatingAdultLineId: "pe001-ticket-120",
+      participatingAdultLineId: "pe033-ticket-120",
       watchingAdults: 1,
       watchingAdultLineId: null,
     })!;
@@ -191,7 +191,7 @@ describe("production venue catalog (Supabase)", () => {
     assert.ok(record);
     assert.equal(seen!.headers.apikey, "anon-key");
     assert.equal(seen!.headers.Authorization, "Bearer anon-key");
-    assert.equal(resolvePublicVenue([record], "play", "sky-zone-mississauga")?.place.id, "PE-001");
+    assert.equal(resolvePublicVenue([record], "play", "sky-zone-mississauga")?.place.id, "PE-033");
     const fromDb = buildVenueDetailView(record, { today: TODAY });
     assert.deepEqual(withoutIds(fromDb), withoutIds(view()));
   });
@@ -281,12 +281,12 @@ describe("venue page metadata", () => {
       supabase: { ...config, fetchImpl: async () => jsonResponse(anonResponse) },
     });
     assert.equal(resolvePublicVenue(published!.records, "parks", "sky-zone-mississauga"), null);
-    assert.equal(resolvePublicVenue([pe001], "play", "sky-zone-mississauga"), null, "draft record");
+    assert.equal(resolvePublicVenue([pe033], "play", "sky-zone-mississauga"), null, "draft record");
   });
 });
 
-describe("PE-001 seed", () => {
-  const sql = buildVenueSeedSql(pe001, {
+describe("PE-033 seed", () => {
+  const sql = buildVenueSeedSql(pe033, {
     id: "mississauga",
     country: "Canada",
     provinceState: "Ontario",
@@ -296,7 +296,7 @@ describe("PE-001 seed", () => {
   });
 
   it("matches the committed seed file", () => {
-    const committed = readFileSync(join(process.cwd(), "supabase/seeds/discover/pe-001-sky-zone-mississauga.sql"), "utf8");
+    const committed = readFileSync(join(process.cwd(), "supabase/seeds/discover/pe-033-sky-zone-mississauga.sql"), "utf8");
     assert.equal(sql, committed, "regenerate with: npx tsx scripts/discover/build-venue-seed.ts");
   });
 
@@ -305,7 +305,7 @@ describe("PE-001 seed", () => {
     assert.match(sql, /'draft'::public\.publication_state/);
     const statements = sql.split("\n").filter((l) => !l.startsWith("--")).join("\n");
     assert.doesNotMatch(statements, /'published'|published_at/);
-    assert.match(sql, /apply pe-001-sky-zone-mississauga\.publish\.sql separately/);
+    assert.match(sql, /apply pe-033-sky-zone-mississauga\.publish\.sql separately/);
     assert.doesNotMatch(sql, /publication_state = excluded/);
   });
 
@@ -316,12 +316,12 @@ describe("PE-001 seed", () => {
   });
 
   it("refuses to seed a record that is already marked published", () => {
-    assert.throws(() => buildVenueSeedSql(previewAsPublished(pe001), { id: "x", country: "Canada", provinceState: "Ontario", cityTown: "X", slug: "x", tourismRegion: null }));
+    assert.throws(() => buildVenueSeedSql(previewAsPublished(pe033), { id: "x", country: "Canada", provinceState: "Ontario", cityTown: "X", slug: "x", tourismRegion: null }));
   });
 
   it("publishes only through the separate, guarded publish file", () => {
-    const publish = buildVenuePublishSql(pe001);
-    const committed = readFileSync(join(process.cwd(), "supabase/seeds/discover/pe-001-sky-zone-mississauga.publish.sql"), "utf8");
+    const publish = buildVenuePublishSql(pe033);
+    const committed = readFileSync(join(process.cwd(), "supabase/seeds/discover/pe-033-sky-zone-mississauga.publish.sql"), "utf8");
     assert.equal(publish, committed);
     assert.match(publish, /operating_status = 'open'/);
     assert.match(publish, /raise exception 'Not published/);

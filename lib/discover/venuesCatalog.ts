@@ -4,7 +4,7 @@
  * - Production: published, open venues read from Supabase with the public
  *   anon key (lib/discover/venuesSupabase.ts). No credentials → no venues,
  *   so every venue URL 404s rather than showing anything unverified.
- * - Development: fictional fixtures plus a preview of real records (PE-001)
+ * - Development: fictional fixtures plus a preview of real records (PE-033)
  *   exactly as they would publish. Never indexed.
  */
 
@@ -56,12 +56,12 @@ export async function loadVenueCatalog(
     const record = await fetchPublishedVenue(config, options.venueSlug);
     return record ? { records: [record], sourceLabel: "published" } : null;
   }
-  const [{ venuesDevRecords }, { pe001SkyZoneMississauga }] = await Promise.all([
+  const [{ venuesDevRecords }, { pe033SkyZoneMississauga }] = await Promise.all([
     import("@/data/discover/venues.dev"),
-    import("@/data/discover/venues/pe001SkyZoneMississauga"),
+    import("@/data/discover/venues/pe033SkyZoneMississauga"),
   ]);
   return {
-    records: [...venuesDevRecords, previewAsPublished(pe001SkyZoneMississauga)],
+    records: [...venuesDevRecords, previewAsPublished(pe033SkyZoneMississauga)],
     sourceLabel: "dev_preview",
   };
 }

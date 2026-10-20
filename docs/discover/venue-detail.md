@@ -9,7 +9,7 @@ One page per venue location: `/discover/<category>/<venue-slug>`, e.g. `/discove
 - Schema: `supabase/migrations/20261017030000_discover_venue_detail.sql`, plus `20261020090000_discover_venue_detail_followup.sql` (charging rule, visit-length note, and the follow-up rules below)
 - Catalog: `lib/discover/venuesCatalog.ts`
   - **Production** reads one published, open venue by slug from Supabase (`lib/discover/venuesSupabase.ts`, PostgREST over `fetch`). It uses the **anon key only**, so row-level security still decides what is visible; the query repeats the publication/operating filters and the mapper drops any `needs_follow_up` fact as a second check. Without the settings below, production serves no venues and every venue URL 404s.
-  - **Development** serves the fictional fixtures (`data/discover/venues.dev.ts`) plus a preview of real records (PE-001) as they would look once published, under a "DEV PREVIEW" banner.
+  - **Development** serves the fictional fixtures (`data/discover/venues.dev.ts`) plus a preview of real records (PE-033) as they would look once published, under a "DEV PREVIEW" banner.
 - Real records: `data/discover/venues/*.ts` (reviewed TypeScript, stored as drafts) → seed SQL in `supabase/seeds/discover/`.
 
 ### Production settings (server-side only)
@@ -36,7 +36,7 @@ One page per venue location: `/discover/<category>/<venue-slug>`, e.g. `/discove
 
 Nothing in the app applies either file.
 
-How the PE-001 seed fits the migration's checks:
+How the PE-033 seed fits the migration's checks:
 
 | Seed row | Check | Why it passes |
 | --- | --- | --- |
@@ -90,9 +90,9 @@ Page tools: "Will this work for my kids?" (ages vs. published limits), family co
 - "What to expect" says **Limited information** unless there are at least two reviewer themes from at least two sources and none are mixed.
 - First-hand visit notes appear under their own heading, never mixed into review themes. Nothing is written as though Compass staff visited unless a `first_hand_visit` theme says so.
 
-## PE-001 Sky Zone Mississauga
+## PE-033 Sky Zone Mississauga
 
-Source: the final PE-001 profile (last researched 2026-09-24); facts cite the official location site, `https://www.skyzone.com/ca-mississauga/`.
+Source: the final PE-033 profile (last researched 2026-09-24); facts cite the official location site, `https://www.skyzone.com/ca-mississauga/`.
 
 | Shown | Kept hidden (`needs_follow_up`) and why | Not stored |
 | --- | --- | --- |
@@ -104,5 +104,5 @@ The estimator uses the 120-minute ticket for children and adults who jump. It le
 
 ## Open items
 
-- **Play & Entertainment taxonomy (dependency).** The repo has no taxonomy export: `lib/discover/categories.ts` holds only the top-level browse cards. `place_types.place_type` stays free text and PE-001 uses the labels supplied in its record. When the canonical export is added, validate `place_types` against it instead of creating a second list here.
-- Review sources for PE-001 (see above).
+- **Play & Entertainment taxonomy (dependency).** The repo has no taxonomy export: `lib/discover/categories.ts` holds only the top-level browse cards. `place_types.place_type` stays free text and PE-033 uses the labels supplied in its record. When the canonical export is added, validate `place_types` against it instead of creating a second list here.
+- Review sources for PE-033 (see above).
