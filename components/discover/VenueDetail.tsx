@@ -1,13 +1,20 @@
 import type { ReactNode } from "react";
+import { VenueIllustration } from "@/components/discover/VenueIllustration";
 import {
   AgeCheckTool,
   CostEstimator,
+  FamilyPriceTool,
   ShareButton,
+  VenueSection,
+  VisitChecklist,
 } from "@/components/discover/VenueTools";
 import type {
   ActivityView,
   AmenityView,
+  DayPriceRow,
   FactMeta,
+  PriceLine,
+  PriceSection,
   RuleLine,
   ThemeView,
   VenueDetailView,
@@ -17,15 +24,29 @@ import type {
 function Checked({ meta }: { meta: FactMeta }) {
   return (
     <span className="venue-checked">
-      Checked {meta.checked} ·{" "}
-      <a href={meta.sourceUrl} rel="noopener noreferrer" target="_blank">
-        Source
-      </a>
+      Checked {meta.checked}
+      {meta.sourceUrl ? (
+        <>
+          {" · "}
+          <a href={meta.sourceUrl} rel="noopener noreferrer" target="_blank">
+            Source
+          </a>
+        </>
+      ) : null}
       {meta.conflict ? (
         <span className="venue-conflict"> Sources disagree: {meta.conflict}</span>
       ) : null}
     </span>
   );
+}
+
+/** The one checked date and source a whole list shares, or null when they differ. */
+function sharedMeta(metas: FactMeta[]): FactMeta | null {
+  if (metas.length < 2) return null;
+  const [first] = metas;
+  return metas.every((m) => m.checked === first.checked && m.sourceUrl === first.sourceUrl && !m.conflict)
+    ? first
+    : null;
 }
 
 function NotConfirmed({ children }: { children: ReactNode }) {
@@ -48,29 +69,33 @@ function Rules({ heading, lines }: { heading: string; lines: RuleLine[] }) {
   );
 }
 
-function Activity({ a }: { a: ActivityView }) {
+function Activity({ a, compact = false }: { a: ActivityView; compact?: boolean }) {
+  // In a compact list the shared source shows once below, and "available
+  // whenever the venue is open" goes without saying.
+  const schedule = compact && a.schedule === "Available whenever the venue is open" ? null : a.schedule;
   return (
     <li className="venue-activity">
       <h4>{a.name}</h4>
       {a.description ? <p>{a.description}</p> : null}
-      {a.limits.length || a.cost || a.schedule ? (
+      {a.limits.length || a.cost || schedule ? (
         <ul className="venue-tags">
           {a.limits.map((l) => (
             <li key={l}>{l}</li>
           ))}
           {a.cost ? <li>{a.cost}</li> : null}
-          {a.schedule ? <li>{a.schedule}</li> : null}
+          {schedule ? <li>{schedule}</li> : null}
         </ul>
       ) : null}
-      <Checked meta={a.meta} />
+      {compact ? null : <Checked meta={a.meta} />}
     </li>
   );
 }
 
-function Theme({ t }: { t: ThemeView }) {
+function Theme({ t, showHeading = true }: { t: ThemeView; showHeading?: boolean }) {
   return (
     <li>
-      <strong>{t.heading}:</strong> {t.summary}
+      {showHeading ? <strong>{t.heading}: </strong> : null}
+      {t.summary}
       {t.mixed ? <span className="venue-conflict"> Reports are mixed.</span> : null}{" "}
       <span className="venue-checked">
         {t.sourceName ? `${t.sourceName} · ` : ""}checked {t.meta.checked}
@@ -90,6 +115,75 @@ function Amenity({ a }: { a: AmenityView }) {
   );
 }
 
+/** Weekday / weekend price table; a price for any day shows in both columns. */
+function DayPriceTable({ rows, caption, firstColumn }: { rows: DayPriceRow[]; caption: string; firstColumn: string }) {
+  const cell = (l: PriceLine | null) => (l ? l.amount : "—");
+  return (
+    <div className="venue-table-scroll">
+      <table className="venue-day-prices">
+        <caption className="venue-sr-only">{caption}</caption>
+        <thead>
+          <tr>
+            <th scope="col">{firstColumn}</th>
+            <th scope="col">Weekdays</th>
+            <th scope="col">Weekends and holidays</th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((r) => (
+            <tr key={r.label}>
+              <th scope="row">
+                {r.label}
+                {r.details.length ? <span className="venue-price-details">{r.details.join(" · ")}</span> : null}
+                {(r.anyDay ?? r.weekend ?? r.weekday)?.meta.conflict ? (
+                  <span className="venue-conflict"> Sources disagree: {(r.anyDay ?? r.weekend ?? r.weekday)!.meta.conflict}</span>
+                ) : null}
+              </th>
+              <td>{cell(r.anyDay ?? r.weekday)}</td>
+              <td>{cell(r.anyDay ?? r.weekend)}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+function PriceList({ section }: { section: PriceSection }) {
+  const shared = sharedMeta(section.lines.map((l) => l.meta));
+  return (
+    <div className="venue-price-group">
+      <h3>{section.heading}</h3>
+      <ul className="venue-prices">
+        {section.lines.map((l) => (
+          <li key={l.id}>
+            <span className="venue-price-label">
+              {l.label}
+              {l.requiredAddon ? <span className="venue-required"> · Required</span> : null}
+            </span>
+            <span className="venue-price-amount">{l.amount}</span>
+            {l.details.length ? <span className="venue-price-details">{l.details.join(" · ")}</span> : null}
+            {shared ? (
+              l.meta.conflict ? <span className="venue-conflict">Sources disagree: {l.meta.conflict}</span> : null
+            ) : (
+              <Checked meta={l.meta} />
+            )}
+          </li>
+        ))}
+      </ul>
+      {shared ? <Checked meta={shared} /> : null}
+    </div>
+  );
+}
+
+const plusTaxNote = (lines: PriceLine[]) =>
+  lines.some((l) => l.plusTax === true) ? "Prices are plus HST." : null;
+
+/**
+ * A venue page, organised around a parent's questions: Will it suit my kids?
+ * What will it cost? When to go, and what to know before going. Parties,
+ * reviews and sources follow. Each section folds away on a phone.
+ */
 export function VenueDetail({
   view,
   banner,
@@ -98,11 +192,15 @@ export function VenueDetail({
   banner?: string | null;
 }) {
   const { overview, snapshot, visit, gettingThere, experience, reviews } = view;
-  const hasRules =
-    visit.bookingRules.length + visit.waiver.length + visit.arrival.length + visit.dress.length +
-      visit.food.length + visit.cancellation.length + visit.other.length > 0;
   const confirmedAmenities = view.amenities.filter((a) => a.status !== "not_confirmed");
   const unconfirmedAmenities = view.amenities.filter((a) => a.status === "not_confirmed");
+  const admission = view.prices.find((s) => s.kind === "admission");
+  const paymentNotes = visit.other.filter((l) => /\bcash/i.test(l.text));
+  const otherNotes = visit.other.filter((l) => !/\bcash/i.test(l.text));
+  const showAgeTool = view.ageTool.activities.some((a) => a.ageMin !== null || a.ageMax !== null);
+  const fullName = `${overview.name}${overview.branchName ? ` — ${overview.branchName}` : ""}`;
+  const activitiesMeta = sharedMeta(view.activities.map((a) => a.meta));
+  const bandsMeta = sharedMeta(snapshot.ageBands.flatMap((b) => (b.meta ? [b.meta] : [])));
 
   return (
     <article className="venue-page">
@@ -112,7 +210,6 @@ export function VenueDetail({
         </p>
       ) : null}
 
-      {/* 1. Overview */}
       <header className="venue-header" id="overview">
         <p className="eyebrow">
           {overview.categoryHref && overview.categoryTitle ? (
@@ -120,6 +217,7 @@ export function VenueDetail({
           ) : (
             overview.categoryTitle
           )}
+          {view.primaryType ? ` · ${view.primaryType}` : ""}
           {overview.cityName ? ` · ${overview.cityName}` : ""}
         </p>
         <h1>
@@ -129,43 +227,38 @@ export function VenueDetail({
         {overview.aliases.length ? (
           <p className="venue-muted">Also known as {overview.aliases.join(", ")}</p>
         ) : null}
-        {overview.types.length ? (
-          <ul className="venue-tags venue-types" aria-label="Venue types">
-            {overview.types.map((t) => (
-              <li key={t.label}>{t.label}</li>
+        <p className="venue-address">
+          {overview.address ?? "Address not confirmed"}
+          {gettingThere.directionsUrl ? (
+            <>
+              {" · "}
+              <a href={gettingThere.directionsUrl} rel="noopener noreferrer" target="_blank">
+                Directions
+              </a>
+            </>
+          ) : null}
+        </p>
+        {overview.intro ? <p className="hero-lead venue-intro">{overview.intro}</p> : null}
+        {view.goodToKnow.length ? (
+          <ul className="venue-good" aria-label="Good to know">
+            {view.goodToKnow.map((g) => (
+              <li key={g}>{g}</li>
             ))}
           </ul>
         ) : null}
-        <dl className="venue-facts">
-          <div>
-            <dt>Address</dt>
-            <dd>{overview.address ?? "Not confirmed"}</dd>
-          </div>
-          <div>
-            <dt>Setting</dt>
-            <dd>{overview.setting ?? "Not confirmed"}</dd>
-          </div>
-        </dl>
-        {overview.intro ? <p className="hero-lead venue-intro">{overview.intro}</p> : null}
-        <p className="venue-header-actions">
+        <div className="venue-header-actions">
+          {view.primaryBooking ? (
+            <a className="button button-primary" href={view.primaryBooking.href} rel="noopener noreferrer" target="_blank">
+              {view.primaryBooking.label}
+            </a>
+          ) : null}
+          <ShareButton title={fullName} />
           <Checked meta={overview.meta} />
-          <ShareButton title={`${overview.name}${overview.branchName ? ` — ${overview.branchName}` : ""}`} />
-        </p>
+        </div>
+        <VenueIllustration primaryType={view.primaryType} />
       </header>
 
-      <nav className="venue-toc" aria-label="On this page">
-        <a href="#at-a-glance">At a glance</a>
-        <a href="#plan">Plan your visit</a>
-        <a href="#prices">Prices</a>
-        <a href="#activities">Activities</a>
-        <a href="#amenities">Amenities</a>
-        <a href="#experience">What to expect</a>
-        <a href="#sources">Sources</a>
-      </nav>
-
-      {/* 2. Parent decision snapshot */}
-      <section className="venue-section" id="at-a-glance" aria-labelledby="at-a-glance-h">
-        <h2 id="at-a-glance-h">At a glance</h2>
+      <VenueSection id="suit" title="Will it suit my kids?">
         <dl className="venue-facts">
           <div>
             <dt>Best-fit ages</dt>
@@ -190,27 +283,30 @@ export function VenueDetail({
           </div>
         </dl>
         <h3>By age</h3>
-        <table className="venue-age-table">
-          <thead>
-            <tr>
-              <th scope="col">Ages</th>
-              <th scope="col">Fit</th>
-              <th scope="col">Notes</th>
-            </tr>
-          </thead>
-          <tbody>
-            {snapshot.ageBands.map((b) => (
-              <tr key={b.band} className={b.fit ? undefined : "is-unconfirmed"}>
-                <th scope="row">{b.label}</th>
-                <td>{b.fitLabel}</td>
-                <td>
-                  {b.note ?? ""}
-                  {b.meta ? <> <Checked meta={b.meta} /></> : null}
-                </td>
+        <div className="venue-table-scroll">
+          <table className="venue-age-table">
+            <thead>
+              <tr>
+                <th scope="col">Ages</th>
+                <th scope="col">Fit</th>
+                <th scope="col">Notes</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {snapshot.ageBands.map((b) => (
+                <tr key={b.band} className={b.fit ? undefined : "is-unconfirmed"}>
+                  <th scope="row">{b.label}</th>
+                  <td>{b.fitLabel}</td>
+                  <td>
+                    {b.note ?? ""}
+                    {b.meta && !bandsMeta ? <> <Checked meta={b.meta} /></> : null}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        {bandsMeta ? <Checked meta={bandsMeta} /> : null}
         <Rules heading="Age, height and weight limits" lines={snapshot.restrictions} />
         <Rules heading="Supervision" lines={snapshot.supervision} />
         {snapshot.activityLevel.length || snapshot.whoItSuits.length ? (
@@ -220,15 +316,105 @@ export function VenueDetail({
             ))}
           </ul>
         ) : null}
-        {view.ageTool.activities.length || view.ageTool.bands.some((b) => b.fit) ? (
-          <AgeCheckTool tool={view.ageTool} />
+
+        <h3>What&apos;s there</h3>
+        {view.activities.length ? (
+          <>
+            <ul className="venue-activities">
+              {view.activities.map((a) => (
+                <Activity key={a.name} a={a} compact={activitiesMeta !== null} />
+              ))}
+            </ul>
+            {activitiesMeta ? <Checked meta={activitiesMeta} /> : null}
+          </>
+        ) : (
+          <NotConfirmed>Activities at this location are not confirmed yet.</NotConfirmed>
+        )}
+        {view.notOffered.length ? (
+          <>
+            <h3>Not offered at this location</h3>
+            <ul className="venue-list">
+              {view.notOffered.map((a) => (
+                <li key={a.name}>
+                  {a.name}
+                  {a.limits.length ? ` — ${a.limits.join(" · ")}` : ""} <Checked meta={a.meta} />
+                </li>
+              ))}
+            </ul>
+          </>
         ) : null}
-      </section>
+        {view.programs.length ? (
+          <>
+            <h3>Programs and special sessions</h3>
+            <ul className="venue-activities">
+              {view.programs.map((p) => (
+                <li key={p.name} className="venue-activity">
+                  <h4>{p.name}</h4>
+                  {p.description ? <p>{p.description}</p> : null}
+                  <ul className="venue-tags">
+                    {p.when ? <li>{p.when}</li> : null}
+                    {p.ages ? <li>{p.ages}</li> : null}
+                    {p.price ? <li>{p.price}</li> : null}
+                  </ul>
+                  {p.registrationUrl ? (
+                    <p>
+                      <a href={p.registrationUrl} rel="noopener noreferrer" target="_blank">
+                        Register
+                      </a>
+                    </p>
+                  ) : null}
+                  <Checked meta={p.meta} />
+                </li>
+              ))}
+            </ul>
+          </>
+        ) : null}
+        {showAgeTool ? <AgeCheckTool tool={view.ageTool} /> : null}
+      </VenueSection>
 
-      {/* 4–5. Plan your visit */}
-      <section className="venue-section" id="plan" aria-labelledby="plan-h">
-        <h2 id="plan-h">Plan your visit</h2>
+      <VenueSection id="cost" title="What will it cost?">
+        {admission ? (
+          view.admissionRows ? (
+            <>
+              <h3>Admission</h3>
+              <DayPriceTable rows={view.admissionRows} caption="Admission prices by day" firstColumn="Ticket" />
+              <p className="venue-muted">
+                {[admission.lines.find((l) => l.details.some((d) => d.startsWith("Includes")))?.details.find((d) => d.startsWith("Includes")), plusTaxNote(admission.lines)]
+                  .filter(Boolean)
+                  .join(". ")}
+                {" "}
+                <Checked meta={admission.lines[0].meta} />
+              </p>
+            </>
+          ) : (
+            <PriceList section={admission} />
+          )
+        ) : (
+          <NotConfirmed>Prices not confirmed yet — check the venue&apos;s website.</NotConfirmed>
+        )}
+        {paymentNotes.map((l) => (
+          <p key={l.text} className="venue-muted">
+            {l.text}
+          </p>
+        ))}
+        {view.familyPrice ? (
+          <FamilyPriceTool model={view.familyPrice} />
+        ) : view.costEstimator ? (
+          <CostEstimator model={view.costEstimator} />
+        ) : null}
+        {view.otherPrices.length ? (
+          <details className="venue-more">
+            <summary>
+              Coming often? {view.otherPrices.map((s) => s.heading.toLowerCase()).join(", ").replace(/^./, (c) => c.toUpperCase())}
+            </summary>
+            {view.otherPrices.map((s) => (
+              <PriceList key={s.kind} section={s} />
+            ))}
+          </details>
+        ) : null}
+      </VenueSection>
 
+      <VenueSection id="when" title="When to go">
         <h3>Hours</h3>
         {visit.hours.kind === "weekly" ? (
           <>
@@ -289,30 +475,22 @@ export function VenueDetail({
         ) : (
           <NotConfirmed>No official booking link or contact details confirmed yet.</NotConfirmed>
         )}
+        <Rules heading="Booking" lines={visit.bookingRules} />
+      </VenueSection>
 
-        {view.beforeYouGo.length ? (
-          <div className="venue-tool">
-            <h3>Before you go</h3>
-            <ul className="venue-checklist">
-              {view.beforeYouGo.map((item) => (
-                <li key={item}>{item}</li>
-              ))}
-            </ul>
-          </div>
+      <VenueSection id="before" title="Before you go">
+        {view.beforeYouGo.length ? <VisitChecklist items={view.beforeYouGo} /> : null}
+        {view.checkWithVenue.length ? (
+          <p className="venue-notice">
+            <strong>Check with the venue:</strong> {view.checkWithVenue.join(", ").toLowerCase()} — not confirmed yet.
+          </p>
         ) : null}
-
-        {hasRules ? (
-          <>
-            <h3>Visit rules</h3>
-            <Rules heading="Booking" lines={visit.bookingRules} />
-            <Rules heading="Waiver" lines={visit.waiver} />
-            <Rules heading="Arrival and check-in" lines={visit.arrival} />
-            <Rules heading="What to wear" lines={visit.dress} />
-            <Rules heading="Food and re-entry" lines={visit.food} />
-            <Rules heading="Cancellations and refunds" lines={visit.cancellation} />
-            <Rules heading="Good to know" lines={visit.other} />
-          </>
-        ) : null}
+        <Rules heading="Waiver" lines={visit.waiver} />
+        <Rules heading="Arrival and check-in" lines={visit.arrival} />
+        <Rules heading="What to wear" lines={visit.dress} />
+        <Rules heading="Food and re-entry" lines={visit.food} />
+        <Rules heading="Cancellations and refunds" lines={visit.cancellation} />
+        <Rules heading="Good to know" lines={[...paymentNotes, ...otherNotes]} />
 
         <h3>Getting there</h3>
         {gettingThere.address ? (
@@ -327,12 +505,6 @@ export function VenueDetail({
               </>
             ) : null}
           </p>
-        ) : gettingThere.directionsUrl ? (
-          <p>
-            <a href={gettingThere.directionsUrl} rel="noopener noreferrer" target="_blank">
-              Directions
-            </a>
-          </p>
         ) : (
           <NotConfirmed>Address not confirmed yet.</NotConfirmed>
         )}
@@ -345,92 +517,8 @@ export function VenueDetail({
         ) : null}
         <Rules heading="Location notes" lines={gettingThere.locationNotes} />
         <Rules heading="Transit" lines={gettingThere.transit} />
-      </section>
 
-      {/* 6. Prices */}
-      <section className="venue-section" id="prices" aria-labelledby="prices-h">
-        <h2 id="prices-h">Prices</h2>
-        {view.prices.length ? (
-          view.prices.map((s) => (
-            <div key={s.kind} className="venue-price-group">
-              <h3>{s.heading}</h3>
-              <ul className="venue-prices">
-                {s.lines.map((l) => (
-                  <li key={l.id}>
-                    <span className="venue-price-label">
-                      {l.label}
-                      {l.requiredAddon ? <span className="venue-required"> · Required</span> : null}
-                    </span>
-                    <span className="venue-price-amount">{l.amount}</span>
-                    {l.details.length ? <span className="venue-price-details">{l.details.join(" · ")}</span> : null}
-                    <Checked meta={l.meta} />
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))
-        ) : (
-          <NotConfirmed>Prices not confirmed yet — check the venue&apos;s website.</NotConfirmed>
-        )}
-        {view.costEstimator ? <CostEstimator model={view.costEstimator} /> : null}
-      </section>
-
-      {/* 3 & 8. Activities and programs */}
-      <section className="venue-section" id="activities" aria-labelledby="activities-h">
-        <h2 id="activities-h">Activities</h2>
-        {view.activities.length ? (
-          <ul className="venue-activities">
-            {view.activities.map((a) => (
-              <Activity key={a.name} a={a} />
-            ))}
-          </ul>
-        ) : (
-          <NotConfirmed>Activities at this location are not confirmed yet.</NotConfirmed>
-        )}
-        {view.notOffered.length ? (
-          <>
-            <h3>Not offered at this location</h3>
-            <ul className="venue-list">
-              {view.notOffered.map((a) => (
-                <li key={a.name}>
-                  {a.name}
-                  {a.limits.length ? ` — ${a.limits.join(" · ")}` : ""} <Checked meta={a.meta} />
-                </li>
-              ))}
-            </ul>
-          </>
-        ) : null}
-        {view.programs.length ? (
-          <>
-            <h3>Programs and special sessions</h3>
-            <ul className="venue-activities">
-              {view.programs.map((p) => (
-                <li key={p.name} className="venue-activity">
-                  <h4>{p.name}</h4>
-                  {p.description ? <p>{p.description}</p> : null}
-                  <ul className="venue-tags">
-                    {p.when ? <li>{p.when}</li> : null}
-                    {p.ages ? <li>{p.ages}</li> : null}
-                    {p.price ? <li>{p.price}</li> : null}
-                  </ul>
-                  {p.registrationUrl ? (
-                    <p>
-                      <a href={p.registrationUrl} rel="noopener noreferrer" target="_blank">
-                        Register
-                      </a>
-                    </p>
-                  ) : null}
-                  <Checked meta={p.meta} />
-                </li>
-              ))}
-            </ul>
-          </>
-        ) : null}
-      </section>
-
-      {/* 7. Amenities */}
-      <section className="venue-section" id="amenities" aria-labelledby="amenities-h">
-        <h2 id="amenities-h">Amenities and access</h2>
+        <h3>Amenities and access</h3>
         {confirmedAmenities.length ? (
           <ul className="venue-amenities">
             {confirmedAmenities.map((a) => (
@@ -445,11 +533,33 @@ export function VenueDetail({
             Not confirmed yet: {unconfirmedAmenities.map((a) => a.label.toLowerCase()).join(", ")}.
           </p>
         ) : null}
-      </section>
+      </VenueSection>
 
-      {/* 9. Parent experience */}
-      <section className="venue-section" id="experience" aria-labelledby="experience-h">
-        <h2 id="experience-h">What to expect</h2>
+      {view.parties.lines.length || view.parties.rules.length ? (
+        <VenueSection id="parties" title="Birthday parties" openOnDesktop={false}>
+          {view.parties.rows ? (
+            <DayPriceTable rows={view.parties.rows} caption="Party prices by day" firstColumn="Party" />
+          ) : view.parties.lines.length ? (
+            <PriceList section={{ heading: "Party prices", kind: "party", lines: view.parties.lines }} />
+          ) : null}
+          {view.parties.lines.length ? (
+            <p className="venue-muted">
+              {plusTaxNote(view.parties.lines)} <Checked meta={view.parties.lines[0].meta} />
+            </p>
+          ) : null}
+          {view.parties.rules.length ? (
+            <ul className="venue-list">
+              {view.parties.rules.map((l) => (
+                <li key={l.text}>
+                  {l.text} <Checked meta={l.meta} />
+                </li>
+              ))}
+            </ul>
+          ) : null}
+        </VenueSection>
+      ) : null}
+
+      <VenueSection id="experience" title="What to expect" openOnDesktop={false}>
         {experience.status === "limited" ? (
           <p className="venue-notice">
             Limited information: we don&apos;t yet have enough consistent sources to summarise what
@@ -514,7 +624,7 @@ export function VenueDetail({
             <h3>From a visit</h3>
             <ul className="venue-list">
               {experience.firstHand.map((t, i) => (
-                <Theme key={i} t={t} />
+                <Theme key={i} t={t} showHeading={t.theme !== "other"} />
               ))}
             </ul>
           </>
@@ -566,11 +676,9 @@ export function VenueDetail({
             Review sources are checked by hand. Compass does not pull reviews automatically.
           </p>
         ) : null}
-      </section>
+      </VenueSection>
 
-      {/* 10. Sources and freshness */}
-      <section className="venue-section" id="sources" aria-labelledby="sources-h">
-        <h2 id="sources-h">Sources and freshness</h2>
+      <VenueSection id="sources" title="Sources and freshness" openOnDesktop={false}>
         {view.conflicts.length ? (
           <div className="venue-notice">
             <p>Sources disagree on:</p>
@@ -612,7 +720,7 @@ export function VenueDetail({
           </a>
           .
         </p>
-      </section>
+      </VenueSection>
     </article>
   );
 }

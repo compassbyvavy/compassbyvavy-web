@@ -18,7 +18,7 @@ import {
   reviewSourceDisplayable,
   venueHref,
 } from "@/lib/discover/venueDetail";
-import { loadVenueCatalog } from "@/lib/discover/venuesCatalog";
+import { loadVenueCatalog, venueIndexable } from "@/lib/discover/venuesCatalog";
 
 const TODAY = "2026-10-16";
 const [heartland, brampton, draft, closed] = venuesDevRecords;
@@ -70,9 +70,11 @@ describe("venue routing and publication gate", () => {
     assert.throws(() => buildVenueDetailView(draft, { today: TODAY }));
   });
 
-  it("serves no venue records in production", async () => {
-    assert.equal(await loadVenueCatalog({ nodeEnv: "production" }), null);
-    assert.ok((await loadVenueCatalog({ nodeEnv: "development" }))?.records.length);
+  it("serves no venue records in production without Supabase settings", async () => {
+    assert.equal(await loadVenueCatalog({ venueSlug: "sky-zone-mississauga", nodeEnv: "production", supabase: null }), null);
+    const dev = await loadVenueCatalog({ venueSlug: "sky-zone-mississauga", nodeEnv: "development" });
+    assert.equal(dev?.sourceLabel, "dev_preview");
+    assert.ok(dev?.records.some((r) => r.place.id === "PE-033"));
   });
 });
 
@@ -92,8 +94,8 @@ describe("published venue page", () => {
 
   it("renders all sections with source links and checked dates", () => {
     const page = html(heartland);
-    for (const heading of ["At a glance", "Plan your visit", "Prices", "Activities", "Amenities and access", "What to expect", "Sources and freshness"]) {
-      assert.match(page, new RegExp(`>${heading}<`), heading);
+    for (const heading of ["Will it suit my kids?", "What will it cost?", "When to go", "Before you go", "Amenities and access", "What to expect", "Sources and freshness"]) {
+      assert.ok(page.includes(`>${heading}<`), heading);
     }
     assert.match(page, /Checked Oct 10, 2026/);
     assert.match(page, /href="https:\/\/example\.org\/maple-leap\/heartland\/book"/);
@@ -125,16 +127,27 @@ describe("published venue page", () => {
   it("estimates a family cost from verified prices with required extras", () => {
     const model = costEstimatorModel(view().prices)!;
     assert.ok(model);
-    const total = estimateFamilyCost(model, {
-      childLineId: "p1",
+    const est = estimateFamilyCost(model, {
       children: 2,
-      adultLineId: "p4",
-      adults: 1,
-    });
-    assert.equal(total, 2 * (21.99 + 3.5));
+      childLineId: "p1",
+      participatingAdults: 0,
+      participatingAdultLineId: null,
+      watchingAdults: 1,
+      watchingAdultLineId: "p4",
+    })!;
+    assert.equal(est.total, 2 * 21.99 + 2 * 3.5);
+    assert.deepEqual(
+      est.lines.map((l) => [l.label, l.quantity, l.unit]),
+      [
+        ["Child admission (children)", 2, "$21.99"],
+        ["Accompanying adult (adult watching)", 1, "Free"],
+        ["Grip socks", 2, "$3.50"],
+      ],
+    );
     assert.ok(model.assumptions.some((a) => /before tax/.test(a)));
+    assert.ok(model.assumptions.some((a) => /Excludes optional extras/.test(a)));
     assert.equal(
-      estimateFamilyCost(model, { childLineId: null, children: 1, adultLineId: null, adults: 0 }),
+      estimateFamilyCost(model, { children: 1, childLineId: null, participatingAdults: 0, participatingAdultLineId: null, watchingAdults: 0, watchingAdultLineId: null }),
       null,
     );
   });
@@ -196,7 +209,7 @@ describe("missing and unknown facts", () => {
     assert.match(page, /Prices not confirmed yet/);
     assert.match(page, /Activities at this location are not confirmed yet/);
     assert.match(page, /No amenities confirmed yet/);
-    assert.match(page, /Address<\/dt><dd>Not confirmed<\/dd>/);
+    assert.match(page, /Address not confirmed/);
     assert.doesNotMatch(page, /<dd><\/dd>|<li><\/li>|<p><\/p>|undefined|null|NaN/);
     assert.doesNotMatch(page, /Family cost estimate|Will this work for my kids/);
   });
@@ -298,5 +311,81 @@ describe("sources and freshness", () => {
     assert.ok(list.some((i) => /waiver/.test(i)));
     assert.ok(list.some((i) => /grip socks \(\$3\.50\) — required for each child/.test(i)));
     assert.deepEqual(sparse().beforeYouGo, []);
+  });
+});
+
+describe("cost estimator charging rules", () => {
+  type Basis = "per_child" | "per_participant" | "per_person" | "per_booking" | "unknown";
+  type Audience = "child" | "adult" | "non_participant" | "other";
+  const withAddon = (chargeBasis: Basis, audience: Audience = "child", label = "Grip socks") => {
+    const r = structuredClone(heartland);
+    const socks = r.prices.find((p) => p.id === "p5")!;
+    socks.chargeBasis = chargeBasis;
+    socks.audience = audience;
+    socks.label = label;
+    // An admission line adults who take part can use.
+    r.prices.push({ ...socks, id: "p10", kind: "admission", label: "Adult jumper", audience: "adult", amount: 15, requiredAddon: false, chargeBasis: undefined });
+    return costEstimatorModel(buildVenueDetailView(r, { today: TODAY }).prices)!;
+  };
+  // 2 children, 1 adult who takes part, 1 adult who only watches (free).
+  const family = {
+    children: 2,
+    childLineId: "p1",
+    participatingAdults: 1,
+    participatingAdultLineId: "p10",
+    watchingAdults: 1,
+    watchingAdultLineId: "p4",
+  };
+  const admission = 2 * 21.99 + 15;
+  const total = (m: ReturnType<typeof withAddon>) => estimateFamilyCost(m, family)!.total;
+  const addonQty = (m: ReturnType<typeof withAddon>, label: string) =>
+    estimateFamilyCost(m, family)!.lines.find((l) => l.label === label)?.quantity ?? 0;
+
+  it("charges a per-child extra for each child only", () => {
+    assert.equal(total(withAddon("per_child")), Math.round((admission + 2 * 3.5) * 100) / 100);
+  });
+
+  it("charges a per-participant extra for children and adults who take part, not watchers", () => {
+    const m = withAddon("per_participant", "other", "Jump socks");
+    assert.equal(addonQty(m, "Jump socks"), 3);
+    assert.ok(m.assumptions.some((a) => /once per person taking part, adults who join in included/.test(a)));
+  });
+
+  it("applies a required add-on for adults who take part to those adults only", () => {
+    // A required extra for a non-child audience: e.g. adult jumpers must buy socks.
+    const m = withAddon("per_participant", "adult", "Adult jump socks");
+    const est = estimateFamilyCost(m, family)!;
+    assert.equal(addonQty(m, "Adult jump socks"), 1, "one adult takes part; children and the watcher are not charged");
+    assert.equal(est.total, Math.round((admission + 3.5) * 100) / 100);
+    assert.ok(m.assumptions.some((a) => /adult jump socks \(\$3\.50\) once per adult taking part/.test(a)));
+    const noAdults = estimateFamilyCost(m, { ...family, participatingAdults: 0 })!;
+    assert.equal(noAdults.lines.some((l) => l.label === "Adult jump socks"), false);
+  });
+
+  it("applies a per-person extra for watching adults only to them", () => {
+    const m = withAddon("per_person", "non_participant", "Spectator wristband");
+    assert.equal(addonQty(m, "Spectator wristband"), 1);
+  });
+
+  it("charges a per-person extra to everyone, watchers included", () => {
+    const m = withAddon("per_person", "other", "Facility fee");
+    assert.equal(addonQty(m, "Facility fee"), 4);
+  });
+
+  it("charges a per-booking extra once", () => {
+    assert.equal(addonQty(withAddon("per_booking", "other", "Booking fee"), "Booking fee"), 1);
+  });
+
+  it("leaves out an extra whose charging rule is not stated, and says so", () => {
+    const model = withAddon("unknown");
+    assert.equal(total(model), Math.round(admission * 100) / 100);
+    assert.equal(model.unpricedAddons.length, 1);
+    assert.ok(model.assumptions.some((a) => /Leaves out grip socks \(\$3\.50\)/.test(a)));
+    assert.ok(estimateFamilyCost(model, family)!.excluded.some((e) => /Grip socks: charging rule not stated/.test(e)));
+  });
+
+  it("never adds optional extras, memberships or offers", () => {
+    const est = estimateFamilyCost(withAddon("per_child"), family)!;
+    assert.ok(!est.lines.some((l) => /pass|party|toddler rate/i.test(l.label)));
   });
 });
