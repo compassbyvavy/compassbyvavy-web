@@ -2391,3 +2391,11 @@ a.category-card {
     flex: 1 1 0;
   }
 }
+
+/* "Call" sits in the right-hand booking card on wide screens; phones keep it
+   beside Get directions because the card isn't shown there. */
+@media (min-width: 1100px) {
+  .venue-call-inline {
+    display: none !important;
+  }
+}

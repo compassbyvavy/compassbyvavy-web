@@ -288,6 +288,8 @@ describe("PE-001 round 2", () => {
     const page = html();
     assert.match(page, /<p class="venue-crumb"><span>Mississauga<\/span>/);
     assert.match(page, /Get directions/);
+    assert.match(page, /<a class="button button-secondary venue-call-inline" href="tel:9052127444">Call<\/a>/);
+    assert.match(page, /Call 905-212-7444/);
     assert.match(page, /venue-hero is-glow/);
     assert.match(page, /<dt>Best for<\/dt>/);
     assert.match(page, /Based on official venue information\. Compass hasn&#x27;t visited yet\./);

@@ -299,6 +299,12 @@ export function VenueDetail({
               Get directions
             </a>
           ) : null}
+          {visit.phone ? (
+            // Wide screens show "Call" in the booking card on the right instead.
+            <a className="button button-secondary venue-call-inline" href={visit.phone.href}>
+              Call
+            </a>
+          ) : null}
           <ShareIconButton title={fullName} />
         </div>
         <p className="venue-header-meta">
@@ -868,6 +874,7 @@ export function VenueDetail({
                 Get directions
               </a>
             ) : null}
+            {visit.phone ? <a href={visit.phone.href}>Call {visit.phone.display}</a> : null}
           </div>
         </aside>
       ) : null}
