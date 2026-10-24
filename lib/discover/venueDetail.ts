@@ -1420,7 +1420,12 @@ export function familyPrice(model: FamilyPriceModel, input: FamilyPriceInput): F
   const fit = ages.map((age) => {
     const def = AGE_BANDS.find((b) => age >= b.min && age <= b.max);
     const band = def ? model.bands.find((b) => b.band === def.band) : undefined;
-    return { age, fitLabel: band?.fit ? band.fitLabel : "Not confirmed", note: band?.fit ? band.note : null };
+    let note = band?.fit ? band.note : null;
+    // A band note about free entry is wrong for a child in that band who pays
+    // (a 2-year-old in the 0–2 band buys the Ages 2–3 ticket): name the ticket instead.
+    const ticket = ticketForAge(model, age, input.day);
+    if (note && /\bfree\b/i.test(note) && ticket && !ticket.isFree) note = `Uses the ${ticket.label} ticket`;
+    return { age, fitLabel: band?.fit ? band.fitLabel : "Not confirmed", note };
   });
   return {
     lines,

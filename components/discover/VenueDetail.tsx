@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { VenueIllustration } from "@/components/discover/VenueIllustration";
 import {
   AgeCheckTool,
+  BookCardPrice,
   CostEstimator,
   FamilyPriceTool,
   ShareIconButton,
@@ -251,7 +252,9 @@ export function VenueDetail({
 
   const bookCard = view.primaryBooking ? (
     <>
-      {view.priceFrom ? (
+      {view.familyPrice ? (
+        <BookCardPrice price={view.priceFrom} label={priceLabel} />
+      ) : view.priceFrom ? (
         <p className="venue-book-price">
           {view.priceFrom}
           <span>{priceLabel}</span>

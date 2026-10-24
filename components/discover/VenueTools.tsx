@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useId, useMemo, useRef, useState, type ReactNode } from "react";
+import { useEffect, useId, useMemo, useRef, useState, useSyncExternalStore, type ReactNode } from "react";
 import type { PriceDayType } from "@/data/discover/venueTypes";
 import {
   DAY_LABELS,
@@ -48,6 +48,57 @@ export function VenueSection({
   );
 }
 
+/**
+ * The family estimate from the price tool, shared with the booking card and the
+ * phone booking bar so they show "your family" instead of the ticket range.
+ * One page shows one venue, so a single module-level value is enough.
+ */
+export type FamilyEstimate = { total: number; withTax: number | null; summary: string };
+let familyEstimate: FamilyEstimate | null = null;
+const estimateListeners = new Set<() => void>();
+function setFamilyEstimate(next: FamilyEstimate | null) {
+  if (
+    next === familyEstimate ||
+    (next && familyEstimate && next.total === familyEstimate.total && next.withTax === familyEstimate.withTax && next.summary === familyEstimate.summary)
+  )
+    return;
+  familyEstimate = next;
+  estimateListeners.forEach((l) => l());
+}
+function subscribeEstimate(listener: () => void) {
+  estimateListeners.add(listener);
+  return () => estimateListeners.delete(listener);
+}
+
+/** Price line on the booking card: the family estimate once the tool has one, else the ticket range. */
+export function BookCardPrice({ price, label }: { price: string | null; label: string }) {
+  const estimate = useSyncExternalStore(subscribeEstimate, () => familyEstimate, () => null);
+  if (estimate) {
+    return (
+      <div className="venue-book-price is-family">
+        <p>
+          ${estimate.total.toFixed(2)}
+          <span>
+            Your family<span className="venue-book-detail">: {estimate.summary}</span> · before tax
+          </span>
+        </p>
+        {estimate.withTax !== null ? <p className="venue-muted venue-book-detail">About ${estimate.withTax.toFixed(2)} with HST</p> : null}
+      </div>
+    );
+  }
+  if (!price) return null;
+  return (
+    <p className="venue-book-price">
+      {price}
+      <span>{label}</span>
+    </p>
+  );
+}
+
+function plural(n: number, one: string, many: string) {
+  return `${n} ${n === 1 ? one : many}`;
+}
+
 /** "What will it cost?" — enter each child's age, pick the day, see the matching tickets. */
 export function FamilyPriceTool({ model }: { model: FamilyPriceModel }) {
   const id = useId();
@@ -61,6 +112,25 @@ export function FamilyPriceTool({ model }: { model: FamilyPriceModel }) {
   // Socks are for children; never count more pairs than children entered.
   const pairs = Math.min(socks, parsed.length);
   const result = familyPrice(model, { ages: parsed, adults, day, socks: pairs });
+
+  // Share the estimate with the booking card. Skip it while any child has no
+  // listed ticket, since the total would leave that child out.
+  const shareTotal = parsed.length > 0 && result.unmatchedAges.length === 0 && result.bestTotal > 0 ? result.bestTotal : null;
+  const shareTax = shareTotal !== null ? result.bestWithTax : null;
+  const shareSummary =
+    shareTotal !== null
+      ? [
+          plural(parsed.length, "child", "children"),
+          plural(adults, "adult", "adults"),
+          model.days.length > 1 ? DAY_LABELS[day].toLowerCase() : null,
+        ]
+          .filter(Boolean)
+          .join(", ")
+      : "";
+  useEffect(() => {
+    setFamilyEstimate(shareTotal !== null ? { total: shareTotal, withTax: shareTax, summary: shareSummary } : null);
+  }, [shareTotal, shareTax, shareSummary]);
+  useEffect(() => () => setFamilyEstimate(null), []);
 
   return (
     <div className="venue-tool venue-family-price">

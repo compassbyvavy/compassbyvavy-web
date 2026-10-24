@@ -405,3 +405,22 @@ describe("PE-001 full-page review fixes", () => {
     assert.match(html(), /<p class="venue-crumb"><span>Mississauga<\/span><span aria-hidden="true"> › <\/span>Indoor playgrounds<\/p>/);
   });
 });
+
+describe("PE-001 booking card follows the price tool", () => {
+  const model = () => view().familyPrice!;
+  it("names the paid ticket for a 2-year-old instead of the free-entry note", () => {
+    const r = familyPrice(model(), { ages: [7, 2], adults: 2, day: "weekend_holiday", socks: 2 });
+    const two = r.fit.find((f) => f.age === 2);
+    assert.equal(two?.note, "Uses the Ages 2–3 ticket");
+    assert.equal(r.bestTotal, 78.9);
+    // A baby still gets the band note about free entry.
+    const baby = familyPrice(model(), { ages: [1], adults: 1, day: "weekday" }).fit[0];
+    assert.match(baby.note ?? "", /Free for 23 months/);
+  });
+
+  it("renders the ticket range on the card until a family estimate exists", () => {
+    const out = html();
+    assert.ok(out.includes('<p class="venue-book-price">$34.95–$39.95<span>Ages 4–14</span></p>'));
+    assert.ok(!out.includes("is-family"));
+  });
+});

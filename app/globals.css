@@ -2167,6 +2167,21 @@ a.category-card {
   color: var(--muted);
 }
 
+.venue-book-price span span {
+  display: inline;
+  font-size: inherit;
+}
+
+.venue-book-price.is-family p {
+  margin: 0;
+}
+
+.venue-book-price.is-family .venue-muted {
+  margin-top: 4px;
+  font-size: 0.95rem;
+  font-weight: 400;
+}
+
 .venue-sticky-book {
   display: none;
 }
@@ -2202,6 +2217,10 @@ a.category-card {
 
   .venue-sticky-book .venue-book-price span {
     font-size: 0.78rem;
+  }
+
+  .venue-sticky-book .venue-book-detail {
+    display: none;
   }
 
   .venue-sticky-book .button {
