@@ -1386,7 +1386,6 @@ function beforeYouGo(
   policies: VenuePolicy[],
   requiredAddons: PriceLine[],
   bookingLinks: LinkView[],
-  amenities: AmenityView[] = [],
 ): string[] {
   const items: string[] = [];
   const has = (kind: VenuePolicyKind) => policies.filter((p) => p.kind === kind);
@@ -1397,8 +1396,6 @@ function beforeYouGo(
   for (const p of has("supervision")) items.push(p.body.trim());
   // Payment rules the venue states (e.g. cashless) matter at the door.
   for (const p of has("other").filter((x) => /\bcash/i.test(x.body))) items.push(p.body.trim());
-  const stroller = amenities.find((a) => a.kind === "stroller_access" && a.status === "unavailable" && a.note);
-  if (stroller) items.push(`Strollers: ${stroller.note}.`.replace(/\.\.$/, "."));
   const who: Record<PriceChargeBasis, string> = {
     per_child: "required for each child",
     per_participant: "required for each person taking part",
@@ -1559,7 +1556,7 @@ export function buildVenueDetailView(record: VenueRecord, options: BuildVenueOpt
     amenities,
     experience,
     reviews: reviewsView(usableSources, record.reviewSources.length - usableSources.length),
-    beforeYouGo: beforeYouGo(policies, requiredAddons, bookingLinks, amenities),
+    beforeYouGo: beforeYouGo(policies, requiredAddons, bookingLinks),
     sources,
     conflicts,
     ageTool: {

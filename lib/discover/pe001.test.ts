@@ -98,12 +98,13 @@ describe("PE-001 page", () => {
     assert.deepEqual(view().checkWithVenue, ["Parking", "Washrooms", "Baby changing"]);
   });
 
-  it("builds a tick-off list from verified rules, including cashless payment and strollers", () => {
+  it("builds a tick-off list from verified rules, including cashless payment and a baby carrier", () => {
     const list = view().beforeYouGo;
     assert.ok(list.some((i) => /waiver/i.test(i)));
     assert.ok(list.some((i) => /grip socks/i.test(i)));
     assert.ok(list.some((i) => /Cashless/.test(i)));
-    assert.ok(list.some((i) => /^Strollers: Not allowed in the play area/.test(i)));
+    assert.ok(list.includes("Bring a baby carrier if required."));
+    assert.ok(!list.some((i) => /^Strollers/.test(i)), "the stroller rule is already under amenities");
   });
 
   it("links the header button to the booking page and renders without empty labels", () => {

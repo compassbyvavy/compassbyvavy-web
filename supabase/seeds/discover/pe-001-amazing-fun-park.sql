@@ -175,7 +175,7 @@ values (md5('PE-001:amenity:wheelchair_access')::uuid, 'PE-001', 'https://amazin
 insert into public.place_amenities (id, place_id, source_url, source_checked_date, verification_status, conflict_note, amenity, status, note)
 values (md5('PE-001:amenity:stroller_storage')::uuid, 'PE-001', 'https://amazingfunpark.ca/', '2026-10-24', 'verified', null, 'stroller_storage', 'yes', 'Strollers park outside the play area in designated spots');
 insert into public.place_amenities (id, place_id, source_url, source_checked_date, verification_status, conflict_note, amenity, status, note)
-values (md5('PE-001:amenity:stroller_access')::uuid, 'PE-001', 'https://amazingfunpark.ca/', '2026-10-24', 'verified', null, 'stroller_access', 'no', 'Not allowed in the play area; bring a baby carrier');
+values (md5('PE-001:amenity:stroller_access')::uuid, 'PE-001', 'https://amazingfunpark.ca/', '2026-10-24', 'verified', null, 'stroller_access', 'no', 'Not allowed in the play area');
 insert into public.place_amenities (id, place_id, source_url, source_checked_date, verification_status, conflict_note, amenity, status, note)
 values (md5('PE-001:amenity:food_onsite')::uuid, 'PE-001', 'https://amazingfunpark.ca/', '2026-10-24', 'verified', null, 'food_onsite', 'yes', 'Snack bundles and drinks');
 insert into public.place_amenities (id, place_id, source_url, source_checked_date, verification_status, conflict_note, amenity, status, note)
@@ -197,35 +197,37 @@ values (md5('PE-001:policy:booking_rule:4')::uuid, 'PE-001', 'https://amazingfun
 insert into public.place_policies (id, place_id, source_url, source_checked_date, verification_status, conflict_note, kind, body, sort_order)
 values (md5('PE-001:policy:arrival:5')::uuid, 'PE-001', 'https://amazingfunpark.ca/', '2026-10-24', 'verified', null, 'arrival', 'The 2-hour session starts when you check in.', 5);
 insert into public.place_policies (id, place_id, source_url, source_checked_date, verification_status, conflict_note, kind, body, sort_order)
-values (md5('PE-001:policy:food_rule:6')::uuid, 'PE-001', 'https://amazingfunpark.ca/', '2026-10-24', 'verified', null, 'food_rule', 'No outside food or drinks; birthday cake only with a booked party.', 6);
+values (md5('PE-001:policy:arrival:6')::uuid, 'PE-001', 'https://amazingfunpark.ca/', '2026-10-24', 'verified', null, 'arrival', 'Bring a baby carrier if required.', 6);
 insert into public.place_policies (id, place_id, source_url, source_checked_date, verification_status, conflict_note, kind, body, sort_order)
-values (md5('PE-001:policy:cancellation:7')::uuid, 'PE-001', 'https://amazingfunpark.ca/', '2026-10-24', 'verified', null, 'cancellation', 'Play passes are non-refundable, but the venue will move your booking to another time or day.', 7);
+values (md5('PE-001:policy:food_rule:7')::uuid, 'PE-001', 'https://amazingfunpark.ca/', '2026-10-24', 'verified', null, 'food_rule', 'No outside food or drinks; birthday cake only with a booked party.', 7);
 insert into public.place_policies (id, place_id, source_url, source_checked_date, verification_status, conflict_note, kind, body, sort_order)
-values (md5('PE-001:policy:hours_note:8')::uuid, 'PE-001', 'https://amazingfunpark.ca/', '2026-10-24', 'verified', null, 'hours_note', 'Closed Monday and Tuesday except holidays, when special hours apply (Thanksgiving Monday was 12–8 pm). Check the venue''s site for holiday hours.', 8);
+values (md5('PE-001:policy:cancellation:8')::uuid, 'PE-001', 'https://amazingfunpark.ca/', '2026-10-24', 'verified', null, 'cancellation', 'Play passes are non-refundable, but the venue will move your booking to another time or day.', 8);
 insert into public.place_policies (id, place_id, source_url, source_checked_date, verification_status, conflict_note, kind, body, sort_order)
-values (md5('PE-001:policy:hours_note:9')::uuid, 'PE-001', 'https://amazingfunpark.ca/bookings/', '2026-10-24', 'verified', null, 'hours_note', 'Closed Christmas Day.', 9);
+values (md5('PE-001:policy:hours_note:9')::uuid, 'PE-001', 'https://amazingfunpark.ca/', '2026-10-24', 'verified', null, 'hours_note', 'Closed Monday and Tuesday except holidays, when special hours apply (Thanksgiving Monday was 12–8 pm). Check the venue''s site for holiday hours.', 9);
 insert into public.place_policies (id, place_id, source_url, source_checked_date, verification_status, conflict_note, kind, body, sort_order)
-values (md5('PE-001:policy:other:10')::uuid, 'PE-001', 'https://amazingfunpark.ca/', '2026-10-24', 'verified', null, 'other', 'Cashless: Visa, Mastercard and debit only.', 10);
+values (md5('PE-001:policy:hours_note:10')::uuid, 'PE-001', 'https://amazingfunpark.ca/bookings/', '2026-10-24', 'verified', null, 'hours_note', 'Closed Christmas Day.', 10);
 insert into public.place_policies (id, place_id, source_url, source_checked_date, verification_status, conflict_note, kind, body, sort_order)
-values (md5('PE-001:policy:other:11')::uuid, 'PE-001', 'https://amazingfunpark.ca/', '2026-10-24', 'verified', null, 'other', 'Lightly scented with air fresheners; families with fragrance sensitivities can contact the venue before visiting.', 11);
+values (md5('PE-001:policy:other:11')::uuid, 'PE-001', 'https://amazingfunpark.ca/', '2026-10-24', 'verified', null, 'other', 'Cashless: Visa, Mastercard and debit only.', 11);
 insert into public.place_policies (id, place_id, source_url, source_checked_date, verification_status, conflict_note, kind, body, sort_order)
-values (md5('PE-001:policy:other:12')::uuid, 'PE-001', 'https://amazingfunpark.ca/', '2026-10-24', 'verified', null, 'other', 'Schools, clubs, daycares and other large groups can ask about group discounts.', 12);
+values (md5('PE-001:policy:other:12')::uuid, 'PE-001', 'https://amazingfunpark.ca/', '2026-10-24', 'verified', null, 'other', 'Lightly scented with air fresheners; families with fragrance sensitivities can contact the venue before visiting.', 12);
 insert into public.place_policies (id, place_id, source_url, source_checked_date, verification_status, conflict_note, kind, body, sort_order)
-values (md5('PE-001:policy:other:13')::uuid, 'PE-001', 'https://amazingfunpark.ca/', '2026-10-24', 'verified', null, 'other', 'If your child is unwell, stay home and come back another day.', 13);
+values (md5('PE-001:policy:other:13')::uuid, 'PE-001', 'https://amazingfunpark.ca/', '2026-10-24', 'verified', null, 'other', 'Schools, clubs, daycares and other large groups can ask about group discounts.', 13);
 insert into public.place_policies (id, place_id, source_url, source_checked_date, verification_status, conflict_note, kind, body, sort_order)
-values (md5('PE-001:policy:party:14')::uuid, 'PE-001', 'https://amazingfunpark.ca/parties/', '2026-10-24', 'verified', null, 'party', 'Every party includes a dedicated party host, 1.5 hours at the party table, unlimited play on every attraction, large pizzas (pepperoni, cheese or vegetable), one juice or water per child, tableware, grip socks for every child and a photo with Chi, the park''s mascot.', 14);
+values (md5('PE-001:policy:other:14')::uuid, 'PE-001', 'https://amazingfunpark.ca/', '2026-10-24', 'verified', null, 'other', 'If your child is unwell, stay home and come back another day.', 14);
 insert into public.place_policies (id, place_id, source_url, source_checked_date, verification_status, conflict_note, kind, body, sort_order)
-values (md5('PE-001:policy:party:15')::uuid, 'PE-001', 'https://amazingfunpark.ca/parties/', '2026-10-24', 'verified', null, 'party', 'Weekday parties start at 5:30 pm; weekend parties at 10 am, 12:30, 3 or 5:30 pm.', 15);
+values (md5('PE-001:policy:party:15')::uuid, 'PE-001', 'https://amazingfunpark.ca/parties/', '2026-10-24', 'verified', null, 'party', 'Every party includes a dedicated party host, 1.5 hours at the party table, unlimited play on every attraction, large pizzas (pepperoni, cheese or vegetable), one juice or water per child, tableware, grip socks for every child and a photo with Chi, the park''s mascot.', 15);
 insert into public.place_policies (id, place_id, source_url, source_checked_date, verification_status, conflict_note, kind, body, sort_order)
-values (md5('PE-001:policy:party:16')::uuid, 'PE-001', 'https://amazingfunpark.ca/parties/', '2026-10-24', 'verified', null, 'party', 'Bring a nut-free birthday cake (no ice cream cakes) or nut-free dry baked goods such as brownies and cookies.', 16);
+values (md5('PE-001:policy:party:16')::uuid, 'PE-001', 'https://amazingfunpark.ca/parties/', '2026-10-24', 'verified', null, 'party', 'Weekday parties start at 5:30 pm; weekend parties at 10 am, 12:30, 3 or 5:30 pm.', 16);
 insert into public.place_policies (id, place_id, source_url, source_checked_date, verification_status, conflict_note, kind, body, sort_order)
-values (md5('PE-001:policy:party:17')::uuid, 'PE-001', 'https://amazingfunpark.ca/parties/', '2026-10-24', 'verified', null, 'party', 'Small table decorations only: no wall hangings or confetti, and balloons must be weighted.', 17);
+values (md5('PE-001:policy:party:17')::uuid, 'PE-001', 'https://amazingfunpark.ca/parties/', '2026-10-24', 'verified', null, 'party', 'Bring a nut-free birthday cake (no ice cream cakes) or nut-free dry baked goods such as brownies and cookies.', 17);
 insert into public.place_policies (id, place_id, source_url, source_checked_date, verification_status, conflict_note, kind, body, sort_order)
-values (md5('PE-001:policy:party:18')::uuid, 'PE-001', 'https://amazingfunpark.ca/parties/', '2026-10-24', 'verified', null, 'party', 'Arrive no more than 15 minutes early; late arrivals don''t extend the party. Every guest signs a waiver.', 18);
+values (md5('PE-001:policy:party:18')::uuid, 'PE-001', 'https://amazingfunpark.ca/parties/', '2026-10-24', 'verified', null, 'party', 'Small table decorations only: no wall hangings or confetti, and balloons must be weighted.', 18);
 insert into public.place_policies (id, place_id, source_url, source_checked_date, verification_status, conflict_note, kind, body, sort_order)
-values (md5('PE-001:policy:party:19')::uuid, 'PE-001', 'https://amazingfunpark.ca/parties/', '2026-10-24', 'verified', null, 'party', 'Deposits are non-refundable.', 19);
+values (md5('PE-001:policy:party:19')::uuid, 'PE-001', 'https://amazingfunpark.ca/parties/', '2026-10-24', 'verified', null, 'party', 'Arrive no more than 15 minutes early; late arrivals don''t extend the party. Every guest signs a waiver.', 19);
 insert into public.place_policies (id, place_id, source_url, source_checked_date, verification_status, conflict_note, kind, body, sort_order)
-values (md5('PE-001:policy:party:20')::uuid, 'PE-001', 'https://amazingfunpark.ca/terms-and-conditions/', '2026-10-24', 'verified', null, 'party', 'Party bookings follow the venue''s terms and conditions.', 20);
+values (md5('PE-001:policy:party:20')::uuid, 'PE-001', 'https://amazingfunpark.ca/parties/', '2026-10-24', 'verified', null, 'party', 'Deposits are non-refundable.', 20);
+insert into public.place_policies (id, place_id, source_url, source_checked_date, verification_status, conflict_note, kind, body, sort_order)
+values (md5('PE-001:policy:party:21')::uuid, 'PE-001', 'https://amazingfunpark.ca/terms-and-conditions/', '2026-10-24', 'verified', null, 'party', 'Party bookings follow the venue''s terms and conditions.', 21);
 
 -- place_links
 insert into public.place_links (id, place_id, source_url, source_checked_date, verification_status, conflict_note, kind, value, label, sort_order)
