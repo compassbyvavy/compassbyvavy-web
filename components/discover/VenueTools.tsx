@@ -7,8 +7,10 @@ import {
   ageCheck,
   estimateFamilyCost,
   familyPrice,
+  sessionPrice,
   type CostEstimatorModel,
   type FamilyPriceModel,
+  type SessionPriceModel,
   type PriceLine,
   type VenueDetailView,
 } from "@/lib/discover/venueDetail";
@@ -79,7 +81,8 @@ export function BookCardPrice({ price, label }: { price: string | null; label: s
         <p>
           ${estimate.total.toFixed(2)}
           <span>
-            Your family<span className="venue-book-detail">: {estimate.summary}</span> · before tax
+            Your family<span className="venue-book-detail">: {estimate.summary}</span>
+            {estimate.withTax !== null ? " · before tax" : ""}
           </span>
         </p>
         {estimate.withTax !== null ? <p className="venue-muted venue-book-detail">About ${estimate.withTax.toFixed(2)} with HST</p> : null}
@@ -274,6 +277,166 @@ export function FamilyPriceTool({ model }: { model: FamilyPriceModel }) {
                 <li>Uses the venue&apos;s published prices only. Where two tickets fit an age, it uses the narrower one.</li>
               </ul>
             </details>
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/** "What will it cost?" for a session venue: pick the session, the length and each child's age. */
+export function SessionPriceTool({ model }: { model: SessionPriceModel }) {
+  const id = useId();
+  const [session, setSession] = useState(model.sessions[0].name);
+  const current = model.sessions.find((s) => s.name === session) ?? model.sessions[0];
+  const [minutes, setMinutes] = useState<number | null>(null);
+  const [ages, setAges] = useState<string[]>([""]);
+  const [adults, setAdults] = useState(1);
+  const lengths = current.base.map((l) => l.durationMinutes).filter((m): m is number => typeof m === "number");
+  const chosen = minutes !== null && lengths.includes(minutes) ? minutes : lengths[0] ?? null;
+  const parsed = ages
+    .map((a) => (a.trim() === "" ? NaN : Number(a)))
+    .filter((n) => Number.isFinite(n) && n >= 0 && n < 18);
+  const result = sessionPrice(model, { session: current.name, ages: parsed, adults, minutes: chosen });
+  const withParent = current.attendance === "with_parent";
+  const hoursLabel = (m: number) => (m % 60 === 0 ? `${m / 60} ${m === 60 ? "hour" : "hours"}` : `${m} minutes`);
+
+  // Share the estimate with the booking card.
+  const shareTotal = result.children > 0 && result.total > 0 ? result.total : null;
+  const shareSummary =
+    shareTotal !== null
+      ? [
+          current.name,
+          lengths.length > 1 && chosen !== null ? hoursLabel(chosen) : null,
+          plural(result.children, "child", "children"),
+          withParent && current.extraAdult ? plural(adults, "adult", "adults") : null,
+        ]
+          .filter(Boolean)
+          .join(", ")
+      : "";
+  const shareTax = shareTotal !== null ? result.withTax : null;
+  useEffect(() => {
+    setFamilyEstimate(shareTotal !== null ? { total: shareTotal, withTax: shareTax, summary: shareSummary } : null);
+  }, [shareTotal, shareTax, shareSummary]);
+  useEffect(() => () => setFamilyEstimate(null), []);
+
+  return (
+    <div className="venue-tool venue-family-price">
+      <h3>Your family: what it costs</h3>
+      {model.sessions.length > 1 ? (
+        <fieldset className="venue-day-toggle">
+          <legend>What are you booking?</legend>
+          {model.sessions.map((s) => (
+            <label key={s.name} className={s.name === current.name ? "is-selected" : undefined}>
+              <input type="radio" name={`${id}-session`} value={s.name} checked={s.name === current.name} onChange={() => setSession(s.name)} />
+              {s.name}
+            </label>
+          ))}
+        </fieldset>
+      ) : null}
+      <p className="venue-muted">
+        {withParent
+          ? "You stay with your child for this session."
+          : model.dropOffRule ?? "A drop-off session: you can leave your child with the staff."}
+      </p>
+      {lengths.length > 1 ? (
+        <fieldset className="venue-day-toggle">
+          <legend>How long?</legend>
+          {lengths.map((m) => (
+            <label key={m} className={m === chosen ? "is-selected" : undefined}>
+              <input type="radio" name={`${id}-length`} value={m} checked={m === chosen} onChange={() => setMinutes(m)} />
+              {hoursLabel(m)}
+            </label>
+          ))}
+        </fieldset>
+      ) : null}
+      <div className="venue-age-inputs">
+        {ages.map((value, i) => (
+          <label key={i} htmlFor={`${id}-age-${i}`} className="venue-field">
+            <span>Child {i + 1} age</span>
+            <input
+              id={`${id}-age-${i}`}
+              type="number"
+              inputMode="numeric"
+              min={0}
+              max={17}
+              placeholder="e.g. 3"
+              value={value}
+              onChange={(e) => setAges((list) => list.map((v, j) => (j === i ? e.target.value : v)))}
+            />
+          </label>
+        ))}
+        {withParent && current.extraAdult ? (
+          <label htmlFor={`${id}-adults`} className="venue-field">
+            <span>Total adults going</span>
+            <input
+              id={`${id}-adults`}
+              type="number"
+              inputMode="numeric"
+              min={0}
+              max={10}
+              value={adults}
+              onChange={(e) => setAdults(Math.max(0, Math.min(10, Number(e.target.value) || 0)))}
+            />
+          </label>
+        ) : null}
+        {ages.length < 6 ? (
+          <button type="button" className="venue-text-btn" onClick={() => setAges((l) => [...l, ""])}>
+            Add a child
+          </button>
+        ) : null}
+      </div>
+      <p className="venue-muted">For a child under 2, enter 0 or 1.</p>
+      <div aria-live="polite">
+        {parsed.length === 0 ? (
+          <p className="venue-muted">Add each child&apos;s age above to see your price.</p>
+        ) : (
+          <>
+            {result.notEligible.map((n) => (
+              <p key={`n${n.age}`} className="venue-notice">
+                Age {n.age}: {n.reason}, so they aren&apos;t included.
+              </p>
+            ))}
+            {result.cautions.map((c) => (
+              <p key={c} className="venue-muted">
+                {c}
+              </p>
+            ))}
+            {result.children > 0 ? (
+              <>
+                <ul className="venue-best-lines">
+                  {result.lines.map((l) => (
+                    <li key={l.label}>
+                      <span>
+                        {l.quantity} × {l.label}
+                      </span>
+                      <span>${l.subtotal.toFixed(2)}</span>
+                    </li>
+                  ))}
+                </ul>
+                <p className="venue-estimate">
+                  ${result.total.toFixed(2)}{" "}
+                  <span className="venue-estimate-tax">{result.withTax !== null ? "before tax" : "total"}</span>
+                </p>
+                {result.withTax !== null ? (
+                  <p className="venue-muted">About ${result.withTax.toFixed(2)} with 13% HST.</p>
+                ) : null}
+                {result.notes.length ? (
+                  <ul className="venue-assumptions">
+                    {result.notes.map((n) => (
+                      <li key={n}>{n}</li>
+                    ))}
+                  </ul>
+                ) : null}
+                {model.bundle && lengths.length > 1 ? (
+                  <p className="venue-save">
+                    Coming back? The {model.bundle.label} is {model.bundle.amount} for {model.bundle.hours} hours ($
+                    {model.bundle.perHour.toFixed(2)} an hour)
+                    {model.bundle.notes ? `: ${model.bundle.notes.split(" · ").slice(0, 2).join(", ").toLowerCase()}` : ""}.
+                  </p>
+                ) : null}
+              </>
+            ) : null}
           </>
         )}
       </div>

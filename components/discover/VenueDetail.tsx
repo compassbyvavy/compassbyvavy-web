@@ -5,6 +5,7 @@ import {
   BookCardPrice,
   CostEstimator,
   FamilyPriceTool,
+  SessionPriceTool,
   ShareIconButton,
   StickyBookBar,
   UsualHoursToday,
@@ -162,11 +163,12 @@ function DayPriceTable({ rows, caption, firstColumn }: { rows: DayPriceRow[]; ca
   );
 }
 
-function PriceList({ section }: { section: PriceSection }) {
+function PriceList({ section, level = 3 }: { section: PriceSection; level?: 3 | 4 }) {
   const shared = sharedMeta(section.lines.map((l) => l.meta));
+  const Heading = level === 4 ? "h4" : "h3";
   return (
     <div className="venue-price-group">
-      <h3>{section.heading}</h3>
+      <Heading>{section.heading}</Heading>
       <ul className="venue-prices">
         {section.lines.map((l) => (
           <li key={l.id}>
@@ -205,7 +207,10 @@ export function VenueDetail({
   banner?: string | null;
 }) {
   const { overview, snapshot, visit, gettingThere, experience, reviews } = view;
-  const confirmedAmenities = view.amenities.filter((a) => a.status !== "not_confirmed");
+  // Parking shows under "Getting there", so it isn't repeated in the amenities list.
+  const confirmedAmenities = view.amenities.filter(
+    (a) => a.status !== "not_confirmed" && !view.gettingThere.parking.some((p) => p.kind === a.kind),
+  );
   const unconfirmedAmenities = view.amenities.filter((a) => a.status === "not_confirmed");
   const admission = view.prices.find((s) => s.kind === "admission");
   const paymentNotes = visit.other.filter((l) => /\bcash/i.test(l.text));
@@ -218,6 +223,7 @@ export function VenueDetail({
   const unconfirmedList = unconfirmedAmenities.filter(
     (a) => !view.checkWithVenue.includes(a.label) && !(a.kind === "stroller_access" && storageKnown),
   );
+  const sessionVenue = view.sessionPriceGroups.length > 0;
   const priceFact = view.quickFacts.find((f) => f.value === view.priceFrom);
   const priceLabel = priceFact ? priceFact.label : "";
   // "Label: text" per line becomes a short list; plain text stays a paragraph.
@@ -252,7 +258,7 @@ export function VenueDetail({
 
   const bookCard = view.primaryBooking ? (
     <>
-      {view.familyPrice ? (
+      {view.familyPrice || view.sessionPrice ? (
         <BookCardPrice price={view.priceFrom} label={priceLabel} />
       ) : view.priceFrom ? (
         <p className="venue-book-price">
@@ -338,7 +344,11 @@ export function VenueDetail({
         {view.video ? (
           <VenueVideo video={view.video} />
         ) : (
-          <VenueIllustration primaryType={view.primaryType} glow={/\bglow/i.test(overview.intro ?? "")} />
+          <VenueIllustration
+            primaryType={view.primaryType}
+            glow={/\bglow/i.test(overview.intro ?? "")}
+            playroom={/\b(montessori|playroom)\b/i.test(overview.intro ?? "")}
+          />
         )}
         <p className="venue-header-meta">
           <a href="#sources" className="venue-checked">
@@ -436,7 +446,8 @@ export function VenueDetail({
           </ul>
         ) : null}
 
-        <h3>What&apos;s there</h3>
+        {/* A session venue (no fixed attractions) describes its sessions below instead. */}
+        {view.activities.length || !view.programs.length ? <h3>What&apos;s there</h3> : null}
         {view.activities.length ? (
           <>
             {view.activitiesAllIncluded ? <p className="venue-lead">Everything here is included in your ticket.</p> : null}
@@ -447,7 +458,7 @@ export function VenueDetail({
             </ul>
             {activitiesMeta ? <Checked meta={activitiesMeta} /> : null}
           </>
-        ) : (
+        ) : view.programs.length ? null : (
           <NotConfirmed>Activities at this location are not confirmed yet.</NotConfirmed>
         )}
         {view.notOffered.length ? (
@@ -465,18 +476,27 @@ export function VenueDetail({
         ) : null}
         {view.programs.length ? (
           <>
-            <h3>Programs and special sessions</h3>
-            <ul className="venue-activities">
-              {view.programs.map((p) => (
+            <h3>{sessionVenue ? "Sessions and classes" : "Programs and special sessions"}</h3>
+            {sessionVenue ? (
+              <p className="venue-lead">
+                Every visit is a booked session. Some you stay for; at drop-off sessions you can leave your child with the staff.
+              </p>
+            ) : null}
+            <ul className="venue-activities venue-sessions">
+              {(sessionVenue ? view.programs.filter((p) => p.attendance) : view.programs).map((p) => (
                 <li key={p.name} className="venue-activity">
                   <h4>{p.name}</h4>
+                  {p.attendance ? (
+                    <p className={p.attendance === "Drop-off" ? "venue-attend is-drop" : "venue-attend"}>{p.attendance}</p>
+                  ) : null}
                   {p.description ? <p>{p.description}</p> : null}
                   <ul className="venue-tags">
-                    {p.when ? <li>{p.when}</li> : null}
                     {p.ages ? <li>{p.ages}</li> : null}
                     {p.price ? <li>{p.price}</li> : null}
+                    {p.when && !sessionVenue ? <li>{p.when}</li> : null}
                   </ul>
-                  {p.registrationUrl ? (
+                  {p.when && sessionVenue ? <p className="venue-muted venue-session-when">{p.when}</p> : null}
+                  {p.registrationUrl && p.registrationUrl !== view.primaryBooking?.href ? (
                     <p>
                       <a href={p.registrationUrl} rel="noopener noreferrer" target="_blank">
                         Register
@@ -487,19 +507,50 @@ export function VenueDetail({
                 </li>
               ))}
             </ul>
+            {sessionVenue && view.programs.some((p) => !p.attendance) ? (
+              <>
+                <h4>Also on the schedule</h4>
+                <ul className="venue-list">
+                  {view.programs
+                    .filter((p) => !p.attendance)
+                    .map((p) => (
+                      <li key={p.name}>
+                        <strong>{p.name}:</strong> {p.description}
+                        {p.price ? ` ${p.price}.` : ""} <Checked meta={p.meta} />
+                      </li>
+                    ))}
+                </ul>
+              </>
+            ) : null}
+            {sessionVenue && view.primaryBooking ? (
+              <p>
+                <a href={view.primaryBooking.href} rel="noopener noreferrer" target="_blank">
+                  See this week&apos;s times and book
+                </a>
+              </p>
+            ) : null}
           </>
         ) : null}
         {showAgeTool ? <AgeCheckTool tool={view.ageTool} /> : null}
       </VenueSection>
 
       <VenueSection id="cost" title="What will it cost?" openOnDesktop={false}>
-        {view.familyPrice ? (
+        {view.sessionPrice ? (
+          <SessionPriceTool model={view.sessionPrice} />
+        ) : view.familyPrice ? (
           <FamilyPriceTool model={view.familyPrice} />
         ) : view.costEstimator ? (
           <CostEstimator model={view.costEstimator} />
         ) : null}
         {admission ? (
-          view.admissionRows ? (
+          sessionVenue ? (
+            <>
+              <h3>All session prices</h3>
+              {view.sessionPriceGroups.map((g) => (
+                <PriceList key={g.name} section={{ heading: g.name || "Other prices", kind: "admission", lines: g.lines }} level={4} />
+              ))}
+            </>
+          ) : view.admissionRows ? (
             <>
               <h3>All ticket prices</h3>
               <DayPriceTable rows={view.admissionRows} caption="Admission prices by day" firstColumn="Ticket" />
@@ -562,12 +613,14 @@ export function VenueDetail({
         ) : visit.hours.kind === "statement" ? (
           <p>
             {visit.hours.text}
-            {visit.hours.checked ? <span className="venue-checked"> Checked {visit.hours.checked}</span> : null}
+            {visit.hours.checked && visit.hours.checked !== overview.meta.checked ? (
+              <span className="venue-checked"> Checked {visit.hours.checked}</span>
+            ) : null}
           </p>
         ) : (
           <NotConfirmed>Hours not confirmed yet — check with the venue before you go.</NotConfirmed>
         )}
-        <Rules heading="Holiday and special hours" lines={visit.hoursNotes} />
+        <Rules heading={view.hoursVary ? "How the schedule works" : "Holiday and special hours"} lines={visit.hoursNotes} />
 
         <h3>Booking and contact</h3>
         {visit.bookingLinks.length || visit.website || visit.phone ? (
@@ -896,6 +949,7 @@ export function VenueDetail({
             {bookCard}
             {view.quickNote ? <p className="venue-muted">{view.quickNote}</p> : null}
             <UsualHoursToday hours={view.weeklyHours} />
+            {view.hoursVary ? <p className="venue-muted">No fixed hours: times change by session.</p> : null}
             {gettingThere.directionsUrl ? (
               <a href={gettingThere.directionsUrl} rel="noopener noreferrer" target="_blank">
                 Directions

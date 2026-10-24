@@ -120,6 +120,8 @@ Check dates show once ("Official details checked …" at the top); a fact shows 
 
 Migration `20261024090000_discover_venue_prices_by_day.sql` adds `place_prices.day_type` (`weekday` | `weekend_holiday`, NULL = any day), `place_prices.adults_included`, `places.compass_take`, the `party` policy kind and the `video` link kind.
 
+**Session venues.** Some venues sell booked sessions (stay-and-play, drop-off, classes) instead of one ticket. Each session is a program with `attendance` (`with_parent` | `drop_off`), and its prices carry `session_name` (and `sibling_only` for a sibling rate). The page then shows "Sessions and classes" with who stays, a session price tool (session, length, each child's age; adults only where a parent stays), prices grouped by session, and — with `hours_kind = varies` — a "How the schedule works" note instead of a weekly table. Migration `20261025090000_discover_venue_sessions.sql` adds those three columns.
+
 **Preview URLs.** On Cloudflare preview URLs (the `COMPASS_DISCOVER_REVIEW_PREVIEW` flag AND a verified preview hostname, the same dual gate as Discover examples), a venue with no published Supabase record shows the development preview — bannered and `noindex`. The production site never takes this path.
 
 ## PE-001 Amazing Fun Park
@@ -128,6 +130,14 @@ Source: the PE-001 profile reviewed with the founder (revision 3, Oct 23–24, 2
 
 - AFP Unlimited appears as $99 (home page), $99.95 (chart) and $99.99 (booking page); the founder confirmed $99.99. The weekday ticket's fine print (Mondays, Thursdays, Fridays) is not used.
 - Not stored: parking, washrooms, change tables, Adventure Camp, Story Time, winter-break Monday–Tuesday opening. The page names the first three under "Check with the venue".
+
+## PE-002 Boogles Playhouse — Square One
+
+Source: the founder's own review on Oct 24, 2026 (screenshots of the schedule, session details, services, bundles, memberships, gift cards, locations and team pages), plus the venue's FAQ, pricing and Square One location pages read the same day. Seed: `supabase/seeds/discover/pe-002-boogles-playhouse-square-one.sql` (draft) and `.publish.sql`.
+
+- Flagged conflicts: drop-off ages (18 months–8 vs FAQ 18 months–6), Stay + Play ages ("all ages" vs schedule 0–6), birthday price ($800 vs $700 for up to 15).
+- Not stored: session dates (the schedule changes weekly), HST, Wonder Club and Little Boogles prices, camp day rate, the unclear drop-off sibling rate, washrooms and change tables.
+- The PE-002 ID is provisional; rename it before publishing if the master list numbers Boogles differently.
 
 ## Open items
 
