@@ -203,7 +203,10 @@ function formatTime(hhmm: string): string {
 }
 
 function money(amount: number, currency: VenuePrice["currency"]): string {
-  const text = Number.isInteger(amount) ? String(amount) : amount.toFixed(2);
+  const text = amount.toLocaleString("en-CA", {
+    minimumFractionDigits: Number.isInteger(amount) ? 0 : 2,
+    maximumFractionDigits: 2,
+  });
   return currency === "USD" ? `US$${text}` : `$${text}`;
 }
 
@@ -713,8 +716,8 @@ function priceLine(price: VenuePrice): PriceLine | null {
     price.includesNote?.trim() ? `Includes ${price.includesNote.trim()}` : null,
     price.eligibility?.trim() || null,
     price.kind === "promotion" && isIsoDate(price.validTo) ? `Ends ${formatCheckedDate(price.validTo)}` : null,
-    price.plusTax === true ? "Plus tax" : null,
     price.notes?.trim() || null,
+    price.plusTax === true ? "Plus tax" : null,
   ].filter((d): d is string => Boolean(d));
   return {
     id: price.id,
@@ -1149,7 +1152,8 @@ function sourcesView(record: VenueRecord, visible: Array<{ label: string; fact: 
   const sources = [...rows].map(([url, row]) => {
     let host = url;
     try {
-      host = new URL(url).hostname.replace(/^www\./, "");
+      const u = new URL(url);
+      host = `${u.hostname.replace(/^www\./, "")}${u.pathname.replace(/\/$/, "")}`;
     } catch {
       /* keep url */
     }

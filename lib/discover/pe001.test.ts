@@ -294,7 +294,7 @@ describe("PE-001 round 2", () => {
     assert.match(page, /<dt>Best for<\/dt>/);
     assert.match(page, /Based on official venue information\. Compass hasn&#x27;t visited yet\./);
     assert.match(page, /class="venue-book-card"/);
-    assert.match(page, /class="venue-sticky-book" aria-hidden="true"/, "the phone bar starts hidden");
+    assert.match(page, /class="venue-sticky-book" inert=""/, "the phone bar starts hidden and unfocusable");
     assert.doesNotMatch(page, /Know before you go/);
     assert.match(page, /<ul class="venue-rule-list">/);
     assert.doesNotMatch(page, /Also known as|Share this page<\/button>/);
@@ -365,5 +365,43 @@ describe("PE-001 result card", () => {
     assert.equal(r.socksSubtotal, 9);
     assert.equal(r.bestTotal, 108.95);
     assert.equal(r.bestWithTax, 123.11);
+  });
+});
+
+describe("PE-001 full-page review fixes", () => {
+  it("formats large prices with a thousands separator", () => {
+    const thirty = view().parties.rows!.find((r) => r.label === "30 kids + 30 adults")!;
+    assert.equal(thirty.weekday?.amount, "$1,299");
+    assert.equal(thirty.weekend?.amount, "$1,399");
+  });
+
+  it("names each source page, not just the site", () => {
+    const hosts = view().sources.map((s) => s.host);
+    assert.ok(hosts.includes("amazingfunpark.ca/bookings"));
+    assert.ok(hosts.includes("amazingfunpark.ca/parties"));
+  });
+
+  it("says each rule once on the page", () => {
+    const page = html().replace(/<[^>]+>/g, " ");
+    for (const rule of [
+      "Sign the waiver online ahead or on arrival",
+      "The 2-hour session starts when you check in.",
+      "No outside food or drinks; birthday cake only with a booked party.",
+      "Book online to guarantee your time",
+    ]) {
+      assert.equal(page.split(rule).length - 1, 1, rule);
+    }
+  });
+
+  it("doesn't list stroller access or the check-with-venue items as unknown twice", () => {
+    const page = html();
+    const notConfirmed = /Not confirmed yet: ([^<]+)\./.exec(page)?.[1] ?? "";
+    const items = notConfirmed.split(", ");
+    for (const gone of ["stroller access", "parking", "washrooms", "baby changing"]) assert.ok(!items.includes(gone), gone);
+    assert.ok(items.includes("accessible parking"));
+  });
+
+  it("shows the breadcrumb type in sentence case without a mismatched link", () => {
+    assert.match(html(), /<p class="venue-crumb"><span>Mississauga<\/span><span aria-hidden="true"> › <\/span>Indoor playgrounds<\/p>/);
   });
 });

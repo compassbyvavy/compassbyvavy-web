@@ -592,7 +592,8 @@ export function StickyBookBar({ children }: { children: ReactNode }) {
     return () => io.disconnect();
   }, []);
   return (
-    <div className={show ? "venue-sticky-book is-shown" : "venue-sticky-book"} aria-hidden={show ? undefined : true}>
+    // inert (not just aria-hidden) so the hidden bar's link can't take focus either.
+    <div className={show ? "venue-sticky-book is-shown" : "venue-sticky-book"} inert={!show}>
       {children}
     </div>
   );

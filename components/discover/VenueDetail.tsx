@@ -45,6 +45,10 @@ function Checked({ meta }: { meta: FactMeta }) {
   );
 }
 
+function sentenceCase(text: string): string {
+  return text.charAt(0).toUpperCase() + text.slice(1).toLowerCase();
+}
+
 /** The one checked date and source a whole list shares, or null when they differ. */
 function sharedMeta(metas: FactMeta[]): FactMeta | null {
   if (metas.length < 2) return null;
@@ -126,7 +130,8 @@ function Amenity({ a }: { a: AmenityView }) {
 function DayPriceTable({ rows, caption, firstColumn }: { rows: DayPriceRow[]; caption: string; firstColumn: string }) {
   const cell = (l: PriceLine | null) => (l ? l.amount : "—");
   return (
-    <div className="venue-table-scroll">
+    // Focusable so keyboard users can scroll it when it's wider than a small phone.
+    <div className="venue-table-scroll" tabIndex={0} role="region" aria-label={caption}>
       <table className="venue-day-prices">
         <caption className="venue-sr-only">{caption}</caption>
         <thead>
@@ -207,6 +212,11 @@ export function VenueDetail({
   const showAgeTool = view.ageTool.activities.some((a) => a.ageMin !== null || a.ageMax !== null);
   const fullName = `${overview.name}${overview.branchName ? ` — ${overview.branchName}` : ""}`;
   const activitiesMeta = sharedMeta(view.activities.map((a) => a.meta));
+  const listed = new Set([...view.beforeYouGoGroups.home, ...view.beforeYouGoGroups.atVenue]);
+  const storageKnown = view.amenities.some((a) => a.kind === "stroller_storage" && a.status !== "not_confirmed");
+  const unconfirmedList = unconfirmedAmenities.filter(
+    (a) => !view.checkWithVenue.includes(a.label) && !(a.kind === "stroller_access" && storageKnown),
+  );
   const priceFact = view.quickFacts.find((f) => f.value === view.priceFrom);
   const priceLabel = priceFact ? priceFact.label : "";
   // "Label: text" per line becomes a short list; plain text stays a paragraph.
@@ -231,7 +241,7 @@ export function VenueDetail({
   const firstParty = view.parties.rows?.[0];
   const partyTeaser =
     firstParty && (firstParty.weekday || firstParty.weekend)
-      ? `Packages for ${firstParty.label} from ${[
+      ? `Party packages for ${firstParty.label.replace(" + ", " and ")} start at ${[
           firstParty.weekday ? `${firstParty.weekday.amount} on weekdays` : null,
           firstParty.weekend ? `${firstParty.weekend.amount} on weekends` : null,
         ]
@@ -266,10 +276,12 @@ export function VenueDetail({
         <p className="venue-crumb">
           {overview.cityName ? <span>{overview.cityName}</span> : null}
           {overview.cityName && (view.primaryType || overview.categoryTitle) ? <span aria-hidden="true"> › </span> : null}
-          {overview.categoryHref ? (
-            <a href={overview.categoryHref}>{view.primaryType ?? overview.categoryTitle}</a>
+          {view.primaryType ? (
+            sentenceCase(view.primaryType)
+          ) : overview.categoryHref ? (
+            <a href={overview.categoryHref}>{overview.categoryTitle}</a>
           ) : (
-            view.primaryType ?? overview.categoryTitle
+            overview.categoryTitle
           )}
         </p>
         <h1>
@@ -387,7 +399,7 @@ export function VenueDetail({
         </dl>
         ) : null}
         <h3>By age</h3>
-        <div className="venue-table-scroll">
+        <div className="venue-table-scroll" tabIndex={0} role="region" aria-label="Fit by age">
           <table className="venue-age-table">
             <thead>
               <tr>
@@ -540,7 +552,9 @@ export function VenueDetail({
                 ))}
               </ul>
             ) : null}
-            {visit.hours.checked ? <p className="venue-checked">Hours checked {visit.hours.checked}</p> : null}
+            {visit.hours.checked && visit.hours.checked !== overview.meta.checked ? (
+              <p className="venue-checked">Hours checked {visit.hours.checked}</p>
+            ) : null}
           </>
         ) : visit.hours.kind === "statement" ? (
           <p>
@@ -580,7 +594,6 @@ export function VenueDetail({
         ) : (
           <NotConfirmed>No official booking link or contact details confirmed yet.</NotConfirmed>
         )}
-        <Rules heading="Booking" lines={visit.bookingRules} />
       </VenueSection>
 
       <VenueSection id="before" title="Before you go" openOnDesktop={false}>
@@ -609,12 +622,13 @@ export function VenueDetail({
             <strong>Check with the venue:</strong> {view.checkWithVenue.join(", ").toLowerCase()} — not confirmed yet.
           </p>
         ) : null}
-        <Rules heading="Waiver" lines={visit.waiver} />
-        <Rules heading="Arrival and check-in" lines={visit.arrival} />
-        <Rules heading="What to wear" lines={visit.dress} />
-        <Rules heading="Food and re-entry" lines={visit.food} />
+        {/* Rules already in the lists above aren't repeated. */}
+        <Rules heading="Waiver" lines={visit.waiver.filter((l) => !listed.has(l.text))} />
+        <Rules heading="Arrival and check-in" lines={visit.arrival.filter((l) => !listed.has(l.text))} />
+        <Rules heading="What to wear" lines={visit.dress.filter((l) => !listed.has(l.text))} />
+        <Rules heading="Food and re-entry" lines={visit.food.filter((l) => !listed.has(l.text))} />
         <Rules heading="Cancellations and refunds" lines={visit.cancellation} />
-        <Rules heading="Good to know" lines={[...paymentNotes, ...otherNotes]} />
+        <Rules heading="Good to know" lines={[...paymentNotes, ...otherNotes].filter((l) => !listed.has(l.text))} />
 
         <h3>Getting there</h3>
         {gettingThere.address ? (
@@ -653,9 +667,9 @@ export function VenueDetail({
         ) : (
           <NotConfirmed>No amenities confirmed yet.</NotConfirmed>
         )}
-        {unconfirmedAmenities.length ? (
+        {unconfirmedList.length ? (
           <p className="venue-muted">
-            Not confirmed yet: {unconfirmedAmenities.map((a) => a.label.toLowerCase()).join(", ")}.
+            Not confirmed yet: {unconfirmedList.map((a) => a.label.toLowerCase()).join(", ")}.
           </p>
         ) : null}
       </VenueSection>

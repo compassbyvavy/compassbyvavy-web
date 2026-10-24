@@ -303,7 +303,7 @@ describe("sources and freshness", () => {
     assert.ok(main);
     assert.ok(main.supports.includes("Venue details"));
     assert.equal(main.lastChecked, "Oct 10, 2026");
-    assert.ok(sources.some((s) => s.host === "blog.example.com"));
+    assert.ok(sources.some((s) => s.host.startsWith("blog.example.com")));
   });
 
   it("builds a before-you-go list only from verified rules and required extras", () => {
