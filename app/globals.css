@@ -2399,3 +2399,22 @@ a.category-card {
     display: none !important;
   }
 }
+
+/* The phone booking bar waits until the page's own Book button scrolls away. */
+@media (max-width: 759px) {
+  .venue-sticky-book {
+    transform: translateY(110%);
+    transition: transform 0.2s ease;
+  }
+
+  .venue-sticky-book.is-shown {
+    transform: none;
+  }
+}
+
+/* On wide screens the right-hand card shows today's hours and the adult note. */
+@media (min-width: 1100px) {
+  .venue-card-dup {
+    display: none;
+  }
+}

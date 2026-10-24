@@ -124,7 +124,6 @@ export const pe001AmazingFunPark: VenueRecord = {
     compassTake: [
       "Best for: Children 4–12 who enjoy glowing games, VR, ride-on cars and arcade play.",
       "Little ones: Babies get in free and there are zones for them, but ages 4 and up get the most out of a visit.",
-      "Know before you go: No outside food, it's cashless, and strollers stay outside the play zone.",
     ].join("\n"),
     toddlerFriendly: "yes",
     strollerFriendly: "unknown",

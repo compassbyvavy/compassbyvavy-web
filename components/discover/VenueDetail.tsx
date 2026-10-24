@@ -5,6 +5,7 @@ import {
   CostEstimator,
   FamilyPriceTool,
   ShareIconButton,
+  StickyBookBar,
   UsualHoursToday,
   VenueSection,
   VenueVideo,
@@ -287,10 +288,13 @@ export function VenueDetail({
             ))}
           </dl>
         ) : null}
-        {view.quickNote ? <p className="venue-quick-note">{view.quickNote}</p> : null}
+        {view.quickNote ? (
+          <p className={view.primaryBooking ? "venue-quick-note venue-card-dup" : "venue-quick-note"}>{view.quickNote}</p>
+        ) : null}
         <div className="venue-header-actions">
           {view.primaryBooking ? (
-            <a className="button button-primary" href={view.primaryBooking.href} rel="noopener noreferrer" target="_blank">
+            // On wide screens the right-hand card carries the Book button.
+            <a className="button button-primary venue-card-dup" href={view.primaryBooking.href} rel="noopener noreferrer" target="_blank">
               {view.primaryBooking.label}
             </a>
           ) : null}
@@ -307,7 +311,7 @@ export function VenueDetail({
           ) : null}
           <ShareIconButton title={fullName} />
         </div>
-        <p className="venue-header-meta">
+        <p className={view.primaryBooking ? "venue-header-meta venue-card-dup" : "venue-header-meta"}>
           <UsualHoursToday hours={view.weeklyHours} />
         </p>
         {view.video ? (
@@ -878,7 +882,7 @@ export function VenueDetail({
           </div>
         </aside>
       ) : null}
-      {bookCard ? <div className="venue-sticky-book">{bookCard}</div> : null}
+      {bookCard ? <StickyBookBar>{bookCard}</StickyBookBar> : null}
     </div>
   );
 }

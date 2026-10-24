@@ -548,3 +548,26 @@ export function ShareButton({ title }: { title: string }) {
     </span>
   );
 }
+
+/**
+ * The phone booking bar. It slides in only once the page's own Book button
+ * has scrolled out of view, so two Book buttons never show at once.
+ */
+export function StickyBookBar({ children }: { children: ReactNode }) {
+  const [show, setShow] = useState(false);
+  useEffect(() => {
+    const target = document.querySelector(".venue-header-actions");
+    if (!target || typeof IntersectionObserver === "undefined") {
+      setShow(true);
+      return;
+    }
+    const io = new IntersectionObserver(([entry]) => setShow(!entry.isIntersecting && entry.boundingClientRect.top < 0));
+    io.observe(target);
+    return () => io.disconnect();
+  }, []);
+  return (
+    <div className={show ? "venue-sticky-book is-shown" : "venue-sticky-book"} aria-hidden={show ? undefined : true}>
+      {children}
+    </div>
+  );
+}

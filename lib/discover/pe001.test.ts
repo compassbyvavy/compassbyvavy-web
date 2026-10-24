@@ -294,7 +294,8 @@ describe("PE-001 round 2", () => {
     assert.match(page, /<dt>Best for<\/dt>/);
     assert.match(page, /Based on official venue information\. Compass hasn&#x27;t visited yet\./);
     assert.match(page, /class="venue-book-card"/);
-    assert.match(page, /class="venue-sticky-book"/);
+    assert.match(page, /class="venue-sticky-book" aria-hidden="true"/, "the phone bar starts hidden");
+    assert.doesNotMatch(page, /Know before you go/);
     assert.match(page, /<ul class="venue-rule-list">/);
     assert.doesNotMatch(page, /Also known as|Share this page<\/button>/);
     // The price tool comes before the ticket table.

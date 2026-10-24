@@ -22,8 +22,7 @@ values ('PE-001', 'amazing-fun-park', 'Amazing Fun Park', 'A jungle-themed indoo
    union all
    select id from public.cities where lower(city_town) = lower('Mississauga') and province_state = 'Ontario'
    limit 1), null, '1325 Eglinton Ave E, Unit 1', 'Eglinton & Dixie', 'https://amazingfunpark.ca/', 4, 12, null, null, false, 'indoor'::public.place_setting, 'moderate'::public.place_cost_tier, 120, 'The play pass is 2 hours from check-in', 'Best for: Children 4–12 who enjoy glowing games, VR, ride-on cars and arcade play.
-Little ones: Babies get in free and there are zones for them, but ages 4 and up get the most out of a visit.
-Know before you go: No outside food, it''s cashless, and strollers stay outside the play zone.', 'yes'::public.confirmed_tri_state, 'unknown'::public.confirmed_tri_state, 'fixed'::public.place_hours_kind, 43.6346964, -79.6227394, 'https://amazingfunpark.ca/', '2026-10-24', 'draft'::public.publication_state, 'open'::public.place_operating_status, null, '{}'::text[], 'L4W 4L9')
+Little ones: Babies get in free and there are zones for them, but ages 4 and up get the most out of a visit.', 'yes'::public.confirmed_tri_state, 'unknown'::public.confirmed_tri_state, 'fixed'::public.place_hours_kind, 43.6346964, -79.6227394, 'https://amazingfunpark.ca/', '2026-10-24', 'draft'::public.publication_state, 'open'::public.place_operating_status, null, '{}'::text[], 'L4W 4L9')
 on conflict (id) do update set
   slug = excluded.slug,
   name = excluded.name,
