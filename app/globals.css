@@ -1428,6 +1428,27 @@ a.category-card {
   font-weight: 700;
 }
 
+/* Who stays at a session: a parent, or drop-off. */
+.venue-attend {
+  display: inline-block;
+  margin: 0 0 6px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: var(--green);
+  color: #fff;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.venue-session-when {
+  margin: 4px 0 0;
+  font-size: 0.9rem;
+}
+
+.venue-attend.is-drop {
+  background: #8a4f2c;
+}
+
 .venue-types li:first-child {
   background: var(--green);
   color: white;

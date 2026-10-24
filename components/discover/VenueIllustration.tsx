@@ -71,6 +71,85 @@ function IndoorPlayground() {
   );
 }
 
+const BIRCH = "#E2C9A0";
+const BIRCH_EDGE = "#C9A877";
+
+/** A calm, Montessori-style playroom: open wooden shelves, a low table with stools, an easel and a rug. */
+function Playroom() {
+  return (
+    <svg viewBox="0 0 1200 675" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false">
+      <rect width="1200" height="675" fill="#EFEAE0" />
+      {/* Ring lights */}
+      <line x1="560" y1="0" x2="560" y2="58" stroke="#26241F" strokeOpacity="0.3" strokeWidth="2" />
+      <ellipse cx="560" cy="70" rx="90" ry="16" fill="none" stroke={CREAM} strokeWidth="12" />
+      <ellipse cx="560" cy="70" rx="90" ry="16" fill="none" stroke="#E3DCCB" strokeWidth="3" />
+      <line x1="790" y1="0" x2="790" y2="48" stroke="#26241F" strokeOpacity="0.3" strokeWidth="2" />
+      <ellipse cx="790" cy="58" rx="60" ry="11" fill="none" stroke={CREAM} strokeWidth="10" />
+      <ellipse cx="790" cy="58" rx="60" ry="11" fill="none" stroke="#E3DCCB" strokeWidth="3" />
+      {/* Window */}
+      <path d="M880 330 V200 A70 70 0 0 1 1020 200 V330 Z" fill={CREAM} stroke="#E3DCCB" strokeWidth="8" />
+      <line x1="950" y1="132" x2="950" y2="330" stroke="#E3DCCB" strokeWidth="5" />
+      {/* Floor and rug */}
+      <rect y="560" width="1200" height="115" fill="#E3DCCB" />
+      <rect y="560" width="1200" height="12" fill="#D8CFBB" />
+      <ellipse cx="700" cy="610" rx="250" ry="40" fill={SAGE} opacity="0.45" />
+      {/* Open shelves */}
+      <rect x="90" y="240" width="380" height="322" rx="10" fill={BIRCH} />
+      <rect x="104" y="254" width="352" height="294" rx="6" fill="#F3E6CF" />
+      {[330, 420, 500].map((y) => (
+        <rect key={y} x="98" y={y} width="364" height="12" rx="4" fill={BIRCH_EDGE} />
+      ))}
+      <rect x="276" y="254" width="8" height="294" fill={BIRCH} />
+      {/* Top shelf: a rainbow stacker and paint pots */}
+      {[[60, ACCENT], [46, AMBER], [32, SAND], [18, SAGE]].map(([r, c]) => (
+        <path key={String(r)} d={`M${190 - Number(r)} 330 A${r} ${r} 0 0 1 ${190 + Number(r)} 330`} fill="none" stroke={String(c)} strokeWidth="13" />
+      ))}
+      {[[300, ACCENT], [336, PINE], [372, AMBER], [408, SAGE]].map(([x, c]) => (
+        <g key={String(x)}>
+          <rect x={Number(x)} y="282" width="26" height="48" rx="6" fill={String(c)} />
+          <rect x={Number(x) + 4} y="274" width="18" height="10" rx="3" fill={CREAM} />
+        </g>
+      ))}
+      {/* Middle shelf: blocks and baskets */}
+      <rect x="130" y="380" width="40" height="40" rx="4" fill={AMBER} />
+      <rect x="174" y="380" width="40" height="40" rx="4" fill={PINE} />
+      <rect x="152" y="342" width="40" height="38" rx="4" fill={ACCENT} />
+      <rect x="300" y="372" width="140" height="48" rx="10" fill={SAND} />
+      {[316, 346, 376, 406].map((x) => (
+        <line key={x} x1={x} y1="378" x2={x + 14} y2="414" stroke={BIRCH_EDGE} strokeWidth="3" />
+      ))}
+      {/* Bottom shelf: books and a plant */}
+      {[[124, PINE], [146, AMBER], [168, ACCENT], [190, SAGE]].map(([x, c]) => (
+        <rect key={String(x)} x={Number(x)} y="440" width="18" height="60" rx="3" fill={String(c)} />
+      ))}
+      <rect x="340" y="462" width="56" height="38" rx="8" fill={CREAM} stroke="#D8CFBB" strokeWidth="2" />
+      <path d="M368 462 C350 430 330 430 324 420 M368 462 C372 425 392 418 404 410 M368 462 C362 436 368 420 366 404" fill="none" stroke={PINE} strokeWidth="6" strokeLinecap="round" />
+      {/* Low table, stools and a tray */}
+      <rect x="540" y="452" width="330" height="18" rx="9" fill={BIRCH_EDGE} />
+      <rect x="560" y="470" width="14" height="90" rx="4" fill={BIRCH_EDGE} />
+      <rect x="836" y="470" width="14" height="90" rx="4" fill={BIRCH_EDGE} />
+      <rect x="640" y="430" width="150" height="22" rx="6" fill={BIRCH} />
+      {[[668, ACCENT], [700, SAGE], [732, AMBER], [764, PINE]].map(([x, c]) => (
+        <circle key={String(x)} cx={Number(x)} cy="441" r="8" fill={String(c)} />
+      ))}
+      <rect x="480" y="500" width="70" height="14" rx="7" fill={AMBER} />
+      <rect x="490" y="514" width="10" height="46" fill={AMBER} />
+      <rect x="530" y="514" width="10" height="46" fill={AMBER} />
+      <rect x="880" y="500" width="70" height="14" rx="7" fill={AMBER} />
+      <rect x="890" y="514" width="10" height="46" fill={AMBER} />
+      <rect x="930" y="514" width="10" height="46" fill={AMBER} />
+      {/* Easel with a painting */}
+      <line x1="1060" y1="300" x2="1010" y2="560" stroke={BIRCH_EDGE} strokeWidth="10" strokeLinecap="round" />
+      <line x1="1060" y1="300" x2="1110" y2="560" stroke={BIRCH_EDGE} strokeWidth="10" strokeLinecap="round" />
+      <rect x="1000" y="330" width="120" height="140" rx="4" fill={CREAM} stroke="#D8CFBB" strokeWidth="3" />
+      <circle cx="1040" cy="372" r="18" fill={AMBER} />
+      <path d="M1012 452 C1040 410 1070 430 1108 400" fill="none" stroke={SAGE} strokeWidth="10" strokeLinecap="round" />
+      <path d="M1020 430 C1050 440 1080 420 1100 440" fill="none" stroke={ACCENT} strokeWidth="6" strokeLinecap="round" />
+      <rect x="1000" y="470" width="120" height="10" rx="4" fill={BIRCH} />
+    </svg>
+  );
+}
+
 /** A glow-in-the-dark play park: light-up floor, ride-on car, coaster track, play wall, stage and ball pit. */
 function GlowPlay() {
   return (
@@ -171,13 +250,22 @@ export function hasVenueIllustration(primaryType: string | null): boolean {
 
 /**
  * glow: for venues whose own description is about glowing play (e.g. a
- * glow-in-the-dark amusement park); otherwise the daytime playground.
+ * glow-in-the-dark amusement park). playroom: for a calm, Montessori-style
+ * playroom rather than a climbing structure. Otherwise the daytime playground.
  */
-export function VenueIllustration({ primaryType, glow = false }: { primaryType: string | null; glow?: boolean }) {
+export function VenueIllustration({
+  primaryType,
+  glow = false,
+  playroom = false,
+}: {
+  primaryType: string | null;
+  glow?: boolean;
+  playroom?: boolean;
+}) {
   if (!hasVenueIllustration(primaryType)) return null;
   return (
     <figure className={glow ? "venue-hero is-glow" : "venue-hero"}>
-      {glow ? <GlowPlay /> : <IndoorPlayground />}
+      {glow ? <GlowPlay /> : playroom ? <Playroom /> : <IndoorPlayground />}
       <figcaption>Illustration · venue photos coming soon</figcaption>
     </figure>
   );
