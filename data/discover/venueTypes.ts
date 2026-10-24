@@ -228,11 +228,15 @@ export type VenueLinkKind =
   | "booking"
   | "tickets"
   | "reservation"
-  | "registration";
+  | "registration"
+  | "video";
 
 export type VenueLink = Provenance & {
   kind: VenueLinkKind;
-  /** https URL, or a phone number for kind "phone". */
+  /**
+   * https URL, or a phone number for kind "phone". kind "video" is a video
+   * the venue publishes or supplied with permission (YouTube or a video file).
+   */
   value: string;
   label?: string | null;
 };

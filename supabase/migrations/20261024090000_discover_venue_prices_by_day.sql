@@ -6,6 +6,8 @@
 -- everyday visit rules so the page can show them in their own section.
 -- ADD VALUE stays outside the transaction below.
 alter type public.place_policy_kind add value if not exists 'party';
+-- A video the venue publishes, or supplied with permission, for the page's hero.
+alter type public.place_link_kind add value if not exists 'video';
 
 begin;
 

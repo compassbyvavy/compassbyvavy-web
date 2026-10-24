@@ -2054,7 +2054,7 @@ a.category-card {
 }
 
 .venue-take h2 {
-  margin: 0 0 8px;
+  margin: 0 0 12px;
   font-size: 1.3rem;
 }
 
@@ -2108,5 +2108,286 @@ a.category-card {
   .venue-take {
     padding: 16px;
     border-radius: 16px;
+  }
+}
+
+/* Venue page, round 2: two-column layout with a booking card on wide screens,
+   a booking bar on phones, quick facts and a stronger price answer. */
+.venue-layout {
+  --muted: #5d6458; /* 5.1:1 or better on every venue background */
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 32px;
+}
+
+.venue-aside {
+  display: none;
+}
+
+@media (min-width: 1100px) {
+  .venue-layout {
+    grid-template-columns: minmax(0, 880px) 300px;
+    align-items: start;
+  }
+
+  .venue-aside {
+    display: block;
+    position: sticky;
+    top: 170px;
+  }
+}
+
+.venue-book-card {
+  display: grid;
+  gap: 12px;
+  padding: 20px;
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  background: var(--paper);
+  box-shadow: var(--shadow);
+}
+
+.venue-book-card .button {
+  width: 100%;
+  justify-content: center;
+  text-align: center;
+}
+
+.venue-book-price {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--ink);
+}
+
+.venue-book-price span {
+  display: block;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.venue-sticky-book {
+  display: none;
+}
+
+@media (max-width: 759px) {
+  .venue-layout {
+    padding-bottom: 76px;
+  }
+
+  .venue-sticky-book {
+    position: fixed;
+    z-index: 40;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 10px 16px calc(10px + env(safe-area-inset-bottom));
+    background: var(--paper);
+    border-top: 1px solid var(--line);
+    box-shadow: 0 -8px 24px rgba(38, 36, 31, 0.08);
+  }
+
+  .venue-sticky-book .venue-book-price {
+    flex: 0 1 auto;
+    min-width: 0;
+    font-size: 1rem;
+    line-height: 1.2;
+    white-space: nowrap;
+  }
+
+  .venue-sticky-book .venue-book-price span {
+    font-size: 0.78rem;
+  }
+
+  .venue-sticky-book .button {
+    width: auto;
+    flex: 0 0 auto;
+    min-height: 48px;
+    padding-left: 22px;
+    padding-right: 22px;
+  }
+}
+
+.venue-crumb {
+  margin: 0;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--muted);
+}
+
+.venue-crumb a {
+  color: var(--green-dark);
+}
+
+.venue-intro {
+  font-size: 1.1rem;
+  line-height: 1.5;
+}
+
+.venue-quick {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  margin: 16px 0 8px;
+}
+
+.venue-quick div {
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: var(--sage);
+}
+
+.venue-quick dt {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--muted);
+}
+
+.venue-quick dd {
+  margin: 2px 0 0;
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--green-dark);
+  line-height: 1.25;
+}
+
+.venue-quick-note {
+  margin: 0 0 14px;
+  font-weight: 700;
+  color: var(--green-dark);
+}
+
+.venue-icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--paper);
+  color: var(--green-dark);
+  cursor: pointer;
+}
+
+.venue-icon-btn:focus-visible {
+  outline: 2px solid var(--green);
+  outline-offset: 2px;
+}
+
+.venue-today .venue-muted {
+  font-weight: 500;
+}
+
+.venue-hero.is-glow {
+  background: #1c2a22;
+}
+
+.venue-video video,
+.venue-video iframe {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  background: #1c2a22;
+}
+
+.venue-video-play {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  background: #1c2a22;
+  color: #faf8f3;
+  font: inherit;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.venue-take-list {
+  display: grid;
+  gap: 10px;
+  margin: 0 0 10px;
+}
+
+.venue-take-list dt {
+  font-weight: 800;
+  color: var(--green-dark);
+}
+
+.venue-take-list dd {
+  margin: 0;
+}
+
+.venue-best {
+  margin: 12px 0 6px;
+  padding: 14px 16px;
+  border-radius: 14px;
+  background: var(--sage);
+  color: var(--green-dark);
+}
+
+.venue-best p {
+  margin: 0 0 4px;
+}
+
+.venue-best .venue-estimate {
+  margin: 6px 0 2px;
+}
+
+.venue-best-title {
+  font-weight: 800;
+  font-size: 1.05rem;
+}
+
+.venue-save {
+  font-weight: 800;
+}
+
+.venue-rule-list {
+  display: grid;
+  gap: 8px;
+  margin: 0 0 12px;
+  padding: 0;
+  list-style: none;
+}
+
+.venue-rule-list li {
+  position: relative;
+  padding-left: 20px;
+}
+
+.venue-rule-list li::before {
+  content: "";
+  position: absolute;
+  left: 4px;
+  top: 0.6em;
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  background: var(--green);
+}
+
+@media (max-width: 620px) {
+  .venue-quick {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .venue-header-actions .button-primary {
+    flex: 1 1 100%;
+  }
+
+  .venue-header-actions .button-secondary {
+    width: auto;
+    flex: 1 1 0;
   }
 }

@@ -1235,6 +1235,7 @@ export type FamilyPriceModel = {
   socks: PriceLine | null;
   /** Age-band fit, to tell parents how each child will find it. */
   bands: AgeBandView[];
+  adultsNote: string | null;
 };
 
 /**
@@ -1257,6 +1258,9 @@ export function familyPriceModel(sections: PriceSection[]): FamilyPriceModel | n
     ),
     socks: (sections.find((s) => s.kind === "addon")?.lines ?? []).find((l) => /socks/i.test(l.label)) ?? null,
     bands: [],
+    adultsNote: tickets.filter((t) => !t.isFree).every((t) => t.adultsIncluded === 1)
+      ? "One adult is included with each paid child ticket."
+      : null,
   };
 }
 
@@ -1281,7 +1285,13 @@ export type FamilyPrice = {
   /** Family packages for that day worth comparing. */
   packages: PriceLine[];
   /** A family package that covers this group for less, with the saving. */
-  better: { label: string; amount: string; total: number; saving: number } | null;
+  better: { label: string; amount: string; total: number; saving: number; includes: string | null } | null;
+  /** Grip socks bought on site, when chosen. */
+  socksSubtotal: number;
+  /** The cheapest way in (package or tickets) plus socks, before tax. */
+  bestTotal: number;
+  /** bestTotal with Ontario HST when every price used is plus tax; else null. */
+  bestWithTax: number | null;
   /** How each child is likely to find it, from the venue's age guidance. */
   fit: Array<{ age: number; fitLabel: string; note: string | null }>;
 };
@@ -1353,7 +1363,8 @@ export function familyPrice(model: FamilyPriceModel, input: FamilyPriceInput): F
     );
   }
   const paidChildren = [...counts.values()].filter((c) => !c.line.isFree).reduce((n, c) => n + c.qty, 0);
-  if (input.buySocks && model.socks && paidChildren > 0) {
+  const socksSubtotal = input.buySocks && model.socks && paidChildren > 0 ? roundCents(paidChildren * model.socks.value) : 0;
+  if (socksSubtotal > 0 && model.socks) {
     lines.push({
       label: model.socks.label,
       quantity: paidChildren,
@@ -1376,9 +1387,16 @@ export function familyPrice(model: FamilyPriceModel, input: FamilyPriceInput): F
     if (extra > 0 && !model.extraAdult) continue;
     const pkgTotal = roundCents(pkg.value + extra * (model.extraAdult?.value ?? 0));
     if (pkgTotal < ticketsTotal && (!better || pkgTotal < better.total)) {
-      better = { label: pkg.label, amount: pkg.amount, total: pkgTotal, saving: roundCents(ticketsTotal - pkgTotal) };
+      better = {
+        label: pkg.label,
+        amount: pkg.amount,
+        total: pkgTotal,
+        saving: roundCents(ticketsTotal - pkgTotal),
+        includes: pkg.details.find((d) => d.startsWith("Includes"))?.replace(/^Includes /, "") ?? null,
+      };
     }
   }
+  const bestTotal = better ? roundCents(better.total + socksSubtotal) : total;
   const fit = ages.map((age) => {
     const def = AGE_BANDS.find((b) => age >= b.min && age <= b.max);
     const band = def ? model.bands.find((b) => b.band === def.band) : undefined;
@@ -1395,6 +1413,9 @@ export function familyPrice(model: FamilyPriceModel, input: FamilyPriceInput): F
     packages: ages.length >= 2 ? model.packages.filter((p) => p.dayType === input.day || p.dayType === null) : [],
     better,
     fit,
+    socksSubtotal,
+    bestTotal,
+    bestWithTax: allPlusTax && bestTotal > 0 ? roundCents(bestTotal * (1 + ONTARIO_HST_RATE)) : null,
   };
 }
 
@@ -1406,46 +1427,48 @@ function money0(n: number): string {
   return Number.isInteger(n) ? `$${n}` : `$${n.toFixed(2)}`;
 }
 
-export function goodToKnow(record: VenueRecord, sections: PriceSection[]): string[] {
+export type QuickFact = { label: string; value: string };
+
+/** "$34.95–$39.95" for the everyday child ticket across days, or one amount. */
+function everydayChildPrice(admission: PriceLine[]): { label: string; value: string } | null {
+  const paid = admission.filter((l) => l.audience === "child" && !l.isFree);
+  if (!paid.length) return null;
+  const width = (l: PriceLine) => (l.ageMax ?? 17) - (l.ageMin ?? 0);
+  const widest = paid.slice().sort((a, b) => width(b) - width(a))[0];
+  const same = paid.filter((l) => l.label === widest.label);
+  const lo = Math.min(...same.map((l) => l.value));
+  const hi = Math.max(...same.map((l) => l.value));
+  return { label: widest.label, value: lo === hi ? widest.amount : `${money(lo, "CAD")}–${money(hi, "CAD")}` };
+}
+
+/** The four facts a parent decides on, each from verified data only. */
+export function quickFacts(record: VenueRecord, sections: PriceSection[]): { facts: QuickFact[]; note: string | null } {
   const p = record.place;
-  const items: string[] = [];
-  if (p.allAges) items.push("All ages");
-  else if (typeof p.ageMin === "number" && typeof p.ageMax === "number") items.push(`Best for ages ${p.ageMin}–${p.ageMax}`);
+  const facts: QuickFact[] = [];
+  if (p.allAges) facts.push({ label: "Ages", value: "All ages" });
+  else if (typeof p.ageMin === "number" && typeof p.ageMax === "number") {
+    facts.push({ label: "Best ages", value: `${p.ageMin}–${p.ageMax}` });
+  }
   const admission = sections.find((s) => s.kind === "admission")?.lines ?? [];
   const freeBaby = admission.find((l) => l.isFree && l.audience === "infant");
-  if (freeBaby) items.push(`${freeBaby.label} free`);
-  const timed = admission.find((l) => !l.isFree && l.audience === "child" && l.details.some((d) => /^Includes /.test(d)));
-  const duration = timed ? timed.details.find((d) => /hour|minute/.test(d)) : null;
-  const includes = timed?.details.find((d) => /^Includes /.test(d))?.replace(/^Includes /, "");
-  if (duration && includes) items.push(`${duration} · ${includes} included`);
-  // The everyday child ticket (widest age range) by day.
-  const widest = (day: PriceDayType) =>
-    admission
-      .filter((l) => l.audience === "child" && !l.isFree && l.dayType === day)
-      .sort((a, b) => ((b.ageMax ?? 17) - (b.ageMin ?? 0)) - ((a.ageMax ?? 17) - (a.ageMin ?? 0)))[0];
-  const wkd = widest("weekday");
-  const wke = widest("weekend_holiday");
-  if (wkd && wke && wkd.label === wke.label) {
-    items.push(`${wkd.label}: ${wkd.amount} weekdays, ${wke.amount} weekends`);
+  if (freeBaby) {
+    facts.push({
+      label: "Babies",
+      value: typeof freeBaby.ageMax === "number" ? `Under ${freeBaby.ageMax + 1} free` : "Free",
+    });
   }
-  // Weekday savings for the same ticket.
-  const savings = admission
-    .filter((l) => l.dayType === "weekday")
-    .map((w) => {
-      const e = admission.find(
-        (x) => x.dayType === "weekend_holiday" && x.label === w.label && x.audience === w.audience,
-      );
-      return e ? roundCents(e.value - w.value) : 0;
-    })
-    .filter((d) => d > 0);
-  // The price chip already shows both days; otherwise say what weekdays save.
-  if (savings.length && !items.some((i) => i.includes(" weekdays, "))) {
-    const min = Math.min(...savings);
-    const max = Math.max(...savings);
-    items.push(min === max ? `Save ${money0(max)} per child on weekdays` : `Save up to ${money0(max)} per child on weekdays`);
-  }
-  if (p.setting === "indoor" && items.length < 4) items.push("Indoors: works on a rainy day");
-  return items;
+  const timed = admission.find((l) => !l.isFree && l.audience === "child" && l.details.some((d) => /hour|minute/.test(d)));
+  const duration = timed?.details.find((d) => /hour|minute/.test(d));
+  if (duration) facts.push({ label: "Visit length", value: duration });
+  const price = everydayChildPrice(admission);
+  if (price) facts.push({ label: price.label, value: price.value });
+  if (p.setting === "indoor" && facts.length < 4) facts.push({ label: "Rainy day", value: "Indoors" });
+  const paidChild = admission.filter((l) => l.audience === "child" && !l.isFree);
+  const note =
+    paidChild.length && paidChild.every((l) => l.adultsIncluded === 1)
+      ? "One adult is included with each child ticket."
+      : null;
+  return { facts: facts.slice(0, 4), note };
 }
 
 /** Everyday details parents ask about that aren't confirmed yet. */
@@ -1495,6 +1518,30 @@ function beforeYouGo(
 // Whole page
 // ---------------------------------------------------------------------------
 
+const YOUTUBE_ID = /^[A-Za-z0-9_-]{11}$/;
+
+/** A video link the venue publishes: YouTube (embedded privacy-enhanced) or an https video file. */
+function videoFrom(links: VenueLink[]): VenueDetailView["video"] {
+  const v = links.find((l) => l.kind === "video" && isHttps(l.value));
+  if (!v) return null;
+  const title = v.label?.trim() || "Venue video";
+  try {
+    const url = new URL(v.value);
+    const host = url.hostname.replace(/^www\./, "");
+    const id =
+      host === "youtu.be"
+        ? url.pathname.slice(1)
+        : host === "youtube.com" || host === "m.youtube.com"
+          ? url.searchParams.get("v") ?? url.pathname.replace(/^\/(shorts|embed)\//, "")
+          : null;
+    if (id && YOUTUBE_ID.test(id)) return { kind: "youtube", id, title };
+    if (/\.(mp4|webm)$/i.test(url.pathname)) return { kind: "file", src: v.value, title };
+  } catch {
+    return null;
+  }
+  return null;
+}
+
 /** The before-you-go list split into what to do at home and what to expect at the door. */
 export type BeforeYouGoGroups = { home: string[]; atVenue: string[] };
 
@@ -1504,13 +1551,16 @@ function beforeYouGoGroups(
   bookingLinks: LinkView[],
   socks: PriceLine | null,
 ): BeforeYouGoGroups {
+  // Things a parent can finish before leaving home get tick boxes; venue rules
+  // are listed plainly so they're never "ticked off".
   const all = beforeYouGo(policies, requiredAddons, bookingLinks);
   const bodies = (kinds: VenuePolicyKind[]) =>
     new Set(policies.filter((p) => kinds.includes(p.kind)).map((p) => p.body.trim()));
-  const homeBodies = bodies(["booking_rule", "waiver", "dress_socks"]);
-  const home = all.filter((i) => homeBodies.has(i) || i.startsWith("Budget for") || i.startsWith("Check availability"));
+  const taskKinds: VenuePolicyKind[] = socks ? ["booking_rule", "waiver"] : ["booking_rule", "waiver", "dress_socks"];
+  const taskBodies = bodies(taskKinds);
+  const home = all.filter((i) => taskBodies.has(i) || i.startsWith("Budget for") || i.startsWith("Check availability"));
   if (socks && !requiredAddons.length) {
-    home.push(`Pack grip socks, or buy them there (${socks.amount} a pair).`);
+    home.push(`Pack grip socks for each child, or buy them there (${socks.amount} a pair).`);
   }
   return { home, atVenue: all.filter((i) => !home.includes(i)) };
 }
@@ -1531,7 +1581,14 @@ export type VenueDetailView = {
   /** Age-based family price preview; null when prices aren't tied to ages and days. */
   familyPrice: FamilyPriceModel | null;
   parties: { rows: DayPriceRow[] | null; lines: PriceLine[]; rules: RuleLine[] };
-  goodToKnow: string[];
+  quickFacts: QuickFact[];
+  quickNote: string | null;
+  /** Everyday child ticket price, for the booking bar and card. */
+  priceFrom: string | null;
+  /** Every listed activity is included in admission. */
+  activitiesAllIncluded: boolean;
+  /** An official video: a YouTube embed or a video file the venue supplied. */
+  video: { kind: "youtube"; id: string; title: string } | { kind: "file"; src: string; title: string } | null;
   checkWithVenue: string[];
   /** Year-round weekly hours (ISO weekday, "HH:MM"), for "usual hours today". */
   weeklyHours: Array<{ weekday: number; opensAt: string; closesAt: string }>;
@@ -1619,7 +1676,15 @@ export function buildVenueDetailView(record: VenueRecord, options: BuildVenueOpt
     otherPrices: prices.filter((s) => s.kind !== "admission" && s.kind !== "party"),
     familyPrice: familyModel,
     parties: { rows: dayPriceRows(partyLines), lines: partyLines, rules: rules(["party"]) },
-    goodToKnow: goodToKnow(record, prices),
+    ...(() => {
+      const q = quickFacts(record, prices);
+      return { quickFacts: q.facts, quickNote: q.note };
+    })(),
+    priceFrom: everydayChildPrice(admissionLines)?.value ?? null,
+    activitiesAllIncluded:
+      publicActivities.filter((a) => a.availability === "available").length > 1 &&
+      publicActivities.filter((a) => a.availability === "available").every((a) => a.includedInAdmission === "yes"),
+    video: videoFrom(links),
     checkWithVenue: checkWithVenue(amenities),
     primaryBooking: bookingLinks[0] ?? null,
     weeklyHours:

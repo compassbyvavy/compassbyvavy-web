@@ -58,13 +58,16 @@ describe("PE-001 Amazing Fun Park record", () => {
 });
 
 describe("PE-001 page", () => {
-  it("leads with the good-to-know strip, all from verified prices", () => {
-    assert.deepEqual(view().goodToKnow, [
-      "Best for ages 4–12",
-      "Babies 23 months and under free",
-      "2 hours · every attraction and 1 adult included",
-      "Ages 4 and up: $34.95 weekdays, $39.95 weekends",
+  it("leads with four quick facts, all from verified prices", () => {
+    const v = view();
+    assert.deepEqual(v.quickFacts, [
+      { label: "Best ages", value: "4–12" },
+      { label: "Babies", value: "Under 2 free" },
+      { label: "Visit length", value: "2 hours" },
+      { label: "Ages 4 and up", value: "$34.95–$39.95" },
     ]);
+    assert.equal(v.quickNote, "One adult is included with each child ticket.");
+    assert.equal(v.priceFrom, "$34.95–$39.95");
   });
 
   it("shows admission as a weekday / weekend table", () => {
@@ -164,7 +167,8 @@ describe("PE-001 seed", () => {
     assert.equal(wke4?.adultsIncluded, 1);
     assert.equal(back.policies.filter((p) => p.kind === "party").length, 7);
     const fromDb = buildVenueDetailView(back, { today: TODAY });
-    assert.deepEqual(fromDb.goodToKnow, view().goodToKnow);
+    assert.deepEqual(fromDb.quickFacts, view().quickFacts);
+    assert.equal(fromDb.overview.compassTake, view().overview.compassTake);
   });
 
   it("loads a draft with day types and keeps publishing separate", () => {
@@ -212,7 +216,7 @@ describe("PE-001 review fixes", () => {
     const m = view().familyPrice!;
     const three = familyPrice(m, { ages: [6, 8, 10], adults: 2, day: "weekend_holiday" });
     assert.equal(three.total, 119.85);
-    assert.deepEqual(three.better, { label: "Family Bundle", amount: "$99.95", total: 99.95, saving: 19.9 });
+    assert.deepEqual(three.better, { label: "Family Bundle", amount: "$99.95", total: 99.95, saving: 19.9, includes: "3 children and 2 adults" });
     assert.equal(familyPrice(m, { ages: [6, 8], adults: 2, day: "weekend_holiday" }).better, null);
     assert.equal(familyPrice(m, { ages: [6, 8, 10], adults: 2, day: "weekday" }).better, null);
   });
@@ -250,8 +254,58 @@ describe("PE-001 review fixes", () => {
   it("splits the checklist into home and venue", () => {
     const g = view().beforeYouGoGroups;
     assert.ok(g.home.some((i) => /waiver/i.test(i)));
-    assert.ok(g.home.some((i) => /Pack grip socks, or buy them there \(\$4\.50 a pair\)/.test(i)));
+    assert.ok(g.home.some((i) => /^Book online/.test(i)));
+    assert.ok(g.home.includes("Pack grip socks for each child, or buy them there ($4.50 a pair)."));
+    assert.equal(g.home.length, 3, "only tasks a parent can finish get tick boxes");
     assert.ok(g.atVenue.some((i) => /Cashless/.test(i)));
+    assert.ok(g.atVenue.some((i) => /adults need regular socks/.test(i)));
     assert.ok(g.atVenue.includes("Strollers are not allowed in the play area. Bring a baby carrier if required."));
+  });
+});
+
+describe("PE-001 round 2", () => {
+  it("makes the cheapest option the headline, with socks and HST", () => {
+    const r = familyPrice(view().familyPrice!, { ages: [6, 8, 10], adults: 2, day: "weekend_holiday", buySocks: true });
+    assert.equal(r.better?.label, "Family Bundle");
+    assert.equal(r.better?.includes, "3 children and 2 adults");
+    assert.equal(r.socksSubtotal, 13.5);
+    assert.equal(r.bestTotal, 113.45);
+    assert.equal(r.bestWithTax, 128.2);
+    const two = familyPrice(view().familyPrice!, { ages: [6, 2], adults: 2, day: "weekday" });
+    assert.equal(two.better, null);
+    assert.equal(two.bestTotal, 59.9);
+    assert.equal(view().familyPrice!.adultsNote, "One adult is included with each paid child ticket.");
+  });
+
+  it("says once that every attraction is included", () => {
+    assert.equal(view().activitiesAllIncluded, true);
+    const page = html();
+    assert.match(page, /Everything here is included in your ticket\./);
+    assert.doesNotMatch(page, /<li>Included in admission<\/li>/);
+  });
+
+  it("renders the new header, the glow drawing, the verdict list and the booking card", () => {
+    const page = html();
+    assert.match(page, /<p class="venue-crumb"><span>Mississauga<\/span>/);
+    assert.match(page, /Get directions/);
+    assert.match(page, /venue-hero is-glow/);
+    assert.match(page, /<dt>Best for<\/dt>/);
+    assert.match(page, /Based on official venue information\. Compass hasn&#x27;t visited yet\./);
+    assert.match(page, /class="venue-book-card"/);
+    assert.match(page, /class="venue-sticky-book"/);
+    assert.match(page, /<ul class="venue-rule-list">/);
+    assert.doesNotMatch(page, /Also known as|Share this page<\/button>/);
+    // The price tool comes before the ticket table.
+    assert.ok(page.indexOf("Your family: fit and price") < page.indexOf("All ticket prices"));
+  });
+
+  it("reads venue videos from YouTube links or video files only", async () => {
+    const { buildVenueDetailView: build } = await import("@/lib/discover/venueDetail");
+    const withVideo = structuredClone(preview);
+    withVideo.links.push({ ...withVideo.links[0], kind: "video", value: "https://www.youtube.com/watch?v=dQw4w9WgXcQ", label: "Inside the park" });
+    assert.deepEqual(build(withVideo, { today: TODAY }).video, { kind: "youtube", id: "dQw4w9WgXcQ", title: "Inside the park" });
+    withVideo.links[withVideo.links.length - 1].value = "https://example.com/not-a-video";
+    assert.equal(build(withVideo, { today: TODAY }).video, null);
+    assert.equal(view().video, null);
   });
 });

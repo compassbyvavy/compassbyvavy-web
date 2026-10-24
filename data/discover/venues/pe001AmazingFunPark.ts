@@ -102,9 +102,9 @@ export const pe001AmazingFunPark: VenueRecord = {
     slug: "amazing-fun-park",
     name: "Amazing Fun Park",
     branchName: null,
-    aliases: ["AFP"],
+    aliases: [],
     description:
-      "A glowing, jungle-themed indoor amusement park where one 2-hour pass covers every ride and attraction: soft play and a ball pit, light-up floor and wall games, VR rides, Glow & Ride cars and a 100-game arcade.",
+      "A jungle-themed indoor amusement park with soft play, glowing games, VR rides, ride-on cars and an arcade, all included in one 2-hour ticket.",
     category: "play_entertainment",
     placeType: "Indoor Playgrounds",
     cityId: "mississauga",
@@ -120,8 +120,12 @@ export const pe001AmazingFunPark: VenueRecord = {
     costTier: "moderate",
     typicalVisitMinutes: 120,
     typicalVisitNote: "The play pass is 2 hours from check-in",
-    compassTake:
-      "A strong choice for children 4–12 who enjoy glowing games, VR rides, ride-on cars and arcade play, with one price that covers everything inside. Babies get in free and there are zones for little ones, but a visit with only an under-4 won't use most of the attractions. Weekdays open only after school, so plan for 4 pm or the weekend.",
+    // One "Label: text" statement per line; the page shows them as a short list.
+    compassTake: [
+      "Best for: Children 4–12 who enjoy glowing games, VR, ride-on cars and arcade play.",
+      "Little ones: Babies get in free and there are zones for them, but ages 4 and up get the most out of a visit.",
+      "Know before you go: No outside food, it's cashless, and strollers stay outside the play zone.",
+    ].join("\n"),
     toddlerFriendly: "yes",
     strollerFriendly: "unknown",
     hoursKind: "fixed",
@@ -163,8 +167,8 @@ export const pe001AmazingFunPark: VenueRecord = {
     { ...site, id: "pe001-vr", name: "VR rides", description: "Virtual reality rides, including a VR roller coaster.", availability: "available", includedInAdmission: "yes", schedule: "unknown" },
     { ...site, id: "pe001-cars", name: "Glow & Ride cars", description: "Light-up cars driven around illuminated jungle tracks.", availability: "available", includedInAdmission: "yes", schedule: "unknown" },
     { ...site, id: "pe001-arcade", name: "Arcade zone", description: "More than 100 arcade games.", availability: "available", includedInAdmission: "yes", schedule: "unknown" },
-    { ...site, id: "pe001-photo", name: "360° photo booth", availability: "available", includedInAdmission: "unknown", schedule: "unknown" },
-    { ...parties, id: "pe001-stage", name: "AFP Stage", description: "Live performances, karaoke and magic.", availability: "available", includedInAdmission: "unknown", schedule: "scheduled", scheduleNote: "Live shows on weekends" },
+    { ...site, id: "pe001-photo", name: "360° photo booth", availability: "available", includedInAdmission: "yes", schedule: "unknown" },
+    { ...parties, id: "pe001-stage", name: "AFP Stage", description: "Live performances, karaoke and magic.", availability: "available", includedInAdmission: "yes", schedule: "scheduled", scheduleNote: "Live shows on weekends" },
   ],
   prices: [
     { ...site, id: "pe001-infant", kind: "admission", label: "Babies 23 months and under", audience: "infant", ageMin: 0, ageMax: 1, isFree: true, amount: null, currency: "CAD", requiredAddon: false, plusTax: null, adultsIncluded: 0, notes: "Adults with them pay $9.95 each" },
@@ -209,7 +213,7 @@ export const pe001AmazingFunPark: VenueRecord = {
     { ...site, kind: "supervision", body: "Every child needs an adult with them, and staff keep things safe — follow their lead." },
     { ...site, kind: "waiver", body: "Sign the waiver online ahead or on arrival; one parent can sign for their child, and it lasts a year." },
     { ...site, kind: "dress_socks", body: "Kids need grip socks and adults need regular socks; no shoes on the play floor." },
-    { ...site, kind: "booking_rule", body: "Walk-ins are welcome when there's space; book online to guarantee your time." },
+    { ...site, kind: "booking_rule", body: "Book online to guarantee your time; walk-ins are welcome when there's space." },
     { ...site, kind: "arrival", body: "The 2-hour session starts when you check in." },
     { ...site, kind: "arrival", body: "Strollers are not allowed in the play area. Bring a baby carrier if required." },
     { ...site, kind: "food_rule", body: "No outside food or drinks; birthday cake only with a booked party." },

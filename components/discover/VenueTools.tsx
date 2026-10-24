@@ -91,7 +91,7 @@ export function FamilyPriceTool({ model }: { model: FamilyPriceModel }) {
           </label>
         ))}
         <label htmlFor={`${id}-adults`} className="venue-field">
-          <span>Adults</span>
+          <span>Total adults going</span>
           <input
             id={`${id}-adults`}
             type="number"
@@ -108,7 +108,9 @@ export function FamilyPriceTool({ model }: { model: FamilyPriceModel }) {
           </button>
         ) : null}
       </div>
-      <p className="venue-muted">Babies: enter 0 or 1.</p>
+      <p className="venue-muted">
+        Babies: enter 0 or 1.{model.adultsNote ? ` ${model.adultsNote}` : ""}
+      </p>
       {model.socks ? (
         <label className="venue-check" htmlFor={`${id}-socks`}>
           <input id={`${id}-socks`} type="checkbox" checked={buySocks} onChange={(e) => setBuySocks(e.target.checked)} />
@@ -130,37 +132,55 @@ export function FamilyPriceTool({ model }: { model: FamilyPriceModel }) {
                 ))}
               </ul>
             ) : null}
-            <p className="venue-estimate">
-              ${result.total.toFixed(2)}
-              {result.withTax !== null ? (
-                <span className="venue-estimate-tax"> plus HST · about ${result.withTax.toFixed(2)} with tax</span>
-              ) : null}
-            </p>
-            <ul className="venue-assumptions">
-              {result.lines.map((l) => (
-                <li key={l.label}>
-                  {l.quantity} × {l.label} at {l.unit} = ${l.subtotal.toFixed(2)}
-                </li>
-              ))}
-              {result.notes.map((n) => (
-                <li key={n}>{n}</li>
-              ))}
-              {result.unmatchedAges.map((a) => (
-                <li key={`u${a}`}>No ticket is listed for age {a} on this day — check with the venue.</li>
-              ))}
-            </ul>
             {result.better ? (
-              <p className="venue-best">
-                Better option: the {result.better.label} covers your group for ${result.better.total.toFixed(2)} before
-                tax, ${result.better.saving.toFixed(2)} less than separate tickets.
+              <div className="venue-best">
+                <p className="venue-best-title">Best deal: {result.better.label}</p>
+                {result.better.includes ? <p>{result.better.includes}</p> : null}
+                <p className="venue-estimate">
+                  ${result.bestTotal.toFixed(2)} <span className="venue-estimate-tax">before tax</span>
+                </p>
+                <p className="venue-save">You save ${result.better.saving.toFixed(2)} on separate tickets</p>
+              </div>
+            ) : (
+              <p className="venue-estimate">
+                ${result.bestTotal.toFixed(2)} <span className="venue-estimate-tax">before tax</span>
               </p>
+            )}
+            {result.bestWithTax !== null ? (
+              <p className="venue-muted">About ${result.bestWithTax.toFixed(2)} with 13% HST.</p>
             ) : null}
+            {result.unmatchedAges.map((a) => (
+              <p key={`u${a}`} className="venue-notice">
+                No ticket is listed for age {a} on this day — check with the venue.
+              </p>
+            ))}
+            <details className="venue-more">
+              <summary>How we calculated this</summary>
+              <ul className="venue-assumptions">
+                {result.better ? <li>Separate tickets would be:</li> : null}
+                {result.lines.map((l) => (
+                  <li key={l.label}>
+                    {l.quantity} × {l.label} at {l.unit} = ${l.subtotal.toFixed(2)}
+                  </li>
+                ))}
+                {result.notes.map((n) => (
+                  <li key={n}>{n}</li>
+                ))}
+                {result.better ? (
+                  <li>
+                    {result.better.label}: {result.better.amount}
+                    {result.better.total !== Number(result.better.amount.replace(/[^0-9.]/g, ""))
+                      ? ` plus extra adults = $${result.better.total.toFixed(2)}`
+                      : ""}
+                    {result.socksSubtotal ? `, plus grip socks $${result.socksSubtotal.toFixed(2)}` : ""}
+                  </li>
+                ) : null}
+                <li>Uses the venue&apos;s published prices only. Where two tickets fit an age, it uses the narrower one.</li>
+              </ul>
+            </details>
           </>
         )}
       </div>
-      <p className="venue-muted">
-        Uses the venue&apos;s published prices only. Where two tickets fit an age, it uses the narrower one.
-      </p>
     </div>
   );
 }
@@ -242,25 +262,89 @@ export function UsualHoursToday({ hours }: { hours: VenueDetailView["weeklyHours
     const parts = new Intl.DateTimeFormat("en-CA", {
       timeZone: "America/Toronto",
       weekday: "short",
-      hour: "2-digit",
-      minute: "2-digit",
-      hourCycle: "h23",
     }).formatToParts(new Date());
     const get = (t: string) => parts.find((p) => p.type === t)?.value ?? "";
     const weekday = TORONTO_WEEKDAY[get("weekday")];
-    const now = `${get("hour")}:${get("minute")}`;
     const today = hours.filter((h) => h.weekday === weekday).sort((a, b) => a.opensAt.localeCompare(b.opensAt));
-    if (!today.length) setText("Usually closed today");
-    else if (today.some((h) => now >= h.opensAt && now < h.closesAt)) {
-      const h = today.find((x) => now >= x.opensAt && now < x.closesAt)!;
-      setText(`Usually open until ${clock(h.closesAt)} today`);
-    } else {
-      const next = today.find((h) => now < h.opensAt);
-      setText(next ? `Usually opens at ${clock(next.opensAt)} today` : "Usually closed for the rest of today");
-    }
+    setText(
+      today.length
+        ? `Today: ${today.map((h) => `${clock(h.opensAt)}–${clock(h.closesAt)}`).join(", ")}`
+        : "Closed today",
+    );
   }, [hours]);
   if (!hours.length || !text) return null;
-  return <span className="venue-today">{text}</span>;
+  return (
+    <span className="venue-today">
+      <strong>{text}</strong>
+      <span className="venue-muted"> · Holiday and private-event hours may differ.</span>
+    </span>
+  );
+}
+
+/** Share icon: the device share sheet, or copy the link. */
+export function ShareIconButton({ title }: { title: string }) {
+  const [copied, setCopied] = useState(false);
+  return (
+    <button
+      type="button"
+      className="venue-icon-btn"
+      aria-label={copied ? "Link copied" : "Share this page"}
+      title={copied ? "Link copied" : "Share"}
+      onClick={async () => {
+        const url = window.location.href;
+        try {
+          if (navigator.share) {
+            await navigator.share({ title, url });
+            return;
+          }
+          await navigator.clipboard.writeText(url);
+          setCopied(true);
+        } catch {
+          /* cancelled or blocked */
+        }
+      }}
+    >
+      <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M12 3v12" />
+        <path d="M7 8l5-5 5 5" />
+        <path d="M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6" />
+      </svg>
+    </button>
+  );
+}
+
+/**
+ * The venue's video. YouTube loads only after a tap (privacy-enhanced
+ * youtube-nocookie.com); a supplied video file plays with controls.
+ */
+export function VenueVideo({ video }: { video: NonNullable<VenueDetailView["video"]> }) {
+  const [play, setPlay] = useState(false);
+  if (video.kind === "file") {
+    return (
+      <figure className="venue-hero venue-video">
+        <video src={video.src} controls playsInline preload="metadata" aria-label={video.title} />
+      </figure>
+    );
+  }
+  return (
+    <figure className="venue-hero venue-video">
+      {play ? (
+        <iframe
+          src={`https://www.youtube-nocookie.com/embed/${video.id}?autoplay=1&rel=0`}
+          title={video.title}
+          allow="autoplay; encrypted-media; picture-in-picture"
+          allowFullScreen
+        />
+      ) : (
+        <button type="button" className="venue-video-play" onClick={() => setPlay(true)} aria-label={`Play video: ${video.title}`}>
+          <svg viewBox="0 0 24 24" width="28" height="28" aria-hidden="true">
+            <path d="M8 5v14l11-7z" fill="currentColor" />
+          </svg>
+          <span>Watch the video</span>
+        </button>
+      )}
+    </figure>
+  );
 }
 
 /** "Will this work for my kids?" — check each child's age against verified limits. */

@@ -4,9 +4,10 @@ import {
   AgeCheckTool,
   CostEstimator,
   FamilyPriceTool,
-  ShareButton,
+  ShareIconButton,
   UsualHoursToday,
   VenueSection,
+  VenueVideo,
   VisitChecklist,
 } from "@/components/discover/VenueTools";
 import type {
@@ -72,20 +73,22 @@ function Rules({ heading, lines }: { heading: string; lines: RuleLine[] }) {
   );
 }
 
-function Activity({ a, compact = false }: { a: ActivityView; compact?: boolean }) {
+function Activity({ a, compact = false, allIncluded = false }: { a: ActivityView; compact?: boolean; allIncluded?: boolean }) {
   // In a compact list the shared source shows once below, and "available
-  // whenever the venue is open" goes without saying.
+  // whenever the venue is open" goes without saying. When everything is
+  // included, the list says so once instead of on every card.
   const schedule = compact && a.schedule === "Available whenever the venue is open" ? null : a.schedule;
+  const cost = allIncluded && a.cost === "Included in admission" ? null : a.cost;
   return (
     <li className="venue-activity">
       <h4>{a.name}</h4>
       {a.description ? <p>{a.description}</p> : null}
-      {a.limits.length || a.cost || schedule ? (
+      {a.limits.length || cost || schedule ? (
         <ul className="venue-tags">
           {a.limits.map((l) => (
             <li key={l}>{l}</li>
           ))}
-          {a.cost ? <li>{a.cost}</li> : null}
+          {cost ? <li>{cost}</li> : null}
           {schedule ? <li>{schedule}</li> : null}
         </ul>
       ) : null}
@@ -203,6 +206,17 @@ export function VenueDetail({
   const showAgeTool = view.ageTool.activities.some((a) => a.ageMin !== null || a.ageMax !== null);
   const fullName = `${overview.name}${overview.branchName ? ` — ${overview.branchName}` : ""}`;
   const activitiesMeta = sharedMeta(view.activities.map((a) => a.meta));
+  const priceFact = view.quickFacts.find((f) => f.value === view.priceFrom);
+  const priceLabel = priceFact ? priceFact.label : "";
+  // "Label: text" per line becomes a short list; plain text stays a paragraph.
+  const takeLines = (overview.compassTake ?? "")
+    .split("\n")
+    .map((l) => l.trim())
+    .filter(Boolean)
+    .map((l) => {
+      const m = /^([^:]{2,30}):\s+(.+)$/.exec(l);
+      return m ? { label: m[1], text: m[2] } : { label: null, text: l };
+    });
   const bandsMeta = sharedMeta(snapshot.ageBands.flatMap((b) => (b.meta ? [b.meta] : [])));
   const noExperience =
     experience.status === "limited" &&
@@ -224,7 +238,22 @@ export function VenueDetail({
           .join(" and ")}${plusTaxNote(view.parties.lines) ? ", plus HST" : ""}.`
       : null;
 
+  const bookCard = view.primaryBooking ? (
+    <>
+      {view.priceFrom ? (
+        <p className="venue-book-price">
+          {view.priceFrom}
+          <span>{priceLabel}</span>
+        </p>
+      ) : null}
+      <a className="button button-primary" href={view.primaryBooking.href} rel="noopener noreferrer" target="_blank">
+        {view.primaryBooking.label}
+      </a>
+    </>
+  ) : null;
+
   return (
+    <div className="venue-layout">
     <article className="venue-page">
       {banner ? (
         <p className="venue-banner" role="status">
@@ -233,71 +262,86 @@ export function VenueDetail({
       ) : null}
 
       <header className="venue-header" id="overview">
-        <p className="eyebrow">
-          {overview.categoryHref && overview.categoryTitle ? (
-            <a href={overview.categoryHref}>{overview.categoryTitle}</a>
+        <p className="venue-crumb">
+          {overview.cityName ? <span>{overview.cityName}</span> : null}
+          {overview.cityName && (view.primaryType || overview.categoryTitle) ? <span aria-hidden="true"> › </span> : null}
+          {overview.categoryHref ? (
+            <a href={overview.categoryHref}>{view.primaryType ?? overview.categoryTitle}</a>
           ) : (
-            overview.categoryTitle
+            view.primaryType ?? overview.categoryTitle
           )}
-          {view.primaryType ? ` · ${view.primaryType}` : ""}
-          {overview.cityName ? ` · ${overview.cityName}` : ""}
         </p>
         <h1>
           {overview.name}
           {overview.branchName ? <span className="venue-branch"> — {overview.branchName}</span> : null}
         </h1>
-        {overview.aliases.length ? (
-          <p className="venue-muted">Also known as {overview.aliases.join(", ")}</p>
-        ) : null}
-        <p className="venue-address">
-          {overview.address ?? "Address not confirmed"}
-          {gettingThere.directionsUrl ? (
-            <>
-              {" · "}
-              <a href={gettingThere.directionsUrl} rel="noopener noreferrer" target="_blank">
-                Directions
-              </a>
-            </>
-          ) : null}
-        </p>
-        {overview.intro ? <p className="hero-lead venue-intro">{overview.intro}</p> : null}
-        {view.goodToKnow.length ? (
-          <ul className="venue-good" aria-label="Good to know">
-            {view.goodToKnow.map((g) => (
-              <li key={g}>{g}</li>
+        <p className="venue-address">{overview.address ?? "Address not confirmed"}</p>
+        {overview.intro ? <p className="venue-intro">{overview.intro}</p> : null}
+        {view.quickFacts.length ? (
+          <dl className="venue-quick">
+            {view.quickFacts.map((f) => (
+              <div key={f.label}>
+                <dt>{f.label}</dt>
+                <dd>{f.value}</dd>
+              </div>
             ))}
-          </ul>
+          </dl>
         ) : null}
+        {view.quickNote ? <p className="venue-quick-note">{view.quickNote}</p> : null}
         <div className="venue-header-actions">
           {view.primaryBooking ? (
             <a className="button button-primary" href={view.primaryBooking.href} rel="noopener noreferrer" target="_blank">
               {view.primaryBooking.label}
             </a>
           ) : null}
-          <ShareButton title={fullName} />
+          {gettingThere.directionsUrl ? (
+            <a className="button button-secondary" href={gettingThere.directionsUrl} rel="noopener noreferrer" target="_blank">
+              Get directions
+            </a>
+          ) : null}
+          <ShareIconButton title={fullName} />
         </div>
         <p className="venue-header-meta">
           <UsualHoursToday hours={view.weeklyHours} />
+        </p>
+        {view.video ? (
+          <VenueVideo video={view.video} />
+        ) : (
+          <VenueIllustration primaryType={view.primaryType} glow={/\bglow/i.test(overview.intro ?? "")} />
+        )}
+        <p className="venue-header-meta">
           <a href="#sources" className="venue-checked">
             Official details checked {overview.meta.checked}
           </a>
         </p>
-        <VenueIllustration primaryType={view.primaryType} />
       </header>
 
-      {overview.compassTake ? (
+      {takeLines.length ? (
         <section className="venue-take" aria-labelledby="take-h">
           <h2 id="take-h">Compass take</h2>
-          <p>{overview.compassTake}</p>
+          {takeLines.some((l) => l.label) ? (
+            <dl className="venue-take-list">
+              {takeLines.map((l, i) => (
+                <div key={i}>
+                  {l.label ? <dt>{l.label}</dt> : null}
+                  <dd>{l.text}</dd>
+                </div>
+              ))}
+            </dl>
+          ) : (
+            takeLines.map((l, i) => <p key={i}>{l.text}</p>)
+          )}
           <p className="venue-muted">
             {experience.firstHand.length
-              ? "Our view, from the venue's published information and a visit."
-              : "Our view, from the venue's published information. Compass hasn't visited yet."}
+              ? "Based on official venue information and a Compass visit."
+              : "Based on official venue information. Compass hasn't visited yet."}
           </p>
         </section>
       ) : null}
 
       <VenueSection id="suit" title="Will it suit my kids?">
+        {/* The quick facts at the top already answer these when present. */}
+        {view.quickFacts.length < 3 ? (
         <dl className="venue-facts">
           <div>
             <dt>Best-fit ages</dt>
@@ -325,6 +369,7 @@ export function VenueDetail({
             </dd>
           </div>
         </dl>
+        ) : null}
         <h3>By age</h3>
         <div className="venue-table-scroll">
           <table className="venue-age-table">
@@ -363,9 +408,10 @@ export function VenueDetail({
         <h3>What&apos;s there</h3>
         {view.activities.length ? (
           <>
+            {view.activitiesAllIncluded ? <p className="venue-lead">Everything here is included in your ticket.</p> : null}
             <ul className="venue-activities">
               {view.activities.map((a) => (
-                <Activity key={a.name} a={a} compact={activitiesMeta !== null} />
+                <Activity key={a.name} a={a} compact={activitiesMeta !== null} allIncluded={view.activitiesAllIncluded} />
               ))}
             </ul>
             {activitiesMeta ? <Checked meta={activitiesMeta} /> : null}
@@ -416,10 +462,15 @@ export function VenueDetail({
       </VenueSection>
 
       <VenueSection id="cost" title="What will it cost?">
+        {view.familyPrice ? (
+          <FamilyPriceTool model={view.familyPrice} />
+        ) : view.costEstimator ? (
+          <CostEstimator model={view.costEstimator} />
+        ) : null}
         {admission ? (
           view.admissionRows ? (
             <>
-              <h3>Admission</h3>
+              <h3>All ticket prices</h3>
               <DayPriceTable rows={view.admissionRows} caption="Admission prices by day" firstColumn="Ticket" />
               <p className="venue-muted">
                 {[admission.lines.find((l) => l.details.some((d) => d.startsWith("Includes")))?.details.find((d) => d.startsWith("Includes")), plusTaxNote(admission.lines)]
@@ -440,11 +491,6 @@ export function VenueDetail({
             {l.text}
           </p>
         ))}
-        {view.familyPrice ? (
-          <FamilyPriceTool model={view.familyPrice} />
-        ) : view.costEstimator ? (
-          <CostEstimator model={view.costEstimator} />
-        ) : null}
         {view.otherPrices.length ? (
           <details className="venue-more">
             <summary>
@@ -523,13 +569,24 @@ export function VenueDetail({
 
       <VenueSection id="before" title="Before you go">
         {view.beforeYouGo.length ? (
-          <VisitChecklist
-            storageKey={view.overview.name}
-            groups={[
-              { heading: "Before you leave home", items: view.beforeYouGoGroups.home },
-              { heading: "At the venue", items: view.beforeYouGoGroups.atVenue },
-            ]}
-          />
+          <>
+            {view.beforeYouGoGroups.home.length ? (
+              <VisitChecklist
+                storageKey={view.overview.name}
+                groups={[{ heading: "Before you leave home", items: view.beforeYouGoGroups.home }]}
+              />
+            ) : null}
+            {view.beforeYouGoGroups.atVenue.length ? (
+              <>
+                <h3>At the venue</h3>
+                <ul className="venue-rule-list">
+                  {view.beforeYouGoGroups.atVenue.map((r) => (
+                    <li key={r}>{r}</li>
+                  ))}
+                </ul>
+              </>
+            ) : null}
+          </>
         ) : null}
         {view.checkWithVenue.length ? (
           <p className="venue-notice">
@@ -800,5 +857,21 @@ export function VenueDetail({
         </p>
       </VenueSection>
     </article>
+      {bookCard ? (
+        <aside className="venue-aside" aria-label="Book">
+          <div className="venue-book-card">
+            {bookCard}
+            {view.quickNote ? <p className="venue-muted">{view.quickNote}</p> : null}
+            <UsualHoursToday hours={view.weeklyHours} />
+            {gettingThere.directionsUrl ? (
+              <a href={gettingThere.directionsUrl} rel="noopener noreferrer" target="_blank">
+                Get directions
+              </a>
+            ) : null}
+          </div>
+        </aside>
+      ) : null}
+      {bookCard ? <div className="venue-sticky-book">{bookCard}</div> : null}
+    </div>
   );
 }
