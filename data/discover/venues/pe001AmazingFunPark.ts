@@ -212,7 +212,7 @@ export const pe001AmazingFunPark: VenueRecord = {
     { ...site, kind: "dress_socks", body: "Kids need grip socks and adults need regular socks; no shoes on the play floor." },
     { ...site, kind: "booking_rule", body: "Walk-ins are welcome when there's space; book online to guarantee your time." },
     { ...site, kind: "arrival", body: "The 2-hour session starts when you check in." },
-    { ...site, kind: "arrival", body: "Bring a baby carrier if required." },
+    { ...site, kind: "arrival", body: "Strollers are not allowed in the play area. Bring a baby carrier if required." },
     { ...site, kind: "food_rule", body: "No outside food or drinks; birthday cake only with a booked party." },
     { ...site, kind: "cancellation", body: "Play passes are non-refundable, but the venue will move your booking to another time or day." },
     { ...site, kind: "hours_note", body: "Closed Monday and Tuesday except holidays, when special hours apply (Thanksgiving Monday was 12–8 pm). Check the venue's site for holiday hours." },

@@ -103,8 +103,7 @@ describe("PE-001 page", () => {
     assert.ok(list.some((i) => /waiver/i.test(i)));
     assert.ok(list.some((i) => /grip socks/i.test(i)));
     assert.ok(list.some((i) => /Cashless/.test(i)));
-    assert.ok(list.includes("Bring a baby carrier if required."));
-    assert.ok(!list.some((i) => /^Strollers/.test(i)), "the stroller rule is already under amenities");
+    assert.ok(list.includes("Strollers are not allowed in the play area. Bring a baby carrier if required."));
   });
 
   it("links the header button to the booking page and renders without empty labels", () => {

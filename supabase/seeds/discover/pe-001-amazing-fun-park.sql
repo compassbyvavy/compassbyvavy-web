@@ -197,7 +197,7 @@ values (md5('PE-001:policy:booking_rule:4')::uuid, 'PE-001', 'https://amazingfun
 insert into public.place_policies (id, place_id, source_url, source_checked_date, verification_status, conflict_note, kind, body, sort_order)
 values (md5('PE-001:policy:arrival:5')::uuid, 'PE-001', 'https://amazingfunpark.ca/', '2026-10-24', 'verified', null, 'arrival', 'The 2-hour session starts when you check in.', 5);
 insert into public.place_policies (id, place_id, source_url, source_checked_date, verification_status, conflict_note, kind, body, sort_order)
-values (md5('PE-001:policy:arrival:6')::uuid, 'PE-001', 'https://amazingfunpark.ca/', '2026-10-24', 'verified', null, 'arrival', 'Bring a baby carrier if required.', 6);
+values (md5('PE-001:policy:arrival:6')::uuid, 'PE-001', 'https://amazingfunpark.ca/', '2026-10-24', 'verified', null, 'arrival', 'Strollers are not allowed in the play area. Bring a baby carrier if required.', 6);
 insert into public.place_policies (id, place_id, source_url, source_checked_date, verification_status, conflict_note, kind, body, sort_order)
 values (md5('PE-001:policy:food_rule:7')::uuid, 'PE-001', 'https://amazingfunpark.ca/', '2026-10-24', 'verified', null, 'food_rule', 'No outside food or drinks; birthday cake only with a booked party.', 7);
 insert into public.place_policies (id, place_id, source_url, source_checked_date, verification_status, conflict_note, kind, body, sort_order)
