@@ -94,8 +94,8 @@ describe("published venue page", () => {
 
   it("renders all sections with source links and checked dates", () => {
     const page = html(heartland);
-    for (const heading of ["At a glance", "Plan your visit", "Prices", "Activities", "Amenities and access", "What to expect", "Sources and freshness"]) {
-      assert.match(page, new RegExp(`>${heading}<`), heading);
+    for (const heading of ["Will it suit my kids?", "What will it cost?", "When to go", "Before you go", "Amenities and access", "What to expect", "Sources and freshness"]) {
+      assert.ok(page.includes(`>${heading}<`), heading);
     }
     assert.match(page, /Checked Oct 10, 2026/);
     assert.match(page, /href="https:\/\/example\.org\/maple-leap\/heartland\/book"/);
@@ -209,7 +209,7 @@ describe("missing and unknown facts", () => {
     assert.match(page, /Prices not confirmed yet/);
     assert.match(page, /Activities at this location are not confirmed yet/);
     assert.match(page, /No amenities confirmed yet/);
-    assert.match(page, /Address<\/dt><dd>Not confirmed<\/dd>/);
+    assert.match(page, /Address not confirmed/);
     assert.doesNotMatch(page, /<dd><\/dd>|<li><\/li>|<p><\/p>|undefined|null|NaN/);
     assert.doesNotMatch(page, /Family cost estimate|Will this work for my kids/);
   });

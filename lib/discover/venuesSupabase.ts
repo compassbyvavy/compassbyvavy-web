@@ -190,6 +190,8 @@ export function mapVenueRow(row: Row): VenueRecord {
       requiredAddon: r.required_addon === true,
       chargeBasis: (str(r.charge_basis) ?? "unknown") as VenueRecord["prices"][number]["chargeBasis"],
       plusTax: bool(r.plus_tax),
+      dayType: r.day_type === "weekday" || r.day_type === "weekend_holiday" ? r.day_type : null,
+      adultsIncluded: num(r.adults_included),
       eligibility: str(r.eligibility),
       validTo: str(r.valid_to),
       notes: str(r.notes),

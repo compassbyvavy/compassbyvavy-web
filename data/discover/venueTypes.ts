@@ -111,6 +111,13 @@ export type PriceChargeBasis =
   | "per_booking"
   | "unknown";
 
+/**
+ * Which days a price applies to. null = any day the venue is open.
+ * weekend_holiday covers weekends plus the holidays and school breaks the
+ * venue prices as weekends.
+ */
+export type PriceDayType = "weekday" | "weekend_holiday";
+
 export type VenuePrice = Provenance & {
   id: string;
   kind: VenuePriceKind;
@@ -134,6 +141,10 @@ export type VenuePrice = Provenance & {
   chargeBasis?: PriceChargeBasis;
   /** True when the venue says tax is added; null when not stated. */
   plusTax?: boolean | null;
+  /** Days this price applies to; null or absent = any day. */
+  dayType?: PriceDayType | null;
+  /** Adults admitted with this ticket at no extra cost, as published. */
+  adultsIncluded?: number | null;
   eligibility?: string | null;
   /** ISO date; required for promotions. */
   validTo?: string | null;
@@ -198,6 +209,7 @@ export type VenuePolicyKind =
   | "hours_note"
   | "transit"
   | "location_note"
+  | "party"
   | "other";
 
 export type VenuePolicy = Provenance & {

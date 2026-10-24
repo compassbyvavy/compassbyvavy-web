@@ -1,13 +1,178 @@
 "use client";
 
-import { useId, useMemo, useState } from "react";
+import { useEffect, useId, useMemo, useRef, useState, type ReactNode } from "react";
+import type { PriceDayType } from "@/data/discover/venueTypes";
 import {
+  DAY_LABELS,
   ageCheck,
   estimateFamilyCost,
+  familyPrice,
   type CostEstimatorModel,
+  type FamilyPriceModel,
   type PriceLine,
   type VenueDetailView,
 } from "@/lib/discover/venueDetail";
+
+/**
+ * A page section that folds away. Open on wide screens and closed on phones by
+ * default (set per section), and opened when the address bar points at it.
+ */
+export function VenueSection({
+  id,
+  title,
+  children,
+  openOnPhone = false,
+  openOnDesktop = true,
+}: {
+  id: string;
+  title: string;
+  children: ReactNode;
+  openOnPhone?: boolean;
+  openOnDesktop?: boolean;
+}) {
+  const ref = useRef<HTMLDetailsElement>(null);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const wide = window.matchMedia("(min-width: 760px)").matches;
+    if ((wide ? openOnDesktop : openOnPhone) || window.location.hash === `#${id}`) el.open = true;
+  }, [id, openOnDesktop, openOnPhone]);
+  return (
+    <details ref={ref} id={id} className="venue-section venue-collapsible">
+      <summary>
+        <h2 id={`${id}-h`}>{title}</h2>
+        <span className="venue-chevron" aria-hidden="true" />
+      </summary>
+      <div className="venue-section-body">{children}</div>
+    </details>
+  );
+}
+
+/** "What will it cost?" — enter each child's age, pick the day, see the matching tickets. */
+export function FamilyPriceTool({ model }: { model: FamilyPriceModel }) {
+  const id = useId();
+  const [day, setDay] = useState<PriceDayType>(model.days[0]);
+  const [ages, setAges] = useState<string[]>([""]);
+  const [adults, setAdults] = useState(1);
+  const parsed = ages
+    .map((a) => (a.trim() === "" ? NaN : Number(a)))
+    .filter((n) => Number.isFinite(n) && n >= 0 && n < 18);
+  const result = familyPrice(model, { ages: parsed, adults, day });
+
+  return (
+    <div className="venue-tool venue-family-price">
+      <h3>Price for your family</h3>
+      {model.days.length > 1 ? (
+        <fieldset className="venue-day-toggle">
+          <legend>When are you going?</legend>
+          {model.days.map((d) => (
+            <label key={d} className={d === day ? "is-selected" : undefined}>
+              <input type="radio" name={`${id}-day`} value={d} checked={d === day} onChange={() => setDay(d)} />
+              {DAY_LABELS[d]}
+            </label>
+          ))}
+        </fieldset>
+      ) : null}
+      <div className="venue-age-inputs">
+        {ages.map((value, i) => (
+          <label key={i} htmlFor={`${id}-age-${i}`} className="venue-field">
+            <span>Child {i + 1} age</span>
+            <input
+              id={`${id}-age-${i}`}
+              type="number"
+              inputMode="numeric"
+              min={0}
+              max={17}
+              placeholder="e.g. 5"
+              value={value}
+              onChange={(e) => setAges((list) => list.map((v, j) => (j === i ? e.target.value : v)))}
+            />
+          </label>
+        ))}
+        <label htmlFor={`${id}-adults`} className="venue-field">
+          <span>Adults</span>
+          <input
+            id={`${id}-adults`}
+            type="number"
+            inputMode="numeric"
+            min={0}
+            max={10}
+            value={adults}
+            onChange={(e) => setAdults(Math.max(0, Math.min(10, Number(e.target.value) || 0)))}
+          />
+        </label>
+        {ages.length < 6 ? (
+          <button type="button" className="venue-text-btn" onClick={() => setAges((l) => [...l, ""])}>
+            Add a child
+          </button>
+        ) : null}
+      </div>
+      <p className="venue-muted">Babies: enter 0 or 1.</p>
+      <div aria-live="polite">
+        {parsed.length === 0 ? (
+          <p className="venue-estimate">Enter your children&apos;s ages.</p>
+        ) : (
+          <>
+            <p className="venue-estimate">
+              ${result.total.toFixed(2)}
+              {result.withTax !== null ? (
+                <span className="venue-estimate-tax"> plus HST · about ${result.withTax.toFixed(2)} with tax</span>
+              ) : null}
+            </p>
+            <ul className="venue-assumptions">
+              {result.lines.map((l) => (
+                <li key={l.label}>
+                  {l.quantity} × {l.label} at {l.unit} = ${l.subtotal.toFixed(2)}
+                </li>
+              ))}
+              {result.notes.map((n) => (
+                <li key={n}>{n}</li>
+              ))}
+              {result.unmatchedAges.map((a) => (
+                <li key={`u${a}`}>No ticket is listed for age {a} on this day — check with the venue.</li>
+              ))}
+            </ul>
+            {result.packages.length ? (
+              <p className="venue-muted">
+                Also compare:{" "}
+                {result.packages
+                  .map((p) => `${p.label} ${p.amount}${p.details.find((d) => d.startsWith("Includes")) ? ` (${p.details.find((d) => d.startsWith("Includes"))!.replace("Includes ", "")})` : ""}`)
+                  .join("; ")}
+                .
+              </p>
+            ) : null}
+          </>
+        )}
+      </div>
+      <p className="venue-muted">
+        Uses the venue&apos;s published prices only. Where two tickets fit an age, it uses the narrower one.
+      </p>
+    </div>
+  );
+}
+
+/** Before-you-go checklist parents can tick off. Ticks stay on this device only for this visit. */
+export function VisitChecklist({ items }: { items: string[] }) {
+  const id = useId();
+  const [done, setDone] = useState<boolean[]>(() => items.map(() => false));
+  return (
+    <ul className="venue-tick-list">
+      {items.map((item, i) => (
+        <li key={item}>
+          <label htmlFor={`${id}-${i}`}>
+            <input
+              id={`${id}-${i}`}
+              type="checkbox"
+              checked={done[i] ?? false}
+              onChange={(e) => setDone((d) => d.map((v, j) => (j === i ? e.target.checked : v)))}
+            />
+            <span>{item}</span>
+          </label>
+        </li>
+      ))}
+    </ul>
+  );
+}
 
 /** "Will this work for my kids?" — check each child's age against verified limits. */
 export function AgeCheckTool({ tool }: { tool: VenueDetailView["ageTool"] }) {

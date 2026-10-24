@@ -1323,7 +1323,7 @@ a.category-card {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-start;
   gap: 12px;
 }
 
@@ -1757,4 +1757,274 @@ a.category-card {
   .venue-toc a {
     white-space: nowrap;
   }
+}
+
+/* Venue page, parent-question layout: collapsible sections, good-to-know strip,
+   weekday/weekend price tables, family price tool and a tick-off checklist. */
+.venue-collapsible {
+  padding: 0;
+}
+
+.venue-collapsible > summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 56px;
+  padding: 18px 24px;
+  list-style: none;
+  cursor: pointer;
+}
+
+.venue-collapsible > summary::-webkit-details-marker {
+  display: none;
+}
+
+.venue-collapsible > summary h2 {
+  margin: 0;
+}
+
+.venue-collapsible > summary:focus-visible {
+  outline: 2px solid var(--green);
+  outline-offset: -4px;
+  border-radius: 20px;
+}
+
+.venue-chevron {
+  flex: none;
+  width: 12px;
+  height: 12px;
+  border-right: 2.5px solid var(--green);
+  border-bottom: 2.5px solid var(--green);
+  transform: rotate(45deg) translate(-3px, -3px);
+  transition: transform 0.15s ease;
+}
+
+.venue-collapsible[open] > summary .venue-chevron {
+  transform: rotate(-135deg) translate(-3px, -3px);
+}
+
+.venue-section-body {
+  padding: 0 24px 24px;
+}
+
+.venue-section-body > h3:first-child {
+  margin-top: 0;
+}
+
+.venue-address {
+  margin: 0 0 14px;
+  color: var(--muted);
+}
+
+.venue-hero {
+  margin: 18px 0 0;
+  position: relative;
+  border-radius: 20px;
+  overflow: hidden;
+  aspect-ratio: 16 / 9;
+  max-height: 300px;
+  width: 100%;
+  background: var(--surface);
+}
+
+.venue-hero svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.venue-hero figcaption {
+  position: absolute;
+  left: 12px;
+  bottom: 12px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: var(--cream);
+  color: var(--ink);
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.venue-good {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 10px;
+  margin: 16px 0;
+  padding: 0;
+  list-style: none;
+}
+
+.venue-good li {
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: var(--sage);
+  color: var(--green-dark);
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.venue-table-scroll {
+  overflow-x: auto;
+}
+
+.venue-day-prices {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.venue-day-prices th,
+.venue-day-prices td {
+  padding: 10px 8px;
+  border-bottom: 1px solid var(--line);
+  text-align: left;
+  vertical-align: top;
+}
+
+.venue-day-prices td {
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.venue-day-prices thead th {
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.venue-day-prices tbody th .venue-price-details {
+  display: block;
+  margin-top: 2px;
+  color: var(--muted);
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.venue-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.venue-day-toggle {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0 0 14px;
+  padding: 0;
+  border: 0;
+}
+
+.venue-day-toggle legend {
+  margin-bottom: 6px;
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.venue-day-toggle label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 14px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--paper);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.venue-day-toggle label.is-selected {
+  border-color: var(--green);
+  background: var(--sage);
+}
+
+.venue-day-toggle input {
+  accent-color: var(--green);
+}
+
+.venue-estimate-tax {
+  display: block;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.venue-tick-list {
+  display: grid;
+  gap: 4px;
+  margin: 0 0 12px;
+  padding: 0;
+  list-style: none;
+}
+
+.venue-tick-list label {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  min-height: 44px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--line);
+  cursor: pointer;
+}
+
+.venue-tick-list input {
+  flex: none;
+  width: 20px;
+  height: 20px;
+  margin: 2px 0 0;
+  accent-color: var(--green);
+}
+
+.venue-tick-list input:checked + span {
+  color: var(--muted);
+  text-decoration: line-through;
+}
+
+@media (max-width: 620px) {
+  .venue-collapsible > summary {
+    padding: 16px;
+  }
+
+  .venue-collapsible > summary h2 {
+    font-size: 1.3rem;
+  }
+
+  .venue-section-body {
+    padding: 0 16px 18px;
+  }
+
+  .venue-hero {
+    border-radius: 16px;
+    max-height: 200px;
+  }
+
+  .venue-good {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .venue-good li {
+    font-size: 0.9rem;
+  }
+}
+
+.venue-more {
+  margin-top: 18px;
+  border-top: 1px solid var(--line);
+}
+
+.venue-more > summary {
+  display: flex;
+  align-items: center;
+  min-height: 52px;
+  font-weight: 800;
+  color: var(--green-dark);
+  cursor: pointer;
+}
+
+.venue-more > summary:focus-visible {
+  outline: 2px solid var(--green);
+  outline-offset: 2px;
 }

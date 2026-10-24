@@ -1,3 +1,4 @@
+import { headers } from "next/headers";
 import { notFound } from "next/navigation";
 import { DiscoverDetail } from "@/components/discover/DiscoverDetail";
 import { VenueDetail } from "@/components/discover/VenueDetail";
@@ -30,8 +31,19 @@ function torontoToday(): string {
   }).format(new Date());
 }
 
+/** Incoming Host header only — never X-Forwarded-Host. Null outside a request. */
+async function requestHost(): Promise<string | null> {
+  try {
+    return (await headers()).get("host");
+  } catch {
+    return null;
+  }
+}
+
 async function loadVenue(slug: string, venue: string) {
-  const catalog = await loadVenueCatalog({ venueSlug: venue });
+  // Lets Cloudflare preview URLs (flag + verified preview host) show draft venues.
+  const hostname = await requestHost();
+  const catalog = await loadVenueCatalog({ venueSlug: venue, hostname });
   if (!catalog) return null;
   const record = resolvePublicVenue(catalog.records, slug, venue);
   return record ? { record, catalog } : null;
