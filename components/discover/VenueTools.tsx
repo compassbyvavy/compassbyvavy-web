@@ -54,11 +54,11 @@ export function FamilyPriceTool({ model }: { model: FamilyPriceModel }) {
   const [day, setDay] = useState<PriceDayType>(model.days[0]);
   const [ages, setAges] = useState<string[]>([""]);
   const [adults, setAdults] = useState(1);
-  const [buySocks, setBuySocks] = useState(false);
+  const [socks, setSocks] = useState(0);
   const parsed = ages
     .map((a) => (a.trim() === "" ? NaN : Number(a)))
     .filter((n) => Number.isFinite(n) && n >= 0 && n < 18);
-  const result = familyPrice(model, { ages: parsed, adults, day, buySocks });
+  const result = familyPrice(model, { ages: parsed, adults, day, socks });
 
   return (
     <div className="venue-tool venue-family-price">
@@ -112,10 +112,16 @@ export function FamilyPriceTool({ model }: { model: FamilyPriceModel }) {
         Babies: enter 0 or 1.{model.adultsNote ? ` ${model.adultsNote}` : ""}
       </p>
       {model.socks ? (
-        <label className="venue-check" htmlFor={`${id}-socks`}>
-          <input id={`${id}-socks`} type="checkbox" checked={buySocks} onChange={(e) => setBuySocks(e.target.checked)} />
-          <span>Buying grip socks there ({model.socks.amount} a pair)</span>
-        </label>
+        <div className="venue-stepper" role="group" aria-labelledby={`${id}-socks-label`}>
+          <span id={`${id}-socks-label`}>Grip socks to buy there ({model.socks.amount} a pair)</span>
+          <button type="button" aria-label="One fewer pair" onClick={() => setSocks((n) => Math.max(0, n - 1))} disabled={socks === 0}>
+            −
+          </button>
+          <output aria-live="polite">{socks}</output>
+          <button type="button" aria-label="One more pair" onClick={() => setSocks((n) => Math.min(10, n + 1))} disabled={socks >= 10}>
+            +
+          </button>
+        </div>
       ) : null}
       <div aria-live="polite">
         {parsed.length === 0 ? (

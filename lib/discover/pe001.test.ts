@@ -64,16 +64,16 @@ describe("PE-001 page", () => {
       { label: "Best ages", value: "4–12" },
       { label: "Babies", value: "Under 2 free" },
       { label: "Visit length", value: "2 hours" },
-      { label: "Ages 4 and up", value: "$34.95–$39.95" },
+      { label: "Ages 4–14", value: "$34.95–$39.95" },
     ]);
-    assert.equal(v.quickNote, "One adult is included with each child ticket.");
+    assert.equal(v.quickNote, "One adult included per paid child.");
     assert.equal(v.priceFrom, "$34.95–$39.95");
   });
 
   it("shows admission as a weekday / weekend table", () => {
     const rows = view().admissionRows!;
-    assert.deepEqual(rows.map((r) => r.label), ["Babies 23 months and under", "Ages 2–3", "Ages 4 and up", "Teens 15–17", "Extra adult"]);
-    const four = rows.find((r) => r.label === "Ages 4 and up")!;
+    assert.deepEqual(rows.map((r) => r.label), ["Babies 23 months and under", "Ages 2–3", "Ages 4–14", "Teens 15–17", "Extra adult"]);
+    const four = rows.find((r) => r.label === "Ages 4–14")!;
     assert.equal(four.weekday?.amount, "$34.95");
     assert.equal(four.weekend?.amount, "$39.95");
     assert.equal(rows.find((r) => r.label === "Extra adult")!.anyDay?.amount, "$9.95");
@@ -127,7 +127,7 @@ describe("PE-001 family price preview", () => {
     const m = model();
     assert.equal(ticketForAge(m, 1, "weekday")?.label, "Babies 23 months and under");
     assert.equal(ticketForAge(m, 3, "weekday")?.amount, "$24.95");
-    assert.equal(ticketForAge(m, 13, "weekend_holiday")?.label, "Ages 4 and up");
+    assert.equal(ticketForAge(m, 13, "weekend_holiday")?.label, "Ages 4–14");
     assert.equal(ticketForAge(m, 16, "weekend_holiday")?.label, "Teens 15–17");
   });
 
@@ -162,7 +162,7 @@ describe("PE-001 seed", () => {
       ...Object.fromEntries(Object.entries(children).map(([t, list]) => [t, list.map((r, i) => ({ ...r, id: `id-${i}` }))])),
     };
     const back = mapVenueRow(row);
-    const wke4 = back.prices.find((p) => p.label === "Ages 4 and up" && p.dayType === "weekend_holiday");
+    const wke4 = back.prices.find((p) => p.label === "Ages 4–14" && p.dayType === "weekend_holiday");
     assert.equal(wke4?.amount, 39.95);
     assert.equal(wke4?.adultsIncluded, 1);
     assert.equal(back.policies.filter((p) => p.kind === "party").length, 7);
@@ -222,7 +222,7 @@ describe("PE-001 review fixes", () => {
   });
 
   it("adds grip socks for each child with a paid ticket when asked", () => {
-    const r = familyPrice(view().familyPrice!, { ages: [5, 1], adults: 1, day: "weekday", buySocks: true });
+    const r = familyPrice(view().familyPrice!, { ages: [5, 1], adults: 1, day: "weekday", socks: 1 });
     assert.equal(r.total, 39.45);
   });
 
@@ -265,7 +265,7 @@ describe("PE-001 review fixes", () => {
 
 describe("PE-001 round 2", () => {
   it("makes the cheapest option the headline, with socks and HST", () => {
-    const r = familyPrice(view().familyPrice!, { ages: [6, 8, 10], adults: 2, day: "weekend_holiday", buySocks: true });
+    const r = familyPrice(view().familyPrice!, { ages: [6, 8, 10], adults: 2, day: "weekend_holiday", socks: 3 });
     assert.equal(r.better?.label, "Family Bundle");
     assert.equal(r.better?.includes, "3 children and 2 adults");
     assert.equal(r.socksSubtotal, 13.5);
@@ -274,7 +274,7 @@ describe("PE-001 round 2", () => {
     const two = familyPrice(view().familyPrice!, { ages: [6, 2], adults: 2, day: "weekday" });
     assert.equal(two.better, null);
     assert.equal(two.bestTotal, 59.9);
-    assert.equal(view().familyPrice!.adultsNote, "One adult is included with each paid child ticket.");
+    assert.equal(view().familyPrice!.adultsNote, "One adult is included with each paid child ticket. Adults with only a free baby pay $9.95.");
   });
 
   it("says once that every attraction is included", () => {
@@ -287,7 +287,7 @@ describe("PE-001 round 2", () => {
   it("renders the new header, the glow drawing, the verdict list and the booking card", () => {
     const page = html();
     assert.match(page, /<p class="venue-crumb"><span>Mississauga<\/span>/);
-    assert.match(page, /Get directions/);
+    assert.match(page, />Directions</);
     assert.match(page, /<a class="button button-secondary venue-call-inline" href="tel:9052127444">Call<\/a>/);
     assert.match(page, /Call 905-212-7444/);
     assert.match(page, /venue-hero is-glow/);
@@ -310,5 +310,49 @@ describe("PE-001 round 2", () => {
     withVideo.links[withVideo.links.length - 1].value = "https://example.com/not-a-video";
     assert.equal(build(withVideo, { today: TODAY }).video, null);
     assert.equal(view().video, null);
+  });
+});
+
+describe("PE-001 price tool: the reviewer's test families", () => {
+  const m = () => view().familyPrice!;
+  const total = (ages: number[], adults: number, day: "weekday" | "weekend_holiday") =>
+    familyPrice(m(), { ages, adults, day }).bestTotal;
+
+  it("one baby and one adult pays only the adult", () => {
+    assert.equal(total([1], 1, "weekday"), 9.95);
+  });
+  it("age 7 and one adult", () => {
+    assert.equal(total([7], 1, "weekday"), 34.95);
+    assert.equal(total([7], 1, "weekend_holiday"), 39.95);
+  });
+  it("age 7, a baby and two adults: the second adult pays", () => {
+    assert.equal(total([7, 1], 2, "weekday"), 44.9);
+    assert.equal(total([7, 1], 2, "weekend_holiday"), 49.9);
+  });
+  it("two paid children and three adults: two tickets and one extra adult", () => {
+    const r = familyPrice(m(), { ages: [6, 9], adults: 3, day: "weekday" });
+    assert.equal(r.extraAdults, 1);
+    assert.equal(r.bestTotal, 79.85);
+  });
+  it("three paid children and two adults on a weekend: the Family Bundle", () => {
+    const r = familyPrice(m(), { ages: [6, 8, 10], adults: 2, day: "weekend_holiday" });
+    assert.equal(r.better?.label, "Family Bundle");
+    assert.equal(r.bestTotal, 99.95);
+    assert.equal(r.total, 119.85);
+    assert.equal(r.better?.saving, 19.9);
+  });
+  it("age 15 uses the teen ticket and age 14 the 4–14 ticket", () => {
+    assert.equal(total([15], 1, "weekday"), 24.95);
+    assert.equal(total([14], 1, "weekday"), 34.95);
+  });
+  it("buys only the sock pairs asked for", () => {
+    assert.equal(familyPrice(m(), { ages: [6, 8], adults: 2, day: "weekday", socks: 1 }).bestTotal, 74.4);
+  });
+});
+
+describe("PE-001 wording", () => {
+  it("says Age guidance when no height or weight limits are published", () => {
+    assert.equal(view().snapshot.restrictionsHeading, "Age guidance");
+    assert.doesNotMatch(html(), /Age, height and weight limits/);
   });
 });

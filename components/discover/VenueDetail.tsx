@@ -291,7 +291,8 @@ export function VenueDetail({
         {view.quickNote ? (
           <p className={view.primaryBooking ? "venue-quick-note venue-card-dup" : "venue-quick-note"}>{view.quickNote}</p>
         ) : null}
-        <div className="venue-header-actions">
+        {/* On wide screens these actions live in the right-hand card. */}
+        <div className={view.primaryBooking ? "venue-header-actions venue-card-dup" : "venue-header-actions"}>
           {view.primaryBooking ? (
             // On wide screens the right-hand card carries the Book button.
             <a className="button button-primary venue-card-dup" href={view.primaryBooking.href} rel="noopener noreferrer" target="_blank">
@@ -299,8 +300,13 @@ export function VenueDetail({
             </a>
           ) : null}
           {gettingThere.directionsUrl ? (
-            <a className="button button-secondary" href={gettingThere.directionsUrl} rel="noopener noreferrer" target="_blank">
-              Get directions
+            <a
+              className={view.primaryBooking ? "button button-secondary venue-card-dup" : "button button-secondary"}
+              href={gettingThere.directionsUrl}
+              rel="noopener noreferrer"
+              target="_blank"
+            >
+              Directions
             </a>
           ) : null}
           {visit.phone ? (
@@ -405,7 +411,7 @@ export function VenueDetail({
           </table>
         </div>
         {bandsMeta ? <Checked meta={bandsMeta} /> : null}
-        <Rules heading="Age, height and weight limits" lines={snapshot.restrictions} />
+        <Rules heading={snapshot.restrictionsHeading} lines={snapshot.restrictions} />
         <Rules heading="Supervision" lines={snapshot.supervision} />
         {snapshot.activityLevel.length || snapshot.whoItSuits.length ? (
           <ul className="venue-list">
@@ -471,7 +477,7 @@ export function VenueDetail({
         {showAgeTool ? <AgeCheckTool tool={view.ageTool} /> : null}
       </VenueSection>
 
-      <VenueSection id="cost" title="What will it cost?">
+      <VenueSection id="cost" title="What will it cost?" openOnDesktop={false}>
         {view.familyPrice ? (
           <FamilyPriceTool model={view.familyPrice} />
         ) : view.costEstimator ? (
@@ -513,7 +519,7 @@ export function VenueDetail({
         ) : null}
       </VenueSection>
 
-      <VenueSection id="when" title="When to go">
+      <VenueSection id="when" title="When to go" openOnDesktop={false}>
         <h3>Hours</h3>
         {visit.hours.kind === "weekly" ? (
           <>
@@ -577,7 +583,7 @@ export function VenueDetail({
         <Rules heading="Booking" lines={visit.bookingRules} />
       </VenueSection>
 
-      <VenueSection id="before" title="Before you go">
+      <VenueSection id="before" title="Before you go" openOnDesktop={false}>
         {view.beforeYouGo.length ? (
           <>
             {view.beforeYouGoGroups.home.length ? (
@@ -875,10 +881,11 @@ export function VenueDetail({
             <UsualHoursToday hours={view.weeklyHours} />
             {gettingThere.directionsUrl ? (
               <a href={gettingThere.directionsUrl} rel="noopener noreferrer" target="_blank">
-                Get directions
+                Directions
               </a>
             ) : null}
             {visit.phone ? <a href={visit.phone.href}>Call {visit.phone.display}</a> : null}
+            <ShareIconButton title={fullName} />
           </div>
         </aside>
       ) : null}

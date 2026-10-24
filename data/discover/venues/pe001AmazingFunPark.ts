@@ -123,7 +123,7 @@ export const pe001AmazingFunPark: VenueRecord = {
     // One "Label: text" statement per line; the page shows them as a short list.
     compassTake: [
       "Best for: Children 4–12 who enjoy glowing games, VR, ride-on cars and arcade play.",
-      "Little ones: Babies get in free and there are zones for them, but ages 4 and up get the most out of a visit.",
+      "For little ones: Babies enter free and have access to some play areas, but children 4 and older get much more from the full attraction mix.",
     ].join("\n"),
     toddlerFriendly: "yes",
     strollerFriendly: "unknown",
@@ -144,10 +144,10 @@ export const pe001AmazingFunPark: VenueRecord = {
   ],
   ageBands: [
     { ...site, band: "0_2", fit: "some", note: "Free for 23 months and under; some zones are for little ones" },
-    { ...site, band: "3_5", fit: "good", note: "Best fit from age 4" },
+    { ...site, band: "3_5", fit: "good", note: "Age 3 pays the toddler price; the full mix suits 4 and up" },
     { ...site, band: "6_9", fit: "good" },
     { ...site, band: "10_12", fit: "good" },
-    { ...bookings, band: "13_17", fit: "some", note: "Ages 13–14 use the 4-and-up ticket; teen tickets for 15–17" },
+    { ...bookings, band: "13_17", fit: "some", note: "Ages 13–14 use the 4–14 ticket; teen tickets for 15–17" },
   ],
   // Fall hours, as the venue publishes them. Monday and Tuesday are closed
   // except holidays (see the hours note).
@@ -170,12 +170,14 @@ export const pe001AmazingFunPark: VenueRecord = {
     { ...parties, id: "pe001-stage", name: "AFP Stage", description: "Live performances, karaoke and magic.", availability: "available", includedInAdmission: "yes", schedule: "scheduled", scheduleNote: "Live shows on weekends" },
   ],
   prices: [
-    { ...site, id: "pe001-infant", kind: "admission", label: "Babies 23 months and under", audience: "infant", ageMin: 0, ageMax: 1, isFree: true, amount: null, currency: "CAD", requiredAddon: false, plusTax: null, adultsIncluded: 0, notes: "Adults with them pay $9.95 each" },
+    { ...site, id: "pe001-infant", kind: "admission", label: "Babies 23 months and under", audience: "infant", ageMin: 0, ageMax: 1, isFree: true, amount: null, currency: "CAD", requiredAddon: false, plusTax: null, adultsIncluded: 0, notes: "Adults with only a free baby pay $9.95 each" },
     pass("pe001-wkd-2-3", "Ages 2–3", "weekday", 2, 3, 24.95),
-    pass("pe001-wkd-4", "Ages 4 and up", "weekday", 4, null, 34.95),
+    // The venue labels this ticket "4yr old and above"; teens 15–17 have their
+    // own cheaper ticket, so in practice it covers ages 4–14.
+    pass("pe001-wkd-4", "Ages 4–14", "weekday", 4, 14, 34.95),
     pass("pe001-wkd-teen", "Teens 15–17", "weekday", 15, 17, 24.95),
     pass("pe001-wke-2-3", "Ages 2–3", "weekend_holiday", 2, 3, 29.95),
-    pass("pe001-wke-4", "Ages 4 and up", "weekend_holiday", 4, null, 39.95),
+    pass("pe001-wke-4", "Ages 4–14", "weekend_holiday", 4, 14, 39.95),
     pass("pe001-wke-teen", "Teens 15–17", "weekend_holiday", 15, 17, 29.95),
     { ...bookings, id: "pe001-adult", kind: "admission", label: "Extra adult", audience: "adult", durationMinutes: 120, amount: 9.95, isFree: false, currency: "CAD", requiredAddon: false, plusTax: true },
     { ...bookings, id: "pe001-family", kind: "package", label: "Family Bundle", audience: "family", durationMinutes: 120, includesNote: "3 children and 2 adults", amount: 99.95, isFree: false, currency: "CAD", requiredAddon: false, plusTax: true, dayType: "weekend_holiday" },

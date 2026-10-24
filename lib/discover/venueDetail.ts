@@ -302,6 +302,8 @@ export type SnapshotView = {
   bestFitAges: string | null;
   ageBands: AgeBandView[];
   restrictions: RuleLine[];
+  /** "Age guidance" unless the venue publishes height, weight or other limits. */
+  restrictionsHeading: string;
   supervision: RuleLine[];
   activityLevel: ThemeView[];
   whoItSuits: ThemeView[];
@@ -332,6 +334,9 @@ function snapshot(record: VenueRecord, policies: VenuePolicy[], themes: ThemeVie
       };
     }),
     restrictions: rule(["age_guidance", "height_limit", "weight_limit", "restriction"]),
+    restrictionsHeading: policies.some((x) => ["height_limit", "weight_limit", "restriction"].includes(x.kind))
+      ? "Age, height and weight limits"
+      : "Age guidance",
     supervision: rule(["supervision"]),
     activityLevel: themes.filter((t) => t.theme === "activity_level"),
     whoItSuits: themes.filter((t) => t.theme === "age_fit"),
@@ -1249,9 +1254,10 @@ export function familyPriceModel(sections: PriceSection[]): FamilyPriceModel | n
   );
   const days = (["weekday", "weekend_holiday"] as const).filter((d) => tickets.some((t) => t.dayType === d));
   if (tickets.length === 0 || days.length === 0) return null;
+  const extraAdult = admission.find((l) => l.audience === "adult" && !l.dayType) ?? null;
   return {
     tickets,
-    extraAdult: admission.find((l) => l.audience === "adult" && !l.dayType) ?? null,
+    extraAdult,
     days: [...days],
     packages: (sections.find((s) => s.kind === "package")?.lines ?? []).filter(
       (l) => l.audience === "family",
@@ -1259,7 +1265,14 @@ export function familyPriceModel(sections: PriceSection[]): FamilyPriceModel | n
     socks: (sections.find((s) => s.kind === "addon")?.lines ?? []).find((l) => /socks/i.test(l.label)) ?? null,
     bands: [],
     adultsNote: tickets.filter((t) => !t.isFree).every((t) => t.adultsIncluded === 1)
-      ? "One adult is included with each paid child ticket."
+      ? [
+          "One adult is included with each paid child ticket.",
+          tickets.some((t) => t.isFree) && extraAdult
+            ? `Adults with only a free baby pay ${extraAdult.amount}.`
+            : null,
+        ]
+          .filter(Boolean)
+          .join(" ")
       : null,
   };
 }
@@ -1269,7 +1282,8 @@ export type FamilyPriceInput = {
   adults: number;
   day: PriceDayType;
   /** Buying grip socks on site for each child with a paid ticket. */
-  buySocks?: boolean;
+  /** Pairs of grip socks to buy on site (some children may bring their own). */
+  socks?: number;
 };
 
 export type FamilyPrice = {
@@ -1363,13 +1377,14 @@ export function familyPrice(model: FamilyPriceModel, input: FamilyPriceInput): F
     );
   }
   const paidChildren = [...counts.values()].filter((c) => !c.line.isFree).reduce((n, c) => n + c.qty, 0);
-  const socksSubtotal = input.buySocks && model.socks && paidChildren > 0 ? roundCents(paidChildren * model.socks.value) : 0;
+  const pairs = Math.max(0, Math.min(10, Math.floor(Number.isFinite(input.socks ?? 0) ? input.socks ?? 0 : 0)));
+  const socksSubtotal = model.socks && pairs > 0 ? roundCents(pairs * model.socks.value) : 0;
   if (socksSubtotal > 0 && model.socks) {
     lines.push({
       label: model.socks.label,
-      quantity: paidChildren,
+      quantity: pairs,
       unit: model.socks.amount,
-      subtotal: roundCents(paidChildren * model.socks.value),
+      subtotal: socksSubtotal,
     });
   }
   const total = roundCents(lines.reduce((sum, l) => sum + l.subtotal, 0));
@@ -1466,7 +1481,7 @@ export function quickFacts(record: VenueRecord, sections: PriceSection[]): { fac
   const paidChild = admission.filter((l) => l.audience === "child" && !l.isFree);
   const note =
     paidChild.length && paidChild.every((l) => l.adultsIncluded === 1)
-      ? "One adult is included with each child ticket."
+      ? "One adult included per paid child."
       : null;
   return { facts: facts.slice(0, 4), note };
 }
