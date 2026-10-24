@@ -54,14 +54,15 @@ export function FamilyPriceTool({ model }: { model: FamilyPriceModel }) {
   const [day, setDay] = useState<PriceDayType>(model.days[0]);
   const [ages, setAges] = useState<string[]>([""]);
   const [adults, setAdults] = useState(1);
+  const [buySocks, setBuySocks] = useState(false);
   const parsed = ages
     .map((a) => (a.trim() === "" ? NaN : Number(a)))
     .filter((n) => Number.isFinite(n) && n >= 0 && n < 18);
-  const result = familyPrice(model, { ages: parsed, adults, day });
+  const result = familyPrice(model, { ages: parsed, adults, day, buySocks });
 
   return (
     <div className="venue-tool venue-family-price">
-      <h3>Price for your family</h3>
+      <h3>Your family: fit and price</h3>
       {model.days.length > 1 ? (
         <fieldset className="venue-day-toggle">
           <legend>When are you going?</legend>
@@ -108,11 +109,27 @@ export function FamilyPriceTool({ model }: { model: FamilyPriceModel }) {
         ) : null}
       </div>
       <p className="venue-muted">Babies: enter 0 or 1.</p>
+      {model.socks ? (
+        <label className="venue-check" htmlFor={`${id}-socks`}>
+          <input id={`${id}-socks`} type="checkbox" checked={buySocks} onChange={(e) => setBuySocks(e.target.checked)} />
+          <span>Buying grip socks there ({model.socks.amount} a pair)</span>
+        </label>
+      ) : null}
       <div aria-live="polite">
         {parsed.length === 0 ? (
           <p className="venue-estimate">Enter your children&apos;s ages.</p>
         ) : (
           <>
+            {model.bands.length ? (
+              <ul className="venue-fit-list">
+                {result.fit.map((f, i) => (
+                  <li key={i}>
+                    <strong>Age {f.age}:</strong> {f.fitLabel}
+                    {f.note ? ` — ${f.note}` : ""}
+                  </li>
+                ))}
+              </ul>
+            ) : null}
             <p className="venue-estimate">
               ${result.total.toFixed(2)}
               {result.withTax !== null ? (
@@ -132,13 +149,10 @@ export function FamilyPriceTool({ model }: { model: FamilyPriceModel }) {
                 <li key={`u${a}`}>No ticket is listed for age {a} on this day — check with the venue.</li>
               ))}
             </ul>
-            {result.packages.length ? (
-              <p className="venue-muted">
-                Also compare:{" "}
-                {result.packages
-                  .map((p) => `${p.label} ${p.amount}${p.details.find((d) => d.startsWith("Includes")) ? ` (${p.details.find((d) => d.startsWith("Includes"))!.replace("Includes ", "")})` : ""}`)
-                  .join("; ")}
-                .
+            {result.better ? (
+              <p className="venue-best">
+                Better option: the {result.better.label} covers your group for ${result.better.total.toFixed(2)} before
+                tax, ${result.better.saving.toFixed(2)} less than separate tickets.
               </p>
             ) : null}
           </>
@@ -151,27 +165,102 @@ export function FamilyPriceTool({ model }: { model: FamilyPriceModel }) {
   );
 }
 
-/** Before-you-go checklist parents can tick off. Ticks stay on this device only for this visit. */
-export function VisitChecklist({ items }: { items: string[] }) {
+/**
+ * Before-you-go checklist parents can tick off, in groups. Ticks are kept on
+ * this device for a day (browser storage), and the list works without it.
+ */
+export function VisitChecklist({
+  groups,
+  storageKey,
+}: {
+  groups: Array<{ heading: string; items: string[] }>;
+  storageKey: string;
+}) {
   const id = useId();
-  const [done, setDone] = useState<boolean[]>(() => items.map(() => false));
+  const key = `compass:checklist:${storageKey}`;
+  const [done, setDone] = useState<Record<string, boolean>>({});
+  useEffect(() => {
+    try {
+      const raw = window.localStorage.getItem(key);
+      const saved = raw ? (JSON.parse(raw) as { at: number; done: Record<string, boolean> }) : null;
+      if (saved && Date.now() - saved.at < 24 * 60 * 60 * 1000) setDone(saved.done);
+    } catch {
+      /* storage unavailable: ticks just aren't kept */
+    }
+  }, [key]);
+  const toggle = (item: string, value: boolean) =>
+    setDone((d) => {
+      const next = { ...d, [item]: value };
+      try {
+        window.localStorage.setItem(key, JSON.stringify({ at: Date.now(), done: next }));
+      } catch {
+        /* ignore */
+      }
+      return next;
+    });
   return (
-    <ul className="venue-tick-list">
-      {items.map((item, i) => (
-        <li key={item}>
-          <label htmlFor={`${id}-${i}`}>
-            <input
-              id={`${id}-${i}`}
-              type="checkbox"
-              checked={done[i] ?? false}
-              onChange={(e) => setDone((d) => d.map((v, j) => (j === i ? e.target.checked : v)))}
-            />
-            <span>{item}</span>
-          </label>
-        </li>
-      ))}
-    </ul>
+    <div className="venue-checklist-groups">
+      {groups
+        .filter((g) => g.items.length)
+        .map((g, gi) => (
+          <div key={g.heading}>
+            <h3>{g.heading}</h3>
+            <ul className="venue-tick-list">
+              {g.items.map((item, i) => (
+                <li key={item}>
+                  <label htmlFor={`${id}-${gi}-${i}`}>
+                    <input
+                      id={`${id}-${gi}-${i}`}
+                      type="checkbox"
+                      checked={done[item] ?? false}
+                      onChange={(e) => toggle(item, e.target.checked)}
+                    />
+                    <span>{item}</span>
+                  </label>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
+    </div>
   );
+}
+
+const TORONTO_WEEKDAY: Record<string, number> = { Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6, Sun: 7 };
+
+function clock(hhmm: string): string {
+  const [h, m] = hhmm.split(":").map(Number);
+  const suffix = h >= 12 ? "pm" : "am";
+  const h12 = h % 12 === 0 ? 12 : h % 12;
+  return m ? `${h12}:${String(m).padStart(2, "0")} ${suffix}` : `${h12} ${suffix}`;
+}
+
+/** "Usual hours today: 4–8 pm" in Toronto time. Holidays can differ, so it says "usual". */
+export function UsualHoursToday({ hours }: { hours: VenueDetailView["weeklyHours"] }) {
+  const [text, setText] = useState<string | null>(null);
+  useEffect(() => {
+    const parts = new Intl.DateTimeFormat("en-CA", {
+      timeZone: "America/Toronto",
+      weekday: "short",
+      hour: "2-digit",
+      minute: "2-digit",
+      hourCycle: "h23",
+    }).formatToParts(new Date());
+    const get = (t: string) => parts.find((p) => p.type === t)?.value ?? "";
+    const weekday = TORONTO_WEEKDAY[get("weekday")];
+    const now = `${get("hour")}:${get("minute")}`;
+    const today = hours.filter((h) => h.weekday === weekday).sort((a, b) => a.opensAt.localeCompare(b.opensAt));
+    if (!today.length) setText("Usually closed today");
+    else if (today.some((h) => now >= h.opensAt && now < h.closesAt)) {
+      const h = today.find((x) => now >= x.opensAt && now < x.closesAt)!;
+      setText(`Usually open until ${clock(h.closesAt)} today`);
+    } else {
+      const next = today.find((h) => now < h.opensAt);
+      setText(next ? `Usually opens at ${clock(next.opensAt)} today` : "Usually closed for the rest of today");
+    }
+  }, [hours]);
+  if (!hours.length || !text) return null;
+  return <span className="venue-today">{text}</span>;
 }
 
 /** "Will this work for my kids?" — check each child's age against verified limits. */

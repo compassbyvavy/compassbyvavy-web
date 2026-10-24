@@ -2028,3 +2028,85 @@ a.category-card {
   outline: 2px solid var(--green);
   outline-offset: 2px;
 }
+
+.venue-header-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 14px;
+  margin: 12px 0 0;
+}
+
+.venue-today {
+  font-weight: 700;
+  color: var(--green-dark);
+}
+
+.venue-header-meta .venue-checked {
+  color: var(--muted);
+}
+
+.venue-take {
+  padding: 20px 24px;
+  border-radius: 20px;
+  background: var(--sage);
+  border: 1px solid #cfdccd;
+}
+
+.venue-take h2 {
+  margin: 0 0 8px;
+  font-size: 1.3rem;
+}
+
+.venue-take p {
+  margin: 0 0 8px;
+}
+
+.venue-take p:last-child {
+  margin-bottom: 0;
+}
+
+.venue-lead {
+  margin: 0 0 12px;
+  font-weight: 700;
+}
+
+.venue-check {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.venue-check input {
+  width: 20px;
+  height: 20px;
+  accent-color: var(--green);
+}
+
+.venue-fit-list {
+  margin: 12px 0 0;
+  padding-left: 20px;
+}
+
+.venue-best {
+  margin: 10px 0 0;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: var(--sage);
+  color: var(--green-dark);
+  font-weight: 700;
+}
+
+.venue-checklist-groups h3 {
+  margin: 4px 0 4px;
+}
+
+@media (max-width: 620px) {
+  .venue-take {
+    padding: 16px;
+    border-radius: 16px;
+  }
+}

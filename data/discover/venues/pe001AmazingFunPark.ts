@@ -13,8 +13,8 @@
  * (supabase/seeds/discover/pe-001-amazing-fun-park.publish.sql).
  *
  * Conflicts on the venue's own pages, and how they are handled:
- * - AFP Unlimited: $99.95 on the chart and description, $99.99 on the booking
- *   button. Stored as $99.99 (the charged price) and marked conflicting.
+ * - AFP Unlimited: $99 on the home page, $99.95 on the chart and description,
+ *   $99.99 on the booking page. The founder confirmed $99.99 (Oct 24, 2026).
  * - AFP Unlimited session: "All Day Play" vs "2-hour visits, one per day".
  *   The record says "one visit a day" and leaves the length out.
  * - The weekday ticket's fine print names Mondays (closed) and leaves out
@@ -120,6 +120,8 @@ export const pe001AmazingFunPark: VenueRecord = {
     costTier: "moderate",
     typicalVisitMinutes: 120,
     typicalVisitNote: "The play pass is 2 hours from check-in",
+    compassTake:
+      "A strong choice for children 4–12 who enjoy glowing games, VR rides, ride-on cars and arcade play, with one price that covers everything inside. Babies get in free and there are zones for little ones, but a visit with only an under-4 won't use most of the attractions. Weekdays open only after school, so plan for 4 pm or the weekend.",
     toddlerFriendly: "yes",
     strollerFriendly: "unknown",
     hoursKind: "fixed",
@@ -142,7 +144,7 @@ export const pe001AmazingFunPark: VenueRecord = {
     { ...site, band: "3_5", fit: "good", note: "Best fit from age 4" },
     { ...site, band: "6_9", fit: "good" },
     { ...site, band: "10_12", fit: "good" },
-    { ...bookings, band: "13_17", fit: "some", note: "Teen tickets for ages 15–17" },
+    { ...bookings, band: "13_17", fit: "some", note: "Ages 13–14 use the 4-and-up ticket; teen tickets for 15–17" },
   ],
   // Fall hours, as the venue publishes them. Monday and Tuesday are closed
   // except holidays (see the hours note).
@@ -154,13 +156,13 @@ export const pe001AmazingFunPark: VenueRecord = {
     { weekday: 7, opensAt: "10:00", closesAt: "20:00", sourceUrl: PE001_OFFICIAL_SITE, sourceCheckedDate: PE001_LAST_RESEARCHED },
   ],
   activities: [
-    { ...site, id: "pe001-soft-play", name: "Soft play and ball pit", description: "A soft play zone and ball pit, with space for little ones.", availability: "available", includedInAdmission: "yes", schedule: "always" },
-    { ...site, id: "pe001-floor", name: "Interactive glowing floor", description: "Light-up tile games: stomp through each level and race to win.", availability: "available", includedInAdmission: "yes", schedule: "always" },
-    { ...site, id: "pe001-wall", name: "Educational wall games", description: "Interactive wall games for learning through play.", availability: "available", includedInAdmission: "yes", schedule: "always" },
-    { ...site, id: "pe001-table", name: "Touch-screen table games", availability: "available", includedInAdmission: "yes", schedule: "always" },
-    { ...site, id: "pe001-vr", name: "VR rides", description: "Virtual reality rides, including a VR roller coaster.", availability: "available", includedInAdmission: "yes", schedule: "always" },
-    { ...site, id: "pe001-cars", name: "Glow & Ride cars", description: "Light-up cars driven around illuminated jungle tracks.", availability: "available", includedInAdmission: "yes", schedule: "always" },
-    { ...site, id: "pe001-arcade", name: "Arcade zone", description: "More than 100 arcade games.", availability: "available", includedInAdmission: "yes", schedule: "always" },
+    { ...site, id: "pe001-soft-play", name: "Soft play and ball pit", description: "A soft play zone and ball pit, with space for little ones.", availability: "available", includedInAdmission: "yes", schedule: "unknown" },
+    { ...site, id: "pe001-floor", name: "Interactive glowing floor", description: "Light-up tile games: stomp through each level and race to win.", availability: "available", includedInAdmission: "yes", schedule: "unknown" },
+    { ...site, id: "pe001-wall", name: "Educational wall games", description: "Interactive wall games for learning through play.", availability: "available", includedInAdmission: "yes", schedule: "unknown" },
+    { ...site, id: "pe001-table", name: "Touch-screen table games", availability: "available", includedInAdmission: "yes", schedule: "unknown" },
+    { ...site, id: "pe001-vr", name: "VR rides", description: "Virtual reality rides, including a VR roller coaster.", availability: "available", includedInAdmission: "yes", schedule: "unknown" },
+    { ...site, id: "pe001-cars", name: "Glow & Ride cars", description: "Light-up cars driven around illuminated jungle tracks.", availability: "available", includedInAdmission: "yes", schedule: "unknown" },
+    { ...site, id: "pe001-arcade", name: "Arcade zone", description: "More than 100 arcade games.", availability: "available", includedInAdmission: "yes", schedule: "unknown" },
     { ...site, id: "pe001-photo", name: "360° photo booth", availability: "available", includedInAdmission: "unknown", schedule: "unknown" },
     { ...parties, id: "pe001-stage", name: "AFP Stage", description: "Live performances, karaoke and magic.", availability: "available", includedInAdmission: "unknown", schedule: "scheduled", scheduleNote: "Live shows on weekends" },
   ],
@@ -180,8 +182,6 @@ export const pe001AmazingFunPark: VenueRecord = {
     { ...bookings, id: "pe001-amazing", kind: "membership", label: "AFP Amazing", audience: "child", amount: 49.99, isFree: false, currency: "CAD", requiredAddon: false, plusTax: true, notes: "Per month · unlimited weekdays + 1 weekend visit a week (up to 4 a month) · 2 hours per visit · 1 child + 1 adult · 3-month minimum" },
     {
       ...bookings,
-      verificationStatus: "conflicting",
-      conflictNote: "The venue's chart and description say $99.95; the booking page charges $99.99.",
       id: "pe001-unlimited", kind: "membership", label: "AFP Unlimited", audience: "child", amount: 99.99, isFree: false, currency: "CAD", requiredAddon: false, plusTax: true,
       notes: "Per month · unlimited visits, one a day · 1 child + 1 adult · free grip socks at sign-up · 10% off merchandise, food, parties and camp after 30 days · cancel anytime",
     },
@@ -198,9 +198,8 @@ export const pe001AmazingFunPark: VenueRecord = {
   ],
   programs: [],
   amenities: [
-    { ...site, amenity: "wheelchair_access", status: "yes", note: "Designed to be accessible for all" },
-    { ...site, amenity: "stroller_storage", status: "yes", note: "Strollers park outside the play area in designated spots" },
-    { ...site, amenity: "stroller_access", status: "no", note: "Not allowed in the play area" },
+    { ...site, amenity: "wheelchair_access", status: "yes", note: "The venue says the park is accessible for all; accessible washrooms and access to each attraction aren't confirmed yet" },
+    { ...site, amenity: "stroller_storage", status: "yes", note: "Strollers are welcome but stay in the designated area outside the play zone" },
     { ...site, amenity: "food_onsite", status: "yes", note: "Snack bundles and drinks" },
     { ...site, amenity: "outside_food", status: "no", note: "Birthday cake only with a booked party" },
     { ...site, amenity: "grip_socks", status: "yes", note: "Sold for $4.50, or bring your own" },
@@ -218,6 +217,7 @@ export const pe001AmazingFunPark: VenueRecord = {
     { ...site, kind: "hours_note", body: "Closed Monday and Tuesday except holidays, when special hours apply (Thanksgiving Monday was 12–8 pm). Check the venue's site for holiday hours." },
     { ...bookings, kind: "hours_note", body: "Closed Christmas Day." },
     { ...site, kind: "other", body: "Cashless: Visa, Mastercard and debit only." },
+    { ...site, sourceUrl: PE001_TERMS, kind: "other", body: "Individual attractions may sometimes be closed for maintenance, repairs or private events." },
     { ...site, kind: "other", body: "Lightly scented with air fresheners; families with fragrance sensitivities can contact the venue before visiting." },
     { ...site, kind: "other", body: "Schools, clubs, daycares and other large groups can ask about group discounts." },
     { ...site, kind: "other", body: "If your child is unwell, stay home and come back another day." },

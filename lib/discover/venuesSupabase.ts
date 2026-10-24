@@ -121,6 +121,7 @@ export function mapVenueRow(row: Row): VenueRecord {
       costTier: (str(row.cost_tier) ?? "unknown") as VenueRecord["place"]["costTier"],
       typicalVisitMinutes: num(row.typical_visit_minutes),
       typicalVisitNote: str(row.typical_visit_note),
+      compassTake: str(row.compass_take),
       toddlerFriendly: tri(row.toddler_friendly),
       strollerFriendly: tri(row.stroller_friendly),
       hoursKind: (str(row.hours_kind) ?? "unknown") as VenueRecord["place"]["hoursKind"],

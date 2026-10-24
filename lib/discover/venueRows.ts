@@ -69,6 +69,7 @@ export function venueRecordToRows(record: VenueRecord): VenueTableRows {
     cost_tier: p.costTier,
     typical_visit_minutes: n(p.typicalVisitMinutes),
     typical_visit_note: n(p.typicalVisitNote),
+    compass_take: n(p.compassTake),
     toddler_friendly: p.toddlerFriendly,
     stroller_friendly: p.strollerFriendly,
     hours_kind: p.hoursKind,

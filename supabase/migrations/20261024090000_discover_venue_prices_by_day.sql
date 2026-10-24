@@ -1,5 +1,5 @@
--- Prices by day and adults included per ticket, plus a policy kind for
--- birthday-party rules. Follows 20261020090000_discover_venue_detail_followup.sql.
+-- Prices by day and adults included per ticket, a policy kind for
+-- birthday-party rules, and a short Compass verdict per place. Follows 20261020090000_discover_venue_detail_followup.sql.
 -- Idempotent: safe to run more than once.
 
 -- Party rules (what's included, decorations, arrival) are kept apart from
@@ -30,5 +30,11 @@ alter table public.place_prices add constraint place_prices_adults_included_chk 
 );
 comment on column public.place_prices.adults_included is
   'Adults admitted with this ticket at no extra cost, as the venue publishes it. NULL = not stated.';
+
+-- Compass's short verdict for parents, from the venue's published information.
+alter table public.places
+  add column if not exists compass_take text;
+comment on column public.places.compass_take is
+  'Compass''s own short verdict for parents. Shown labelled as based on the venue''s published information until Compass visits.';
 
 commit;

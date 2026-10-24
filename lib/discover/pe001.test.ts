@@ -63,7 +63,7 @@ describe("PE-001 page", () => {
       "Best for ages 4–12",
       "Babies 23 months and under free",
       "2 hours · every attraction and 1 adult included",
-      "Save $5 per child on weekdays",
+      "Ages 4 and up: $34.95 weekdays, $39.95 weekends",
     ]);
   });
 
@@ -88,10 +88,10 @@ describe("PE-001 page", () => {
     assert.ok(v.parties.rules.some((r) => /dedicated party host/.test(r.text)));
   });
 
-  it("flags the membership price the venue's pages disagree on", () => {
+  it("shows the AFP Unlimited price the founder confirmed", () => {
     const unlimited = view().otherPrices.flatMap((s) => s.lines).find((l) => l.id === "pe001-unlimited")!;
     assert.equal(unlimited.amount, "$99.99");
-    assert.match(unlimited.meta.conflict ?? "", /\$99\.95/);
+    assert.equal(unlimited.meta.conflict, null);
   });
 
   it("names everyday details still to check with the venue", () => {
@@ -204,5 +204,54 @@ describe("Cloudflare preview URLs", () => {
     assert.equal(await loadVenueCatalog({ ...base, reviewFlag: "true", hostname: "compassbyvavy-web.compassbyvavy.workers.dev" }), null);
     assert.equal(await loadVenueCatalog({ ...base, reviewFlag: "false", hostname: "x-compassbyvavy-web.compassbyvavy.workers.dev" }), null);
     assert.equal(await loadVenueCatalog({ ...base, reviewFlag: "true" }), null);
+  });
+});
+
+describe("PE-001 review fixes", () => {
+  it("recommends the Family Bundle only when it covers the group for less", () => {
+    const m = view().familyPrice!;
+    const three = familyPrice(m, { ages: [6, 8, 10], adults: 2, day: "weekend_holiday" });
+    assert.equal(three.total, 119.85);
+    assert.deepEqual(three.better, { label: "Family Bundle", amount: "$99.95", total: 99.95, saving: 19.9 });
+    assert.equal(familyPrice(m, { ages: [6, 8], adults: 2, day: "weekend_holiday" }).better, null);
+    assert.equal(familyPrice(m, { ages: [6, 8, 10], adults: 2, day: "weekday" }).better, null);
+  });
+
+  it("adds grip socks for each child with a paid ticket when asked", () => {
+    const r = familyPrice(view().familyPrice!, { ages: [5, 1], adults: 1, day: "weekday", buySocks: true });
+    assert.equal(r.total, 39.45);
+  });
+
+  it("tells parents how each child will find it", () => {
+    const r = familyPrice(view().familyPrice!, { ages: [7, 1], adults: 2, day: "weekday" });
+    assert.deepEqual(r.fit.map((f) => f.fitLabel), ["Good fit", "Some things to do"]);
+  });
+
+  it("shows the check date once and keeps sources for the verification section", () => {
+    const v = view();
+    assert.equal(v.admissionRows![1].weekday?.meta.routine, true);
+    assert.equal(v.verification.conflicts, 0);
+    const page = html();
+    assert.equal((page.match(/Checked Oct 24, 2026/g) ?? []).length, 0);
+    assert.match(page, /Official details checked Oct 24, 2026/);
+  });
+
+  it("drops the unrated adults row, says Closed on closed days and adds the Compass take", () => {
+    const v = view();
+    assert.ok(!v.snapshot.ageBands.some((b) => b.band === "adults"));
+    const page = html();
+    assert.match(page, /<th scope="row">Monday<\/th><td>Closed<\/td>/);
+    assert.match(page, /Compass take/);
+    assert.match(page, /Compass hasn&#x27;t visited yet/);
+    assert.match(page, /Compare all party packages/);
+    assert.doesNotMatch(page, /Available whenever the venue is open|Stroller access/);
+  });
+
+  it("splits the checklist into home and venue", () => {
+    const g = view().beforeYouGoGroups;
+    assert.ok(g.home.some((i) => /waiver/i.test(i)));
+    assert.ok(g.home.some((i) => /Pack grip socks, or buy them there \(\$4\.50 a pair\)/.test(i)));
+    assert.ok(g.atVenue.some((i) => /Cashless/.test(i)));
+    assert.ok(g.atVenue.includes("Strollers are not allowed in the play area. Bring a baby carrier if required."));
   });
 });

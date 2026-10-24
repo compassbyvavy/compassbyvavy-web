@@ -124,7 +124,7 @@ Migration `20261024090000_discover_venue_prices_by_day.sql` adds `place_prices.d
 
 Source: the PE-001 profile reviewed with the founder (revision 3, Oct 23–24, 2026). Every fact cites the venue's own pages (`amazingfunpark.ca`, `/bookings/`, `/parties/`, `/terms-and-conditions/`); booking-page prices were read from screenshots supplied on Oct 24, 2026. Seed: `supabase/seeds/discover/pe-001-amazing-fun-park.sql` (draft) and `.publish.sql` (apply on purpose).
 
-- Conflicts: AFP Unlimited is $99.95 on the chart, $99.99 on the booking button — stored as $99.99 and marked `conflicting`, so the page says sources disagree. The weekday ticket's fine print (Mondays, Thursdays, Fridays) is not used.
+- AFP Unlimited appears as $99 (home page), $99.95 (chart) and $99.99 (booking page); the founder confirmed $99.99. The weekday ticket's fine print (Mondays, Thursdays, Fridays) is not used.
 - Not stored: parking, washrooms, change tables, Adventure Camp, Story Time, winter-break Monday–Tuesday opening. The page names the first three under "Check with the venue".
 
 ## Open items

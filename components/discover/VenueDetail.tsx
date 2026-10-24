@@ -5,6 +5,7 @@ import {
   CostEstimator,
   FamilyPriceTool,
   ShareButton,
+  UsualHoursToday,
   VenueSection,
   VisitChecklist,
 } from "@/components/discover/VenueTools";
@@ -22,6 +23,8 @@ import type {
 
 /** "Checked Oct 10, 2026 · Source", plus the conflict when sources disagree. */
 function Checked({ meta }: { meta: FactMeta }) {
+  // Routine facts share the page's check date, shown once at the top.
+  if (meta.routine) return null;
   return (
     <span className="venue-checked">
       Checked {meta.checked}
@@ -201,6 +204,25 @@ export function VenueDetail({
   const fullName = `${overview.name}${overview.branchName ? ` — ${overview.branchName}` : ""}`;
   const activitiesMeta = sharedMeta(view.activities.map((a) => a.meta));
   const bandsMeta = sharedMeta(snapshot.ageBands.flatMap((b) => (b.meta ? [b.meta] : [])));
+  const noExperience =
+    experience.status === "limited" &&
+    !experience.firstHand.length &&
+    !experience.venuePublished.length &&
+    !experience.liked.length &&
+    !experience.concerns.length &&
+    !experience.otherReported.length &&
+    !reviews.customer.length &&
+    !reviews.editorial.length;
+  const firstParty = view.parties.rows?.[0];
+  const partyTeaser =
+    firstParty && (firstParty.weekday || firstParty.weekend)
+      ? `Packages for ${firstParty.label} from ${[
+          firstParty.weekday ? `${firstParty.weekday.amount} on weekdays` : null,
+          firstParty.weekend ? `${firstParty.weekend.amount} on weekends` : null,
+        ]
+          .filter(Boolean)
+          .join(" and ")}${plusTaxNote(view.parties.lines) ? ", plus HST" : ""}.`
+      : null;
 
   return (
     <article className="venue-page">
@@ -253,10 +275,27 @@ export function VenueDetail({
             </a>
           ) : null}
           <ShareButton title={fullName} />
-          <Checked meta={overview.meta} />
         </div>
+        <p className="venue-header-meta">
+          <UsualHoursToday hours={view.weeklyHours} />
+          <a href="#sources" className="venue-checked">
+            Official details checked {overview.meta.checked}
+          </a>
+        </p>
         <VenueIllustration primaryType={view.primaryType} />
       </header>
+
+      {overview.compassTake ? (
+        <section className="venue-take" aria-labelledby="take-h">
+          <h2 id="take-h">Compass take</h2>
+          <p>{overview.compassTake}</p>
+          <p className="venue-muted">
+            {experience.firstHand.length
+              ? "Our view, from the venue's published information and a visit."
+              : "Our view, from the venue's published information. Compass hasn't visited yet."}
+          </p>
+        </section>
+      ) : null}
 
       <VenueSection id="suit" title="Will it suit my kids?">
         <dl className="venue-facts">
@@ -274,7 +313,11 @@ export function VenueDetail({
               {snapshot.visitLength ? (
                 <>
                   {snapshot.visitLength.text}
-                  <span className="venue-checked"> {snapshot.visitLength.basis}. Checked {snapshot.visitLength.checked}.</span>
+                  <span className="venue-checked">
+                    {" "}
+                    {snapshot.visitLength.basis}.
+                    {snapshot.visitLength.checked !== overview.meta.checked ? ` Checked ${snapshot.visitLength.checked}.` : ""}
+                  </span>
                 </>
               ) : (
                 "Not confirmed"
@@ -423,7 +466,7 @@ export function VenueDetail({
                 {visit.hours.rows.map((r) => (
                   <tr key={r.day}>
                     <th scope="row">{r.day}</th>
-                    <td>{r.ranges.length ? r.ranges.join(", ") : "Closed or not confirmed"}</td>
+                    <td>{r.ranges.length ? r.ranges.join(", ") : "Closed"}</td>
                   </tr>
                 ))}
               </tbody>
@@ -479,7 +522,15 @@ export function VenueDetail({
       </VenueSection>
 
       <VenueSection id="before" title="Before you go">
-        {view.beforeYouGo.length ? <VisitChecklist items={view.beforeYouGo} /> : null}
+        {view.beforeYouGo.length ? (
+          <VisitChecklist
+            storageKey={view.overview.name}
+            groups={[
+              { heading: "Before you leave home", items: view.beforeYouGoGroups.home },
+              { heading: "At the venue", items: view.beforeYouGoGroups.atVenue },
+            ]}
+          />
+        ) : null}
         {view.checkWithVenue.length ? (
           <p className="venue-notice">
             <strong>Check with the venue:</strong> {view.checkWithVenue.join(", ").toLowerCase()} — not confirmed yet.
@@ -519,6 +570,7 @@ export function VenueDetail({
         <Rules heading="Transit" lines={gettingThere.transit} />
 
         <h3>Amenities and access</h3>
+        {confirmedAmenities.length ? <p className="venue-muted">As stated by the venue.</p> : null}
         {confirmedAmenities.length ? (
           <ul className="venue-amenities">
             {confirmedAmenities.map((a) => (
@@ -537,15 +589,17 @@ export function VenueDetail({
 
       {view.parties.lines.length || view.parties.rules.length ? (
         <VenueSection id="parties" title="Birthday parties" openOnDesktop={false}>
+          {partyTeaser ? <p className="venue-lead">{partyTeaser}</p> : null}
           {view.parties.rows ? (
-            <DayPriceTable rows={view.parties.rows} caption="Party prices by day" firstColumn="Party" />
+            <details className="venue-more">
+              <summary>Compare all party packages</summary>
+              <DayPriceTable rows={view.parties.rows} caption="Party prices by day" firstColumn="Party" />
+              <p className="venue-muted">
+                {plusTaxNote(view.parties.lines)} <Checked meta={view.parties.lines[0].meta} />
+              </p>
+            </details>
           ) : view.parties.lines.length ? (
             <PriceList section={{ heading: "Party prices", kind: "party", lines: view.parties.lines }} />
-          ) : null}
-          {view.parties.lines.length ? (
-            <p className="venue-muted">
-              {plusTaxNote(view.parties.lines)} <Checked meta={view.parties.lines[0].meta} />
-            </p>
           ) : null}
           {view.parties.rules.length ? (
             <ul className="venue-list">
@@ -560,7 +614,21 @@ export function VenueDetail({
       ) : null}
 
       <VenueSection id="experience" title="What to expect" openOnDesktop={false}>
-        {experience.status === "limited" ? (
+        {noExperience ? (
+          <>
+            <p>
+              Compass hasn&apos;t visited this venue yet. The details above come from the venue&apos;s
+              official information. Parent-experience notes, such as cleanliness, crowding, seating,
+              noise and washrooms, are still being verified.
+            </p>
+            <p>
+              <a href={`mailto:hello@compassbyvavy.ca?subject=${encodeURIComponent(`Parent tip: ${fullName}`)}`}>
+                Been here? Share a parent tip
+              </a>
+            </p>
+          </>
+        ) : null}
+        {!noExperience && experience.status === "limited" ? (
           <p className="venue-notice">
             Limited information: we don&apos;t yet have enough consistent sources to summarise what
             visits are like here.
@@ -630,11 +698,15 @@ export function VenueDetail({
           </>
         ) : null}
 
-        <h3>Review sources</h3>
-        <p>
-          {reviews.coverage}
-          {reviews.lastChecked ? ` Last checked ${reviews.lastChecked}.` : ""}
-        </p>
+        {noExperience ? null : (
+          <>
+            <h3>Review sources</h3>
+            <p>
+              {reviews.coverage}
+              {reviews.lastChecked ? ` Last checked ${reviews.lastChecked}.` : ""}
+            </p>
+          </>
+        )}
         {reviews.customer.length || reviews.editorial.length ? (
           <ul className="venue-sources">
             {[...reviews.customer, ...reviews.editorial].map((s) => (
@@ -671,14 +743,20 @@ export function VenueDetail({
             ))}
           </ul>
         ) : null}
-        {!reviews.automatedRetrieval ? (
+        {!reviews.automatedRetrieval && !noExperience ? (
           <p className="venue-muted">
             Review sources are checked by hand. Compass does not pull reviews automatically.
           </p>
         ) : null}
       </VenueSection>
 
-      <VenueSection id="sources" title="Sources and freshness" openOnDesktop={false}>
+      <VenueSection id="sources" title="How we verified this page" openOnDesktop={false}>
+        <p className="venue-lead">
+          {view.verification.facts} official details checked · last checked {view.verification.lastChecked}
+          {view.verification.conflicts
+            ? ` · ${view.verification.conflicts} ${view.verification.conflicts === 1 ? "detail needs" : "details need"} reconfirming`
+            : ""}
+        </p>
         {view.conflicts.length ? (
           <div className="venue-notice">
             <p>Sources disagree on:</p>

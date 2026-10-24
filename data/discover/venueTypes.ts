@@ -44,6 +44,11 @@ export type VenuePlace = DiscoverPlace & {
   postalCode?: string | null;
   /** How the typical visit length was judged, as researched. */
   typicalVisitNote?: string | null;
+  /**
+   * Compass's own short verdict for parents, written from the venue's
+   * published information (shown labelled as such until Compass visits).
+   */
+  compassTake?: string | null;
 };
 
 export type VenueHours = PlaceHours & Partial<Pick<Provenance, "sourceUrl" | "sourceCheckedDate">>;

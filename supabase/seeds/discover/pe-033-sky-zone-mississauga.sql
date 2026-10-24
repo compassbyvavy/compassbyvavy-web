@@ -17,11 +17,11 @@ update public.cities set tourism_region = '5'
 where id = 'mississauga' and tourism_region is null;
 
 -- Place (draft; publication is untouched on re-run).
-insert into public.places (id, slug, name, description, category, place_type, city_id, venue_id, address_line, neighbourhood, website_url, age_min, age_max, age_min_inclusive, age_max_inclusive, all_ages, setting, cost_tier, typical_visit_minutes, typical_visit_note, toddler_friendly, stroller_friendly, hours_kind, latitude, longitude, source_url, source_checked_date, publication_state, operating_status, branch_name, aliases, postal_code)
+insert into public.places (id, slug, name, description, category, place_type, city_id, venue_id, address_line, neighbourhood, website_url, age_min, age_max, age_min_inclusive, age_max_inclusive, all_ages, setting, cost_tier, typical_visit_minutes, typical_visit_note, compass_take, toddler_friendly, stroller_friendly, hours_kind, latitude, longitude, source_url, source_checked_date, publication_state, operating_status, branch_name, aliases, postal_code)
 values ('PE-033', 'sky-zone-mississauga', 'Sky Zone', 'A large indoor trampoline and active-play park split into distinct zones rather than one open bounce floor: walled trampoline courts where the walls are jumpable too, a foam landing area, a ninja-style obstacle course and a separate toddler area.', 'play_entertainment'::public.discover_category, 'Trampoline Parks', (select id from public.cities where id = 'mississauga'
    union all
    select id from public.cities where lower(city_town) = lower('Mississauga') and province_state = 'Ontario'
-   limit 1), null, '3636 Hawkestone Rd', null, 'https://www.skyzone.com/ca-mississauga/', 5, 12, null, null, false, 'indoor'::public.place_setting, 'unknown'::public.place_cost_tier, 120, 'Typical visit 1.5–2 hours', 'yes'::public.confirmed_tri_state, 'unknown'::public.confirmed_tri_state, 'unknown'::public.place_hours_kind, null, null, 'https://www.skyzone.com/ca-mississauga/', '2026-09-24', 'draft'::public.publication_state, 'open'::public.place_operating_status, 'Mississauga', '{}'::text[], 'L5C 2V2')
+   limit 1), null, '3636 Hawkestone Rd', null, 'https://www.skyzone.com/ca-mississauga/', 5, 12, null, null, false, 'indoor'::public.place_setting, 'unknown'::public.place_cost_tier, 120, 'Typical visit 1.5–2 hours', null, 'yes'::public.confirmed_tri_state, 'unknown'::public.confirmed_tri_state, 'unknown'::public.place_hours_kind, null, null, 'https://www.skyzone.com/ca-mississauga/', '2026-09-24', 'draft'::public.publication_state, 'open'::public.place_operating_status, 'Mississauga', '{}'::text[], 'L5C 2V2')
 on conflict (id) do update set
   slug = excluded.slug,
   name = excluded.name,
@@ -42,6 +42,7 @@ on conflict (id) do update set
   cost_tier = excluded.cost_tier,
   typical_visit_minutes = excluded.typical_visit_minutes,
   typical_visit_note = excluded.typical_visit_note,
+  compass_take = excluded.compass_take,
   toddler_friendly = excluded.toddler_friendly,
   stroller_friendly = excluded.stroller_friendly,
   hours_kind = excluded.hours_kind,

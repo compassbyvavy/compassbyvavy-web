@@ -94,10 +94,10 @@ describe("published venue page", () => {
 
   it("renders all sections with source links and checked dates", () => {
     const page = html(heartland);
-    for (const heading of ["Will it suit my kids?", "What will it cost?", "When to go", "Before you go", "Amenities and access", "What to expect", "Sources and freshness"]) {
+    for (const heading of ["Will it suit my kids?", "What will it cost?", "When to go", "Before you go", "Amenities and access", "What to expect", "How we verified this page"]) {
       assert.ok(page.includes(`>${heading}<`), heading);
     }
-    assert.match(page, /Checked Oct 10, 2026/);
+    assert.match(page, /Official details checked Oct 10, 2026/);
     assert.match(page, /href="https:\/\/example\.org\/maple-leap\/heartland\/book"/);
     assert.match(page, /<h1>Maple Leap Play Centre<span class="venue-branch"> — Heartland<\/span><\/h1>/);
   });
@@ -278,7 +278,7 @@ describe("parent experience and partial review coverage", () => {
 
   it("labels the summary as limited when evidence is thin or conflicting", () => {
     assert.equal(sparse().experience.status, "limited");
-    assert.match(html(brampton), /Limited information/);
+    assert.match(html(brampton), /Compass hasn&#x27;t visited this venue yet/);
     assert.match(sparse().reviews.coverage, /No permitted review or editorial sources/);
     const mixed = clone(heartland);
     mixed.experienceThemes[3].agreement = "mixed";
