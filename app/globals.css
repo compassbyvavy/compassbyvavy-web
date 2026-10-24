@@ -2470,3 +2470,17 @@ a.category-card {
     font-weight: 600;
   }
 }
+
+.venue-best-lines {
+  display: grid;
+  gap: 2px;
+  margin: 6px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.venue-best-lines li {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}

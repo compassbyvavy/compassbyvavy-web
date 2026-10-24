@@ -356,3 +356,14 @@ describe("PE-001 wording", () => {
     assert.doesNotMatch(html(), /Age, height and weight limits/);
   });
 });
+
+describe("PE-001 result card", () => {
+  it("breaks the best deal into bundle and socks", () => {
+    const r = familyPrice(view().familyPrice!, { ages: [6, 8, 10], adults: 2, day: "weekend_holiday", socks: 2 });
+    assert.equal(r.better?.total, 99.95);
+    assert.equal(r.socksPairs, 2);
+    assert.equal(r.socksSubtotal, 9);
+    assert.equal(r.bestTotal, 108.95);
+    assert.equal(r.bestWithTax, 123.11);
+  });
+});

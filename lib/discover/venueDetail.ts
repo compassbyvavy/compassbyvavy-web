@@ -1302,6 +1302,7 @@ export type FamilyPrice = {
   better: { label: string; amount: string; total: number; saving: number; includes: string | null } | null;
   /** Grip socks bought on site, when chosen. */
   socksSubtotal: number;
+  socksPairs: number;
   /** The cheapest way in (package or tickets) plus socks, before tax. */
   bestTotal: number;
   /** bestTotal with Ontario HST when every price used is plus tax; else null. */
@@ -1429,6 +1430,7 @@ export function familyPrice(model: FamilyPriceModel, input: FamilyPriceInput): F
     better,
     fit,
     socksSubtotal,
+    socksPairs: socksSubtotal > 0 ? pairs : 0,
     bestTotal,
     bestWithTax: allPlusTax && bestTotal > 0 ? roundCents(bestTotal * (1 + ONTARIO_HST_RATE)) : null,
   };

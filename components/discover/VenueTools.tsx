@@ -117,7 +117,10 @@ export function FamilyPriceTool({ model }: { model: FamilyPriceModel }) {
           <button type="button" aria-label="One fewer pair" onClick={() => setSocks((n) => Math.max(0, n - 1))} disabled={socks === 0}>
             −
           </button>
-          <output aria-live="polite">{socks}</output>
+          <output aria-live="polite">
+            {socks}
+            <span className="venue-sr-only"> {socks === 1 ? "pair" : "pairs"} of grip socks</span>
+          </output>
           <button type="button" aria-label="One more pair" onClick={() => setSocks((n) => Math.min(10, n + 1))} disabled={socks >= 10}>
             +
           </button>
@@ -142,10 +145,25 @@ export function FamilyPriceTool({ model }: { model: FamilyPriceModel }) {
               <div className="venue-best">
                 <p className="venue-best-title">Best deal: {result.better.label}</p>
                 {result.better.includes ? <p>{result.better.includes}</p> : null}
+                {result.socksSubtotal ? (
+                  <ul className="venue-best-lines">
+                    <li>
+                      <span>{result.better.label}</span>
+                      <span>${result.better.total.toFixed(2)}</span>
+                    </li>
+                    <li>
+                      <span>
+                        {result.socksPairs} {result.socksPairs === 1 ? "pair" : "pairs"} of grip socks
+                      </span>
+                      <span>${result.socksSubtotal.toFixed(2)}</span>
+                    </li>
+                  </ul>
+                ) : null}
                 <p className="venue-estimate">
-                  ${result.bestTotal.toFixed(2)} <span className="venue-estimate-tax">before tax</span>
+                  {result.socksSubtotal ? "Subtotal: " : ""}${result.bestTotal.toFixed(2)}{" "}
+                  <span className="venue-estimate-tax">before tax</span>
                 </p>
-                <p className="venue-save">You save ${result.better.saving.toFixed(2)} on separate tickets</p>
+                <p className="venue-save">You save ${result.better.saving.toFixed(2)} versus separate tickets</p>
               </div>
             ) : (
               <p className="venue-estimate">
@@ -294,7 +312,7 @@ export function ShareIconButton({ title }: { title: string }) {
     <button
       type="button"
       className="venue-icon-btn"
-      aria-label={copied ? "Link copied" : "Share this page"}
+      aria-label={copied ? "Link copied" : `Share ${title}`}
       title={copied ? "Link copied" : "Share"}
       onClick={async () => {
         const url = window.location.href;
