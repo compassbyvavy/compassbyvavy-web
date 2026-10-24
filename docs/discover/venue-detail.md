@@ -102,6 +102,31 @@ Source: the final PE-033 profile (last researched 2026-09-24); facts cite the of
 
 The estimator uses the 120-minute ticket for children and adults who jump. It leaves out adults who only watch (no price recorded) and SkySocks (required, price not recorded), and says whether tax is included is not stated.
 
+## Page layout (parent questions)
+
+The venue page is organised around what a parent asks, and each section folds away (open on wide screens, closed on phones; a link to `#cost` etc. opens it):
+
+1. **Header:** name, address with directions, intro, a **Good to know** strip derived only from verified facts (best-fit ages, free entry for babies, what the pass includes, weekday savings), the booking button and share. Venue types with an illustration (Indoor Playgrounds today) show an original Compass drawing labelled "Illustration · venue photos coming soon" — never venue photos without permission.
+2. **Will it suit my kids?** Ages, the by-age table, limits and supervision, what's there.
+3. **What will it cost?** Admission as a weekday / weekend table when prices carry `day_type`; the **Price for your family** tool (children's ages + adults + day → matching tickets, adults included per ticket, extra adults, plus-HST estimate at Ontario's 13%; where two tickets fit an age it uses the narrower range). Venues without day-based prices keep the general cost estimator. Passes, memberships and extras fold under "Coming often?".
+4. **When to go:** hours, holiday notes, booking and contact.
+5. **Before you go:** a tick-off checklist from verified rules (booking, waiver, socks, supervision, cashless payment, stroller rule, arrival, food), a **Check with the venue** note for parking, washrooms and baby changing when unconfirmed, the remaining rules, getting there and amenities.
+6. **Birthday parties** (own section, closed by default): party prices by day with day-specific notes, and `party` policy rows.
+7. **What to expect** and **Sources and freshness** (closed by default).
+
+When every item in a list shares one checked date and source, it is shown once under the list instead of on every line.
+
+Migration `20261024090000_discover_venue_prices_by_day.sql` adds `place_prices.day_type` (`weekday` | `weekend_holiday`, NULL = any day), `place_prices.adults_included`, and the `party` policy kind.
+
+**Preview URLs.** On Cloudflare preview URLs (the `COMPASS_DISCOVER_REVIEW_PREVIEW` flag AND a verified preview hostname, the same dual gate as Discover examples), a venue with no published Supabase record shows the development preview — bannered and `noindex`. The production site never takes this path.
+
+## PE-001 Amazing Fun Park
+
+Source: the PE-001 profile reviewed with the founder (revision 3, Oct 23–24, 2026). Every fact cites the venue's own pages (`amazingfunpark.ca`, `/bookings/`, `/parties/`, `/terms-and-conditions/`); booking-page prices were read from screenshots supplied on Oct 24, 2026. Seed: `supabase/seeds/discover/pe-001-amazing-fun-park.sql` (draft) and `.publish.sql` (apply on purpose).
+
+- Conflicts: AFP Unlimited is $99.95 on the chart, $99.99 on the booking button — stored as $99.99 and marked `conflicting`, so the page says sources disagree. The weekday ticket's fine print (Mondays, Thursdays, Fridays) is not used.
+- Not stored: parking, washrooms, change tables, Adventure Camp, Story Time, winter-break Monday–Tuesday opening. The page names the first three under "Check with the venue".
+
 ## Open items
 
 - **Play & Entertainment taxonomy (dependency).** The repo has no taxonomy export: `lib/discover/categories.ts` holds only the top-level browse cards. `place_types.place_type` stays free text and PE-033 uses the labels supplied in its record. When the canonical export is added, validate `place_types` against it instead of creating a second list here.

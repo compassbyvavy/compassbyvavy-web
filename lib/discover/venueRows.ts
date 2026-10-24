@@ -144,6 +144,8 @@ export function venueRecordToRows(record: VenueRecord): VenueTableRows {
       required_addon: pr.requiredAddon,
       charge_basis: pr.chargeBasis ?? "unknown",
       plus_tax: n(pr.plusTax),
+      day_type: n(pr.dayType),
+      adults_included: n(pr.adultsIncluded),
       eligibility: n(pr.eligibility),
       valid_to: n(pr.validTo),
       notes: n(pr.notes),

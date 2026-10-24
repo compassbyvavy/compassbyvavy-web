@@ -4,11 +4,19 @@
  * - Production: published, open venues read from Supabase with the public
  *   anon key (lib/discover/venuesSupabase.ts). No credentials → no venues,
  *   so every venue URL 404s rather than showing anything unverified.
- * - Development: fictional fixtures plus a preview of real records (PE-033)
+ * - Development: fictional fixtures plus a preview of real records (PE-001, PE-033)
  *   exactly as they would publish. Never indexed.
+ * - Cloudflare preview URLs (the same dual gate as Discover examples: the
+ *   COMPASS_DISCOVER_REVIEW_PREVIEW flag AND a verified preview hostname):
+ *   when Supabase has no published record, the development preview is shown,
+ *   bannered and never indexed. The production site never takes this path.
  */
 
 import type { VenueRecord } from "@/data/discover/venueTypes";
+import {
+  DISCOVER_REVIEW_PREVIEW_FLAG,
+  isDiscoverReviewPreviewEnabled,
+} from "@/lib/discover/reviewPreviewGate";
 import {
   fetchPublishedVenue,
   readPublicSupabaseConfig,
@@ -47,21 +55,37 @@ export async function loadVenueCatalog(
     venueSlug: string;
     nodeEnv?: string;
     supabase?: PublicSupabaseConfig | null;
+    /** Incoming Host header only — never X-Forwarded-Host. */
+    hostname?: string | null;
+    reviewFlag?: string | null;
   },
 ): Promise<VenueCatalog | null> {
   const nodeEnv = options.nodeEnv ?? process.env.NODE_ENV;
   if (nodeEnv === "production") {
     const config = options.supabase !== undefined ? options.supabase : readPublicSupabaseConfig();
-    if (!config) return null;
-    const record = await fetchPublishedVenue(config, options.venueSlug);
-    return record ? { records: [record], sourceLabel: "published" } : null;
+    const record = config ? await fetchPublishedVenue(config, options.venueSlug) : null;
+    if (record) return { records: [record], sourceLabel: "published" };
+    const reviewFlag =
+      options.reviewFlag !== undefined ? options.reviewFlag : process.env[DISCOVER_REVIEW_PREVIEW_FLAG];
+    return isDiscoverReviewPreviewEnabled({ reviewFlag, hostname: options.hostname })
+      ? previewCatalog()
+      : null;
   }
-  const [{ venuesDevRecords }, { pe033SkyZoneMississauga }] = await Promise.all([
+  return previewCatalog();
+}
+
+async function previewCatalog(): Promise<VenueCatalog> {
+  const [{ venuesDevRecords }, { pe033SkyZoneMississauga }, { pe001AmazingFunPark }] = await Promise.all([
     import("@/data/discover/venues.dev"),
     import("@/data/discover/venues/pe033SkyZoneMississauga"),
+    import("@/data/discover/venues/pe001AmazingFunPark"),
   ]);
   return {
-    records: [...venuesDevRecords, previewAsPublished(pe033SkyZoneMississauga)],
+    records: [
+      ...venuesDevRecords,
+      previewAsPublished(pe001AmazingFunPark),
+      previewAsPublished(pe033SkyZoneMississauga),
+    ],
     sourceLabel: "dev_preview",
   };
 }
