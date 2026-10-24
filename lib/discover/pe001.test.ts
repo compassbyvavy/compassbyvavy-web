@@ -4,8 +4,8 @@ import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { VenueDetail } from "@/components/discover/VenueDetail";
 import {
-  PE001_BOOKINGS,
   PE001_LAST_RESEARCHED,
+  PE001_TICKETS,
   pe001AmazingFunPark as pe001,
 } from "@/data/discover/venues/pe001AmazingFunPark";
 import { previewAsPublished } from "@/lib/discover/venuesCatalog";
@@ -110,7 +110,7 @@ describe("PE-001 page", () => {
   });
 
   it("links the header button to the booking page and renders without empty labels", () => {
-    assert.equal(view().primaryBooking?.href, PE001_BOOKINGS);
+    assert.equal(view().primaryBooking?.href, PE001_TICKETS);
     const page = html();
     assert.match(page, /Will it suit my kids\?/);
     assert.match(page, /Illustration · venue photos coming soon/);

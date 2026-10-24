@@ -30,7 +30,9 @@ import type { Provenance, VenuePrice, VenueRecord } from "@/data/discover/venueT
 
 export const PE001_OFFICIAL_SITE = "https://amazingfunpark.ca/";
 export const PE001_BOOKINGS = "https://amazingfunpark.ca/bookings/";
-export const PE001_PARTIES = "https://amazingfunpark.ca/parties/";
+/** The venue's online ticket shop (ROLLER), confirmed by the founder on Oct 24, 2026. */
+export const PE001_TICKETS = "https://ecom.roller.app/amazingfunpark/main/en/home";
+export const PE001_PARTIES ="https://amazingfunpark.ca/parties/";
 export const PE001_TERMS = "https://amazingfunpark.ca/terms-and-conditions/";
 export const PE001_LAST_RESEARCHED = "2026-10-24";
 
@@ -235,7 +237,7 @@ export const pe001AmazingFunPark: VenueRecord = {
     { ...site, sourceUrl: PE001_TERMS, kind: "party", body: "Party bookings follow the venue's terms and conditions." },
   ],
   links: [
-    { ...bookings, kind: "tickets", value: PE001_BOOKINGS, label: "Book tickets" },
+    { ...bookings, kind: "tickets", value: PE001_TICKETS, label: "Book tickets" },
     { ...site, kind: "website", value: PE001_OFFICIAL_SITE, label: "Amazing Fun Park website" },
     { ...site, kind: "phone", value: "905-212-7444" },
   ],

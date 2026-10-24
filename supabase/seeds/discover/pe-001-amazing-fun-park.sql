@@ -233,7 +233,7 @@ values (md5('PE-001:policy:party:22')::uuid, 'PE-001', 'https://amazingfunpark.c
 
 -- place_links
 insert into public.place_links (id, place_id, source_url, source_checked_date, verification_status, conflict_note, kind, value, label, sort_order)
-values (md5('PE-001:link:tickets:0')::uuid, 'PE-001', 'https://amazingfunpark.ca/bookings/', '2026-10-24', 'verified', null, 'tickets', 'https://amazingfunpark.ca/bookings/', 'Book tickets', 0);
+values (md5('PE-001:link:tickets:0')::uuid, 'PE-001', 'https://amazingfunpark.ca/bookings/', '2026-10-24', 'verified', null, 'tickets', 'https://ecom.roller.app/amazingfunpark/main/en/home', 'Book tickets', 0);
 insert into public.place_links (id, place_id, source_url, source_checked_date, verification_status, conflict_note, kind, value, label, sort_order)
 values (md5('PE-001:link:website:1')::uuid, 'PE-001', 'https://amazingfunpark.ca/', '2026-10-24', 'verified', null, 'website', 'https://amazingfunpark.ca/', 'Amazing Fun Park website', 1);
 insert into public.place_links (id, place_id, source_url, source_checked_date, verification_status, conflict_note, kind, value, label, sort_order)
