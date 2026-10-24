@@ -58,7 +58,9 @@ export function FamilyPriceTool({ model }: { model: FamilyPriceModel }) {
   const parsed = ages
     .map((a) => (a.trim() === "" ? NaN : Number(a)))
     .filter((n) => Number.isFinite(n) && n >= 0 && n < 18);
-  const result = familyPrice(model, { ages: parsed, adults, day, socks });
+  // Socks are for children; never count more pairs than children entered.
+  const pairs = Math.min(socks, parsed.length);
+  const result = familyPrice(model, { ages: parsed, adults, day, socks: pairs });
 
   return (
     <div className="venue-tool venue-family-price">
@@ -111,24 +113,24 @@ export function FamilyPriceTool({ model }: { model: FamilyPriceModel }) {
       <p className="venue-muted">
         Babies: enter 0 or 1.{model.adultsNote ? ` ${model.adultsNote}` : ""}
       </p>
-      {model.socks ? (
+      {model.socks && parsed.length > 0 ? (
         <div className="venue-stepper" role="group" aria-labelledby={`${id}-socks-label`}>
           <span id={`${id}-socks-label`}>Grip socks to buy there ({model.socks.amount} a pair)</span>
-          <button type="button" aria-label="One fewer pair" onClick={() => setSocks((n) => Math.max(0, n - 1))} disabled={socks === 0}>
+          <button type="button" aria-label="One fewer pair" onClick={() => setSocks((n) => Math.max(0, Math.min(n, parsed.length) - 1))} disabled={pairs === 0}>
             −
           </button>
           <output aria-live="polite">
-            {socks}
-            <span className="venue-sr-only"> {socks === 1 ? "pair" : "pairs"} of grip socks</span>
+            {pairs}
+            <span className="venue-sr-only"> {pairs === 1 ? "pair" : "pairs"} of grip socks</span>
           </output>
-          <button type="button" aria-label="One more pair" onClick={() => setSocks((n) => Math.min(10, n + 1))} disabled={socks >= 10}>
+          <button type="button" aria-label="One more pair" onClick={() => setSocks((n) => Math.min(parsed.length, n + 1))} disabled={socks >= parsed.length}>
             +
           </button>
         </div>
       ) : null}
       <div aria-live="polite">
         {parsed.length === 0 ? (
-          <p className="venue-estimate">Enter your children&apos;s ages.</p>
+          <p className="venue-muted">Add each child&apos;s age above to see your price.</p>
         ) : (
           <>
             {model.bands.length ? (
