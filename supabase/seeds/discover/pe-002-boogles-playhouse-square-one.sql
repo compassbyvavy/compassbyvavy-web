@@ -166,33 +166,37 @@ values (md5('PE-002:policy:food_rule:6')::uuid, 'PE-002', 'https://www.boogles.c
 insert into public.place_policies (id, place_id, source_url, source_checked_date, verification_status, conflict_note, kind, body, sort_order)
 values (md5('PE-002:policy:arrival:7')::uuid, 'PE-002', 'https://www.boogles.ca/faqs/', '2026-10-24', 'verified', null, 'arrival', 'Only adults listed in your family profile can pick up from drop-off, and they need valid ID.', 7);
 insert into public.place_policies (id, place_id, source_url, source_checked_date, verification_status, conflict_note, kind, body, sort_order)
-values (md5('PE-002:policy:cancellation:8')::uuid, 'PE-002', 'https://www.boogles.ca/faqs/', '2026-10-24', 'verified', null, 'cancellation', 'Drop-off: cancel up to 2 hours before at no charge; after that there''s a $10 fee.', 8);
+values (md5('PE-002:policy:arrival:8')::uuid, 'PE-002', 'https://www.boogles.ca/faqs/', '2026-10-24', 'verified', null, 'arrival', 'First drop-off and your child is nervous? You''re welcome to stay a few minutes while they settle in.', 8);
 insert into public.place_policies (id, place_id, source_url, source_checked_date, verification_status, conflict_note, kind, body, sort_order)
-values (md5('PE-002:policy:cancellation:9')::uuid, 'PE-002', 'https://www.boogles.ca/memberships/', '2026-10-24', 'verified', null, 'cancellation', 'Memberships renew monthly unless cancelled in advance. Payments aren''t refunded once a month starts, and unused hours, visits and class credits don''t carry over.', 9);
+values (md5('PE-002:policy:cancellation:9')::uuid, 'PE-002', 'https://www.boogles.ca/faqs/', '2026-10-24', 'verified', null, 'cancellation', 'Drop-off: cancel up to 2 hours before at no charge; after that there''s a $10 fee.', 9);
 insert into public.place_policies (id, place_id, source_url, source_checked_date, verification_status, conflict_note, kind, body, sort_order)
-values (md5('PE-002:policy:hours_note:10')::uuid, 'PE-002', 'https://www.boogles.app/schedule', '2026-10-24', 'verified', null, 'hours_note', 'Everything is a booked session, and times change from day to day. Check the live schedule before you go.', 10);
+values (md5('PE-002:policy:cancellation:10')::uuid, 'PE-002', 'https://www.boogles.ca/memberships/', '2026-10-24', 'verified', null, 'cancellation', 'Memberships renew monthly unless cancelled in advance. Payments aren''t refunded once a month starts, and unused hours, visits and class credits don''t carry over.', 10);
 insert into public.place_policies (id, place_id, source_url, source_checked_date, verification_status, conflict_note, kind, body, sort_order)
-values (md5('PE-002:policy:hours_note:11')::uuid, 'PE-002', 'https://www.boogles.app/schedule', '2026-10-24', 'verified', null, 'hours_note', 'In the week we checked (Oct 24–31, 2026), sessions ran every day, between 10 am and 8 pm.', 11);
+values (md5('PE-002:policy:hours_note:11')::uuid, 'PE-002', 'https://www.boogles.app/schedule', '2026-10-24', 'verified', null, 'hours_note', 'Everything is a booked session, and times change from day to day. Check the live schedule before you go.', 11);
 insert into public.place_policies (id, place_id, source_url, source_checked_date, verification_status, conflict_note, kind, body, sort_order)
-values (md5('PE-002:policy:location_note:12')::uuid, 'PE-002', 'https://www.boogles.ca/location/square-one-shopping-centre/', '2026-10-24', 'verified', null, 'location_note', 'Lower level, next to the Food District and near Indigo.', 12);
+values (md5('PE-002:policy:hours_note:12')::uuid, 'PE-002', 'https://www.boogles.app/schedule', '2026-10-24', 'verified', null, 'hours_note', 'In the week we checked (Oct 24–31, 2026), sessions ran every day, between 10 am and 8 pm.', 12);
 insert into public.place_policies (id, place_id, source_url, source_checked_date, verification_status, conflict_note, kind, body, sort_order)
-values (md5('PE-002:policy:location_note:13')::uuid, 'PE-002', 'https://www.boogles.ca/locations/', '2026-10-24', 'verified', null, 'location_note', 'Boogles also has playhouses at Upper Canada Mall (Newmarket) and Hillcrest Mall (Richmond Hill).', 13);
+values (md5('PE-002:policy:location_note:13')::uuid, 'PE-002', 'https://www.boogles.ca/location/square-one-shopping-centre/', '2026-10-24', 'verified', null, 'location_note', 'Lower level, next to the Food District and near Indigo.', 13);
 insert into public.place_policies (id, place_id, source_url, source_checked_date, verification_status, conflict_note, kind, body, sort_order)
-values (md5('PE-002:policy:other:14')::uuid, 'PE-002', 'https://www.boogles.ca/faqs/', '2026-10-24', 'verified', null, 'other', 'Late pickup from drop-off costs $5 for every 10 minutes.', 14);
+values (md5('PE-002:policy:location_note:14')::uuid, 'PE-002', 'https://www.boogles.ca/locations/', '2026-10-24', 'verified', null, 'location_note', 'Boogles also has playhouses at Upper Canada Mall (Newmarket) and Hillcrest Mall (Richmond Hill).', 14);
 insert into public.place_policies (id, place_id, source_url, source_checked_date, verification_status, conflict_note, kind, body, sort_order)
-values (md5('PE-002:policy:other:15')::uuid, 'PE-002', 'https://www.boogles.ca/about/', '2026-10-24', 'verified', null, 'other', 'Play Partners are registered early childhood educators and assistants; the venue says they hold clear police vulnerable sector checks and current first aid and CPR.', 15);
+values (md5('PE-002:policy:other:15')::uuid, 'PE-002', 'https://www.boogles.ca/faqs/', '2026-10-24', 'verified', null, 'other', 'Late pickup from drop-off costs $5 for every 10 minutes.', 15);
 insert into public.place_policies (id, place_id, source_url, source_checked_date, verification_status, conflict_note, kind, body, sort_order)
-values (md5('PE-002:policy:other:16')::uuid, 'PE-002', 'https://www.boogles.ca/about/', '2026-10-24', 'verified', null, 'other', 'Founded by a mom of two with a Montessori background.', 16);
+values (md5('PE-002:policy:other:16')::uuid, 'PE-002', 'https://www.boogles.ca/faqs/', '2026-10-24', 'verified', null, 'other', 'For staff-to-child ratios at drop-off, the venue says it follows Canada''s licensed daycare guidelines; it doesn''t publish a number.', 16);
 insert into public.place_policies (id, place_id, source_url, source_checked_date, verification_status, conflict_note, kind, body, sort_order)
-values (md5('PE-002:policy:other:17')::uuid, 'PE-002', 'https://www.boogles.ca/gift-cards/', '2026-10-24', 'verified', null, 'other', 'Gift cards come in any amount, never expire and arrive by email; use them for drop-off, Stay + Play, classes, camps or the store.', 17);
+values (md5('PE-002:policy:other:17')::uuid, 'PE-002', 'https://www.boogles.ca/about/', '2026-10-24', 'verified', null, 'other', 'Play Partners are registered early childhood educators and assistants; the venue says they hold clear police vulnerable sector checks and current first aid and CPR.', 17);
 insert into public.place_policies (id, place_id, source_url, source_checked_date, verification_status, conflict_note, kind, body, sort_order)
-values (md5('PE-002:policy:party:18')::uuid, 'PE-002', 'https://www.boogles.ca/service/birthdays-occasions/', '2026-10-24', 'verified', null, 'party', 'The team helps plan activities and décor, and arranges catering from restaurants in the mall.', 18);
+values (md5('PE-002:policy:other:18')::uuid, 'PE-002', 'https://www.boogles.ca/about/', '2026-10-24', 'verified', null, 'other', 'Founded by a mom of two with a Montessori background.', 18);
 insert into public.place_policies (id, place_id, source_url, source_checked_date, verification_status, conflict_note, kind, body, sort_order)
-values (md5('PE-002:policy:party:19')::uuid, 'PE-002', 'https://www.boogles.ca/faqs/', '2026-10-24', 'verified', null, 'party', 'You can bring outside food, or order catering through Square One''s partners.', 19);
+values (md5('PE-002:policy:other:19')::uuid, 'PE-002', 'https://www.boogles.ca/gift-cards/', '2026-10-24', 'verified', null, 'other', 'Gift cards come in any amount, never expire and arrive by email; use them for drop-off, Stay + Play, classes, camps or the store.', 19);
 insert into public.place_policies (id, place_id, source_url, source_checked_date, verification_status, conflict_note, kind, body, sort_order)
-values (md5('PE-002:policy:party:20')::uuid, 'PE-002', 'https://www.boogles.ca/faqs/', '2026-10-24', 'verified', null, 'party', 'Party cancellations within 7 days aren''t refunded.', 20);
+values (md5('PE-002:policy:party:20')::uuid, 'PE-002', 'https://www.boogles.ca/service/birthdays-occasions/', '2026-10-24', 'verified', null, 'party', 'The team helps plan activities and décor, and arranges catering from restaurants in the mall.', 20);
 insert into public.place_policies (id, place_id, source_url, source_checked_date, verification_status, conflict_note, kind, body, sort_order)
-values (md5('PE-002:policy:party:21')::uuid, 'PE-002', 'https://www.boogles.ca/boogles-social/', '2026-10-24', 'verified', null, 'party', 'Boogles Social brings play stations and Play Partners to weddings, showers and other events across the GTA.', 21);
+values (md5('PE-002:policy:party:21')::uuid, 'PE-002', 'https://www.boogles.ca/faqs/', '2026-10-24', 'verified', null, 'party', 'You can bring outside food, or order catering through Square One''s partners.', 21);
+insert into public.place_policies (id, place_id, source_url, source_checked_date, verification_status, conflict_note, kind, body, sort_order)
+values (md5('PE-002:policy:party:22')::uuid, 'PE-002', 'https://www.boogles.ca/faqs/', '2026-10-24', 'verified', null, 'party', 'Party cancellations within 7 days aren''t refunded.', 22);
+insert into public.place_policies (id, place_id, source_url, source_checked_date, verification_status, conflict_note, kind, body, sort_order)
+values (md5('PE-002:policy:party:23')::uuid, 'PE-002', 'https://www.boogles.ca/boogles-social/', '2026-10-24', 'verified', null, 'party', 'Boogles Social brings play stations and Play Partners to weddings, showers and other events across the GTA.', 23);
 
 -- place_links
 insert into public.place_links (id, place_id, source_url, source_checked_date, verification_status, conflict_note, kind, value, label, sort_order)
