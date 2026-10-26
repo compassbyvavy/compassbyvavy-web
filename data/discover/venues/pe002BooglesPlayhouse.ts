@@ -25,8 +25,8 @@
  *
  * Left out (unclear or not stated): the pricing page's "every hour after that
  * is additional $20 for siblings" for drop-off; whether a sibling's Stay + Play
- * ticket covers a second adult; whether prices include HST; the
- * Little Boogles price; the camp day rate; washrooms and change tables; the
+ * ticket covers a second adult; whether prices include HST; the camp day
+ * rate; washrooms and change tables; the
  * Instagram class prices ($30 drop-in, $99 for 4), which date from April 2026.
  * Session dates and times are not stored: the schedule changes weekly.
  */
@@ -225,10 +225,11 @@ export const pe002BooglesPlayhouse: VenueRecord = {
       id: "pe002-little-boogles",
       name: "Little Boogles: Bubbles, Music & Sensory Play",
       attendance: "with_parent",
-      description: "Bubbles, music and sensory play for babies and toddlers, listed under Stay + Play on the schedule.",
+      description:
+        "A Stay + Play session made for babies and toddlers: sensory play, instruments, scarves, music, movement and bubbles at their own pace, with short Play Partner-led moments of music and bubble play. Relaxed rather than a formal class.",
       cadence: "ongoing",
       scheduleNote: "Two sessions in the week we checked (Monday and Friday)",
-      priceNote: "Price not listed separately",
+      priceNote: "Included with regular Stay + Play admission · siblings under 1 free with a paying sibling",
       registrationUrl: PE002_SCHEDULE,
     },
     {
