@@ -151,15 +151,27 @@ export type VenuePrice = Provenance & {
   /** Adults admitted with this ticket at no extra cost, as published. */
   adultsIncluded?: number | null;
   eligibility?: string | null;
+  /**
+   * The bookable session this price is for (e.g. "Stay + Play"), matching a
+   * program's name, for venues that sell sessions rather than one ticket.
+   */
+  sessionName?: string | null;
+  /** A price only for an additional child from the same family (a sibling rate). */
+  siblingOnly?: boolean;
   /** ISO date; required for promotions. */
   validTo?: string | null;
   notes?: string | null;
 };
 
+/** Whether a parent stays with the child for a session, or drops the child off. */
+export type ProgramAttendance = "with_parent" | "drop_off";
+
 export type VenueProgram = Provenance & {
   id: string;
   name: string;
   description?: string | null;
+  /** As the venue states it; null when not stated. */
+  attendance?: ProgramAttendance | null;
   cadence: "ongoing" | "seasonal" | "dated";
   scheduleNote?: string | null;
   startsOn?: string | null;
