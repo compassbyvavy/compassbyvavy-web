@@ -60,8 +60,11 @@ describe("PE-002 Boogles Playhouse record", () => {
     const taxed = (p: (typeof pe002.prices)[number]) => (p.sessionName === DROP_OFF || p.sessionName === STAY_PLAY) && !p.isFree;
     assert.ok(pe002.prices.filter(taxed).every((p) => p.plusTax === true));
     assert.ok(pe002.prices.filter((p) => !taxed(p)).every((p) => p.plusTax == null));
-    // The unpublished drop-off sibling rate is not guessed.
-    assert.ok(!pe002.prices.some((p) => p.sessionName === DROP_OFF && p.siblingOnly));
+    // Drop-off sibling rates come from the booking screen, one per length.
+    assert.deepEqual(
+      pe002.prices.filter((p) => p.sessionName === DROP_OFF && p.siblingOnly).map((p) => [p.durationMinutes, p.amount]),
+      [[60, 20], [120, 35], [180, 60]],
+    );
   });
 
   it("flags the three places the venue's pages disagree", () => {
@@ -94,11 +97,13 @@ describe("PE-002 session prices", () => {
     assert.ok(r.notes.some((n) => /sibling's ticket covers another adult/.test(n)));
   });
 
-  it("prices drop-off by the hour, each child in full", () => {
+  it("prices drop-off by the hour, with the booking page's sibling rates", () => {
     assert.equal(price(DROP_OFF, [5], 1, 60).total, 25);
-    assert.equal(price(DROP_OFF, [5, 3], 1, 120).total, 90);
+    assert.equal(price(DROP_OFF, [5, 3], 1, 60).total, 45);
+    assert.equal(price(DROP_OFF, [5, 3], 1, 120).total, 80);
+    assert.equal(price(DROP_OFF, [5, 3], 1, 180).total, 120);
     assert.equal(price(DROP_OFF, [5], 1, 180).total, 60);
-    assert.ok(price(DROP_OFF, [5, 3], 1, 120).notes.some((n) => /sibling rate for drop-off/.test(n)));
+    assert.ok(!price(DROP_OFF, [5, 3], 1, 120).notes.some((n) => /sibling rate for drop-off/.test(n)));
     // Drop-off and Stay + Play are plus tax; Guided Connection doesn't say.
     assert.equal(price(DROP_OFF, [5], 1, 60).withTax, 28.25);
     assert.equal(price(STAY_PLAY, [5, 3]).withTax, 40.68);

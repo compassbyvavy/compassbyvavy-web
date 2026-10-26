@@ -23,8 +23,11 @@
  * - Birthdays: "packages start at $800" on the services page; the pricing page and FAQ
  *   lists $700 for up to 15 children and $800 for 16 or more. Both shown, flagged.
  *
- * Left out (unclear or not stated): the pricing page's "every hour after that
- * is additional $20 for siblings" for drop-off; whether a sibling's Stay + Play
+ * Drop-off sibling rates are not published (the pricing page only says "every
+ * hour after that is additional $20 for siblings"); they come from the booking
+ * screen: $20 for 1 hour, $35 for 2, and full price ($60) for 3.
+ *
+ * Left out (not stated): whether a sibling's Stay + Play
  * ticket covers a second adult; whether prices include HST; the camp day
  * rate; washrooms and change tables; the
  * Instagram class prices ($30 drop-in, $99 for 4), which date from April 2026.
@@ -84,6 +87,18 @@ function dropOff(hours: 1 | 2 | 3, amount: number): VenuePrice {
     plusTax: true,
     eligibility: "From 18 months, walking on their own",
     sessionName: DROP_OFF,
+  };
+}
+
+function dropOffSibling(hours: 1 | 2 | 3, amount: number): VenuePrice {
+  return {
+    ...dropOff(hours, amount),
+    ...schedule,
+    id: `pe002-dropoff-${hours}h-sibling`,
+    label: `${DROP_OFF}, ${hours} ${hours === 1 ? "hour" : "hours"}, each sibling`,
+    siblingOnly: true,
+    eligibility: null,
+    notes: "From the booking page",
   };
 }
 
@@ -168,6 +183,11 @@ export const pe002BooglesPlayhouse: VenueRecord = {
     dropOff(1, 25),
     dropOff(2, 45),
     dropOff(3, 60),
+    // Sibling rates read from the booking screen (Square One, Oct 26, 2026): two
+    // children came to $45 for 1 hour, $80 for 2 and $120 for 3.
+    dropOffSibling(1, 20),
+    dropOffSibling(2, 35),
+    dropOffSibling(3, 60),
     { ...schedule, id: "pe002-guided", kind: "admission", label: GUIDED, audience: "child", ageMax: 5, durationMinutes: 90, amount: 30, isFree: false, currency: "CAD", requiredAddon: false, plusTax: null, eligibility: "From 18 months, with a caregiver", sessionName: GUIDED, notes: "Per child, per class" },
     { ...schedule, id: "pe002-guided-sibling", kind: "admission", label: `${GUIDED}, each sibling`, audience: "child", ageMax: 5, durationMinutes: 90, amount: 24, isFree: false, currency: "CAD", requiredAddon: false, plusTax: null, sessionName: GUIDED, siblingOnly: true, notes: "20% sibling discount" },
     { ...services, id: "pe002-class", kind: "admission", label: "Classes", audience: "child", amount: 25, isFree: false, currency: "CAD", requiredAddon: false, plusTax: null, sessionName: "Classes", notes: "Per class, or 1 bundle hour" },
@@ -217,7 +237,7 @@ export const pe002BooglesPlayhouse: VenueRecord = {
       scheduleNote: "Book 1, 2 or 3 hours (up to 3 a day). Every day in the week we checked, with booking windows as long as 10 am–8 pm",
       ageMin: null,
       ageMax: 8,
-      priceNote: "$25 for 1 hour · $45 for 2 · $60 for 3",
+      priceNote: "$25 for 1 hour · $45 for 2 · $60 for 3 · a sibling $20, $35 or $60",
       registrationUrl: PE002_SCHEDULE,
       verificationStatus: "conflicting",
       conflictNote: "The schedule, services and location pages say 18 months to 8 years; the FAQ says 18 months to 6 years.",
@@ -318,7 +338,6 @@ export const pe002BooglesPlayhouse: VenueRecord = {
     { ...at(PE002_LOCATIONS), kind: "location_note", body: "Boogles also has playhouses at Upper Canada Mall (Newmarket) and Hillcrest Mall (Richmond Hill)." },
     { ...faqs, kind: "other", body: "Late pickup from drop-off costs $5 for every 10 minutes." },
     { ...at(PE002_DROP_OFF), kind: "booking_rule", body: "Using bundle or membership hours? Buy them before you book the session." },
-    { ...schedule, kind: "other", body: "Siblings pay less at drop-off: booking two children for 2 hours came to $80 plus tax, not $90. The venue doesn't publish the sibling rate." },
     { ...faqs, kind: "other", body: "For staff-to-child ratios at drop-off, the venue says it follows Canada's licensed daycare guidelines; it doesn't publish a number." },
     { ...at(PE002_ABOUT), kind: "other", body: "Play Partners are registered early childhood educators and assistants; the venue says they hold clear police vulnerable sector checks and current first aid and CPR." },
     { ...at(PE002_ABOUT), kind: "other", body: "Founded by a mom of two with a Montessori background." },

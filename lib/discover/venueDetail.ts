@@ -1481,8 +1481,8 @@ export type SessionOption = {
   attendance: ProgramAttendance;
   /** Price per child, one line per bookable length, shortest first. */
   base: PriceLine[];
-  /** Rate for each additional child from the same family. */
-  sibling: PriceLine | null;
+  /** Rate for each additional child from the same family, per length when it varies. */
+  siblings: PriceLine[];
   /** Free (or reduced) rate for a baby sibling, with its age limit. */
   babySibling: PriceLine | null;
   extraAdult: PriceLine | null;
@@ -1535,7 +1535,7 @@ export function sessionPriceModel(
       name,
       attendance: program.attendance,
       base,
-      sibling: lines.find((l) => l.audience === "child" && l.siblingOnly && !l.isFree) ?? null,
+      siblings: lines.filter((l) => l.audience === "child" && l.siblingOnly && !l.isFree),
       babySibling: lines.find((l) => l.audience === "infant" && l.siblingOnly) ?? null,
       extraAdult: lines.find((l) => l.audience === "adult") ?? null,
       minMonths: minMonthsOf(base[0]),
@@ -1595,6 +1595,15 @@ export type SessionPrice = {
   children: number;
 };
 
+/** The sibling rate for the length booked, or a sibling rate that applies to any length. */
+function siblingFor(s: SessionOption, base: PriceLine): PriceLine | null {
+  return (
+    s.siblings.find((l) => l.durationMinutes !== null && l.durationMinutes === base.durationMinutes) ??
+    s.siblings.find((l) => l.durationMinutes === null) ??
+    null
+  );
+}
+
 export function sessionPrice(model: SessionPriceModel, input: SessionPriceInput): SessionPrice {
   const s = model.sessions.find((x) => x.name === input.session) ?? model.sessions[0];
   const base = s.base.find((b) => b.durationMinutes === input.minutes) ?? s.base[0];
@@ -1629,7 +1638,7 @@ export function sessionPrice(model: SessionPriceModel, input: SessionPriceInput)
   eligible.forEach((age, i) => {
     if (i === 0) add(base);
     else if (s.babySibling && age <= (s.babySibling.ageMax ?? -1)) add(s.babySibling);
-    else add(s.sibling ?? base);
+    else add(siblingFor(s, base) ?? base);
   });
   const lines: SessionPrice["lines"] = [...counts.values()].map(({ line, qty }) => ({
     label: line.label,
@@ -1661,7 +1670,7 @@ export function sessionPrice(model: SessionPriceModel, input: SessionPriceInput)
       }
     }
   }
-  if (s.attendance === "drop_off" && eligible.length > 1 && !s.sibling) {
+  if (s.attendance === "drop_off" && eligible.length > 1 && !siblingFor(s, base)) {
     notes.push("The venue doesn't publish a sibling rate for drop-off, so each child is priced in full; your total may be lower.");
   }
   if (!s.plusTax) notes.push("The venue doesn't say whether HST is added.");
