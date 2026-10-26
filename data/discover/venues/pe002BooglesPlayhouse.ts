@@ -319,7 +319,7 @@ export const pe002BooglesPlayhouse: VenueRecord = {
     { ...faqs, kind: "party", body: "Bring decorations such as banners and balloons; tell the team ahead, and they'll help you set up in the 30 minutes before the party." },
     { ...faqs, kind: "party", body: "Book by emailing hello@boogles.ca. A 50% deposit holds your date, and cancellations within 7 days aren't refunded." },
     { ...faqs, kind: "party", body: "You can ask for an in-person or virtual tour before booking." },
-    { ...at(PE002_SOCIAL), kind: "party", body: "Boogles Social brings play stations and Play Partners to weddings, showers and other events across the GTA." },
+    { ...at(PE002_SOCIAL), kind: "party", body: "Boogles Social brings play stations and Play Partners to weddings, showers and other events across the GTA: $395 for up to 2 hours with one Play Partner, or $695 with two (extra time $125 or $200 an hour)." },
   ],
   links: [
     { ...schedule, kind: "booking", value: PE002_SCHEDULE, label: "See sessions and book" },

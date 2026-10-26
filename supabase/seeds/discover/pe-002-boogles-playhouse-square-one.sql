@@ -210,7 +210,7 @@ values (md5('PE-002:policy:party:28')::uuid, 'PE-002', 'https://www.boogles.ca/f
 insert into public.place_policies (id, place_id, source_url, source_checked_date, verification_status, conflict_note, kind, body, sort_order)
 values (md5('PE-002:policy:party:29')::uuid, 'PE-002', 'https://www.boogles.ca/faqs/', '2026-10-24', 'verified', null, 'party', 'You can ask for an in-person or virtual tour before booking.', 29);
 insert into public.place_policies (id, place_id, source_url, source_checked_date, verification_status, conflict_note, kind, body, sort_order)
-values (md5('PE-002:policy:party:30')::uuid, 'PE-002', 'https://www.boogles.ca/boogles-social/', '2026-10-24', 'verified', null, 'party', 'Boogles Social brings play stations and Play Partners to weddings, showers and other events across the GTA.', 30);
+values (md5('PE-002:policy:party:30')::uuid, 'PE-002', 'https://www.boogles.ca/boogles-social/', '2026-10-24', 'verified', null, 'party', 'Boogles Social brings play stations and Play Partners to weddings, showers and other events across the GTA: $395 for up to 2 hours with one Play Partner, or $695 with two (extra time $125 or $200 an hour).', 30);
 
 -- place_links
 insert into public.place_links (id, place_id, source_url, source_checked_date, verification_status, conflict_note, kind, value, label, sort_order)
