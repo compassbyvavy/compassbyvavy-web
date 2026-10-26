@@ -20,7 +20,7 @@
  *   pages; 18 months–6 years in the FAQ. Shown as 18 months–8, flagged.
  * - Stay + Play ages: "all ages welcome" on the services page; the schedule tags
  *   regular sessions 0–6. Shown as 0–6, flagged.
- * - Birthdays: "packages start at $800" on the services page; the pricing page
+ * - Birthdays: "packages start at $800" on the services page; the pricing page and FAQ
  *   lists $700 for up to 15 children and $800 for 16 or more. Both shown, flagged.
  *
  * Left out (unclear or not stated): the pricing page's "every hour after that
@@ -124,7 +124,7 @@ export const pe002BooglesPlayhouse: VenueRecord = {
     setting: "indoor",
     costTier: "moderate",
     typicalVisitMinutes: null,
-    typicalVisitNote: "Drop-off is booked for 1, 2 or 3 hours; Stay + Play session lengths vary",
+    typicalVisitNote: "Drop-off is booked for 1, 2 or 3 hours; Stay + Play in 2-hour blocks",
     // One "Label: text" statement per line; the page shows them as a short list.
     compassTake: [
       "Best for: Babies to 6-year-olds, in a calm, Montessori-inspired playroom with crafts, sensory play and pretend play.",
@@ -159,7 +159,7 @@ export const pe002BooglesPlayhouse: VenueRecord = {
   hours: [],
   activities: [],
   prices: [
-    { ...services, id: "pe002-stayplay", kind: "admission", label: STAY_PLAY, audience: "child", amount: 20, isFree: false, currency: "CAD", requiredAddon: false, plusTax: null, adultsIncluded: 1, sessionName: STAY_PLAY, notes: "Per child, per session" },
+    { ...services, id: "pe002-stayplay", kind: "admission", label: STAY_PLAY, audience: "child", durationMinutes: 120, amount: 20, isFree: false, currency: "CAD", requiredAddon: false, plusTax: null, adultsIncluded: 1, sessionName: STAY_PLAY, notes: "Per child; same price if you leave early" },
     { ...services, id: "pe002-stayplay-sibling", kind: "admission", label: `${STAY_PLAY}, each sibling`, audience: "child", amount: 16, isFree: false, currency: "CAD", requiredAddon: false, plusTax: null, sessionName: STAY_PLAY, siblingOnly: true, notes: "20% sibling discount" },
     { ...services, id: "pe002-stayplay-baby", kind: "admission", label: `${STAY_PLAY}, siblings under 1`, audience: "infant", ageMin: 0, ageMax: 0, amount: null, isFree: true, currency: "CAD", requiredAddon: false, plusTax: null, sessionName: STAY_PLAY, siblingOnly: true, notes: "Free with a paying sibling" },
     { ...services, id: "pe002-stayplay-adult", kind: "admission", label: `${STAY_PLAY}, extra adult`, audience: "adult", amount: 10, isFree: false, currency: "CAD", requiredAddon: false, plusTax: null, sessionName: STAY_PLAY },
@@ -177,12 +177,12 @@ export const pe002BooglesPlayhouse: VenueRecord = {
     membership("pe002-circle", "Playhouse Circle", 149, "unlimited Stay + Play for 1 child and 1 adult", "Per month · siblings $16 a visit, extra adults $10 · 5% off the store and birthdays · priority booking"),
     membership("pe002-club", "Playhouse Club", 199, "12 drop-off hours, 1 class and 2 Stay + Play sessions a month", "Per month · extra drop-off hours $16 · 10% off the store, birthdays and extra classes · priority booking"),
     {
-      ...pricing, id: "pe002-party-15", kind: "party", label: "Birthday, up to 15 children", audience: "group", amount: 700, isFree: false, currency: "CAD", requiredAddon: false, plusTax: null,
+      ...pricing, id: "pe002-party-15", kind: "party", label: "Birthday, up to 15 children", audience: "group", durationMinutes: 120, amount: 700, isFree: false, currency: "CAD", requiredAddon: false, plusTax: null,
       notes: "Extra hour $250 · outside regular hours $150 · 20% off Monday–Friday",
       verificationStatus: "conflicting",
-      conflictNote: "The services page says birthday packages start at $800; the pricing page lists $700 for up to 15 children.",
+      conflictNote: "The services page says birthday packages start at $800; the pricing page and FAQ say they start at $700.",
     },
-    { ...pricing, id: "pe002-party-16", kind: "party", label: "Birthday, 16 or more children", audience: "group", amount: 800, isFree: false, currency: "CAD", requiredAddon: false, plusTax: null, notes: "Extra hour $250 · outside regular hours $150 · 20% off Monday–Friday" },
+    { ...pricing, id: "pe002-party-16", kind: "party", label: "Birthday, 16 or more children", audience: "group", durationMinutes: 120, amount: 800, isFree: false, currency: "CAD", requiredAddon: false, plusTax: null, notes: "Extra hour $250 · outside regular hours $150 · 20% off Monday–Friday" },
   ],
   programs: [
     {
@@ -192,13 +192,13 @@ export const pe002BooglesPlayhouse: VenueRecord = {
       attendance: "with_parent",
       description: "Play alongside your child in the playroom: a relaxed space to explore, build confidence and meet other families.",
       cadence: "ongoing",
-      scheduleNote: "In the week we checked (Oct 24–31, 2026), weekday sessions ran 2 to 4½ hours; weekends had only a Halloween special",
+      scheduleNote: "Booked in 2-hour blocks; leave early if you like. In the week we checked (Oct 24–31, 2026), sessions ran on weekdays; weekends had only a Halloween special",
       ageMin: 0,
       ageMax: 6,
       priceNote: "$20 per child with one adult · extra adult $10 · siblings 20% off · siblings under 1 free",
       registrationUrl: PE002_SCHEDULE,
       verificationStatus: "conflicting",
-      conflictNote: "The services page says all ages are welcome; the schedule lists regular sessions for ages 0–6.",
+      conflictNote: "The services page and FAQ say all ages are welcome; the schedule lists regular sessions for ages 0–6.",
     },
     {
       ...services,
@@ -255,11 +255,14 @@ export const pe002BooglesPlayhouse: VenueRecord = {
       registrationUrl: PE002_SCHEDULE,
     },
     {
-      ...services,
+      ...faqs,
       id: "pe002-classes",
       name: "Classes",
-      description: "Educator-led classes in movement, creativity and early learning; programs change by season. Bring a diaper bag; class materials are provided.",
-      cadence: "seasonal",
+      description:
+        "A rotating schedule of classes for ages 0–6, such as music, yoga, art, sensory play and infant massage. Some you join with your child; others are drop-off. Bring a diaper bag; class materials are provided, and babies can feed or be changed whenever they need to.",
+      ageMin: 0,
+      ageMax: 6,
+      cadence: "ongoing",
       priceNote: "$25 per class, or 1 bundle hour",
       registrationUrl: PE002_SCHEDULE,
     },
@@ -290,7 +293,10 @@ export const pe002BooglesPlayhouse: VenueRecord = {
     { ...schedule, kind: "supervision", body: "Stay + Play: a parent or caregiver stays inside the playhouse the whole time." },
     { ...services, kind: "supervision", body: "Drop-off: you can leave the playhouse, but you must stay inside Square One." },
     { ...faqs, kind: "booking_rule", body: "Create a Boogles account and family profile, then book your session online." },
-    { ...faqs, kind: "other", body: "Some walk-in spots are kept each day; book ahead to be sure of a place." },
+    { ...faqs, kind: "other", body: "Booking ahead is recommended. Some walk-in spots are kept each day; if a session is full online, watch for cancellations or call." },
+    { ...faqs, kind: "other", body: "Need longer at drop-off? Add time while your child is there by calling or booking online." },
+    { ...faqs, kind: "other", body: "Pay online or in person." },
+    { ...faqs, kind: "other", body: "Anyone listed on your family profile can bring your child to a session in your place." },
     { ...faqs, kind: "dress_socks", body: "Children don't need to be toilet trained: pack diapers and a change of clothes (or just a change of clothes if they're potty trained)." },
     { ...faqs, kind: "food_rule", body: "Drop-off snacks are allergen-friendly (such as fruit, yogurt and organic chips) and cost $3; approve them when you register, or staff will ask you first." },
     { ...faqs, kind: "arrival", body: "Only adults listed in your family profile can pick up from drop-off, and they need valid ID." },
@@ -306,9 +312,13 @@ export const pe002BooglesPlayhouse: VenueRecord = {
     { ...at(PE002_ABOUT), kind: "other", body: "Play Partners are registered early childhood educators and assistants; the venue says they hold clear police vulnerable sector checks and current first aid and CPR." },
     { ...at(PE002_ABOUT), kind: "other", body: "Founded by a mom of two with a Montessori background." },
     { ...at(PE002_GIFT_CARDS), kind: "other", body: "Gift cards come in any amount, never expire and arrive by email; use them for drop-off, Stay + Play, classes, camps or the store." },
-    { ...at(PE002_BIRTHDAYS), kind: "party", body: "The team helps plan activities and décor, and arranges catering from restaurants in the mall." },
-    { ...faqs, kind: "party", body: "You can bring outside food, or order catering through Square One's partners." },
-    { ...faqs, kind: "party", body: "Party cancellations within 7 days aren't refunded." },
+    { ...faqs, kind: "party", body: "Every birthday gets the playhouse to yourselves for 2 hours, with dedicated Play Partners; setup and cleanup are included." },
+    { ...faqs, kind: "party", body: "Up to 50 guests for a private event." },
+    { ...faqs, kind: "party", body: "Pick a theme (art, music and movement, sensory play, slime-making or storytime) or ask for your own." },
+    { ...faqs, kind: "party", body: "Bring your own food, or the team can arrange catering through Square One's partners." },
+    { ...faqs, kind: "party", body: "Bring decorations such as banners and balloons; tell the team ahead, and they'll help you set up in the 30 minutes before the party." },
+    { ...faqs, kind: "party", body: "Book by emailing hello@boogles.ca. A 50% deposit holds your date, and cancellations within 7 days aren't refunded." },
+    { ...faqs, kind: "party", body: "You can ask for an in-person or virtual tour before booking." },
     { ...at(PE002_SOCIAL), kind: "party", body: "Boogles Social brings play stations and Play Partners to weddings, showers and other events across the GTA." },
   ],
   links: [
