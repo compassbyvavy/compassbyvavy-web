@@ -173,6 +173,10 @@ export const pe002BooglesPlayhouse: VenueRecord = {
       ...at(PE002_BUNDLES), id: "pe002-bundle", kind: "package", label: "10-Hour Play Bundle", audience: "family", includesNote: "10 hours of drop-off, Stay + Play or classes", amount: 175, isFree: false, currency: "CAD", requiredAddon: false, plusTax: null,
       notes: "Shareable across your family · valid 1 year · use hours in 1-, 2- or 3-hour blocks",
     },
+    {
+      ...at(PE002_BUNDLES), id: "pe002-class-bundle", kind: "package", label: "6-Class Bundle", audience: "family", includesNote: "6 class credits, for any class on the schedule", amount: 135, isFree: false, currency: "CAD", requiredAddon: false, plusTax: null,
+      notes: "10% off drop-in class prices · shareable across your family · valid 1 year",
+    },
     membership("pe002-pass", "Playhouse Pass", 99, "6 drop-off hours, 1 class and 1 Stay + Play session a month", "Per month · 5% off the store and birthdays · priority booking"),
     membership("pe002-circle", "Playhouse Circle", 149, "unlimited Stay + Play for 1 child and 1 adult", "Per month · siblings $16 a visit, extra adults $10 · 5% off the store and birthdays · priority booking"),
     membership("pe002-club", "Playhouse Club", 199, "12 drop-off hours, 1 class and 2 Stay + Play sessions a month", "Per month · extra drop-off hours $16 · 10% off the store, birthdays and extra classes · priority booking"),
@@ -263,7 +267,7 @@ export const pe002BooglesPlayhouse: VenueRecord = {
       ageMin: 0,
       ageMax: 6,
       cadence: "ongoing",
-      priceNote: "$25 per class, or 1 bundle hour",
+      priceNote: "$25 per class, or 1 bundle hour · 6-class bundle $135",
       registrationUrl: PE002_SCHEDULE,
     },
     {
