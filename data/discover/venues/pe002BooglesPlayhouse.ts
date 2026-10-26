@@ -25,8 +25,8 @@
  *
  * Left out (unclear or not stated): the pricing page's "every hour after that
  * is additional $20 for siblings" for drop-off; whether a sibling's Stay + Play
- * ticket covers a second adult; whether prices include HST; Wonder Club and
- * Little Boogles prices; the camp day rate; washrooms and change tables; the
+ * ticket covers a second adult; whether prices include HST; the
+ * Little Boogles price; the camp day rate; washrooms and change tables; the
  * Instagram class prices ($30 drop-in, $99 for 4), which date from April 2026.
  * Session dates and times are not stored: the schedule changes weekly.
  */
@@ -236,12 +236,13 @@ export const pe002BooglesPlayhouse: VenueRecord = {
       id: "pe002-wonder-club",
       name: "Wonder Club",
       attendance: "drop_off",
-      description: null,
+      description:
+        "A playful drop-off session with a hands-on creative activity, imaginative games, movement and time to explore with friends. You stay in Square One.",
       cadence: "ongoing",
       scheduleNote: "Tuesdays in the week we checked",
       ageMin: 2,
       ageMax: 6,
-      priceNote: "Price not listed",
+      priceNote: "Regular drop-off prices: $25 for 1 hour · $45 for 2 · $60 for 3",
       registrationUrl: PE002_SCHEDULE,
     },
     {

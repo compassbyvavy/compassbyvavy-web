@@ -136,7 +136,7 @@ Source: the PE-001 profile reviewed with the founder (revision 3, Oct 23–24, 2
 Source: the founder's own review on Oct 24, 2026 (screenshots of the schedule, session details, services, bundles, memberships, gift cards, locations and team pages), plus the venue's FAQ, pricing and Square One location pages read the same day. Seed: `supabase/seeds/discover/pe-002-boogles-playhouse-square-one.sql` (draft) and `.publish.sql`.
 
 - Flagged conflicts: drop-off ages (18 months–8 vs FAQ 18 months–6), Stay + Play ages ("all ages" vs schedule 0–6), birthday price ($800 vs $700 for up to 15).
-- Not stored: session dates (the schedule changes weekly), HST, Wonder Club and Little Boogles prices, camp day rate, the unclear drop-off sibling rate, washrooms and change tables.
+- Not stored: session dates (the schedule changes weekly), HST, the Little Boogles price, camp day rate, the unclear drop-off sibling rate, washrooms and change tables.
 - The PE-002 ID is provisional; rename it before publishing if the master list numbers Boogles differently.
 
 ## Open items
