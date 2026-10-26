@@ -36,6 +36,7 @@ import type { Provenance, VenuePrice, VenueRecord } from "@/data/discover/venueT
 export const PE002_OFFICIAL_SITE = "https://www.boogles.ca/";
 export const PE002_SCHEDULE = "https://www.boogles.app/schedule";
 export const PE002_SERVICES = "https://www.boogles.ca/services/";
+export const PE002_DROP_OFF = "https://www.boogles.ca/service/drop-off-play/";
 export const PE002_PRICING = "https://www.boogles.ca/pricing/";
 export const PE002_FAQS = "https://www.boogles.ca/faqs/";
 export const PE002_LOCATION = "https://www.boogles.ca/location/square-one-shopping-centre/";
@@ -79,7 +80,8 @@ function dropOff(hours: 1 | 2 | 3, amount: number): VenuePrice {
     isFree: false,
     currency: "CAD",
     requiredAddon: false,
-    plusTax: null,
+    // The booking screens show drop-off and Stay + Play prices as "+tax" (founder's screenshots, Oct 26, 2026).
+    plusTax: true,
     eligibility: "From 18 months, walking on their own",
     sessionName: DROP_OFF,
   };
@@ -159,10 +161,10 @@ export const pe002BooglesPlayhouse: VenueRecord = {
   hours: [],
   activities: [],
   prices: [
-    { ...services, id: "pe002-stayplay", kind: "admission", label: STAY_PLAY, audience: "child", durationMinutes: 120, amount: 20, isFree: false, currency: "CAD", requiredAddon: false, plusTax: null, adultsIncluded: 1, sessionName: STAY_PLAY, notes: "Per child; same price if you leave early" },
-    { ...services, id: "pe002-stayplay-sibling", kind: "admission", label: `${STAY_PLAY}, each sibling`, audience: "child", amount: 16, isFree: false, currency: "CAD", requiredAddon: false, plusTax: null, sessionName: STAY_PLAY, siblingOnly: true, notes: "20% sibling discount" },
+    { ...services, id: "pe002-stayplay", kind: "admission", label: STAY_PLAY, audience: "child", durationMinutes: 120, amount: 20, isFree: false, currency: "CAD", requiredAddon: false, plusTax: true, adultsIncluded: 1, sessionName: STAY_PLAY, notes: "Per child; same price if you leave early" },
+    { ...services, id: "pe002-stayplay-sibling", kind: "admission", label: `${STAY_PLAY}, each sibling`, audience: "child", amount: 16, isFree: false, currency: "CAD", requiredAddon: false, plusTax: true, sessionName: STAY_PLAY, siblingOnly: true, notes: "20% sibling discount" },
     { ...services, id: "pe002-stayplay-baby", kind: "admission", label: `${STAY_PLAY}, siblings under 1`, audience: "infant", ageMin: 0, ageMax: 0, amount: null, isFree: true, currency: "CAD", requiredAddon: false, plusTax: null, sessionName: STAY_PLAY, siblingOnly: true, notes: "Free with a paying sibling" },
-    { ...services, id: "pe002-stayplay-adult", kind: "admission", label: `${STAY_PLAY}, extra adult`, audience: "adult", amount: 10, isFree: false, currency: "CAD", requiredAddon: false, plusTax: null, sessionName: STAY_PLAY },
+    { ...services, id: "pe002-stayplay-adult", kind: "admission", label: `${STAY_PLAY}, extra adult`, audience: "adult", amount: 10, isFree: false, currency: "CAD", requiredAddon: false, plusTax: true, sessionName: STAY_PLAY },
     dropOff(1, 25),
     dropOff(2, 45),
     dropOff(3, 60),
@@ -210,9 +212,9 @@ export const pe002BooglesPlayhouse: VenueRecord = {
       name: DROP_OFF,
       attendance: "drop_off",
       description:
-        "For children from 18 months who walk on their own. Play Partners lead arts and crafts, sensory play, pretend play and movement while you stay in Square One.",
+        "For children from 18 months who walk on their own. Play Partners lead arts and crafts, sensory play, pretend play and movement, adapted for two age groups (18 months–4 and 4–8), while you stay in Square One.",
       cadence: "ongoing",
-      scheduleNote: "Every day in the week we checked, with booking windows as long as 10 am–8 pm; you book 1, 2 or 3 hours",
+      scheduleNote: "Book 1, 2 or 3 hours (up to 3 a day). Every day in the week we checked, with booking windows as long as 10 am–8 pm",
       ageMin: null,
       ageMax: 8,
       priceNote: "$25 for 1 hour · $45 for 2 · $60 for 3",
@@ -301,10 +303,11 @@ export const pe002BooglesPlayhouse: VenueRecord = {
     { ...faqs, kind: "booking_rule", body: "Create a Boogles account and family profile, then book your session online." },
     { ...faqs, kind: "other", body: "Booking ahead is recommended. Some walk-in spots are kept each day; if a session is full online, watch for cancellations or call." },
     { ...faqs, kind: "other", body: "Need longer at drop-off? Add time while your child is there by calling or booking online." },
-    { ...faqs, kind: "other", body: "Pay online or in person." },
+    { ...faqs, kind: "other", body: "Pay online or in person. Booking drop-off online needs no card; you pay at check-in." },
     { ...faqs, kind: "other", body: "Anyone listed on your family profile can bring your child to a session in your place." },
     { ...faqs, kind: "dress_socks", body: "Children don't need to be toilet trained: pack diapers and a change of clothes (or just a change of clothes if they're potty trained)." },
     { ...faqs, kind: "food_rule", body: "Drop-off snacks are allergen-friendly (such as fruit, yogurt and organic chips) and cost $3; approve them when you register, or staff will ask you first." },
+    { ...schedule, kind: "arrival", body: "A Stay + Play session's 2 hours start when you check in." },
     { ...faqs, kind: "arrival", body: "Only adults listed in your family profile can pick up from drop-off, and they need valid ID." },
     { ...faqs, kind: "arrival", body: "First drop-off and your child is nervous? You're welcome to stay a few minutes while they settle in." },
     { ...faqs, kind: "cancellation", body: "Drop-off: cancel up to 2 hours before at no charge; after that there's a $10 fee." },
@@ -314,6 +317,8 @@ export const pe002BooglesPlayhouse: VenueRecord = {
     { ...location, kind: "location_note", body: "Lower level, next to the Food District and near Indigo." },
     { ...at(PE002_LOCATIONS), kind: "location_note", body: "Boogles also has playhouses at Upper Canada Mall (Newmarket) and Hillcrest Mall (Richmond Hill)." },
     { ...faqs, kind: "other", body: "Late pickup from drop-off costs $5 for every 10 minutes." },
+    { ...at(PE002_DROP_OFF), kind: "booking_rule", body: "Using bundle or membership hours? Buy them before you book the session." },
+    { ...schedule, kind: "other", body: "Siblings pay less at drop-off: booking two children for 2 hours came to $80 plus tax, not $90. The venue doesn't publish the sibling rate." },
     { ...faqs, kind: "other", body: "For staff-to-child ratios at drop-off, the venue says it follows Canada's licensed daycare guidelines; it doesn't publish a number." },
     { ...at(PE002_ABOUT), kind: "other", body: "Play Partners are registered early childhood educators and assistants; the venue says they hold clear police vulnerable sector checks and current first aid and CPR." },
     { ...at(PE002_ABOUT), kind: "other", body: "Founded by a mom of two with a Montessori background." },

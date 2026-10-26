@@ -56,8 +56,11 @@ describe("PE-002 Boogles Playhouse record", () => {
     assert.ok(pe002.programs.every((p) => !p.startsOn && !p.endsOn));
     const kinds = pe002.amenities.map((a) => a.amenity);
     for (const missing of ["washrooms", "change_table"] as const) assert.ok(!kinds.includes(missing), missing);
-    // No HST claim either way, and the unclear drop-off sibling rate is left out.
-    assert.ok(pe002.prices.every((p) => p.plusTax == null));
+    // Drop-off and Stay + Play are "+tax" on the booking screens; nothing else states tax either way.
+    const taxed = (p: (typeof pe002.prices)[number]) => (p.sessionName === DROP_OFF || p.sessionName === STAY_PLAY) && !p.isFree;
+    assert.ok(pe002.prices.filter(taxed).every((p) => p.plusTax === true));
+    assert.ok(pe002.prices.filter((p) => !taxed(p)).every((p) => p.plusTax == null));
+    // The unpublished drop-off sibling rate is not guessed.
     assert.ok(!pe002.prices.some((p) => p.sessionName === DROP_OFF && p.siblingOnly));
   });
 
@@ -75,9 +78,9 @@ describe("PE-002 session prices", () => {
   it("charges $20 for the first child and $16 for each sibling at Stay + Play", () => {
     const r = price(STAY_PLAY, [5, 3]);
     assert.equal(r.total, 36);
-    assert.equal(r.withTax, null);
+    assert.equal(r.withTax, 40.68);
     assert.ok(r.notes.includes("Your adult is included."));
-    assert.ok(r.notes.some((n) => /doesn't say whether HST/.test(n)));
+    assert.ok(!r.notes.some((n) => /doesn't say whether HST/.test(n)));
   });
 
   it("lets a baby sibling in free, but a baby on their own pays", () => {
@@ -95,7 +98,11 @@ describe("PE-002 session prices", () => {
     assert.equal(price(DROP_OFF, [5], 1, 60).total, 25);
     assert.equal(price(DROP_OFF, [5, 3], 1, 120).total, 90);
     assert.equal(price(DROP_OFF, [5], 1, 180).total, 60);
-    assert.ok(price(DROP_OFF, [5, 3], 1, 120).notes.some((n) => /sibling discount for drop-off/.test(n)));
+    assert.ok(price(DROP_OFF, [5, 3], 1, 120).notes.some((n) => /sibling rate for drop-off/.test(n)));
+    // Drop-off and Stay + Play are plus tax; Guided Connection doesn't say.
+    assert.equal(price(DROP_OFF, [5], 1, 60).withTax, 28.25);
+    assert.equal(price(STAY_PLAY, [5, 3]).withTax, 40.68);
+    assert.equal(price(GUIDED, [3]).withTax, null);
   });
 
   it("leaves out children too young or too old for drop-off, and flags an 18-month check", () => {

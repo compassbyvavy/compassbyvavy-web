@@ -1491,6 +1491,8 @@ export type SessionOption = {
   ageMax: number | null;
   /** The venue's own pages disagree on ages (shown beside the tool). */
   ageConflict: string | null;
+  /** True when this session's prices are stated as plus tax. */
+  plusTax: boolean;
 };
 
 export type SessionPriceModel = {
@@ -1539,6 +1541,7 @@ export function sessionPriceModel(
       minMonths: minMonthsOf(base[0]),
       ageMax: base[0].ageMax ?? program.ageMax ?? null,
       ageConflict: program.verificationStatus === "conflicting" ? program.conflictNote?.trim() || null : null,
+      plusTax: base.every((l) => l.plusTax === true),
     });
   }
   if (!sessions.length) return null;
@@ -1659,14 +1662,14 @@ export function sessionPrice(model: SessionPriceModel, input: SessionPriceInput)
     }
   }
   if (s.attendance === "drop_off" && eligible.length > 1 && !s.sibling) {
-    notes.push("The venue doesn't list a sibling discount for drop-off, so each child is priced in full.");
+    notes.push("The venue doesn't publish a sibling rate for drop-off, so each child is priced in full; your total may be lower.");
   }
-  if (!model.plusTax) notes.push("The venue doesn't say whether HST is added.");
+  if (!s.plusTax) notes.push("The venue doesn't say whether HST is added.");
   const total = roundCents(lines.reduce((sum, l) => sum + l.subtotal, 0));
   return {
     lines,
     total,
-    withTax: model.plusTax && total > 0 ? roundCents(total * (1 + ONTARIO_HST_RATE)) : null,
+    withTax: s.plusTax && total > 0 ? roundCents(total * (1 + ONTARIO_HST_RATE)) : null,
     notEligible,
     cautions,
     notes,
