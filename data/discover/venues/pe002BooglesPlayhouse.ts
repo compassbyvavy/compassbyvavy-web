@@ -286,7 +286,7 @@ export const pe002BooglesPlayhouse: VenueRecord = {
       id: "pe002-specials",
       name: "Themed specials",
       description:
-        "Holiday sessions appear on the schedule. For Halloween 2026: Monster Palooza (Stay + Play for all ages, included with Stay + Play admission, booking required), Friendly Monster Adventure (ages 2–6, stay or drop off) and evening drop-off dance parties for 18 months to 8.",
+        "Holiday sessions appear on the schedule. For Halloween 2026: Monster Palooza (Stay + Play for all ages, included with Stay + Play admission, booking required), Friendly Monster Adventure (ages 2–6, stay or drop off) and evening drop-off dance parties for 18 months to 8 (regular drop-off prices).",
       cadence: "seasonal",
       registrationUrl: PE002_SCHEDULE,
     },
