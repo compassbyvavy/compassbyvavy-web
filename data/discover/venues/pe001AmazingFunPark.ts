@@ -106,7 +106,7 @@ export const pe001AmazingFunPark: VenueRecord = {
     branchName: null,
     aliases: [],
     description:
-      "A jungle-themed indoor amusement park with soft play, glowing games, VR rides, ride-on cars and an arcade, all included in one 2-hour ticket.",
+      "A jungle-themed indoor amusement park with soft play, a giant ball pit, glowing games, VR rides, ride-on cars and an arcade, all included in one 2-hour ticket.",
     category: "play_entertainment",
     placeType: "Indoor Playgrounds",
     cityId: "mississauga",
@@ -161,8 +161,9 @@ export const pe001AmazingFunPark: VenueRecord = {
     { weekday: 7, opensAt: "10:00", closesAt: "20:00", sourceUrl: PE001_OFFICIAL_SITE, sourceCheckedDate: PE001_LAST_RESEARCHED },
   ],
   activities: [
-    { ...site, id: "pe001-soft-play", name: "Soft play and ball pit", description: "A soft play zone and ball pit, with space for little ones.", availability: "available", includedInAdmission: "yes", schedule: "unknown" },
-    { ...site, id: "pe001-floor", name: "Interactive glowing floor", description: "Light-up tile games: stomp through each level and race to win.", availability: "available", includedInAdmission: "yes", schedule: "unknown" },
+    { ...site, id: "pe001-soft-play", name: "Soft Play Adventure", description: "Climb, crawl, slide and explore a colourful soft-play world made for little adventurers.", availability: "available", includedInAdmission: "yes", schedule: "unknown" },
+    { ...site, id: "pe001-ball-pit", name: "Giant Ball Pit", description: "A big ball pit with obstacles and games to play.", availability: "available", includedInAdmission: "yes", schedule: "unknown" },
+    { ...site, id: "pe001-floor", name: "Floor Tile Grid Game", description: "Glowing floor tiles: stomp through each level and race to win.", availability: "available", includedInAdmission: "yes", schedule: "unknown" },
     { ...site, id: "pe001-wall", name: "Educational wall games", description: "Interactive wall games for learning through play.", availability: "available", includedInAdmission: "yes", schedule: "unknown" },
     { ...site, id: "pe001-table", name: "Touch-screen table games", availability: "available", includedInAdmission: "yes", schedule: "unknown" },
     { ...site, id: "pe001-vr", name: "VR rides", description: "Virtual reality rides, including a VR roller coaster.", availability: "available", includedInAdmission: "yes", schedule: "unknown" },
