@@ -424,3 +424,12 @@ describe("PE-001 booking card follows the price tool", () => {
     assert.ok(!out.includes("is-family"));
   });
 });
+
+describe("PE-001 directions", () => {
+  it("opens turn-by-turn directions from the parent's own location", () => {
+    const url = view().gettingThere.directionsUrl!;
+    assert.ok(url.startsWith("https://www.google.com/maps/dir/?api=1&destination="));
+    assert.ok(decodeURIComponent(url).includes("Amazing Fun Park, 1325 Eglinton Ave E, Unit 1, Mississauga, ON, L4W 4L9"));
+    assert.ok(!/origin=/.test(url));
+  });
+});

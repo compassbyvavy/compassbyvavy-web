@@ -639,10 +639,11 @@ export function directionsUrl(record: VenueRecord): string | null {
     const q = [p.name, p.addressLine.trim(), record.cityName.trim(), "ON", p.postalCode?.trim()]
       .filter(Boolean)
       .join(", ");
-    return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(q)}`;
+    // Opens turn-by-turn directions from wherever the parent is.
+    return `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(q)}`;
   }
   if (typeof p.latitude === "number" && typeof p.longitude === "number") {
-    return `https://www.google.com/maps/search/?api=1&query=${p.latitude},${p.longitude}`;
+    return `https://www.google.com/maps/dir/?api=1&destination=${p.latitude},${p.longitude}`;
   }
   return null;
 }
