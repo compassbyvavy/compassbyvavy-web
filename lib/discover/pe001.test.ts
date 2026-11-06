@@ -5,6 +5,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { VenueDetail } from "@/components/discover/VenueDetail";
 import {
   PE001_LAST_RESEARCHED,
+  PE001_PHONE_CONFIRMED,
   PE001_TICKETS,
   pe001AmazingFunPark as pe001,
 } from "@/data/discover/venues/pe001AmazingFunPark";
@@ -43,13 +44,20 @@ describe("PE-001 Amazing Fun Park record", () => {
       ...pe001.amenities, ...pe001.policies, ...pe001.links,
     ];
     assert.ok(facts.every((f) => f.sourceUrl.startsWith("https://amazingfunpark.ca/")));
-    assert.ok(facts.every((f) => f.sourceCheckedDate === PE001_LAST_RESEARCHED));
+    assert.ok(facts.every((f) => [PE001_LAST_RESEARCHED,
+  PE001_PHONE_CONFIRMED, PE001_PHONE_CONFIRMED].includes(f.sourceCheckedDate)));
     assert.ok(pe001.hours.every((h) => h.sourceUrl?.startsWith("https://amazingfunpark.ca/")));
+  });
+
+  it("records the change table the venue confirmed by phone on Nov 6", () => {
+    const table = pe001.amenities.find((a) => a.amenity === "change_table");
+    assert.equal(table?.status, "yes");
+    assert.equal(table?.sourceCheckedDate, PE001_PHONE_CONFIRMED);
   });
 
   it("records nothing the venue doesn't publish", () => {
     const kinds = pe001.amenities.map((a) => a.amenity);
-    for (const missing of ["parking", "washrooms", "change_table"] as const) {
+    for (const missing of ["parking", "washrooms"] as const) {
       assert.ok(!kinds.includes(missing), missing);
     }
     assert.deepEqual(pe001.reviewSources, []);
@@ -98,7 +106,7 @@ describe("PE-001 page", () => {
   });
 
   it("names everyday details still to check with the venue", () => {
-    assert.deepEqual(view().checkWithVenue, ["Parking", "Washrooms", "Baby changing"]);
+    assert.deepEqual(view().checkWithVenue, ["Parking", "Washrooms"]);
   });
 
   it("builds a tick-off list from verified rules, including cashless payment and a baby carrier", () => {
@@ -351,9 +359,9 @@ describe("PE-001 price tool: the reviewer's test families", () => {
 });
 
 describe("PE-001 wording", () => {
-  it("says Age guidance when no height or weight limits are published", () => {
-    assert.equal(view().snapshot.restrictionsHeading, "Age guidance");
-    assert.doesNotMatch(html(), /Age, height and weight limits/);
+  it("shows the VR weight limit the venue confirmed by phone", () => {
+    assert.equal(view().snapshot.restrictionsHeading, "Age, height and weight limits");
+    assert.match(html(), /Virtual Reality Rides: riders must weigh 250 lb or less\./);
   });
 });
 

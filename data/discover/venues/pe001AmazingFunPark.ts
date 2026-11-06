@@ -16,13 +16,18 @@
  * - AFP Unlimited: $99 on the home page, $99.95 on the chart and description,
  *   $99.99 on the booking page. The founder confirmed $99.99 (Oct 24, 2026).
  * - AFP Unlimited session: "All Day Play" vs "2-hour visits, one per day".
- *   The record says "one visit a day" and leaves the length out.
+ *   The venue confirmed all-day play by phone (Nov 6, 2026).
  * - The weekday ticket's fine print names Mondays (closed) and leaves out
  *   Wednesdays; not used.
  * - The 30-child party is on the parties page but not on the booking list;
  *   it is listed as "contact the venue".
  *
- * Not confirmed, so stored as no rows: parking, washrooms, change tables,
+ * Confirmed by phone with the venue on Nov 6, 2026 (founder's call): change
+ * table available; VR rides weight limit 250 lb; AFP Unlimited is all-day play
+ * at $99.99; grip socks can be brought from home; Amazing 5 $129 and
+ * Amazing 8 $199 unchanged. These rows use PE001_PHONE_CONFIRMED.
+ *
+ * Not confirmed, so stored as no rows: parking, washrooms,
  * Adventure Camp details, Story Time, winter-break Monday–Tuesday opening.
  */
 
@@ -42,6 +47,9 @@ const site: Provenance = {
   verificationStatus: "verified",
 };
 const bookings: Provenance = { ...site, sourceUrl: PE001_BOOKINGS };
+/** Facts the venue confirmed by phone; the link points to the venue's own site. */
+export const PE001_PHONE_CONFIRMED = "2026-11-06";
+const phone: Provenance = { ...site, sourceCheckedDate: PE001_PHONE_CONFIRMED };
 const parties: Provenance = { ...site, sourceUrl: PE001_PARTIES };
 
 /** A 2-hour play pass: every attraction, one adult included, plus HST. */
@@ -188,9 +196,9 @@ export const pe001AmazingFunPark: VenueRecord = {
     { ...bookings, id: "pe001-amazing-8", kind: "package", label: "Amazing 8 multi-pass", audience: "other", includesNote: "eight 2-hour admissions, each for 1 child + 1 adult, and a pair of grip socks", amount: 199, isFree: false, currency: "CAD", requiredAddon: false, plusTax: true, notes: "Shareable with family and friends · valid 12 months" },
     { ...bookings, id: "pe001-amazing", kind: "membership", label: "AFP Amazing", audience: "child", amount: 49.99, isFree: false, currency: "CAD", requiredAddon: false, plusTax: true, notes: "Per month · unlimited weekdays + 1 weekend visit a week (up to 4 a month) · 2 hours per visit · 1 child + 1 adult · 3-month minimum" },
     {
-      ...bookings,
+      ...phone,
       id: "pe001-unlimited", kind: "membership", label: "AFP Unlimited", audience: "child", amount: 99.99, isFree: false, currency: "CAD", requiredAddon: false, plusTax: true,
-      notes: "Per month · unlimited visits, one a day · 1 child + 1 adult · free grip socks at sign-up · 10% off merchandise, food, parties and camp after 30 days · cancel anytime",
+      notes: "Per month · all-day play, every day · 1 child + 1 adult · free grip socks at sign-up · 10% off merchandise, food, parties and camp after 30 days · cancel anytime",
     },
     { ...bookings, id: "pe001-unlimited-2", kind: "membership", label: "AFP Unlimited, 2 siblings", audience: "family", amount: 169.99, isFree: false, currency: "CAD", requiredAddon: false, plusTax: true, notes: "Per month" },
     { ...bookings, id: "pe001-unlimited-3", kind: "membership", label: "AFP Unlimited, 3 siblings", audience: "family", amount: 229.99, isFree: false, currency: "CAD", requiredAddon: false, plusTax: true, notes: "Per month" },
@@ -210,6 +218,7 @@ export const pe001AmazingFunPark: VenueRecord = {
     { ...site, amenity: "food_onsite", status: "yes", note: "Snack bundles and drinks" },
     { ...site, amenity: "outside_food", status: "no", note: "Birthday cake only with a booked party" },
     { ...site, amenity: "grip_socks", status: "yes", note: "Sold for $4.50, or bring your own" },
+    { ...phone, amenity: "change_table", status: "yes", note: "Confirmed with the venue by phone" },
   ],
   policies: [
     { ...site, kind: "age_guidance", body: "Everyone is welcome; the venue says it's best suited for ages 4–12." },
@@ -235,6 +244,7 @@ export const pe001AmazingFunPark: VenueRecord = {
     { ...parties, kind: "party", body: "Arrive no more than 15 minutes early; late arrivals don't extend the party. Every guest signs a waiver." },
     { ...parties, kind: "party", body: "Deposits are non-refundable." },
     { ...site, sourceUrl: PE001_TERMS, kind: "party", body: "Party bookings follow the venue's terms and conditions." },
+    { ...phone, kind: "weight_limit", body: "Virtual Reality Rides: riders must weigh 250 lb or less." },
   ],
   links: [
     { ...bookings, kind: "tickets", value: PE001_TICKETS, label: "Book tickets" },
