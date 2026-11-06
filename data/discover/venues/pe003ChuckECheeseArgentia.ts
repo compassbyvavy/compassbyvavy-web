@@ -12,6 +12,10 @@
  * - The Fun Package headline is $129.99 for 6 kids; a bullet on the same page
  *   says "$99.99 includes the Birthday Star + five kids".
  *
+ * Deals rechecked Nov 6, 2026: All You Can Play (60 min, Mon–Thu) went from
+ * $19.99 to $25.99; deals now run to Nov 20; the Ultimate Fall Family Deal
+ * ($59.99, or $74.99 with 2 Adventure Zone admissions) runs to Dec 31.
+ *
  * Not published by the venue, so not stored: the Adventure Zone admission
  * price, regular All You Can Play prices, how the monthly membership works,
  * parking, washrooms, change tables and the outside-food rule.
@@ -27,9 +31,12 @@ const DEALS = "https://www.chuckecheese.com/mississauga/coupons-and-deals/";
 const FUN_PASS = "https://www.chuckecheese.com/mississauga/funpass/";
 const PARTIES = "https://www.chuckecheese.com/mississauga/birthday-parties/";
 export const PE003_LAST_RESEARCHED = "2026-10-27";
+/** Deals rechecked on the store's deals page. */
+export const PE003_DEALS_CHECKED = "2026-11-06";
 
 const site: Provenance = { sourceUrl: PE003_STORE, sourceCheckedDate: PE003_LAST_RESEARCHED, verificationStatus: "verified" };
 const at = (sourceUrl: string): Provenance => ({ ...site, sourceUrl });
+const deal = (sourceUrl: string): Provenance => ({ ...site, sourceUrl, sourceCheckedDate: PE003_DEALS_CHECKED });
 
 /** Chuck E. Cheese Mississauga store prices shared by the Argentia and Dixie records. */
 export function chuckECheesePrices(src: { deals: string; funPass: string; parties: string; arcade: string }, withDeals: boolean): VenuePrice[] {
@@ -43,8 +50,10 @@ export function chuckECheesePrices(src: { deals: string; funPass: string; partie
     { ...at(src.arcade), id: "cec-play-pass", kind: "addon", label: "Play Pass card", audience: "other", amount: 2, isFree: false, currency: "CAD", requiredAddon: false, plusTax: null, notes: "Reusable; each player needs their own card for games" },
     ...(withDeals
       ? ([
-          { ...at(src.deals), id: "cec-aycp-60", kind: "promotion", label: "60 minutes of All You Can Play", audience: "child", amount: 19.99, isFree: false, currency: "CAD", requiredAddon: false, plusTax: null, eligibility: "Monday to Thursday", validTo: "2026-11-10" },
-          { ...at(src.deals), id: "cec-aycp-2x60", kind: "promotion", label: "Two 60-minute All You Can Play cards", audience: "other", amount: 56.99, isFree: false, currency: "CAD", requiredAddon: false, plusTax: null, validTo: "2026-11-10" },
+          { ...deal(src.deals), id: "cec-aycp-60", kind: "promotion", label: "60 minutes of All You Can Play", audience: "child", amount: 25.99, isFree: false, currency: "CAD", requiredAddon: false, plusTax: null, eligibility: "Monday to Thursday", validTo: "2026-11-20" },
+          { ...deal(src.deals), id: "cec-aycp-2x60", kind: "promotion", label: "Two 60-minute All You Can Play cards", audience: "other", amount: 56.99, isFree: false, currency: "CAD", requiredAddon: false, plusTax: null, validTo: "2026-11-20" },
+          { ...deal(src.deals), id: "cec-fall-family", kind: "promotion", label: "Ultimate Fall Family Deal, family of 4", audience: "family", amount: 59.99, isFree: false, currency: "CAD", requiredAddon: false, plusTax: null, includesNote: "large 1-topping pizza, 4 soft drinks, 120 Play Points, 2 cotton candies, 1,000 bonus tickets", validTo: "2026-12-31" },
+          { ...deal(src.deals), id: "cec-fall-family-az", kind: "promotion", label: "Ultimate Fall Family Deal with 2 Adventure Zone admissions", audience: "family", amount: 74.99, isFree: false, currency: "CAD", requiredAddon: false, plusTax: null, includesNote: "the Fall Family Deal plus 2 Adventure Zone admissions", validTo: "2026-12-31" },
         ] satisfies VenuePrice[])
       : []),
     funPass("cec-fun-pass-bronze", "Bronze 2-Month Fun Pass", 69.99, "40 Play Points a visit · 20% off food, drinks, extra games and Adventure Zone"),
