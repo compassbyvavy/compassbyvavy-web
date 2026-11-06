@@ -7,6 +7,7 @@ import {
   DROP_OFF,
   GUIDED,
   PE002_LAST_RESEARCHED,
+  PE002_RECHECKED,
   PE002_SCHEDULE,
   STAY_PLAY,
   pe002BooglesPlayhouse as pe002,
@@ -47,7 +48,7 @@ describe("PE-002 Boogles Playhouse record", () => {
       ...pe002.amenities, ...pe002.policies, ...pe002.links,
     ];
     assert.ok(facts.every((f) => /^https:\/\/www\.boogles\.(ca|app)\//.test(f.sourceUrl)));
-    assert.ok(facts.every((f) => f.sourceCheckedDate === PE002_LAST_RESEARCHED));
+    assert.ok(facts.every((f) => [PE002_LAST_RESEARCHED, PE002_RECHECKED].includes(f.sourceCheckedDate)));
   });
 
   it("stores no session dates and nothing the venue doesn't publish", () => {
