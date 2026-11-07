@@ -17,6 +17,7 @@ import type {
 } from "@/data/camps/types";
 import { CampCard } from "@/components/camps/CampCard";
 import { CampsFilterPanel } from "@/components/camps/CampsFilterPanel";
+import { CampsSearchArea } from "@/components/camps/CampsSearchArea";
 import {
   announceBrowseLocation,
   useLocationIndex,
@@ -42,7 +43,6 @@ import {
   type CampsListingFilters,
   type ListingSortId,
   type ListingViewId,
-  type TimingShortcutId,
 } from "@/lib/camps/listingFilter";
 import {
   BROWSE_LOCATION_EVENT,
@@ -62,15 +62,6 @@ import {
 } from "@/lib/location/ontarioLocations";
 
 const LISTING_VIEW_KEY = "compass.camps.listingView";
-
-const TIMING_CHIPS: { id: TimingShortcutId; label: string }[] = [
-  { id: "all", label: "All dates" },
-  { id: "summer", label: "Summer" },
-  { id: "march_break", label: "March Break" },
-  { id: "winter_break", label: "Winter Break" },
-  { id: "pa_days", label: "PA Days" },
-  { id: "weekends", label: "Weekends" },
-];
 
 export type CampsListingClientProps = {
   programs: CampProgram[];
@@ -237,7 +228,9 @@ export function CampsListingClient({
     [filters.childAge],
   );
 
-  const [locationIndex] = useLocationIndex(Boolean(filters.whereId));
+  const [locationIndex, requestLocationIndex] = useLocationIndex(
+    Boolean(filters.whereId),
+  );
   const coverage = useMemo(
     () => buildCampsCoverage(sessions, venues),
     [sessions, venues],
@@ -261,9 +254,11 @@ export function CampsListingClient({
   const browseEmpty = browseResolution
     ? browseLocationEmptyMessage(browseResolution, browseLabel ?? "")
     : null;
-  const clearBrowseLocation = useCallback(() => {
-    setFilters((current) => ({ ...current, whereId: null }));
-    announceBrowseLocation(null);
+  const onWhereChange = useCallback((id: string | null) => {
+    setFilters((current) =>
+      current.whereId === id ? current : { ...current, whereId: id },
+    );
+    announceBrowseLocation(id);
   }, []);
 
   const results = useMemo(
@@ -384,43 +379,29 @@ export function CampsListingClient({
         </p>
       ) : null}
 
-      <header className="camps-listing-intro">
-        <p className="camps-listing-kicker">Mississauga camps</p>
-        <h1>Every camp we can verify — not just our favourites</h1>
-        <p className="camps-listing-lede">
-          Search and filter by the same session facts parents need: age, dates,
-          venue, hours, care, and price. Coverage is ongoing — this is not a
-          promise that every Mississauga camp is listed yet. No account
-          required.
-        </p>
-      </header>
-
       <div className="camps-listing-top">
-        <div className="camps-toolbar">
-          <div className="camps-field camps-toolbar-city">
-            <span id="camps-browse-location-label">Browse location</span>
-            <p
-              className="camps-toolbar-city-value"
-              aria-labelledby="camps-browse-location-label"
-            >
-              {browseLabel ?? "All listed areas"}
-              {filters.whereId ? (
-                <button
-                  type="button"
-                  className="camps-text-btn"
-                  onClick={clearBrowseLocation}
-                >
-                  Clear
-                </button>
-              ) : null}
-            </p>
-          </div>
-          <p className="camps-toolbar-distance" role="note">
-            <span className="camps-field">
-              <span>Distance</span>
-            </span>
-            <span>{distanceChrome.reason}</span>
+        <CampsSearchArea
+          filters={filters}
+          keywordDraft={keywordDraft}
+          onChange={setFilters}
+          onKeywordChange={setKeywordDraft}
+          onReset={resetFilters}
+          onWhereChange={onWhereChange}
+          themeOptions={themeOptions}
+          browseLabel={browseLabel}
+          locationIndex={locationIndex}
+          onRequestLocationIndex={requestLocationIndex}
+          ageFilterNotice={ageFilterNotice}
+          activeChips={activeChips}
+          onDismissChip={dismissChip}
+          distanceReason={distanceChrome.reason}
+        />
+
+        <div className="camps-result-controls">
+          <p className="camps-result-count" aria-live="polite">
+            {formatListingCounts(results)}
           </p>
+
           <label className="camps-sort">
             <span>Sort</span>
             <select
@@ -433,61 +414,6 @@ export function CampsListingClient({
               <option value="name_asc">Name A–Z</option>
             </select>
           </label>
-        </div>
-        <p className="camps-field-hint camps-toolbar-city-hint">
-          {filters.whereId
-            ? `Showing camps held in ${browseLabel ?? "this place"} only. Change the location in the bar at the top of the page.`
-            : `Camps are listed in ${LISTING_BROWSE_CITY} so far. Choose a location at the top of the page to narrow results.`}{" "}
-          We do not silently widen to another city or invent kilometres.
-        </p>
-
-        <form
-          className="camps-search-row"
-          onSubmit={(e) => {
-            e.preventDefault();
-          }}
-          role="search"
-          aria-label="Camp search"
-        >
-          <label className="camps-field camps-search-keyword">
-            <span>Keyword</span>
-            <input
-              type="search"
-              placeholder="Camp, provider, neighbourhood…"
-              value={keywordDraft}
-              onChange={(e) => setKeywordDraft(e.target.value)}
-            />
-          </label>
-        </form>
-
-        <div
-          className="camps-timing-chips"
-          role="group"
-          aria-label="Timing shortcuts"
-        >
-          {TIMING_CHIPS.map((chip) => (
-            <button
-              key={chip.id}
-              type="button"
-              className={
-                filters.timingShortcut === chip.id
-                  ? "camps-chip camps-chip-active"
-                  : "camps-chip"
-              }
-              aria-pressed={filters.timingShortcut === chip.id}
-              onClick={() =>
-                setFilters((f) => ({ ...f, timingShortcut: chip.id }))
-              }
-            >
-              {chip.label}
-            </button>
-          ))}
-        </div>
-
-        <div className="camps-result-controls">
-          <p className="camps-result-count" aria-live="polite">
-            {formatListingCounts(results)}
-          </p>
 
           <button
             ref={filtersBtnRef}
@@ -525,39 +451,6 @@ export function CampsListingClient({
             ))}
           </fieldset>
         </div>
-
-        {ageFilterNotice ? (
-          <p
-            className="camps-age-filter-notice"
-            role="status"
-            aria-live="polite"
-          >
-            {ageFilterNotice}
-          </p>
-        ) : null}
-
-        {activeChips.length > 0 ? (
-          <div className="camps-active-filters" aria-label="Selected filters">
-            <ul className="camps-active-filter-list">
-              {activeChips.map((chip) => (
-                <li key={chip.id}>
-                  <button
-                    type="button"
-                    className="camps-active-filter-chip"
-                    onClick={() => dismissChip(chip.id)}
-                    aria-label={`Remove filter ${chip.label}`}
-                  >
-                    <span>{chip.label}</span>
-                    <span aria-hidden="true">×</span>
-                  </button>
-                </li>
-              ))}
-            </ul>
-            <button type="button" className="camps-text-btn" onClick={resetFilters}>
-              Clear all
-            </button>
-          </div>
-        ) : null}
       </div>
 
       <div className="camps-listing-layout">
@@ -585,7 +478,7 @@ export function CampsListingClient({
               <button
                 type="button"
                 className="camps-text-btn"
-                onClick={clearBrowseLocation}
+                onClick={() => onWhereChange(null)}
               >
                 Clear location
               </button>
