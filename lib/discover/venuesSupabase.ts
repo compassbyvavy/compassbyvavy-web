@@ -63,6 +63,30 @@ export function publishedVenueQueryUrl(baseUrl: string, slug: string): string {
   return `${baseUrl}/rest/v1/places?${params.toString()}`;
 }
 
+/** Child tables a listing card needs: types, prices and amenities. */
+const LISTING_CHILD_TABLES = ["place_types", "place_prices", "place_amenities"] as const;
+
+/**
+ * PostgREST URL for every published, open venue in the given database
+ * categories, alphabetical. Exported for tests.
+ */
+export function publishedVenuesInCategoriesQueryUrl(
+  baseUrl: string,
+  categories: readonly DiscoverDbCategory[],
+): string {
+  const select = ["*", "cities(city_town)", ...LISTING_CHILD_TABLES.map((t) => `${t}(*)`)].join(",");
+  const params = new URLSearchParams({
+    select,
+    category: `in.(${categories.join(",")})`,
+    publication_state: "eq.published",
+    published_at: "not.is.null",
+    operating_status: "eq.open",
+    order: "name.asc",
+    limit: "200",
+  });
+  return `${baseUrl}/rest/v1/places?${params.toString()}`;
+}
+
 type Row = Record<string, unknown>;
 
 const str = (v: unknown): string | null => (typeof v === "string" ? v : null);
@@ -293,6 +317,39 @@ export async function fetchPublishedVenue(
     return mapVenueRow(body[0] as Row);
   } catch {
     return null;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+/**
+ * Every published, open venue in the given categories, or [] (none, no
+ * categories, or the request failed). Never throws into the page.
+ */
+export async function fetchPublishedVenuesInCategories(
+  config: PublicSupabaseConfig,
+  categories: readonly DiscoverDbCategory[],
+): Promise<VenueRecord[]> {
+  if (categories.length === 0) return [];
+  const doFetch = config.fetchImpl ?? fetch;
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), config.timeoutMs ?? 8000);
+  try {
+    const res = await doFetch(publishedVenuesInCategoriesQueryUrl(config.url, categories), {
+      headers: {
+        apikey: config.anonKey,
+        Authorization: `Bearer ${config.anonKey}`,
+        Accept: "application/json",
+      },
+      signal: controller.signal,
+      cache: "no-store",
+    });
+    if (!res.ok) return [];
+    const body = (await res.json()) as unknown;
+    if (!Array.isArray(body)) return [];
+    return body.map((row) => mapVenueRow(row as Row));
+  } catch {
+    return [];
   } finally {
     clearTimeout(timer);
   }

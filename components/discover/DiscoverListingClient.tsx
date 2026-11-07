@@ -39,6 +39,7 @@ export function DiscoverListingClient({
   if (!page || !category || !query) return null;
 
   const results = filterDiscoverListings(listings, query, page);
+  const showingExamples = listings.some((listing) => listing.verification === "example");
 
   function commit(next: DiscoverListingQuery) {
     router.replace(buildDiscoverQueryHref(pathname, next), { scroll: false });
@@ -62,9 +63,11 @@ export function DiscoverListingClient({
         </p>
       </header>
 
-      <div className="discover-banner" role="note">
-        {page.exampleBanner}
-      </div>
+      {showingExamples ? (
+        <div className="discover-banner" role="note">
+          {page.exampleBanner}
+        </div>
+      ) : null}
       {page.governanceNote ? (
         <div className="discover-banner discover-banner-services" role="note">
           {page.governanceNote}
@@ -159,7 +162,7 @@ export function DiscoverListingClient({
       </form>
 
       <p className="camps-result-count">
-        {results.length} example{results.length === 1 ? "" : "s"}
+        {results.length} {showingExamples ? "example" : "place"}{results.length === 1 ? "" : "s"}
       </p>
 
       {results.length === 0 ? (
