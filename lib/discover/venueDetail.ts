@@ -1281,10 +1281,16 @@ export type FamilyPriceModel = {
 export function familyPriceModel(sections: PriceSection[]): FamilyPriceModel | null {
   const admission = sections.find((s) => s.kind === "admission")?.lines ?? [];
   const tickets = admission.filter(
-    (l) => ["child", "infant"].includes(l.audience) && (l.ageMin !== null || l.ageMax !== null),
+    // Session prices (and sibling rates) have their own tool.
+    (l) => ["child", "infant"].includes(l.audience) && (l.ageMin !== null || l.ageMax !== null) && !l.sessionName && !l.siblingOnly,
   );
   const days = (["weekday", "weekend_holiday"] as const).filter((d) => tickets.some((t) => t.dayType === d));
-  if (tickets.length === 0 || days.length === 0) return null;
+  if (tickets.length === 0) return null;
+  // Prices that apply any day: one hidden "day", matched by tickets with no day type.
+  if (days.length === 0) {
+    if (!tickets.some((t) => t.dayType === null)) return null;
+    days.push("weekday");
+  }
   const extraAdult = admission.find((l) => l.audience === "adult" && !l.dayType) ?? null;
   return {
     tickets,
@@ -1748,11 +1754,23 @@ export function quickFacts(record: VenueRecord, sections: PriceSection[]): { fac
       value: typeof freeBaby.ageMax === "number" ? `Under ${freeBaby.ageMax + 1} free` : "Free",
     });
   }
-  const timed = admission.find((l) => !l.isFree && l.audience === "child" && l.details.some((d) => /hour|minute/.test(d)));
-  const duration = timed?.details.find((d) => /hour|minute/.test(d));
-  if (duration) facts.push({ label: "Visit length", value: duration });
+  // Visit length: one length, or the range when passes come in several lengths.
+  const lengths = [
+    ...new Set(
+      admission
+        .filter((l) => !l.isFree && l.audience === "child" && l.durationMinutes)
+        .map((l) => l.durationMinutes as number),
+    ),
+  ].sort((a, b) => a - b);
+  if (lengths.length === 1) facts.push({ label: "Visit length", value: durationText(lengths[0])! });
+  else if (lengths.length > 1 && lengths.every((m) => m % 60 === 0)) {
+    facts.push({ label: "Visit length", value: `${lengths[0] / 60}–${lengths[lengths.length - 1] / 60} hours` });
+  }
   const price = everydayChildPrice(admission);
   if (price) facts.push({ label: price.label, value: price.value });
+  // Free entry (pay for what you play), e.g. an arcade.
+  const freeEntry = admission.find((l) => l.isFree && l.audience === "other");
+  if (!price && freeEntry) facts.push({ label: freeEntry.label, value: "Free" });
   if (p.setting === "indoor" && facts.length < 4) facts.push({ label: "Rainy day", value: "Indoors" });
   const paidChild = admission.filter((l) => l.audience === "child" && !l.isFree);
   const note =

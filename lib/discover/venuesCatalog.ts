@@ -4,7 +4,7 @@
  * - Production: published, open venues read from Supabase with the public
  *   anon key (lib/discover/venuesSupabase.ts). No credentials → no venues,
  *   so every venue URL 404s rather than showing anything unverified.
- * - Development: fictional fixtures plus a preview of real records (PE-001, PE-002, PE-033)
+ * - Development: fictional fixtures plus a preview of every real record (data/discover/venues)
  *   exactly as they would publish. Never indexed.
  * - Cloudflare preview URLs (the same dual gate as Discover examples: the
  *   COMPASS_DISCOVER_REVIEW_PREVIEW flag AND a verified preview hostname):
@@ -112,20 +112,12 @@ export async function loadCategoryVenues(
 }
 
 async function previewCatalog(): Promise<VenueCatalog> {
-  const [{ venuesDevRecords }, { pe033SkyZoneMississauga }, { pe001AmazingFunPark }, { pe002BooglesPlayhouse }] =
-    await Promise.all([
-      import("@/data/discover/venues.dev"),
-      import("@/data/discover/venues/pe033SkyZoneMississauga"),
-      import("@/data/discover/venues/pe001AmazingFunPark"),
-      import("@/data/discover/venues/pe002BooglesPlayhouse"),
-    ]);
+  const [{ venuesDevRecords }, { REAL_VENUE_RECORDS }] = await Promise.all([
+    import("@/data/discover/venues.dev"),
+    import("@/data/discover/venues"),
+  ]);
   return {
-    records: [
-      ...venuesDevRecords,
-      previewAsPublished(pe001AmazingFunPark),
-      previewAsPublished(pe002BooglesPlayhouse),
-      previewAsPublished(pe033SkyZoneMississauga),
-    ],
+    records: [...venuesDevRecords, ...REAL_VENUE_RECORDS.map(previewAsPublished)],
     sourceLabel: "dev_preview",
   };
 }
