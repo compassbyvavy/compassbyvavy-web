@@ -2529,3 +2529,455 @@ a.category-card {
   outline: 2px solid var(--green);
   outline-offset: 2px;
 }
+
+/* Venue page, round 3 (Nov 2026 redesign): answers first, a "Plan your visit"
+   card with the family price tool, every section open, an age bar, a week strip,
+   "still asking" facilities and a how-we-checked timeline. */
+.venue-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas: "head" "aside" "body";
+  gap: 28px;
+}
+
+.venue-area-head {
+  grid-area: head;
+  min-width: 0;
+}
+
+.venue-area-aside {
+  grid-area: aside;
+  display: block;
+  min-width: 0;
+}
+
+.venue-area-body {
+  grid-area: body;
+  max-width: none;
+}
+
+@media (min-width: 1100px) {
+  .venue-layout {
+    grid-template-columns: minmax(0, 1fr) 380px;
+    grid-template-areas: "head aside" "body aside";
+    column-gap: 40px;
+    align-items: start;
+  }
+
+  .venue-area-aside {
+    grid-row: 1 / span 2;
+    position: sticky;
+    top: 92px;
+    max-height: calc(100vh - 110px);
+    overflow-y: auto;
+    border-radius: 22px;
+  }
+}
+
+.venue-header h1 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  color: var(--green-dark);
+  letter-spacing: -0.01em;
+}
+
+.venue-title-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px 20px;
+}
+
+.venue-title-row > div:first-child {
+  flex: 999 1 420px;
+  min-width: 0;
+}
+
+.venue-title-row .venue-header-actions {
+  flex: 1 1 auto;
+  justify-content: flex-end;
+}
+
+.venue-title-row .venue-address {
+  margin: 0;
+}
+
+.venue-title-row .venue-header-meta {
+  margin: 6px 0 0;
+}
+
+.venue-today strong {
+  color: #2c5a3e;
+}
+
+.venue-trust {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 10px;
+  margin: 12px 0 0;
+  font-size: 0.92rem;
+  color: var(--muted);
+}
+
+.venue-trust svg {
+  color: var(--green);
+  flex: none;
+}
+
+.venue-trust strong {
+  color: var(--ink);
+}
+
+.venue-trust a {
+  font-weight: 700;
+  color: var(--green-dark);
+}
+
+/* Answer tiles */
+.venue-quick {
+  gap: 12px;
+  margin: 18px 0 4px;
+}
+
+.venue-quick div {
+  padding: 14px 16px;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+}
+
+.venue-quick dt {
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.venue-quick dd {
+  margin-top: 4px;
+  font-family: var(--font-display);
+  font-size: 1.35rem;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+/* Plan your visit */
+.venue-plan {
+  gap: 14px;
+  padding: 22px;
+  border-radius: 22px;
+}
+
+.venue-plan-title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--green-dark);
+}
+
+.venue-plan .venue-tool {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  box-shadow: none;
+}
+
+.venue-plan .venue-tool > h3 {
+  margin-top: 0;
+  font-size: 1rem;
+}
+
+.venue-plan-links {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.venue-plan-links .button {
+  width: 100%;
+  justify-content: center;
+}
+
+.venue-plan-contact {
+  margin: 0;
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+  font-size: 0.92rem;
+  color: var(--muted);
+}
+
+.venue-plan-pointer {
+  margin: 0 0 12px;
+}
+
+/* Section tabs */
+.venue-toc {
+  position: static;
+  padding: 0;
+  background: none;
+  border: 0;
+  gap: 8px;
+}
+
+.venue-toc a {
+  padding: 9px 14px;
+  min-height: 40px;
+  display: inline-flex;
+  align-items: center;
+  background: var(--surface);
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.venue-toc a:hover,
+.venue-toc a:focus-visible {
+  background: var(--green);
+  color: #fff;
+}
+
+@media (min-width: 1100px) {
+  .venue-toc {
+    position: sticky;
+    top: 80px;
+    z-index: 5;
+    padding: 10px 0;
+    background: var(--cream);
+  }
+}
+
+.venue-section {
+  scroll-margin-top: 150px;
+}
+
+.venue-take {
+  padding: 24px 28px;
+}
+
+.venue-take h2 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 1.4rem;
+  color: var(--green-dark);
+}
+
+.venue-collapsible > summary h2 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  color: var(--green-dark);
+}
+
+/* Age bar */
+.venue-agebar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin: 8px 0 10px;
+  padding: 0;
+  list-style: none;
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+.venue-agebar li {
+  flex: 1 1 110px;
+  display: grid;
+  gap: 2px;
+  padding: 12px 14px;
+  background: var(--surface);
+  color: var(--ink);
+}
+
+.venue-agebar li span {
+  font-size: 0.88rem;
+}
+
+.venue-agebar li.is-good {
+  background: var(--green);
+  color: #fff;
+}
+
+.venue-agebar li.is-some {
+  background: var(--sage);
+}
+
+.venue-agebar li.is-limited,
+.venue-agebar li.is-not_suitable {
+  background: #f1ece2;
+  color: #5d6458;
+}
+
+.venue-agebar li.is-unconfirmed {
+  background: var(--paper);
+  border: 1px dashed #c9bfa8;
+  color: var(--muted);
+}
+
+.venue-agebar-notes {
+  margin: 0 0 8px;
+  padding-left: 18px;
+}
+
+/* Week strip */
+.venue-week {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 8px;
+  margin: 8px 0 12px;
+  padding: 0;
+  list-style: none;
+}
+
+.venue-week li {
+  display: grid;
+  align-content: start;
+  gap: 4px;
+  min-height: 88px;
+  padding: 12px 10px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--paper);
+  font-size: 0.9rem;
+}
+
+.venue-week-day abbr {
+  text-decoration: none;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.venue-week li.is-closed {
+  background: var(--surface);
+  color: #5d6458;
+}
+
+.venue-week li.is-today {
+  background: var(--green);
+  border-color: var(--green);
+  color: #fff;
+}
+
+.venue-week-today {
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+@media (max-width: 620px) {
+  .venue-week {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 4px;
+  }
+
+  .venue-week li {
+    min-height: 0;
+    grid-template-columns: 56px 1fr auto;
+    align-items: center;
+    padding: 10px 14px;
+  }
+}
+
+/* Facilities: still-asking cards */
+.venue-amenity {
+  background: var(--paper);
+}
+
+.venue-amenity.is-asking {
+  background: var(--cream);
+  border: 1px dashed #c9bfa8;
+}
+
+.venue-amenity.is-asking .venue-amenity-status {
+  color: #7a5320;
+  font-weight: 600;
+}
+
+/* Ways to save */
+.venue-save-ways {
+  margin-top: 8px;
+}
+
+/* How we checked */
+.venue-timeline {
+  display: grid;
+  gap: 14px;
+  margin: 0 0 18px;
+  padding: 0;
+  list-style: none;
+}
+
+.venue-timeline li {
+  position: relative;
+  display: grid;
+  gap: 2px;
+  padding-left: 42px;
+}
+
+.venue-timeline li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  box-sizing: border-box;
+}
+
+.venue-timeline li.is-done::before {
+  background: var(--green);
+}
+
+.venue-timeline li.is-next::before {
+  border: 2px dashed var(--amber);
+}
+
+.venue-timeline li span {
+  color: var(--muted);
+  font-size: 0.92rem;
+}
+
+.venue-disagree {
+  background: #fbf3e4;
+  border-color: #ead6b0;
+}
+
+/* What's inside: three across where there's room, each card topped with a soft
+   colour band carrying the attraction's name. */
+.venue-activities {
+  grid-template-columns: repeat(auto-fill, minmax(min(200px, 100%), 1fr));
+}
+
+.venue-activity {
+  padding: 0 0 14px;
+  overflow: hidden;
+  background: var(--paper);
+}
+
+.venue-activity > h4 {
+  margin: 0 0 10px;
+  padding: 14px;
+  background: var(--sage);
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--green-dark);
+}
+
+.venue-activity:nth-child(4n + 2) > h4 {
+  background: #efe3d3;
+}
+
+.venue-activity:nth-child(4n + 3) > h4 {
+  background: #f3e6c4;
+}
+
+.venue-activity:nth-child(4n + 4) > h4 {
+  background: #ddebee;
+}
+
+.venue-activity > :not(h4) {
+  margin-left: 14px;
+  margin-right: 14px;
+}

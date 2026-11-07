@@ -122,7 +122,7 @@ describe("PE-001 page", () => {
     const page = html();
     assert.match(page, /Will it suit my kids\?/);
     assert.match(page, /Illustration · venue photos coming soon/);
-    assert.match(page, /Check with the venue:/);
+    assert.match(page, /still asking the venue/);
     assert.match(page, /Birthday parties/);
     assert.doesNotMatch(page, /<dd><\/dd>|<li><\/li>|<p><\/p>|undefined|NaN/);
   });
@@ -252,10 +252,10 @@ describe("PE-001 review fixes", () => {
     const v = view();
     assert.ok(!v.snapshot.ageBands.some((b) => b.band === "adults"));
     const page = html();
-    assert.match(page, /<th scope="row">Monday<\/th><td>Closed<\/td>/);
+    assert.match(page, /<abbr title="Monday">Mon<\/abbr><\/span><span class="venue-week-hours">Closed<\/span>/);
     assert.match(page, /Compass take/);
     assert.match(page, /Compass hasn&#x27;t visited yet/);
-    assert.match(page, /Compare all party packages/);
+    assert.match(page, /<caption class="venue-sr-only">Party prices by day<\/caption>/);
     assert.doesNotMatch(page, /Available whenever the venue is open|Stroller access/);
   });
 
@@ -296,12 +296,13 @@ describe("PE-001 round 2", () => {
     const page = html();
     assert.match(page, /<p class="venue-crumb"><span>Mississauga<\/span>/);
     assert.match(page, />Directions</);
-    assert.match(page, /<a class="button button-secondary venue-call-inline" href="tel:9052127444">Call<\/a>/);
+    assert.match(page, /<a class="button button-secondary" href="tel:9052127444" aria-label="Call 905-212-7444">Call<\/a>/);
     assert.match(page, /Call 905-212-7444/);
     assert.match(page, /venue-hero is-glow/);
     assert.match(page, /<dt>Best for<\/dt>/);
     assert.match(page, /Based on official venue information\. Compass hasn&#x27;t visited yet\./);
-    assert.match(page, /class="venue-book-card"/);
+    assert.match(page, /class="venue-book-card venue-plan"/);
+    assert.match(page, />Plan your visit</);
     assert.match(page, /class="venue-sticky-book" inert=""/, "the phone bar starts hidden and unfocusable");
     assert.doesNotMatch(page, /Know before you go/);
     assert.match(page, /<ul class="venue-rule-list">/);

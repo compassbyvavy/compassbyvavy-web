@@ -94,12 +94,12 @@ describe("published venue page", () => {
 
   it("renders all sections with source links and checked dates", () => {
     const page = html(heartland);
-    for (const heading of ["Will it suit my kids?", "What will it cost?", "When to go", "Before you go", "Amenities and access", "What to expect", "How we verified this page"]) {
+    for (const heading of ["Will it suit my kids?", "What will it cost?", "When to go", "Before you go", "Facilities", "What to expect", "How we checked this page"]) {
       assert.ok(page.includes(`>${heading}<`), heading);
     }
     assert.match(page, /Official details checked Oct 10, 2026/);
     assert.match(page, /href="https:\/\/example\.org\/maple-leap\/heartland\/book"/);
-    assert.match(page, /<h1>Maple Leap Play Centre<span class="venue-branch"> — Heartland<\/span><\/h1>/);
+    assert.match(page, /<h1 id="venue-title">Maple Leap Play Centre<span class="venue-branch"> — Heartland<\/span><\/h1>/);
   });
 
   it("lists weekly hours by day and seasonal hours separately", () => {
