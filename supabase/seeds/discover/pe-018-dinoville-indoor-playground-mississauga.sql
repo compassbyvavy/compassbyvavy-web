@@ -23,7 +23,7 @@ values ('PE-018', 'dinoville-indoor-playground-mississauga', 'DiNOViLLE Indoor P
    select id from public.cities where lower(city_town) = lower('Mississauga') and province_state = 'Ontario'
    limit 1), null, '2380 Royal Windsor Dr, Unit 5', null, 'https://www.dinoville.ca/', 0, null, null, null, false, 'indoor'::public.place_setting, 'budget'::public.place_cost_tier, null, 'Admission is an all-day pass', 'Good value: An all-day pass is $10 + HST per child, and parents and guardians get in free with a child.
 Little ones: There''s a dedicated toddler area. Ladders and tunnels are meant for kids 7 and up, and kids 6 and under must be fully supervised.
-Plan ahead: Drop-in hours change around private parties (the posted schedule had weekends closed for private events), so call before you go.', 'yes'::public.confirmed_tri_state, 'no'::public.confirmed_tri_state, 'fixed'::public.place_hours_kind, null, null, 'https://www.dinoville.ca/', '2026-11-07', 'draft'::public.publication_state, 'unknown'::public.place_operating_status, null, array['DiNOViLLE', 'DiNOViLLe', 'Dinoville', 'Dinoville Indoor Playground']::text[], 'L5J 1K6')
+Plan ahead: Drop-in hours change around private parties (the posted schedule had weekends closed for private events), so call before you go.', 'yes'::public.confirmed_tri_state, 'no'::public.confirmed_tri_state, 'fixed'::public.place_hours_kind, null, null, 'https://www.dinoville.ca/', '2026-11-07', 'draft'::public.publication_state, 'open'::public.place_operating_status, null, array['DiNOViLLE', 'DiNOViLLe', 'Dinoville', 'Dinoville Indoor Playground']::text[], 'L5J 1K6')
 on conflict (id) do update set
   slug = excluded.slug,
   name = excluded.name,

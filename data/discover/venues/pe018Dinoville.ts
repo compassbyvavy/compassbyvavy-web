@@ -3,8 +3,9 @@
  *
  * Source: the venue's own pages (home, Daily Admissions, Private Parties,
  * Waiver, Rules, Contact Us, FAQs, About Us and Franchise), read Nov 7, 2026.
- * The PE number is provisional. The call sheet has not yet confirmed the
- * venue is open at this address, so operatingStatus is "unknown".
+ * The PE number is provisional. operatingStatus is "open" because the
+ * venue's own home page publishes a dated drop-in schedule for Oct 26–Nov 8,
+ * 2026; the call sheet still asks the venue to confirm.
  *
  * Conflicts on the venue's own pages, and how they are handled:
  * - Hours: the Contact page lists Mon–Fri 11 am–7 pm and Sat–Sun 10:30 am–8 pm.
@@ -88,7 +89,7 @@ export const pe018Dinoville: VenueRecord = {
     sourceCheckedDate: PE018_LAST_RESEARCHED,
     publicationState: "draft",
     publishedAt: null,
-    operatingStatus: "unknown",
+    operatingStatus: "open",
   },
   cityName: "Mississauga",
   types: [
