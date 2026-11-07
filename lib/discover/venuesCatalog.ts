@@ -17,8 +17,11 @@ import {
   DISCOVER_REVIEW_PREVIEW_FLAG,
   isDiscoverReviewPreviewEnabled,
 } from "@/lib/discover/reviewPreviewGate";
+import { dbCategoriesFor } from "@/lib/discover/categories";
+import { isVenuePubliclyViewable } from "@/lib/discover/venueDetail";
 import {
   fetchPublishedVenue,
+  fetchPublishedVenuesInCategories,
   readPublicSupabaseConfig,
   type PublicSupabaseConfig,
 } from "@/lib/discover/venuesSupabase";
@@ -72,6 +75,40 @@ export async function loadVenueCatalog(
       : null;
   }
   return previewCatalog();
+}
+
+/**
+ * Venues for a Discover category page, with the same rules as venue pages:
+ * production lists published, open venues from Supabase; development and
+ * gated Cloudflare previews list the preview catalog. Null when there is
+ * nothing to list, so the page can fall back to "coming soon".
+ */
+export async function loadCategoryVenues(
+  options: {
+    categorySlug: string;
+    nodeEnv?: string;
+    supabase?: PublicSupabaseConfig | null;
+    hostname?: string | null;
+    reviewFlag?: string | null;
+  },
+): Promise<VenueCatalog | null> {
+  const categories = dbCategoriesFor(options.categorySlug);
+  if (categories.length === 0) return null;
+  const nodeEnv = options.nodeEnv ?? process.env.NODE_ENV;
+  if (nodeEnv === "production") {
+    const config = options.supabase !== undefined ? options.supabase : readPublicSupabaseConfig();
+    const records = config ? await fetchPublishedVenuesInCategories(config, categories) : [];
+    const listable = records.filter((r) => categories.includes(r.place.category) && isVenuePubliclyViewable(r));
+    if (listable.length > 0) return { records: listable, sourceLabel: "published" };
+    const reviewFlag =
+      options.reviewFlag !== undefined ? options.reviewFlag : process.env[DISCOVER_REVIEW_PREVIEW_FLAG];
+    if (!isDiscoverReviewPreviewEnabled({ reviewFlag, hostname: options.hostname })) return null;
+  }
+  const preview = await previewCatalog();
+  const listable = preview.records.filter(
+    (r) => categories.includes(r.place.category) && isVenuePubliclyViewable(r),
+  );
+  return listable.length > 0 ? { records: listable, sourceLabel: preview.sourceLabel } : null;
 }
 
 async function previewCatalog(): Promise<VenueCatalog> {
