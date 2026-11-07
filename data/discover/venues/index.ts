@@ -17,7 +17,9 @@ import { pe009Kidsports } from "@/data/discover/venues/pe009Kidsports";
 import { pe010KidzAtPlay } from "@/data/discover/venues/pe010KidzAtPlay";
 import { pe011MightyJungle } from "@/data/discover/venues/pe011MightyJungle";
 import { pe012Playcious } from "@/data/discover/venues/pe012Playcious";
+import { pe013Playtown } from "@/data/discover/venues/pe013Playtown";
 import { pe014HappyKingdomDundas } from "@/data/discover/venues/pe014HappyKingdomDundas";
+import { pe015KidsEmpireHeartland } from "@/data/discover/venues/pe015KidsEmpireHeartland";
 import { pe017JusPlay } from "@/data/discover/venues/pe017JusPlay";
 import { pe018Dinoville } from "@/data/discover/venues/pe018Dinoville";
 import { pe033SkyZoneMississauga } from "@/data/discover/venues/pe033SkyZoneMississauga";
@@ -35,7 +37,9 @@ export const REAL_VENUE_RECORDS: readonly VenueRecord[] = [
   pe010KidzAtPlay,
   pe011MightyJungle,
   pe012Playcious,
+  pe013Playtown,
   pe014HappyKingdomDundas,
+  pe015KidsEmpireHeartland,
   pe017JusPlay,
   pe018Dinoville,
   pe033SkyZoneMississauga,
