@@ -5,7 +5,7 @@ export const DEFAULT_ACTIVENET_TIMEOUT_MS = 8_000;
 export const DEFAULT_ACTIVENET_MIN_ORIGIN_INTERVAL_MS = 5_000;
 
 export const COMPASS_ACTIVENET_USER_AGENT =
-  "CompassByVavyCampsBot/1.0 (+https://compassbyvavy.com; ActiveNet availability; contact: hello@compassbyvavy.com)";
+  "CompassByVavyCampsBot/1.0 (+https://compassbyvavy.ca; ActiveNet availability; contact: hello@compassbyvavy.ca)";
 
 function parsePositiveInt(
   value: string | undefined,
