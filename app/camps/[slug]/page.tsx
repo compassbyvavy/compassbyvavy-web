@@ -2,7 +2,6 @@ import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { CampDetailClient } from "@/components/camps/CampDetailClient";
 import {
-  loadCampsAvailabilityForSessions,
   loadCampsCatalogForRequest,
 } from "@/lib/camps/campsServerCatalog";
 import {
@@ -32,9 +31,8 @@ export default async function CampDetailPage({ params }: PageProps) {
   }
 
   const banner = formatCampsCatalogBanner(catalog);
-  const availabilityBySessionId = await loadCampsAvailabilityForSessions(
-    published.sessions.map((session) => session.id),
-  );
+  // No server-side prefetch of all sessions: fetch only after a parent selects one.
+  const availabilityBySessionId = {};
 
   return (
     <div className="container camp-detail-page">

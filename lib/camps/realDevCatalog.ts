@@ -7,6 +7,7 @@
  * fixtures, but a separate module so fictional data cannot leak in by merge.
  */
 
+import { winter2026Venues, winter2026JrProgram, winter2026AdditionalSessions } from "@/data/camps/real/winter2026.dev";
 import type {
   CampProgram,
   CampSession,
@@ -57,9 +58,9 @@ function bundle(): CampsRealDevCatalogBundle {
     sourceUrl: REAL_DEV_SOURCE_URL,
     sourceCheckedDate: REAL_DEV_SOURCE_CHECKED_DATE,
     providers: [...realDevProviders, ...msc0007Providers],
-    venues: [...realDevVenues, ...msc0007Venues],
-    programs: [...realDevPrograms, ...msc0007Programs],
-    sessions: [...realDevSessions, ...msc0007Sessions],
+    venues: [...realDevVenues, ...msc0007Venues, ...winter2026Venues],
+    programs: [...realDevPrograms, ...msc0007Programs, winter2026JrProgram],
+    sessions: [...realDevSessions, ...msc0007Sessions, ...winter2026AdditionalSessions],
   };
 }
 

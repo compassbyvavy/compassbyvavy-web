@@ -237,11 +237,7 @@ export function CampDetailClient({
   const selectedActiveNet = selectedRow
     ? getActiveNetMappingBySessionId(selectedRow.session.id)
     : null;
-  const soleSessionMapping =
-    !selectedActiveNet && sessions.length === 1
-      ? getActiveNetMappingBySessionId(sessions[0].id)
-      : null;
-  const activeNetMapping = selectedActiveNet ?? soleSessionMapping;
+  const activeNetMapping = selectedActiveNet;
 
   const setSession = useCallback(
     (sessionId: string | null) => {
@@ -512,9 +508,8 @@ export function CampDetailClient({
             </fieldset>
             {selection.kind !== "selected" ? (
               <p className="camp-card-note">
-                Select a session to focus eligibility, hours, care, price, and
-                registration — or open a flat listing result that pre-selects
-                one.
+                Pick a session to see its availability, eligibility, hours,
+                care, price, and registration.
               </p>
             ) : null}
           </>
@@ -523,11 +518,15 @@ export function CampDetailClient({
 
       {activeNetMapping ? (
         <ActiveNetAvailabilityPanel
+          key={activeNetMapping.sessionId}
+          sessionId={activeNetMapping.sessionId}
           candidateId={activeNetMapping.candidateId}
           initialSnapshot={
             availabilityBySessionId[activeNetMapping.sessionId] ?? null
           }
         />
+      ) : sessions.some((session) => getActiveNetMappingBySessionId(session.id)) ? (
+        <p className="camp-card-note">Pick a session to see its availability.</p>
       ) : null}
 
       {selectedRow ? <SessionFactBlock row={selectedRow} /> : null}

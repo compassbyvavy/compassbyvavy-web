@@ -5,6 +5,8 @@ import {
   MSC_0007_PROGRAM_ID,
   MSC_0007_SESSION_ID,
 } from "@/data/camps/real/msc0007.ids";
+import { MISSISSAUGA_WINTER_2026_LISTED } from "@/data/camps/real/mississaugaWinter2026EligibleList";
+import { WINTER_2026_INTERNAL_IDS } from "@/data/camps/real/winter2026.ids";
 import {
   ACTIVENET_ORIGIN,
   ACTIVENET_TENANT,
@@ -21,16 +23,30 @@ const MSC_0007_MAPPING: ActiveNetActivityMapping = {
   origin: ACTIVENET_ORIGIN,
 };
 
-const BY_CANDIDATE = new Map<string, ActiveNetActivityMapping>([
-  [MSC_0007_MAPPING.candidateId, MSC_0007_MAPPING],
-]);
+/** One mapping per distinct City session. Candidate ID is provenance, not a cache key. */
+export const WINTER_2026_MAPPINGS: readonly ActiveNetActivityMapping[] =
+  MISSISSAUGA_WINTER_2026_LISTED.map((row) => {
+    const activityId = WINTER_2026_INTERNAL_IDS[row.publicActivityNumber];
+    if (!activityId) throw new Error(`Unmatched Winter 2026 public activity number ${row.publicActivityNumber}`);
+    const sessionId = row.publicActivityNumber === MSC_0007_ACTIVITY_NUMBER
+      ? MSC_0007_SESSION_ID
+      : `sess-city-winter-2026-${row.publicActivityNumber}`;
+    return {
+      candidateId: row.publicActivityNumber === MSC_0007_ACTIVITY_NUMBER ? MSC_0007_CANDIDATE_ID : `CITY-WINTER-${row.publicActivityNumber}`,
+      sessionId,
+      programId: row.program === "Winter Fun" ? MSC_0007_PROGRAM_ID : "prog-city-mississauga-winter-fun-jr",
+      activityId,
+      activityNumber: row.publicActivityNumber,
+      tenantSlug: ACTIVENET_TENANT,
+      origin: ACTIVENET_ORIGIN,
+    };
+  });
 
-const BY_SESSION = new Map<string, ActiveNetActivityMapping>([
-  [MSC_0007_MAPPING.sessionId, MSC_0007_MAPPING],
-]);
+const BY_SESSION = new Map(WINTER_2026_MAPPINGS.map((mapping) => [mapping.sessionId, mapping]));
+const BY_CANDIDATE = new Map(WINTER_2026_MAPPINGS.map((mapping) => [mapping.candidateId, mapping]));
 
 export function listActiveNetMappings(): readonly ActiveNetActivityMapping[] {
-  return [...BY_CANDIDATE.values()];
+  return WINTER_2026_MAPPINGS;
 }
 
 export function getActiveNetMappingByCandidateId(
@@ -51,7 +67,7 @@ export function mappingForMatchingSessions(
   const found: ActiveNetActivityMapping[] = [];
   for (const id of sessionIds) {
     const mapping = getActiveNetMappingBySessionId(id);
-    if (mapping && !found.some((item) => item.candidateId === mapping.candidateId)) {
+    if (mapping && !found.some((item) => item.sessionId === mapping.sessionId)) {
       found.push(mapping);
     }
   }
