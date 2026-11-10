@@ -167,6 +167,10 @@ describe("review preview catalog — fixtures only, never MSC-0201", () => {
         catalog.programs.some((p) => p.slug === "nutty-summer-science-camp"),
         false,
       );
+      assert.equal(
+        catalog.programs.some((p) => p.slug === "camp-winter-fun-malton"),
+        false,
+      );
       assert.ok(resolvePublishedCampDetail("stem-explorers-dev", {
         hostname: PREVIEW_COMMIT_HOST,
         reviewFlag: "true",

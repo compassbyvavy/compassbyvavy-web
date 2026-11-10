@@ -1,7 +1,10 @@
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { CampDetailClient } from "@/components/camps/CampDetailClient";
-import { loadCampsCatalogForRequest } from "@/lib/camps/campsServerCatalog";
+import {
+  loadCampsAvailabilityForSessions,
+  loadCampsCatalogForRequest,
+} from "@/lib/camps/campsServerCatalog";
 import {
   formatCampsCatalogBanner,
   resolveCatalogProgramBySlug,
@@ -29,6 +32,9 @@ export default async function CampDetailPage({ params }: PageProps) {
   }
 
   const banner = formatCampsCatalogBanner(catalog);
+  const availabilityBySessionId = await loadCampsAvailabilityForSessions(
+    published.sessions.map((session) => session.id),
+  );
 
   return (
     <div className="container camp-detail-page">
@@ -41,6 +47,7 @@ export default async function CampDetailPage({ params }: PageProps) {
           nowIso="2026-08-28T16:00:00.000Z"
           showDevBanner={Boolean(banner)}
           catalogBanner={banner}
+          availabilityBySessionId={availabilityBySessionId}
         />
       </Suspense>
     </div>

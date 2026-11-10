@@ -18,7 +18,7 @@ import {
   sessionMatchesListingFilters,
 } from "@/lib/camps/listingFilter";
 
-/** MSC-0201-only slice — used so Nutty assertions stay independent of fixtures. */
+/** Full gated real-dev catalog (all preview candidates). */
 function requireRealDevCatalog(): CampsCatalogBundle {
   const real = loadCampsRealDevCatalog();
   assert.ok(real);
@@ -30,15 +30,53 @@ function requireRealDevCatalog(): CampsCatalogBundle {
     sourceLabel: "real_dev",
     includesFictionalFixtures: false,
     sourceCandidateId: real.sourceCandidateId,
+    sourceCandidateIds: real.sourceCandidateIds,
     sourceUrl: real.sourceUrl,
     sourceCheckedDate: real.sourceCheckedDate,
   };
 }
 
+/** MSC-0201-only slice — Nutty assertions stay independent of MSC-0007. */
+function nuttyRealDevCatalog(): CampsCatalogBundle {
+  const catalog = requireRealDevCatalog();
+  const programs = catalog.programs.filter(
+    (p) => p.slug === "nutty-summer-science-camp",
+  );
+  assert.equal(programs.length, 1);
+  const programId = programs[0].id;
+  const sessions = catalog.sessions.filter((s) => s.programId === programId);
+  const providerIds = new Set(programs.map((p) => p.providerId));
+  const venueIds = new Set(
+    sessions
+      .map((s) => s.venueId)
+      .filter((id): id is string => typeof id === "string"),
+  );
+  return {
+    ...catalog,
+    programs,
+    sessions,
+    providers: catalog.providers.filter((p) => providerIds.has(p.id)),
+    venues: catalog.venues.filter((v) => venueIds.has(v.id)),
+    sourceCandidateId: "MSC-0201",
+    sourceCandidateIds: ["MSC-0201"],
+  };
+}
+
 describe("camps real-dev catalog adapter", () => {
-  it("loads only MSC-0201 Nutty Scientists in non-production", () => {
+  it("loads MSC-0201 Nutty Scientists and MSC-0007 Winter Fun in non-production", () => {
     const catalog = requireRealDevCatalog();
     assert.equal(catalog.sourceLabel, "real_dev");
+    assert.ok(catalog.sourceCandidateIds?.includes("MSC-0201"));
+    assert.ok(catalog.sourceCandidateIds?.includes("MSC-0007"));
+    assert.ok(
+      catalog.programs.some((p) => p.slug === "nutty-summer-science-camp"),
+    );
+    assert.ok(catalog.programs.some((p) => p.slug === "camp-winter-fun-malton"));
+    assert.ok(!catalog.programs.some((p) => p.id.startsWith("prog-dev-")));
+  });
+
+  it("keeps MSC-0201 Nutty Scientists as eight unverified-year weeks", () => {
+    const catalog = nuttyRealDevCatalog();
     assert.equal(catalog.sourceCandidateId, "MSC-0201");
     assert.equal(catalog.programs.length, 1);
     assert.equal(catalog.providers.length, 1);
@@ -46,11 +84,10 @@ describe("camps real-dev catalog adapter", () => {
     assert.equal(catalog.programs[0].slug, "nutty-summer-science-camp");
     assert.equal(catalog.providers[0].name, "Nutty Scientists Canada");
     assert.equal(catalog.sessions.length, 8);
-    assert.ok(!catalog.programs.some((p) => p.id.startsWith("prog-dev-")));
   });
 
   it("does not invent calendar years; dates stay unverified at session and card level", () => {
-    const catalog = requireRealDevCatalog();
+    const catalog = nuttyRealDevCatalog();
     assert.ok(catalog);
     for (const session of catalog.sessions) {
       assert.equal(session.startDate, null);
@@ -75,7 +112,7 @@ describe("camps real-dev catalog adapter", () => {
   });
 
   it("audits registration lifecycle separately from seats — no open ended weeks, no scarcity", () => {
-    const catalog = requireRealDevCatalog();
+    const catalog = nuttyRealDevCatalog();
     assert.ok(catalog);
     assert.equal(catalog.sessions.length, 8);
 
@@ -119,7 +156,7 @@ describe("camps real-dev catalog adapter", () => {
   });
 
   it("shows exact weekly price with tax — no From; qualifies care; keeps session-owned facts", () => {
-    const catalog = requireRealDevCatalog();
+    const catalog = nuttyRealDevCatalog();
     assert.ok(catalog);
     const detail = resolveCatalogProgramBySlug(
       catalog,
@@ -160,7 +197,7 @@ describe("camps real-dev catalog adapter", () => {
   });
 
   it("keeps Mississauga as city and Streetsville as neighbourhood", () => {
-    const catalog = requireRealDevCatalog();
+    const catalog = nuttyRealDevCatalog();
     assert.ok(catalog);
     const venue = catalog.venues[0];
     assert.equal(venue.city, "Mississauga");
@@ -169,7 +206,7 @@ describe("camps real-dev catalog adapter", () => {
   });
 
   it("session rows keep own venue, ages, and do not invent scarcity seats", () => {
-    const catalog = requireRealDevCatalog();
+    const catalog = nuttyRealDevCatalog();
     assert.ok(catalog);
     for (const session of catalog.sessions) {
       assert.equal(session.venueId, "venue-vic-johnson-community-centre");
@@ -188,7 +225,7 @@ describe("camps real-dev catalog adapter", () => {
   });
 
   it("resolves detail by slug with session-owned facts", () => {
-    const catalog = requireRealDevCatalog();
+    const catalog = nuttyRealDevCatalog();
     assert.ok(catalog);
     const detail = resolveCatalogProgramBySlug(
       catalog,
@@ -219,7 +256,7 @@ describe("camps real-dev catalog adapter", () => {
 
 describe("MSC-0201 evidence-correction checkpoint assertions", () => {
   it("1. unverified-year sessions remain visible when no date filter is applied", () => {
-    const catalog = requireRealDevCatalog();
+    const catalog = nuttyRealDevCatalog();
     assert.ok(catalog);
     const venuesById = Object.fromEntries(
       catalog.venues.map((v) => [v.id, v]),
@@ -245,7 +282,7 @@ describe("MSC-0201 evidence-correction checkpoint assertions", () => {
   });
 
   it("2. unverified-year sessions never match a specific date-range filter", () => {
-    const catalog = requireRealDevCatalog();
+    const catalog = nuttyRealDevCatalog();
     assert.ok(catalog);
     const venuesById = Object.fromEntries(
       catalog.venues.map((v) => [v.id, v]),
@@ -285,7 +322,7 @@ describe("MSC-0201 evidence-correction checkpoint assertions", () => {
   });
 
   it("3. soonest_start does not treat null/unverified dates as earliest confirmed", () => {
-    const catalog = requireRealDevCatalog();
+    const catalog = nuttyRealDevCatalog();
     assert.ok(catalog);
     const venuesById = Object.fromEntries(
       catalog.venues.map((v) => [v.id, v]),
@@ -317,7 +354,7 @@ describe("MSC-0201 evidence-correction checkpoint assertions", () => {
   });
 
   it("4. availability_unknown + registration URL never gets a generic Register CTA", () => {
-    const catalog = requireRealDevCatalog();
+    const catalog = nuttyRealDevCatalog();
     assert.ok(catalog);
     for (const session of catalog.sessions) {
       assert.equal(session.registrationStatus, "availability_unknown");
@@ -333,7 +370,7 @@ describe("MSC-0201 evidence-correction checkpoint assertions", () => {
   });
 
   it("5. Nutty grouped summary has zero open sessions and no full/closed/seat claim", () => {
-    const catalog = requireRealDevCatalog();
+    const catalog = nuttyRealDevCatalog();
     assert.ok(catalog);
     const detail = resolveCatalogProgramBySlug(
       catalog,
@@ -369,7 +406,7 @@ describe("MSC-0201 evidence-correction checkpoint assertions", () => {
   });
 
   it('6. exact Nutty pricing displays "CAD $399/week + tax" without From', () => {
-    const catalog = requireRealDevCatalog();
+    const catalog = nuttyRealDevCatalog();
     assert.ok(catalog);
     const detail = resolveCatalogProgramBySlug(
       catalog,
@@ -392,7 +429,7 @@ describe("MSC-0201 evidence-correction checkpoint assertions", () => {
   });
 
   it("7. care copy includes advance request and additional-fee qualification", () => {
-    const catalog = requireRealDevCatalog();
+    const catalog = nuttyRealDevCatalog();
     assert.ok(catalog);
     const detail = resolveCatalogProgramBySlug(
       catalog,
@@ -425,6 +462,7 @@ describe("public browse catalog — gated fixtures + real-dev", () => {
       catalog.programs.some((p) => p.slug === "nutty-summer-science-camp"),
     );
     assert.ok(catalog.programs.some((p) => p.slug === "stem-explorers-dev"));
+    assert.ok(catalog.programs.some((p) => p.slug === "camp-winter-fun-malton"));
     assert.ok(
       catalog.sessions.some((s) => s.id.startsWith("sess-nutty-")),
     );
@@ -442,8 +480,11 @@ describe("public browse catalog — gated fixtures + real-dev", () => {
       "nutty-summer-science-camp",
     );
     const stem = resolveCatalogProgramBySlug(catalog, "stem-explorers-dev");
+    const winter = resolveCatalogProgramBySlug(catalog, "camp-winter-fun-malton");
     assert.ok(nutty);
     assert.ok(stem);
+    assert.ok(winter);
+    assert.equal(winter.sessions.length, 1);
     assert.equal(nutty.sessions.length, 8);
     assert.ok(stem.sessions.length >= 2);
 

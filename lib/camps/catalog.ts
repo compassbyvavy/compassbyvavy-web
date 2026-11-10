@@ -41,6 +41,7 @@ export type CampsCatalogBundle = {
   /** True when fictional gated fixtures are part of this bundle. */
   includesFictionalFixtures: boolean;
   sourceCandidateId?: string;
+  sourceCandidateIds?: string[];
   sourceUrl?: string;
   sourceCheckedDate?: string;
 };
@@ -49,16 +50,27 @@ export type CampsCatalogBundle = {
  * Parent-facing provenance banner for browse/detail. Always honest about
  * preview sources. Returns null only when there is no catalog.
  */
+function formatCandidateList(catalog: CampsCatalogBundle): string {
+  const ids =
+    catalog.sourceCandidateIds && catalog.sourceCandidateIds.length > 0
+      ? catalog.sourceCandidateIds
+      : catalog.sourceCandidateId
+        ? [catalog.sourceCandidateId]
+        : ["MSC-0201"];
+  const noun = ids.length === 1 ? "candidate" : "candidates";
+  return `${noun} ${ids.join(", ")}`;
+}
+
 export function formatCampsCatalogBanner(
   catalog: CampsCatalogBundle,
 ): string | null {
   if (catalog.sourceLabel === "real_dev") {
-    return `DEV ONLY — real-data preview (candidate ${catalog.sourceCandidateId ?? "MSC-0201"}). Source-checked ${catalog.sourceCheckedDate ?? ""} from the provider site. Calendar years for listed weeks are not yet verified. Not fictional fixtures; not a full Mississauga directory.`;
+    return `DEV ONLY — real-data preview (${formatCandidateList(catalog)}). Source-checked from provider sites. Not fictional fixtures; not a full Mississauga directory.`;
   }
   if (catalog.sourceLabel === "dev_fixtures") {
     return "DEV ONLY — fictional Mississauga camps fixtures via server gate. Not production directory data. Public browsing does not require an account.";
   }
-  return `DEV ONLY — preview catalog. Includes gated fictional fixtures plus real-data candidate ${catalog.sourceCandidateId ?? "MSC-0201"} (source-checked ${catalog.sourceCheckedDate ?? ""}; calendar years for those weeks are not yet verified). Not a full Mississauga directory. No account required.`;
+  return `DEV ONLY — preview catalog. Includes gated fictional fixtures plus real-data ${formatCandidateList(catalog)}. Not a full Mississauga directory. No account required.`;
 }
 
 /**
@@ -97,6 +109,7 @@ export function loadCampsCatalog(
       sourceLabel: "real_dev",
       includesFictionalFixtures: false,
       sourceCandidateId: real.sourceCandidateId,
+      sourceCandidateIds: real.sourceCandidateIds,
       sourceUrl: real.sourceUrl,
       sourceCheckedDate: real.sourceCheckedDate,
     };
@@ -121,6 +134,7 @@ export function loadCampsCatalog(
     sourceLabel: "mixed_dev",
     includesFictionalFixtures: true,
     sourceCandidateId: real!.sourceCandidateId,
+    sourceCandidateIds: real!.sourceCandidateIds,
     sourceUrl: real!.sourceUrl,
     sourceCheckedDate: real!.sourceCheckedDate,
   };

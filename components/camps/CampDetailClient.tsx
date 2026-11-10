@@ -22,6 +22,9 @@ import {
 } from "@/lib/camps/campDetail";
 import type { RegistrationDisplayStateId } from "@/lib/camps/registrationAction";
 import { saveRefForDetail } from "@/lib/shortlist/refs";
+import { ActiveNetAvailabilityPanel } from "@/components/camps/ActiveNetAvailabilityPanel";
+import { getActiveNetMappingBySessionId } from "@/lib/camps/availability/activenet/registry";
+import type { ActiveNetAvailabilitySnapshot } from "@/lib/camps/availability/activenet/types";
 
 export type CampDetailClientProps = {
   program: CampProgram;
@@ -32,6 +35,8 @@ export type CampDetailClientProps = {
   showDevBanner?: boolean;
   /** Override provenance banner (e.g. real-dev catalog). */
   catalogBanner?: string | null;
+  /** Server-fetched ActiveNet snapshots keyed by session id. */
+  availabilityBySessionId?: Record<string, ActiveNetAvailabilitySnapshot>;
 };
 
 function statusChipClass(state: RegistrationDisplayStateId): string {
@@ -188,6 +193,7 @@ export function CampDetailClient({
   nowIso,
   showDevBanner = false,
   catalogBanner = null,
+  availabilityBySessionId = {},
 }: CampDetailClientProps) {
   const router = useRouter();
   const pathname = usePathname();
@@ -228,6 +234,14 @@ export function CampDetailClient({
     selection.kind === "selected"
       ? rows.find((r) => r.session.id === selection.selectedSessionId) ?? null
       : null;
+  const selectedActiveNet = selectedRow
+    ? getActiveNetMappingBySessionId(selectedRow.session.id)
+    : null;
+  const soleSessionMapping =
+    !selectedActiveNet && sessions.length === 1
+      ? getActiveNetMappingBySessionId(sessions[0].id)
+      : null;
+  const activeNetMapping = selectedActiveNet ?? soleSessionMapping;
 
   const setSession = useCallback(
     (sessionId: string | null) => {
@@ -506,6 +520,15 @@ export function CampDetailClient({
           </>
         )}
       </NarrativeSection>
+
+      {activeNetMapping ? (
+        <ActiveNetAvailabilityPanel
+          candidateId={activeNetMapping.candidateId}
+          initialSnapshot={
+            availabilityBySessionId[activeNetMapping.sessionId] ?? null
+          }
+        />
+      ) : null}
 
       {selectedRow ? <SessionFactBlock row={selectedRow} /> : null}
 

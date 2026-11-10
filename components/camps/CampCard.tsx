@@ -8,6 +8,8 @@ import {
 } from "@/lib/camps/campCardSummary";
 import type { RegistrationDisplayStateId } from "@/lib/camps/registrationAction";
 import { saveRefForCard } from "@/lib/shortlist/refs";
+import { formatActiveNetAvailabilityDisplay } from "@/lib/camps/availability/activenet/display";
+import type { ActiveNetAvailabilitySnapshot } from "@/lib/camps/availability/activenet/types";
 
 export type CampCardProps = {
   program: CampProgram;
@@ -30,6 +32,8 @@ export type CampCardProps = {
   ctaLabel?: string;
   /** When true, show the spec “+ more matching dates/locations” disclosure. */
   groupedDisclosure?: boolean;
+  /** Live ActiveNet snapshot when exactly one mapped session matches. */
+  liveAvailability?: ActiveNetAvailabilitySnapshot | null;
 };
 
 function statusChipClass(state: RegistrationDisplayStateId): string {
@@ -68,6 +72,7 @@ export function CampCard({
   dateOverlapLabel,
   ctaLabel = "View dates & details",
   groupedDisclosure = false,
+  liveAvailability = null,
 }: CampCardProps) {
   const summary = buildCampCardSummary({
     program,
@@ -95,6 +100,9 @@ export function CampCard({
     : matchingSessions.length > 1
       ? `${matchingSessions.length} matching sessions`
       : null;
+  const liveCopy = liveAvailability
+    ? formatActiveNetAvailabilityDisplay(liveAvailability)
+    : null;
 
   return (
     <article className="camp-card" data-program-id={program.id}>
@@ -183,7 +191,16 @@ export function CampCard({
           </span>
         </div>
 
-        <p className="camp-card-evidence">{summary.evidence.label}</p>
+        {liveCopy ? (
+          <p className="camp-card-activenet">
+            <span>{liveCopy.headline}</span>
+            {liveCopy.timestampLabel ? (
+              <span className="camp-card-note"> · {liveCopy.timestampLabel}</span>
+            ) : null}
+          </p>
+        ) : (
+          <p className="camp-card-evidence">{summary.evidence.label}</p>
+        )}
 
         <div className="camp-card-actions">
           <Link className="camp-card-cta" href={detailHref}>
