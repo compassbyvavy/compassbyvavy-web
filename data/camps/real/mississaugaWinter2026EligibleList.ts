@@ -8,8 +8,8 @@
  * internal ids before adding any mapping to the availability registry.
  *
  * REVIEW: transcribed via a summarising tool on 2026-11-10, not by hand.
- * Spot-check against the PDF before relying on it. Meadowvale's four numbers
- * look out of order between the two programs.
+ * Spot-check against the PDF before relying on it. Meadowvale numbers verified
+ * against City activity data on 2026-11-10: no swap.
  *
  * Every row in the PDF lists 7:30 AM - 6:00 PM ("all camps include extended hours").
  */
@@ -34,7 +34,8 @@ export const MISSISSAUGA_WINTER_2026_LISTED: readonly WinterListedSession[] = [
   { centre: "Burnhamthorpe Community Centre", ...FUN, ...W1, publicActivityNumber: "160780" },
   { centre: "Burnhamthorpe Community Centre", ...FUN, ...W2, publicActivityNumber: "147917" },
   { centre: "Carmen Corbasson Community Centre", ...JR, ...W1, publicActivityNumber: "147720" },
-  { centre: "Carmen Corbasson Community Centre", ...FUN, ...W2, publicActivityNumber: "147719" },
+  // Corrected 2026-11-10 from City activity data (list date_range_start 2026-12-21); the PDF as transcribed said Dec 29.
+  { centre: "Carmen Corbasson Community Centre", ...FUN, ...W1, publicActivityNumber: "147719" },
   { centre: "Churchill Meadows Community Centre", ...JR, ...W1, publicActivityNumber: "156676" },
   { centre: "Churchill Meadows Community Centre", ...JR, ...W2, publicActivityNumber: "148030" },
   { centre: "Frank McKechnie Community Centre", ...JR, ...W1, publicActivityNumber: "147848" },
@@ -58,5 +59,6 @@ export const MISSISSAUGA_WINTER_2026_LISTED: readonly WinterListedSession[] = [
   { centre: "Mississauga Valley Community Centre", ...FUN, ...W1, publicActivityNumber: "156570" },
   { centre: "Mississauga Valley Community Centre", ...FUN, ...W2, publicActivityNumber: "156574" },
   { centre: "River Grove Community Centre", ...JR, ...W1, publicActivityNumber: "148283" },
-  { centre: "River Grove Community Centre", ...FUN, ...W2, publicActivityNumber: "148282" },
+  // Corrected 2026-11-10 from City activity data (list date_range_start 2026-12-21); the PDF as transcribed said Dec 29.
+  { centre: "River Grove Community Centre", ...FUN, ...W1, publicActivityNumber: "148282" },
 ];
