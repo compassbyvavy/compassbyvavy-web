@@ -6,16 +6,20 @@ import type { ActiveNetAvailabilitySnapshot } from "@/lib/camps/availability/act
 
 export type ActiveNetAvailabilityPanelProps = {
   candidateId: string;
+  sessionId?: string;
   initialSnapshot?: ActiveNetAvailabilitySnapshot | null;
 };
 
 async function readSnapshot(
   candidateId: string,
   force: boolean,
+  sessionId?: string,
 ): Promise<ActiveNetAvailabilitySnapshot> {
   const qs = force ? "?refresh=1" : "";
   const response = await fetch(
-    `/api/camps/availability/activenet/${encodeURIComponent(candidateId)}${qs}`,
+    sessionId
+      ? `/api/camps/availability/activenet/session/${encodeURIComponent(sessionId)}${qs}`
+      : `/api/camps/availability/activenet/${encodeURIComponent(candidateId)}${qs}`,
     { cache: "no-store" },
   );
   if (!response.ok) {
@@ -26,6 +30,7 @@ async function readSnapshot(
 
 export function ActiveNetAvailabilityPanel({
   candidateId,
+  sessionId,
   initialSnapshot = null,
 }: ActiveNetAvailabilityPanelProps) {
   const [snapshot, setSnapshot] = useState<ActiveNetAvailabilitySnapshot | null>(
@@ -41,7 +46,7 @@ export function ActiveNetAvailabilityPanel({
       inFlight.current = true;
       setLoading(true);
       try {
-        const next = await readSnapshot(candidateId, force);
+        const next = await readSnapshot(candidateId, force, sessionId);
         setSnapshot(next);
         setRequestError(null);
       } catch {
@@ -51,12 +56,17 @@ export function ActiveNetAvailabilityPanel({
         setLoading(false);
       }
     },
-    [candidateId],
+    [candidateId, sessionId],
   );
 
   useEffect(() => {
     void load(false);
   }, [load]);
+
+  useEffect(() => {
+    setSnapshot(initialSnapshot);
+    setRequestError(null);
+  }, [sessionId, initialSnapshot]);
 
   const refreshMs = snapshot?.refreshIntervalMs ?? 60_000;
   // Poll only while the page is visible: a hidden tab never asks the City.
@@ -84,6 +94,7 @@ export function ActiveNetAvailabilityPanel({
       className="activenet-availability"
       aria-labelledby="activenet-availability-heading"
       data-candidate-id={candidateId}
+      data-session-id={sessionId}
       data-freshness={snapshot?.freshness ?? "unavailable"}
     >
       <div className="activenet-availability-head">
