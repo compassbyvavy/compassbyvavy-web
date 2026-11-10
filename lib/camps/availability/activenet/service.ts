@@ -16,12 +16,19 @@ import type {
   ActiveNetSpaceStatusKind,
 } from "@/lib/camps/availability/activenet/types";
 import { urlsForMapping } from "@/lib/camps/availability/activenet/urls";
+import {
+  getDefaultSnapshotStore,
+  resetDefaultSnapshotStoreForTests,
+  type SnapshotStore,
+} from "@/lib/camps/availability/activenet/sharedStore";
 
 export type GetActiveNetAvailabilityOptions = {
   force?: boolean;
   fetchImpl?: FetchLike;
   now?: () => Date;
   config?: ActiveNetAvailabilityConfig;
+  /** Shared across isolates in production (Workers Cache API); injectable for tests. */
+  store?: SnapshotStore;
 };
 
 type CacheEntry = {
@@ -105,6 +112,7 @@ function withFreshness(
 
 export function resetActiveNetAvailabilityCacheForTests(): void {
   cache.clear();
+  resetDefaultSnapshotStoreForTests();
 }
 
 export async function getActiveNetAvailability(
@@ -156,6 +164,35 @@ export async function getActiveNetAvailability(
     );
   }
 
+  // Another isolate (or the batch refresher) may already have read the City
+  // recently. Reuse it for the refresh interval; a manual Refresh only reuses
+  // a reading younger than the minimum origin interval.
+  const store = options.store ?? getDefaultSnapshotStore();
+  const shared = await store.get(mapping.activityId);
+  if (
+    shared &&
+    shared.snapshot.activityId === mapping.activityId &&
+    shared.snapshot.activityNumber === mapping.activityNumber &&
+    shared.snapshot.error === null &&
+    (!entry || shared.fetchedAtMs > entry.fetchedAtMs)
+  ) {
+    const sharedAgeMs = nowMs - shared.fetchedAtMs;
+    const reuseLimitMs = options.force ? config.minOriginIntervalMs : config.refreshIntervalMs;
+    if (sharedAgeMs >= 0 && sharedAgeMs < reuseLimitMs) {
+      const reused = { ...shared.snapshot, candidateId: mapping.candidateId };
+      cache.set(mapping.candidateId, {
+        snapshot: reused,
+        fetchedAtMs: shared.fetchedAtMs,
+        inFlight: null,
+      });
+      return withFreshness(
+        reused,
+        freshnessForAge(sharedAgeMs, config.refreshIntervalMs, false),
+        config,
+      );
+    }
+  }
+
   const pending = (async (): Promise<ActiveNetAvailabilitySnapshot> => {
     const origin = await fetchActiveNetActivityDetail({
       mapping,
@@ -183,6 +220,11 @@ export async function getActiveNetAvailability(
       fetchedAtMs: retrievedAt.getTime(),
       inFlight: null,
     });
+    await store.set(
+      mapping.activityId,
+      { snapshot, fetchedAtMs: retrievedAt.getTime() },
+      config.refreshIntervalMs,
+    );
     return snapshot;
   })();
 

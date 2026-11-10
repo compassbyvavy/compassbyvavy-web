@@ -13,7 +13,7 @@
 
 /** Identifies Compass to providers, with a contact path. */
 export const COMPASS_CAMP_FETCH_USER_AGENT =
-  "CompassByVavyCampsBot/1.0 (+https://compassbyvavy.com; camps ingestion; contact: hello@compassbyvavy.com)";
+  "CompassByVavyCampsBot/1.0 (+https://compassbyvavy.ca; camps ingestion; contact: hello@compassbyvavy.ca)";
 
 export const ALLOWED_FETCH_PROTOCOLS: readonly string[] = ["http:", "https:"];
 export const ALLOWED_FETCH_PORTS: readonly string[] = ["", "80", "443"];

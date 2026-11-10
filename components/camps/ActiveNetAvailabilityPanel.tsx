@@ -59,11 +59,22 @@ export function ActiveNetAvailabilityPanel({
   }, [load]);
 
   const refreshMs = snapshot?.refreshIntervalMs ?? 60_000;
+  // Poll only while the page is visible: a hidden tab never asks the City.
+  // Coming back to the tab refreshes straight away (the server reuses any
+  // reading still within the refresh interval).
   useEffect(() => {
+    const visible = () => document.visibilityState === "visible";
     const id = window.setInterval(() => {
-      void load(false);
+      if (visible()) void load(false);
     }, refreshMs);
-    return () => window.clearInterval(id);
+    const onVisibilityChange = () => {
+      if (visible()) void load(false);
+    };
+    document.addEventListener("visibilitychange", onVisibilityChange);
+    return () => {
+      window.clearInterval(id);
+      document.removeEventListener("visibilitychange", onVisibilityChange);
+    };
   }, [load, refreshMs]);
 
   const copy = snapshot ? formatActiveNetAvailabilityDisplay(snapshot) : null;
