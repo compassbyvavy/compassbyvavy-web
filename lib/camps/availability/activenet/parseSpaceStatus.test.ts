@@ -16,15 +16,19 @@ describe("parseActiveNetSpaceStatus", () => {
     assert.equal(parsed.openingsRemaining, 1);
   });
 
-  it("preserves Closed", () => {
+  it("preserves Closed without treating it as zero openings", () => {
     const parsed = parseActiveNetSpaceStatus("Closed");
     assert.equal(parsed.kind, "closed");
     assert.equal(parsed.openingsRemaining, null);
+    assert.notEqual(parsed.openingsRemaining, 0);
     assert.equal(parsed.raw, "Closed");
   });
 
-  it("preserves Waitlist and Waiting List", () => {
-    assert.equal(parseActiveNetSpaceStatus("Waitlist").kind, "waitlist");
+  it("preserves Waitlist and Waiting List without inventing zero openings", () => {
+    const waitlist = parseActiveNetSpaceStatus("Waitlist");
+    assert.equal(waitlist.kind, "waitlist");
+    assert.equal(waitlist.openingsRemaining, null);
+    assert.notEqual(waitlist.openingsRemaining, 0);
     assert.equal(parseActiveNetSpaceStatus("Waiting List").kind, "waitlist");
     assert.equal(parseActiveNetSpaceStatus("+ Waiting List").kind, "waitlist");
   });

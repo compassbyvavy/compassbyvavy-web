@@ -194,6 +194,9 @@ export function CampCard({
         {liveCopy ? (
           <p className="camp-card-activenet">
             <span>{liveCopy.headline}</span>
+            {liveCopy.liveLabel ? (
+              <span className="camp-card-note"> · {liveCopy.liveLabel}</span>
+            ) : null}
             {liveCopy.timestampLabel ? (
               <span className="camp-card-note"> · {liveCopy.timestampLabel}</span>
             ) : null}

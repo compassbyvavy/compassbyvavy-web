@@ -5,7 +5,13 @@ export const ACTIVENET_DISPLAY_TIME_ZONE = "America/Toronto";
 export type ActiveNetAvailabilityDisplay = {
   headline: string;
   timestampLabel: string | null;
-  /** False when the snapshot is cached, stale, missing, or failed. */
+  /**
+   * "Live availability" only after a successful current API snapshot
+   * (fresh origin or still within the refresh interval). Never set for
+   * stale or failed responses.
+   */
+  liveLabel: string | null;
+  /** True only when liveLabel is shown. */
   confirmedCurrent: boolean;
   ctaText: string | null;
   ctaHref: string | null;
@@ -57,7 +63,7 @@ function ctaFor(
   const href = snapshot.bookingUrl.trim();
   if (!href) return null;
   if (snapshot.status === "available") {
-    return { text: "Register with provider", href };
+    return { text: "Enroll Now", href };
   }
   if (snapshot.status === "waitlist") {
     return { text: "View provider waitlist", href };
@@ -68,7 +74,8 @@ function ctaFor(
 /**
  * Parent-facing copy for an ActiveNet snapshot.
  * Always includes a retrieval timestamp when one exists.
- * Never labels cached/stale/failed responses as live.
+ * "Live availability" is reserved for a successful current snapshot.
+ * Stale and failed responses keep the last count and never say live.
  */
 export function formatActiveNetAvailabilityDisplay(
   snapshot: ActiveNetAvailabilitySnapshot,
@@ -92,6 +99,7 @@ export function formatActiveNetAvailabilityDisplay(
   return {
     headline: headlineFor(snapshot),
     timestampLabel,
+    liveLabel: confirmedCurrent ? "Live availability" : null,
     confirmedCurrent,
     ctaText: cta?.text ?? null,
     ctaHref: cta?.href ?? null,
