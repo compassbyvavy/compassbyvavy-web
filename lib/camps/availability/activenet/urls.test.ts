@@ -9,6 +9,7 @@ import {
   activeNetActivityPageUrl,
   activeNetDetailApiUrl,
   activeNetEnrollUrl,
+  activeNetEstimatePriceUrl,
   urlUsesInternalActivityId,
   urlsForMapping,
 } from "@/lib/camps/availability/activenet/urls";
@@ -40,5 +41,14 @@ describe("ActiveNet URLs use internal activity_id", () => {
       false,
     );
     assert.equal(activeNetActivityPageUrl(mapping.activityId).includes("145871"), true);
+  });
+
+  it("keeps the public number out of the estimateprice path", () => {
+    const url = activeNetEstimatePriceUrl(MSC_0007_ACTIVITY_ID);
+    assert.equal(
+      url,
+      `https://anc.ca.apm.activecommunities.com/activemississauga/rest/activity/detail/estimateprice/${MSC_0007_ACTIVITY_ID}`,
+    );
+    assert.doesNotMatch(new URL(url).pathname, new RegExp(`/${MSC_0007_ACTIVITY_NUMBER}(/|$)`));
   });
 });

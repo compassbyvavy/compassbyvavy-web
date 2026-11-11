@@ -7,6 +7,7 @@ import {
   ACTIVENET_TENANT,
   type ParsedSpaceStatus,
 } from "@/lib/camps/availability/activenet/types";
+import { parseActiveNetTimeRange } from "@/lib/camps/availability/activenet/parseTimeRange";
 
 /**
  * ActiveNet search list: `POST /{tenant}/rest/activities/list`.
@@ -116,6 +117,11 @@ export type ActiveNetListItem = {
   totalOpen: number;
   alreadyEnrolled: number;
   statusDescription: string;
+  dateRangeEnd: string | null;
+  /** 24-hour HH:MM from list `time_range`, e.g. "09:00". */
+  dailyStart: string | null;
+  dailyEnd: string | null;
+  timeRangeRaw: string | null;
 };
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -149,15 +155,22 @@ export function parseActiveNetListItem(raw: unknown): ActiveNetListItem | null {
   if (activityId == null || activityId <= 0 || activityNumber == null) return null;
   if (totalOpen == null || alreadyEnrolled == null || alreadyEnrolled < 0) return null;
   const urgent = isRecord(raw.urgent_message) ? raw.urgent_message : null;
+  const timeRangeRaw =
+    readText(raw.time_range) ?? readText(raw.time_range_landing_page);
+  const hours = parseActiveNetTimeRange(timeRangeRaw);
   return {
     activityId,
     activityNumber,
     name: readText(raw.name) ?? "",
     dateRangeStart: readText(raw.date_range_start),
+    dateRangeEnd: readText(raw.date_range_end),
     locationLabel: readLabel(raw.location),
     totalOpen,
     alreadyEnrolled,
     statusDescription: readText(urgent?.status_description) ?? "",
+    dailyStart: hours.start,
+    dailyEnd: hours.end,
+    timeRangeRaw,
   };
 }
 
@@ -167,7 +180,8 @@ const CLOSED = /\b(closed|ended|cancel+ed|in progress)\b/i;
 /**
  * Availability from a list row, in the same shape the detail parser returns.
  * Waitlist and Closed keep their status and never become zero openings.
- * "Full" (no seats, no other status) keeps its raw text so it reads "Full".
+ * No remaining seats maps to kind "full" (seat_availability confirmed_full),
+ * never "unknown" and never a numeric 0.
  */
 export function availabilityFromListItem(item: ActiveNetListItem): ParsedSpaceStatus {
   const status = item.statusDescription;
@@ -185,7 +199,7 @@ export function availabilityFromListItem(item: ActiveNetListItem): ParsedSpaceSt
     const raw = remaining === 1 ? "1 opening remaining" : `${remaining} openings remaining`;
     return { kind: "available", openingsRemaining: remaining, raw };
   }
-  return { kind: "unknown", openingsRemaining: null, raw: status || "Full" };
+  return { kind: "full", openingsRemaining: null, raw: status || "Full" };
 }
 
 export type ActiveNetListResult =

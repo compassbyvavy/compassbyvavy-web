@@ -18,6 +18,14 @@ export type ActivityIdMatch = {
   dateRangeStart: string | null;
 };
 
+export type UnmatchedListRow = {
+  name: string;
+  locationLabel: string | null;
+  dateRangeStart: string | null;
+  activityNumber: string;
+  activityId: number;
+};
+
 export type ActivityIdMatchReport = {
   matched: ActivityIdMatch[];
   /** Public numbers not in the list results (closed, other keyword, or a typo in the source). */
@@ -26,6 +34,11 @@ export type ActivityIdMatchReport = {
   ambiguous: Array<{ activityNumber: string; activityIds: number[] }>;
   /** Expected names that don't match the row's name (possible wrong number in the source). */
   nameWarnings: Array<{ activityNumber: string; expected: string; actual: string }>;
+  /**
+   * List rows whose public number is not in the expected set (ActiveNet-only
+   * sessions, not on the source document).
+   */
+  unmatchedListRows: UnmatchedListRow[];
 };
 
 export type ExpectedActivity = {
@@ -51,7 +64,13 @@ export function matchActivityNumbers(
     byNumber.set(item.activityNumber, list);
   }
 
-  const report: ActivityIdMatchReport = { matched: [], missing: [], ambiguous: [], nameWarnings: [] };
+  const report: ActivityIdMatchReport = {
+    matched: [],
+    missing: [],
+    ambiguous: [],
+    nameWarnings: [],
+    unmatchedListRows: [],
+  };
   const seen = new Set<string>();
   for (const want of expected) {
     const number = want.activityNumber.trim();
@@ -85,6 +104,21 @@ export function matchActivityNumbers(
       name: row.name,
       locationLabel: row.locationLabel,
       dateRangeStart: row.dateRangeStart,
+    });
+  }
+
+  const expectedNumbers = new Set(expected.map((want) => want.activityNumber.trim()));
+  const seenUnmatched = new Set<number>();
+  for (const item of items) {
+    if (expectedNumbers.has(item.activityNumber)) continue;
+    if (seenUnmatched.has(item.activityId)) continue;
+    seenUnmatched.add(item.activityId);
+    report.unmatchedListRows.push({
+      name: item.name,
+      locationLabel: item.locationLabel,
+      dateRangeStart: item.dateRangeStart,
+      activityNumber: item.activityNumber,
+      activityId: item.activityId,
     });
   }
   return report;

@@ -72,6 +72,18 @@ describe("interpretActiveNetDetailPayload", () => {
     if (result.ok) assert.equal(result.parsed.kind, "waitlist");
   });
 
+  it("reads Full as kind full, not unknown", () => {
+    const result = interpretActiveNetDetailPayload(
+      detailPayload({ space_status: "Full" }),
+      mapping,
+    );
+    assert.equal(result.ok, true);
+    if (result.ok) {
+      assert.equal(result.parsed.kind, "full");
+      assert.equal(result.parsed.openingsRemaining, null);
+    }
+  });
+
   it("flags an activity_id mismatch", () => {
     const result = interpretActiveNetDetailPayload(
       detailPayload({ activity_id: 147884 }),

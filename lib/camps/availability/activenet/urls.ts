@@ -24,6 +24,10 @@ export function activeNetDetailApiUrl(activityId: number): string {
   return `${ACTIVENET_ORIGIN}${TENANT_PREFIX}/rest/activity/detail/${activityId}`;
 }
 
+export function activeNetEstimatePriceUrl(activityId: number): string {
+  return `${ACTIVENET_ORIGIN}${TENANT_PREFIX}/rest/activity/detail/estimateprice/${activityId}`;
+}
+
 export function urlsForMapping(mapping: ActiveNetActivityMapping): {
   apiUrl: string;
   bookingUrl: string;

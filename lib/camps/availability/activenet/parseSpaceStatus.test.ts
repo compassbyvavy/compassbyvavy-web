@@ -38,6 +38,14 @@ describe("parseActiveNetSpaceStatus", () => {
     assert.equal(parsed.kind, "waitlist");
   });
 
+  it("maps Full to kind full, not unknown or zero openings", () => {
+    const parsed = parseActiveNetSpaceStatus("Full");
+    assert.equal(parsed.kind, "full");
+    assert.equal(parsed.openingsRemaining, null);
+    assert.notEqual(parsed.openingsRemaining, 0);
+    assert.equal(parsed.raw, "Full");
+  });
+
   it("does not treat non-string or empty values as openings", () => {
     assert.equal(parseActiveNetSpaceStatus(null).kind, "unknown");
     assert.equal(parseActiveNetSpaceStatus(33).kind, "unknown");

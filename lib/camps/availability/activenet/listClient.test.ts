@@ -35,6 +35,8 @@ const MALTON_ROW = {
   number: MSC_0007_ACTIVITY_NUMBER,
   name: "Camp: Winter Fun",
   date_range_start: "2026-12-21",
+  date_range_end: "2026-12-23",
+  time_range: "9:00 AM - 4:00 PM",
   location: { label: "Malton Community Centre" },
   total_open: 36,
   already_enrolled: 3,
@@ -47,10 +49,14 @@ function item(overrides: Partial<ActiveNetListItem> = {}): ActiveNetListItem {
     activityNumber: "100",
     name: "Camp: Winter Fun",
     dateRangeStart: "2026-12-21",
+    dateRangeEnd: "2026-12-23",
     locationLabel: null,
     totalOpen: 20,
     alreadyEnrolled: 5,
     statusDescription: "",
+    dailyStart: "09:00",
+    dailyEnd: "16:00",
+    timeRangeRaw: "9:00 AM - 4:00 PM",
     ...overrides,
   };
 }
@@ -115,6 +121,9 @@ describe("ActiveNet list helpers", () => {
     assert.equal(parsed.totalOpen, 36);
     assert.equal(parsed.alreadyEnrolled, 3);
     assert.equal(parsed.locationLabel, "Malton Community Centre");
+    assert.equal(parsed.dailyStart, "09:00");
+    assert.equal(parsed.dailyEnd, "16:00");
+    assert.equal(parsed.dateRangeEnd, "2026-12-23");
   });
 
   it("skips rows missing ids or counts instead of guessing", () => {
@@ -151,11 +160,14 @@ describe("availabilityFromListItem", () => {
     assert.equal(parsed.openingsRemaining, null);
   });
 
-  it("shows Full as Full when no seats remain", () => {
+  it("maps Full to kind full, not unknown or zero openings", () => {
     const parsed = availabilityFromListItem(item({ totalOpen: 20, alreadyEnrolled: 20, statusDescription: "Full" }));
-    assert.equal(parsed.kind, "unknown");
+    assert.equal(parsed.kind, "full");
     assert.equal(parsed.raw, "Full");
     assert.equal(parsed.openingsRemaining, null);
+    const silent = availabilityFromListItem(item({ totalOpen: 20, alreadyEnrolled: 20, statusDescription: "" }));
+    assert.equal(silent.kind, "full");
+    assert.equal(silent.raw, "Full");
   });
 });
 
@@ -244,6 +256,57 @@ describe("matchActivityNumbers", () => {
     );
     assert.deepEqual(report.ambiguous, [{ activityNumber: "147884", activityIds: [145871, 999] }]);
     assert.equal(report.matched.length, 0);
+  });
+
+  it("prints list rows that are not in the expected set", () => {
+    const extras = [
+      item({
+        activityId: 164666,
+        activityNumber: "166679",
+        name: "Camp: Winter Fun",
+        locationLabel: "Carmen Corbasson Community Centre",
+        dateRangeStart: "2026-12-29",
+      }),
+      item({
+        activityId: 164668,
+        activityNumber: "166681",
+        name: "Camp: Winter Fun Jr",
+        locationLabel: "Carmen Corbasson Community Centre",
+        dateRangeStart: "2026-12-29",
+      }),
+      item({
+        activityId: 164823,
+        activityNumber: "166836",
+        name: "Camp: Winter Fun",
+        locationLabel: "River Grove Community Centre",
+        dateRangeStart: "2026-12-29",
+      }),
+      item({
+        activityId: 164824,
+        activityNumber: "166837",
+        name: "Camp: Winter Fun Jr",
+        locationLabel: "River Grove Community Centre",
+        dateRangeStart: "2026-12-29",
+      }),
+    ];
+    const report = matchActivityNumbers(
+      [items[0], ...extras],
+      [{ activityNumber: "147884" }],
+    );
+    assert.equal(report.matched.length, 1);
+    assert.equal(report.unmatchedListRows.length, 4);
+    const carmenFun = report.unmatchedListRows.find((row) => row.activityNumber === "166679");
+    assert.ok(carmenFun);
+    assert.equal(carmenFun.name, "Camp: Winter Fun");
+    assert.equal(carmenFun.locationLabel, "Carmen Corbasson Community Centre");
+    assert.equal(carmenFun.dateRangeStart, "2026-12-29");
+    assert.ok(report.unmatchedListRows.some((row) => row.activityNumber === "166836"));
+    assert.ok(report.unmatchedListRows.some((row) => row.activityNumber === "166681"));
+    assert.ok(report.unmatchedListRows.some((row) => row.activityNumber === "166837"));
+    assert.equal(
+      report.unmatchedListRows.some((row) => /churchill/i.test(row.locationLabel ?? "")),
+      false,
+    );
   });
 });
 

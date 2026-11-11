@@ -68,10 +68,27 @@ describe("getActiveNetAvailability", () => {
     assert.doesNotMatch(snapshot.bookingUrl, /147884/);
     const copy = formatActiveNetAvailabilityDisplay(snapshot);
     assert.equal(copy.headline, "33 openings remaining");
-    assert.equal(copy.liveLabel, "Live availability");
-    assert.match(copy.timestampLabel ?? "", /Retrieved /);
+    assert.match(copy.timestampLabel ?? "", /^as of /);
     assert.equal(copy.confirmedCurrent, true);
     assert.equal(copy.ctaText, "Enroll Now");
+    assert.doesNotMatch(JSON.stringify(copy), /live/i);
+    assert.equal(snapshot.retrievedAt, "2026-11-10T08:40:00.000Z");
+  });
+
+  it("maps Full to status full, not unknown", async () => {
+    resetActiveNetAvailabilityCacheForTests();
+    const snapshot = await getActiveNetAvailability("MSC-0007", {
+      fetchImpl: async () => jsonResponse(payload("Full")),
+      config: CONFIG,
+      now: () => new Date("2026-11-10T08:40:00.000Z"),
+    });
+    assert.equal(snapshot.status, "full");
+    assert.equal(snapshot.openingsRemaining, null);
+    assert.equal(snapshot.retrievedAt, "2026-11-10T08:40:00.000Z");
+    const copy = formatActiveNetAvailabilityDisplay(snapshot);
+    assert.equal(copy.headline, "Full");
+    assert.match(copy.timestampLabel ?? "", /^as of /);
+    assert.doesNotMatch(JSON.stringify(copy), /live/i);
   });
 
   it("preserves Closed and Waitlist", async () => {
@@ -107,8 +124,8 @@ describe("getActiveNetAvailability", () => {
     assert.equal(snapshot.openingsRemaining, null);
     assert.equal(snapshot.freshness, "unavailable");
     const copy = formatActiveNetAvailabilityDisplay(snapshot);
-    assert.equal(copy.liveLabel, null);
     assert.doesNotMatch(copy.headline, /live/i);
+    assert.doesNotMatch(JSON.stringify(copy), /live/i);
     assert.equal(copy.confirmedCurrent, false);
   });
 
@@ -133,7 +150,7 @@ describe("getActiveNetAvailability", () => {
     assert.equal(snapshot.openingsRemaining, null);
   });
 
-  it("rate-limits origin fetches and still labels a current cache live", async () => {
+  it("rate-limits origin fetches and still labels a current cache as of the retrieval", async () => {
     resetActiveNetAvailabilityCacheForTests();
     const { fetchImpl, state } = countingFetch(() =>
       jsonResponse(payload("33 openings remaining")),
@@ -154,9 +171,9 @@ describe("getActiveNetAvailability", () => {
     assert.equal(second.freshness, "cached");
     const copy = formatActiveNetAvailabilityDisplay(second);
     assert.equal(copy.confirmedCurrent, true);
-    assert.equal(copy.liveLabel, "Live availability");
-    assert.match(copy.timestampLabel ?? "", /Retrieved /);
+    assert.match(copy.timestampLabel ?? "", /^as of /);
     assert.doesNotMatch(copy.timestampLabel ?? "", /not confirmed current/i);
+    assert.doesNotMatch(JSON.stringify(copy), /live/i);
   });
 
   it("marks a previous snapshot stale after a later provider failure", async () => {
@@ -184,9 +201,9 @@ describe("getActiveNetAvailability", () => {
     assert.equal(failed.openingsRemaining, 33);
     const copy = formatActiveNetAvailabilityDisplay(failed);
     assert.equal(copy.confirmedCurrent, false);
-    assert.equal(copy.liveLabel, null);
     assert.equal(copy.headline, "33 openings remaining");
+    assert.match(copy.timestampLabel ?? "", /^as of /);
     assert.match(copy.timestampLabel ?? "", /not confirmed current/i);
-    assert.doesNotMatch(JSON.stringify(copy), /Live availability/);
+    assert.doesNotMatch(JSON.stringify(copy), /live/i);
   });
 });

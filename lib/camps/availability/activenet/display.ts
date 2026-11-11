@@ -4,31 +4,25 @@ export const ACTIVENET_DISPLAY_TIME_ZONE = "America/Toronto";
 
 export type ActiveNetAvailabilityDisplay = {
   headline: string;
+  /** "as of <date>" when retrievedAt is present. Never "live". */
   timestampLabel: string | null;
-  /**
-   * "Live availability" only after a successful current API snapshot
-   * (fresh origin or still within the refresh interval). Never set for
-   * stale or failed responses.
-   */
-  liveLabel: string | null;
-  /** True only when liveLabel is shown. */
   confirmedCurrent: boolean;
   ctaText: string | null;
   ctaHref: string | null;
 };
 
-function formatRetrievedAt(
+function formatAsOf(
   iso: string,
   timeZone: string = ACTIVENET_DISPLAY_TIME_ZONE,
 ): string {
   const date = new Date(iso);
-  if (Number.isNaN(date.getTime())) return iso;
+  if (Number.isNaN(date.getTime())) return `as of ${iso}`;
   const stamp = new Intl.DateTimeFormat("en-CA", {
     timeZone,
     dateStyle: "medium",
     timeStyle: "short",
   }).format(date);
-  return `${stamp} ET`;
+  return `as of ${stamp} ET`;
 }
 
 function headlineFor(snapshot: ActiveNetAvailabilitySnapshot): string {
@@ -53,6 +47,7 @@ function headlineFor(snapshot: ActiveNetAvailabilitySnapshot): string {
   }
   if (snapshot.status === "closed") return "Closed";
   if (snapshot.status === "waitlist") return "Waitlist";
+  if (snapshot.status === "full") return "Full";
   if (snapshot.spaceStatusRaw?.trim()) return snapshot.spaceStatusRaw.trim();
   return "Availability to confirm with the City of Mississauga";
 }
@@ -73,9 +68,8 @@ function ctaFor(
 
 /**
  * Parent-facing copy for an ActiveNet snapshot.
- * Always includes a retrieval timestamp when one exists.
- * "Live availability" is reserved for a successful current snapshot.
- * Stale and failed responses keep the last count and never say live.
+ * Always includes an "as of" retrieval timestamp when one exists.
+ * Openings are never presented as live.
  */
 export function formatActiveNetAvailabilityDisplay(
   snapshot: ActiveNetAvailabilitySnapshot,
@@ -85,21 +79,20 @@ export function formatActiveNetAvailabilityDisplay(
     (snapshot.freshness === "fresh" || snapshot.freshness === "cached") &&
     !snapshot.error;
   const timeZone = options?.timeZone ?? ACTIVENET_DISPLAY_TIME_ZONE;
-  const stamp = snapshot.retrievedAt
-    ? formatRetrievedAt(snapshot.retrievedAt, timeZone)
+  const asOf = snapshot.retrievedAt
+    ? formatAsOf(snapshot.retrievedAt, timeZone)
     : null;
   const cta = ctaFor(snapshot);
   let timestampLabel: string | null = null;
-  if (stamp && confirmedCurrent) {
-    timestampLabel = `Retrieved ${stamp}`;
-  } else if (stamp) {
-    timestampLabel = `Last retrieved ${stamp} — not confirmed current`;
+  if (asOf && confirmedCurrent) {
+    timestampLabel = asOf;
+  } else if (asOf) {
+    timestampLabel = `${asOf} — not confirmed current`;
   }
 
   return {
     headline: headlineFor(snapshot),
     timestampLabel,
-    liveLabel: confirmedCurrent ? "Live availability" : null,
     confirmedCurrent,
     ctaText: cta?.text ?? null,
     ctaHref: cta?.href ?? null,
