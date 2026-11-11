@@ -12,6 +12,7 @@ export const ACTIVENET_HOST = "anc.ca.apm.activecommunities.com" as const;
 
 export type ActiveNetSpaceStatusKind =
   | "available"
+  | "full"
   | "closed"
   | "waitlist"
   | "unknown";

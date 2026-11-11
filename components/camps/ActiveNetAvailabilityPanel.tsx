@@ -97,9 +97,6 @@ export function ActiveNetAvailabilityPanel({
           {loading ? "Refreshing…" : "Refresh"}
         </button>
       </div>
-      {copy?.liveLabel ? (
-        <p className="activenet-availability-live">{copy.liveLabel}</p>
-      ) : null}
       <p className="activenet-availability-headline" role="status">
         {copy?.headline ?? "Checking availability with the City of Mississauga…"}
       </p>

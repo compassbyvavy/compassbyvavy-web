@@ -12,6 +12,15 @@
  * against City activity data on 2026-11-10: no swap.
  *
  * Every row in the PDF lists 7:30 AM - 6:00 PM ("all camps include extended hours").
+ * ActiveNet list `time_range` for Winter Fun is the core day 9:00 AM - 4:00 PM.
+ *
+ * Churchill Meadows has Winter Fun Jr (4–5) on the PDF and in ActiveNet. There
+ * is no Churchill Meadows Winter Fun 6–12 in the City's "winter fun" list.
+ *
+ * ActiveNet returns 34 Winter Fun rows vs 30 PDF rows. The four extra list
+ * rows are Carmen Corbasson and River Grove Dec 29 (Fun and Jr) — see
+ * MISSISSAUGA_WINTER_2026_ACTIVENET_ONLY. They are not on the subsidy PDF
+ * (Carmen 147719 and River Grove 148282 are the week-1 PDF numbers).
  */
 
 export type WinterListedSession = {
@@ -61,4 +70,17 @@ export const MISSISSAUGA_WINTER_2026_LISTED: readonly WinterListedSession[] = [
   { centre: "River Grove Community Centre", ...JR, ...W1, publicActivityNumber: "148283" },
   // Corrected 2026-11-10 from City activity data (list date_range_start 2026-12-21); the PDF as transcribed said Dec 29.
   { centre: "River Grove Community Centre", ...FUN, ...W1, publicActivityNumber: "148282" },
+];
+
+/**
+ * Winter Fun rows observed on ActiveNet that are not on the Eligible Camp
+ * List PDF. Matcher output lists these as unmatchedListRows. Do not treat
+ * them as subsidy-list sessions. Public numbers and internal IDs checked
+ * 2026-11-10 against POST /rest/activities/list keyword "winter fun".
+ */
+export const MISSISSAUGA_WINTER_2026_ACTIVENET_ONLY: readonly WinterListedSession[] = [
+  { centre: "Carmen Corbasson Community Centre", ...FUN, ...W2, publicActivityNumber: "166679" },
+  { centre: "Carmen Corbasson Community Centre", ...JR, ...W2, publicActivityNumber: "166681" },
+  { centre: "River Grove Community Centre", ...FUN, ...W2, publicActivityNumber: "166836" },
+  { centre: "River Grove Community Centre", ...JR, ...W2, publicActivityNumber: "166837" },
 ];

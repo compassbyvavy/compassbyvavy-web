@@ -370,7 +370,7 @@ export function CampsListingClient({
           options?.flatSessionId ? "View this session" : "View dates & details"
         }
         groupedDisclosure={!options?.flatSessionId}
-        liveAvailability={snapshotForMatchingSessions(
+        availabilitySnapshot={snapshotForMatchingSessions(
           matching.map((s) => s.id),
           availabilityBySessionId,
         )}

@@ -32,8 +32,8 @@ export type CampCardProps = {
   ctaLabel?: string;
   /** When true, show the spec “+ more matching dates/locations” disclosure. */
   groupedDisclosure?: boolean;
-  /** Live ActiveNet snapshot when exactly one mapped session matches. */
-  liveAvailability?: ActiveNetAvailabilitySnapshot | null;
+  /** ActiveNet snapshot when exactly one mapped session matches. Never shown as live. */
+  availabilitySnapshot?: ActiveNetAvailabilitySnapshot | null;
 };
 
 function statusChipClass(state: RegistrationDisplayStateId): string {
@@ -72,7 +72,7 @@ export function CampCard({
   dateOverlapLabel,
   ctaLabel = "View dates & details",
   groupedDisclosure = false,
-  liveAvailability = null,
+  availabilitySnapshot = null,
 }: CampCardProps) {
   const summary = buildCampCardSummary({
     program,
@@ -100,8 +100,8 @@ export function CampCard({
     : matchingSessions.length > 1
       ? `${matchingSessions.length} matching sessions`
       : null;
-  const liveCopy = liveAvailability
-    ? formatActiveNetAvailabilityDisplay(liveAvailability)
+  const availabilityCopy = availabilitySnapshot
+    ? formatActiveNetAvailabilityDisplay(availabilitySnapshot)
     : null;
 
   return (
@@ -191,14 +191,11 @@ export function CampCard({
           </span>
         </div>
 
-        {liveCopy ? (
+        {availabilityCopy ? (
           <p className="camp-card-activenet">
-            <span>{liveCopy.headline}</span>
-            {liveCopy.liveLabel ? (
-              <span className="camp-card-note"> · {liveCopy.liveLabel}</span>
-            ) : null}
-            {liveCopy.timestampLabel ? (
-              <span className="camp-card-note"> · {liveCopy.timestampLabel}</span>
+            <span>{availabilityCopy.headline}</span>
+            {availabilityCopy.timestampLabel ? (
+              <span className="camp-card-note"> · {availabilityCopy.timestampLabel}</span>
             ) : null}
           </p>
         ) : (

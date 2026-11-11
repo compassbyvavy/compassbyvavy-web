@@ -4,11 +4,13 @@
  * Public activity_number 147884 is stored separately from internal
  * activity_id 145871. REST and booking URLs use 145871 only.
  *
- * Static catalog does not freeze a live openings count. Seat/lifecycle
- * stay unknown until the ActiveNet connector reads space_status.
+ * Static catalog does not freeze an openings count. Seat/lifecycle stay
+ * unknown until the ActiveNet connector reads space_status. Price and
+ * core hours come from the same ActiveNet pages (list time_range and
+ * estimateprice) and are shown as catalog facts, not as live seats.
  *
  * Facts checked against GET /activemississauga/rest/activity/detail/145871
- * on 2026-11-10. Access via lib/camps/realDevCatalog.ts.
+ * and estimateprice/145871 on 2026-11-10. Access via lib/camps/realDevCatalog.ts.
  */
 
 import type {
@@ -106,9 +108,13 @@ export const msc0007Sessions: CampSession[] = [
     scheduleFormat: "full_day",
     stayType: "day",
     deliveryMode: "in_person",
-    priceAmount: null,
-    priceUnit: "unknown",
+    coreHoursStart: "09:00",
+    coreHoursEnd: "16:00",
+    priceAmount: 87.78,
+    priceUnit: "full_program",
     currency: "CAD",
+    feeNotes:
+      "Resident fee from ActiveNet estimateprice on 2026-11-10. Non-resident $97.78. Core hours 9:00 AM–4:00 PM; extended hours are a separate City registration.",
     registrationStatus: "availability_unknown",
     registrationUrl: BOOKING_URL,
     sourceUrl: SOURCE_URL,
@@ -121,6 +127,6 @@ export const msc0007Sessions: CampSession[] = [
     ageMaxInclusive: false,
     ageAssessmentRule: "as_of_session_start",
     notes:
-      `City of Mississauga ActiveNet public activity number ${MSC_0007_ACTIVITY_NUMBER}. Openings are read from the availability connector, not this static record.`,
+      `City of Mississauga ActiveNet public activity number ${MSC_0007_ACTIVITY_NUMBER}. Openings are read from the availability connector (as of the retrieval time), not this static record.`,
   },
 ];

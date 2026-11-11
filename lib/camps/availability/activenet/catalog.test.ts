@@ -20,7 +20,13 @@ describe("MSC-0007 catalog mapping", () => {
     assert.ok(session);
     assert.equal(session.seatAvailability, "unknown");
     assert.equal(session.registrationStatus, "availability_unknown");
+    assert.equal(session.coreHoursStart, "09:00");
+    assert.equal(session.coreHoursEnd, "16:00");
+    assert.equal(session.priceAmount, 87.78);
+    assert.equal(session.priceUnit, "full_program");
+    assert.match(session.feeNotes ?? "", /Non-resident \$97\.78/);
     assert.doesNotMatch(JSON.stringify(session), /33 openings remaining/i);
+    assert.doesNotMatch(JSON.stringify(session), /Live availability/i);
 
     const mapping = getActiveNetMappingBySessionId(session.id);
     assert.ok(mapping);
