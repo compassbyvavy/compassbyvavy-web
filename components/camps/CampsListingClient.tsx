@@ -60,6 +60,8 @@ import {
   locationLabel,
   nameFromLocationId,
 } from "@/lib/location/ontarioLocations";
+import { snapshotForMatchingSessions } from "@/lib/camps/availability/activenet/display";
+import type { ActiveNetAvailabilitySnapshot } from "@/lib/camps/availability/activenet/types";
 
 const LISTING_VIEW_KEY = "compass.camps.listingView";
 
@@ -83,6 +85,7 @@ export type CampsListingClientProps = {
   showDevBanner?: boolean;
   /** Optional override for the listing provenance banner. */
   catalogBanner?: string | null;
+  availabilityBySessionId?: Record<string, ActiveNetAvailabilitySnapshot>;
 };
 
 function readListingViewFallback(): ListingViewId {
@@ -108,6 +111,7 @@ export function CampsListingClient({
   nowIso,
   showDevBanner = false,
   catalogBanner = null,
+  availabilityBySessionId = {},
 }: CampsListingClientProps) {
   const router = useRouter();
   const pathname = usePathname();
@@ -366,6 +370,10 @@ export function CampsListingClient({
           options?.flatSessionId ? "View this session" : "View dates & details"
         }
         groupedDisclosure={!options?.flatSessionId}
+        liveAvailability={snapshotForMatchingSessions(
+          matching.map((s) => s.id),
+          availabilityBySessionId,
+        )}
       />
     );
   };

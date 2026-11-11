@@ -1,6 +1,9 @@
 import { Suspense } from "react";
 import { CampsWithRainyDay } from "@/components/camps/CampsWithRainyDay";
-import { loadCampsCatalogForRequest } from "@/lib/camps/campsServerCatalog";
+import {
+  loadCampsAvailabilityForSessions,
+  loadCampsCatalogForRequest,
+} from "@/lib/camps/campsServerCatalog";
 import { formatCampsCatalogBanner } from "@/lib/camps/catalog";
 
 export const dynamic = "force-dynamic";
@@ -42,6 +45,10 @@ export default async function CampsListingPage() {
     );
   }
 
+  const availabilityBySessionId = await loadCampsAvailabilityForSessions(
+    catalog.sessions.map((session) => session.id),
+  );
+
   return (
     <div className="container camps-listing-page">
       <nav className="camps-tools" aria-label="Camp planning tools">
@@ -58,6 +65,7 @@ export default async function CampsListingPage() {
           venues={catalog.venues}
           nowIso="2026-08-28T16:00:00.000Z"
           catalogBanner={formatCampsCatalogBanner(catalog)}
+          availabilityBySessionId={availabilityBySessionId}
         />
       </Suspense>
     </div>
