@@ -1346,24 +1346,26 @@ a.category-card {
   z-index: 5;
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
-  padding: 8px;
-  background: rgba(255, 250, 241, 0.96);
-  border: 1px solid var(--line);
-  border-radius: 14px;
+  gap: 10px;
+  padding: 10px 0;
+  background: rgba(250, 248, 243, 0.96); /* --cream, so content scrolls under cleanly */
 }
 
+/* Same filled pills as the camp pages' section links */
 .venue-toc a {
-  padding: 6px 12px;
+  padding: 9px 16px;
   border-radius: 999px;
+  background: var(--surface);
+  color: var(--ink);
   text-decoration: none;
   font-size: 0.9rem;
   font-weight: 700;
+  line-height: 1.2;
 }
 
 .venue-toc a:hover,
 .venue-toc a:focus-visible {
-  background: var(--sage);
+  background: var(--line);
 }
 
 .venue-section {
