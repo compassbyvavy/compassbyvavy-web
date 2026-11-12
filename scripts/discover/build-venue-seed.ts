@@ -9,9 +9,7 @@
 import { mkdirSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import type { VenueRecord } from "@/data/discover/venueTypes";
-import { pe001AmazingFunPark } from "@/data/discover/venues/pe001AmazingFunPark";
-import { pe002BooglesPlayhouse } from "@/data/discover/venues/pe002BooglesPlayhouse";
-import { pe033SkyZoneMississauga } from "@/data/discover/venues/pe033SkyZoneMississauga";
+import { REAL_VENUE_RECORDS } from "@/data/discover/venues";
 import { buildVenuePublishSql, buildVenueSeedSql, type SeedCity } from "@/lib/discover/venueSeedSql";
 
 const MISSISSAUGA: SeedCity = {
@@ -24,7 +22,7 @@ const MISSISSAUGA: SeedCity = {
   tourismRegion: "5",
 };
 
-const RECORDS: VenueRecord[] = [pe001AmazingFunPark, pe002BooglesPlayhouse, pe033SkyZoneMississauga];
+const RECORDS: readonly VenueRecord[] = REAL_VENUE_RECORDS;
 
 for (const record of RECORDS) {
   const name = `${record.place.id.toLowerCase()}-${record.place.slug}`;
