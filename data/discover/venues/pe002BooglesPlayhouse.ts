@@ -51,6 +51,8 @@ export const PE002_ABOUT = "https://www.boogles.ca/about/";
 export const PE002_BIRTHDAYS = "https://www.boogles.ca/service/birthdays-occasions/";
 export const PE002_SOCIAL = "https://www.boogles.ca/boogles-social/";
 export const PE002_LAST_RESEARCHED = "2026-10-24";
+/** Rechecked against the venue's own pages; only rows that changed use this date. */
+export const PE002_RECHECKED = "2026-11-06";
 
 const site: Provenance = {
   sourceUrl: PE002_OFFICIAL_SITE,
@@ -304,11 +306,11 @@ export const pe002BooglesPlayhouse: VenueRecord = {
       registrationUrl: PE002_SCHEDULE,
     },
     {
-      ...schedule,
+      ...schedule, sourceUrl: PE002_LOCATION, sourceCheckedDate: PE002_RECHECKED,
       id: "pe002-specials",
       name: "Themed specials",
       description:
-        "Holiday sessions appear on the schedule. For Halloween 2026: Monster Palooza (Stay + Play for all ages, included with Stay + Play admission, booking required), Friendly Monster Adventure (ages 2–6, stay or drop off) and evening drop-off dance parties for 18 months to 8 (regular drop-off prices).",
+        "Themed sessions appear on the schedule each week. In the week of Nov 6–10, 2026: Cozy Campout Art Hour and a Cozy Campfire Dance Party (Stay + Play, all ages), Woodland Wonders Adventure (Stay + Play, all ages), Wonder Club: Woodland Workshop (18 months and up) and a Pizza, Stories + Dance Party (18 months and up).",
       cadence: "seasonal",
       registrationUrl: PE002_SCHEDULE,
     },
@@ -333,7 +335,7 @@ export const pe002BooglesPlayhouse: VenueRecord = {
     { ...faqs, kind: "cancellation", body: "Drop-off: cancel up to 2 hours before at no charge; after that there's a $10 fee." },
     { ...memberships, kind: "cancellation", body: "Memberships renew monthly unless cancelled in advance. Payments aren't refunded once a month starts, and unused hours, visits and class credits don't carry over." },
     { ...schedule, kind: "hours_note", body: "Everything is a booked session, and times change from day to day. Check the live schedule before you go." },
-    { ...schedule, kind: "hours_note", body: "In the week we checked (Oct 24–31, 2026), sessions ran every day, between 10 am and 8 pm." },
+    { ...location, sourceCheckedDate: PE002_RECHECKED, kind: "hours_note", body: "In the week we checked (Nov 6–10, 2026), sessions ran every day, between 11 am and 9 pm." },
     { ...location, kind: "location_note", body: "Lower level, next to the Food District and near Indigo." },
     { ...at(PE002_LOCATIONS), kind: "location_note", body: "Boogles also has playhouses at Upper Canada Mall (Newmarket) and Hillcrest Mall (Richmond Hill)." },
     { ...faqs, kind: "other", body: "Late pickup from drop-off costs $5 for every 10 minutes." },
