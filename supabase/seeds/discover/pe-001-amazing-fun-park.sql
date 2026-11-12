@@ -149,7 +149,7 @@ values (md5('PE-001:price:pe001-amazing-8')::uuid, 'PE-001', 'https://amazingfun
 insert into public.place_prices (id, place_id, source_url, source_checked_date, verification_status, conflict_note, kind, label, audience, age_min, age_max, duration_minutes, includes_note, amount, is_free, currency, required_addon, charge_basis, plus_tax, day_type, adults_included, eligibility, session_name, sibling_only, valid_to, notes, sort_order)
 values (md5('PE-001:price:pe001-amazing')::uuid, 'PE-001', 'https://amazingfunpark.ca/bookings/', '2026-10-24', 'verified', null, 'membership', 'AFP Amazing', 'child', null, null, null, null, 49.99, false, 'CAD', false, 'unknown', true, null, null, null, null, false, null, 'Per month · unlimited weekdays + 1 weekend visit a week (up to 4 a month) · 2 hours per visit · 1 child + 1 adult · 3-month minimum', 12);
 insert into public.place_prices (id, place_id, source_url, source_checked_date, verification_status, conflict_note, kind, label, audience, age_min, age_max, duration_minutes, includes_note, amount, is_free, currency, required_addon, charge_basis, plus_tax, day_type, adults_included, eligibility, session_name, sibling_only, valid_to, notes, sort_order)
-values (md5('PE-001:price:pe001-unlimited')::uuid, 'PE-001', 'https://amazingfunpark.ca/bookings/', '2026-10-24', 'verified', null, 'membership', 'AFP Unlimited', 'child', null, null, null, null, 99.99, false, 'CAD', false, 'unknown', true, null, null, null, null, false, null, 'Per month · unlimited visits, one a day · 1 child + 1 adult · free grip socks at sign-up · 10% off merchandise, food, parties and camp after 30 days · cancel anytime', 13);
+values (md5('PE-001:price:pe001-unlimited')::uuid, 'PE-001', 'https://amazingfunpark.ca/', '2026-11-06', 'verified', null, 'membership', 'AFP Unlimited', 'child', null, null, null, null, 99.99, false, 'CAD', false, 'unknown', true, null, null, null, null, false, null, 'Per month · all-day play, every day · 1 child + 1 adult · free grip socks at sign-up · 10% off merchandise, food, parties and camp after 30 days · cancel anytime', 13);
 insert into public.place_prices (id, place_id, source_url, source_checked_date, verification_status, conflict_note, kind, label, audience, age_min, age_max, duration_minutes, includes_note, amount, is_free, currency, required_addon, charge_basis, plus_tax, day_type, adults_included, eligibility, session_name, sibling_only, valid_to, notes, sort_order)
 values (md5('PE-001:price:pe001-unlimited-2')::uuid, 'PE-001', 'https://amazingfunpark.ca/bookings/', '2026-10-24', 'verified', null, 'membership', 'AFP Unlimited, 2 siblings', 'family', null, null, null, null, 169.99, false, 'CAD', false, 'unknown', true, null, null, null, null, false, null, 'Per month', 14);
 insert into public.place_prices (id, place_id, source_url, source_checked_date, verification_status, conflict_note, kind, label, audience, age_min, age_max, duration_minutes, includes_note, amount, is_free, currency, required_addon, charge_basis, plus_tax, day_type, adults_included, eligibility, session_name, sibling_only, valid_to, notes, sort_order)
@@ -182,6 +182,8 @@ insert into public.place_amenities (id, place_id, source_url, source_checked_dat
 values (md5('PE-001:amenity:outside_food')::uuid, 'PE-001', 'https://amazingfunpark.ca/', '2026-10-24', 'verified', null, 'outside_food', 'no', 'Birthday cake only with a booked party');
 insert into public.place_amenities (id, place_id, source_url, source_checked_date, verification_status, conflict_note, amenity, status, note)
 values (md5('PE-001:amenity:grip_socks')::uuid, 'PE-001', 'https://amazingfunpark.ca/', '2026-10-24', 'verified', null, 'grip_socks', 'yes', 'Sold for $4.50, or bring your own');
+insert into public.place_amenities (id, place_id, source_url, source_checked_date, verification_status, conflict_note, amenity, status, note)
+values (md5('PE-001:amenity:change_table')::uuid, 'PE-001', 'https://amazingfunpark.ca/', '2026-11-06', 'verified', null, 'change_table', 'yes', 'Confirmed with the venue by phone');
 
 -- place_policies
 insert into public.place_policies (id, place_id, source_url, source_checked_date, verification_status, conflict_note, kind, body, sort_order)
@@ -230,6 +232,8 @@ insert into public.place_policies (id, place_id, source_url, source_checked_date
 values (md5('PE-001:policy:party:21')::uuid, 'PE-001', 'https://amazingfunpark.ca/parties/', '2026-10-24', 'verified', null, 'party', 'Deposits are non-refundable.', 21);
 insert into public.place_policies (id, place_id, source_url, source_checked_date, verification_status, conflict_note, kind, body, sort_order)
 values (md5('PE-001:policy:party:22')::uuid, 'PE-001', 'https://amazingfunpark.ca/terms-and-conditions/', '2026-10-24', 'verified', null, 'party', 'Party bookings follow the venue''s terms and conditions.', 22);
+insert into public.place_policies (id, place_id, source_url, source_checked_date, verification_status, conflict_note, kind, body, sort_order)
+values (md5('PE-001:policy:weight_limit:23')::uuid, 'PE-001', 'https://amazingfunpark.ca/', '2026-11-06', 'verified', null, 'weight_limit', 'Virtual Reality Rides: riders must weigh 250 lb or less.', 23);
 
 -- place_links
 insert into public.place_links (id, place_id, source_url, source_checked_date, verification_status, conflict_note, kind, value, label, sort_order)

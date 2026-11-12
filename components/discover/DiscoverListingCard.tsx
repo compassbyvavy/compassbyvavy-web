@@ -10,6 +10,14 @@ import { getDiscoverCategory } from "@/lib/discover/categories";
 import type { DiscoverPlaceListing } from "@/lib/listings/discoverPlace";
 import { saveRefForDiscoverListing } from "@/lib/shortlist/refs";
 
+/** "Ages 4–12", "Ages 4+", or Unknown — exactly the bounds on the record. */
+function ageRangeLabel(min: number | null, max: number | null): string {
+  if (min != null && max != null) return min === max ? `Age ${min}` : `Ages ${min}–${max}`;
+  if (min != null) return `Ages ${min}+`;
+  if (max != null) return `Up to age ${max}`;
+  return displayText(null);
+}
+
 export function DiscoverListingCard({
   listing,
 }: {
@@ -56,10 +64,17 @@ export function DiscoverListingCard({
             <span className="camp-card-fact-label">Cost</span>
             <span>{displayCost(listing)}</span>
           </li>
-          <li>
-            <span className="camp-card-fact-label">Provider</span>
-            <span>{displayText(listing.providerName)}</span>
-          </li>
+          {listing.providerName != null ? (
+            <li>
+              <span className="camp-card-fact-label">Provider</span>
+              <span>{displayText(listing.providerName)}</span>
+            </li>
+          ) : (
+            <li>
+              <span className="camp-card-fact-label">Ages</span>
+              <span>{ageRangeLabel(listing.ageMin, listing.ageMax)}</span>
+            </li>
+          )}
         </ul>
 
         <div className="camp-card-footer">

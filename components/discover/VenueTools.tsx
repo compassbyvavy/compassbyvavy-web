@@ -39,8 +39,10 @@ export function VenueSection({
     const wide = window.matchMedia("(min-width: 760px)").matches;
     if ((wide ? openOnDesktop : openOnPhone) || window.location.hash === `#${id}`) el.open = true;
   }, [id, openOnDesktop, openOnPhone]);
+  // Open on every screen: render it open, so the content is there before any script runs.
+  const alwaysOpen = openOnPhone && openOnDesktop;
   return (
-    <details ref={ref} id={id} className="venue-section venue-collapsible">
+    <details ref={ref} id={id} className="venue-section venue-collapsible" open={alwaysOpen || undefined}>
       <summary>
         <h2 id={`${id}-h`}>{title}</h2>
         <span className="venue-chevron" aria-hidden="true" />
@@ -540,6 +542,32 @@ export function UsualHoursToday({ hours }: { hours: VenueDetailView["weeklyHours
   );
 }
 
+/** The week's usual hours as seven day cards, with today (Toronto time) highlighted. */
+export function WeekStrip({ rows }: { rows: Array<{ day: string; ranges: string[] }> }) {
+  const [today, setToday] = useState<string | null>(null);
+  useEffect(() => {
+    const long = new Intl.DateTimeFormat("en-CA", { timeZone: "America/Toronto", weekday: "long" }).format(new Date());
+    setToday(long);
+  }, []);
+  return (
+    <ol className="venue-week">
+      {rows.map((r) => {
+        const closed = r.ranges.length === 0;
+        const isToday = r.day === today;
+        return (
+          <li key={r.day} className={[closed ? "is-closed" : "", isToday ? "is-today" : ""].filter(Boolean).join(" ") || undefined}>
+            <span className="venue-week-day">
+              <abbr title={r.day}>{r.day.slice(0, 3)}</abbr>
+            </span>
+            <span className="venue-week-hours">{closed ? "Closed" : r.ranges.join(", ")}</span>
+            {isToday ? <span className="venue-week-today">Today</span> : null}
+          </li>
+        );
+      })}
+    </ol>
+  );
+}
+
 /** Share icon: the device share sheet, or copy the link. */
 export function ShareIconButton({ title }: { title: string }) {
   const [copied, setCopied] = useState(false);
@@ -815,7 +843,8 @@ export function ShareButton({ title }: { title: string }) {
 export function StickyBookBar({ children }: { children: ReactNode }) {
   const [show, setShow] = useState(false);
   useEffect(() => {
-    const target = document.querySelector(".venue-header-actions");
+    // The Book button in the plan card, or the header actions when there's no card.
+    const target = document.querySelector(".venue-plan-book") ?? document.querySelector(".venue-header-actions");
     if (!target || typeof IntersectionObserver === "undefined") {
       setShow(true);
       return;
