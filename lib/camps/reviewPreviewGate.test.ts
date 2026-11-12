@@ -128,38 +128,65 @@ describe("review preview catalog — fixtures only, never MSC-0201", () => {
     });
   }
 
-  it("production catalog stays empty without the dual gate", () => {
+  it("production catalog does not serve dev data without the dual gate", async () => {
     setNodeEnv("production");
+    let calls = 0;
+    const supabase = {
+      url: "https://proj.supabase.co",
+      anonKey: "anon-key",
+      fetchImpl: async () => {
+        calls += 1;
+        return new Response("[]", { headers: { "Content-Range": "*/0" } });
+      },
+    };
     try {
-      assert.equal(loadCampsCatalog({ hostname: "compassbyvavy.ca" }), null);
-      assert.equal(
-        loadCampsCatalog({
-          hostname: PREVIEW_COMMIT_HOST,
-          reviewFlag: undefined,
-        }),
-        null,
-      );
-      assert.equal(
-        loadCampsCatalog({
-          hostname: "compassbyvavy.ca",
-          reviewFlag: "true",
-        }),
-        null,
-      );
+      const production = await loadCampsCatalog({
+        hostname: "compassbyvavy.ca",
+        supabase,
+      });
+      assert.equal(production.status, "empty");
+      const previewWithoutFlag = await loadCampsCatalog({
+        hostname: PREVIEW_COMMIT_HOST,
+        reviewFlag: undefined,
+        supabase,
+      });
+      assert.equal(previewWithoutFlag.status, "empty");
+      const flagWithoutPreviewHost = await loadCampsCatalog({
+        hostname: "compassbyvavy.ca",
+        reviewFlag: "true",
+        supabase,
+      });
+      assert.equal(flagWithoutPreviewHost.status, "empty");
+      assert.equal(calls, 3);
+      for (const result of [production, previewWithoutFlag, flagWithoutPreviewHost]) {
+        assert.notEqual(result.status, "ready");
+      }
     } finally {
       setNodeEnv(originalNodeEnv);
     }
   });
 
-  it("preview + flag loads sample camps and keeps MSC-0201 gated", () => {
+  it("preview + flag loads sample camps and keeps MSC-0201 gated", async () => {
     setNodeEnv("production");
+    let calls = 0;
     try {
       assert.equal(loadCampsRealDevCatalog(), null);
-      const catalog = loadCampsCatalog({
+      const result = await loadCampsCatalog({
         hostname: PREVIEW_COMMIT_HOST,
         reviewFlag: "true",
+        supabase: {
+          url: "https://proj.supabase.co",
+          anonKey: "anon-key",
+          fetchImpl: async () => {
+            calls += 1;
+            return new Response("[]", { headers: { "Content-Range": "*/0" } });
+          },
+        },
       });
-      assert.ok(catalog);
+      assert.equal(calls, 0);
+      assert.equal(result.status, "ready");
+      if (result.status !== "ready") return;
+      const catalog = result.catalog;
       assert.equal(catalog.sourceLabel, "dev_fixtures");
       assert.equal(catalog.includesFictionalFixtures, true);
       assert.ok(catalog.programs.some((p) => p.slug === "stem-explorers-dev"));
@@ -167,12 +194,12 @@ describe("review preview catalog — fixtures only, never MSC-0201", () => {
         catalog.programs.some((p) => p.slug === "nutty-summer-science-camp"),
         false,
       );
-      assert.ok(resolvePublishedCampDetail("stem-explorers-dev", {
+      assert.ok(await resolvePublishedCampDetail("stem-explorers-dev", {
         hostname: PREVIEW_COMMIT_HOST,
         reviewFlag: "true",
       }));
       assert.equal(
-        resolvePublishedCampDetail("nutty-summer-science-camp", {
+        await resolvePublishedCampDetail("nutty-summer-science-camp", {
           hostname: PREVIEW_COMMIT_HOST,
           reviewFlag: "true",
         }),

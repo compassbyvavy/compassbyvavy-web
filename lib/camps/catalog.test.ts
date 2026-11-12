@@ -203,13 +203,14 @@ describe("camps real-dev catalog adapter", () => {
     );
   });
 
-  it("soft-loads null in production (fixture-style gate)", () => {
+  it("does not serve dev data from a production read with no credentials", async () => {
     const prev = process.env.NODE_ENV;
     // @ts-expect-error test override
     process.env.NODE_ENV = "production";
     try {
       assert.equal(loadCampsRealDevCatalog(), null);
-      assert.equal(loadCampsCatalog(), null);
+      const result = await loadCampsCatalog({ supabase: null });
+      assert.equal(result.status, "failed");
     } finally {
       // @ts-expect-error restore
       process.env.NODE_ENV = prev;
@@ -415,9 +416,16 @@ describe("MSC-0201 evidence-correction checkpoint assertions", () => {
   });
 });
 
+async function readyCatalog() {
+  const result = await loadCampsCatalog();
+  assert.equal(result.status, "ready");
+  if (result.status !== "ready") throw new Error("expected a ready catalog");
+  return result.catalog;
+}
+
 describe("public browse catalog — gated fixtures + real-dev", () => {
-  it("non-production catalog includes MSC-0201 and fictional fixtures", () => {
-    const catalog = loadCampsCatalog();
+  it("non-production catalog includes MSC-0201 and fictional fixtures", async () => {
+    const catalog = await readyCatalog();
     assert.ok(catalog);
     assert.equal(catalog.sourceLabel, "mixed_dev");
     assert.equal(catalog.includesFictionalFixtures, true);
@@ -434,8 +442,8 @@ describe("public browse catalog — gated fixtures + real-dev", () => {
     assert.match(banner ?? "", /fictional/i);
   });
 
-  it("resolves both real-dev and fixture slugs from the same catalog", () => {
-    const catalog = loadCampsCatalog();
+  it("resolves both real-dev and fixture slugs from the same catalog", async () => {
+    const catalog = await readyCatalog();
     assert.ok(catalog);
     const nutty = resolveCatalogProgramBySlug(
       catalog,
@@ -460,8 +468,8 @@ describe("public browse catalog — gated fixtures + real-dev", () => {
     }
   });
 
-  it("date-range filter matches dated fixture sessions and still excludes unverified Nutty years", () => {
-    const catalog = loadCampsCatalog();
+  it("date-range filter matches dated fixture sessions and still excludes unverified Nutty years", async () => {
+    const catalog = await readyCatalog();
     assert.ok(catalog);
     const venuesById = Object.fromEntries(
       catalog.venues.map((v) => [v.id, v]),
@@ -494,28 +502,29 @@ describe("public browse catalog — gated fixtures + real-dev", () => {
     }
   });
 
-  it("unknown slug returns null so the detail route can 404", () => {
-    const catalog = loadCampsCatalog();
+  it("unknown slug returns null so the detail route can 404", async () => {
+    const catalog = await readyCatalog();
     assert.ok(catalog);
     assert.equal(
       resolveCatalogProgramBySlug(catalog, "no-such-camp"),
       null,
     );
-    assert.equal(resolvePublishedCampDetail("no-such-camp"), null);
-    assert.ok(resolvePublishedCampDetail("stem-explorers-dev"));
-    assert.ok(resolvePublishedCampDetail("nutty-summer-science-camp"));
+    assert.equal(await resolvePublishedCampDetail("no-such-camp"), null);
+    assert.ok(await resolvePublishedCampDetail("stem-explorers-dev"));
+    assert.ok(await resolvePublishedCampDetail("nutty-summer-science-camp"));
   });
 
-  it("production gate returns null — no fixtures and no real-dev preview", () => {
+  it("production gate does not return fixtures or the real-dev preview", async () => {
     const prev = process.env.NODE_ENV;
     // @ts-expect-error test override
     process.env.NODE_ENV = "production";
     try {
       assert.equal(loadCampsRealDevCatalog(), null);
-      assert.equal(loadCampsCatalog(), null);
-      assert.equal(resolvePublishedCampDetail("stem-explorers-dev"), null);
+      const result = await loadCampsCatalog({ supabase: null });
+      assert.equal(result.status, "failed");
+      assert.equal(await resolvePublishedCampDetail("stem-explorers-dev", { supabase: null }), null);
       assert.equal(
-        resolvePublishedCampDetail("nutty-summer-science-camp"),
+        await resolvePublishedCampDetail("nutty-summer-science-camp", { supabase: null }),
         null,
       );
     } finally {

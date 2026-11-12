@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
+import { headers } from "next/headers";
 import Link from "next/link";
 import { Suspense } from "react";
 import { ShortlistProvider } from "@/components/shortlist/ShortlistProvider";
 import { CommandMenu } from "@/components/site/CommandMenu";
 import { OfflineCache } from "@/components/site/OfflineCache";
 import { SiteNav } from "@/components/site/SiteNav";
-import { loadCampsCatalogForRequest } from "@/lib/camps/campsServerCatalog";
+import { loadCampsCatalogForLayout } from "@/lib/camps/catalog";
 import { campsFontVariables } from "@/lib/camps/fonts";
 import {
   SiteSearchBar,
@@ -49,7 +50,8 @@ export const metadata: Metadata = {
 export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
-  const catalog = await loadCampsCatalogForRequest();
+  const hostname = (await headers()).get("host");
+  const catalog = loadCampsCatalogForLayout({ hostname });
   const providers = new Map((catalog?.providers ?? []).map((provider) => [provider.id, provider.name]));
   return (
     <html lang="en">

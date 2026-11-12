@@ -1,7 +1,8 @@
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { CampDetailClient } from "@/components/camps/CampDetailClient";
-import { loadCampsCatalogForRequest } from "@/lib/camps/campsServerCatalog";
+import { CampsCatalogUnavailable } from "@/components/camps/CampsCatalogUnavailable";
+import { loadCampsCatalogStatusForRequest } from "@/lib/camps/campsServerCatalog";
 import {
   formatCampsCatalogBanner,
   resolveCatalogProgramBySlug,
@@ -15,18 +16,24 @@ type PageProps = {
 
 /**
  * Camp program detail — Prompt 5.
- * Same catalog as listing (shared session truth). Unknown slug, missing
- * catalog, or production gate → 404. Never substitutes another program.
+ * Same catalog as listing (shared session truth). A failed read says so.
+ * Unknown slug or an empty published catalog → 404. Never substitutes
+ * another program.
  */
 export default async function CampDetailPage({ params }: PageProps) {
   const { slug } = await params;
-  const catalog = await loadCampsCatalogForRequest();
-  const published = catalog
-    ? resolveCatalogProgramBySlug(catalog, slug)
-    : null;
-  if (!published || !catalog) {
+  const result = await loadCampsCatalogStatusForRequest();
+  if (result.status === "failed") {
+    return <CampsCatalogUnavailable reason="failed" />;
+  }
+  const published =
+    result.status === "ready"
+      ? resolveCatalogProgramBySlug(result.catalog, slug)
+      : null;
+  if (!published || result.status !== "ready") {
     notFound();
   }
+  const catalog = result.catalog;
 
   const banner = formatCampsCatalogBanner(catalog);
 
