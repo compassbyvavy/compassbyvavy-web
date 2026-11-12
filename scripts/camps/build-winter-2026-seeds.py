@@ -48,10 +48,11 @@ SESSION_CASTS = {"schedule_format": "camp_session_schedule_format", "stay_type":
 
 def session(sid, program, venue, start, end, label, hours, price, unit, fee_notes, reg_url, source, ages,
             reg_status="availability_unknown", before=None, after=None, care_included=False, notes=None,
+            care_separate=False,
             schedule_format="short_session"):
     b_off = "yes" if before else "unknown"
     a_off = "yes" if after else "unknown"
-    sep = "no" if care_included else "unknown"
+    sep = "no" if care_included else ("yes" if care_separate else "unknown")
     return {
         "id": sid, "program_id": program, "venue_id": venue, "start_date": start, "end_date": end,
         "timing_label": label, "schedule_format": schedule_format, "stay_type": "day", "delivery_mode": "in_person",
@@ -179,6 +180,30 @@ CAMPS.append(dict(
     ]))
 
 
+# --- Gymnastics Mississauga (MSC-0046): running, dates not posted yet ----
+src = "https://gymmississauga.org/winter-camps/"
+CAMPS.append(dict(
+    slug="msc-0046-gymnastics-mississauga-winter-2026", label="Gymnastics Mississauga holiday camp",
+    allow_undated=True,
+    provider=dict(id="prov-gymnastics-mississauga", name="Gymnastics Mississauga", website_url="https://gymmississauga.org/",
+                  registration_info_url=src, organization_type="nonprofit", source_url=src),
+    venue=dict(id="venue-gymnastics-mississauga-rose-cherry", name="Gymnastics Mississauga (Paramount Fine Food Centre)",
+               neighbourhood=None, address_line="5600 Rose Cherry Pl", postal_code="L4Z 4B6"),
+    program=dict(id="MSC-0046", slug="gymnastics-mississauga-holiday-camp", name="Holiday Gym Camp",
+                 description="Full-day gymnastics on all apparatus, including the trampoline, plus arts and crafts.",
+                 primary_category="Sports & Fitness", secondary_themes=["Gymnastics", "Arts & Crafts"],
+                 typical_age_min=None, typical_age_max=None, audience="child_only"),
+    sessions=[
+        session("MSC-0046-winter-2026-27", "MSC-0046", "venue-gymnastics-mississauga-rose-cherry", None, None,
+                "Holiday camps 2026–2027 (dates not posted yet)", ("09:00", "16:30"), 80, "per_day",
+                "$80 per day. Before care 8:00–9:00 and after care 4:30–5:30 are $10 each. "
+                "Plus an annual membership fee (includes Gymnastics Ontario).",
+                "https://app.jackrabbitclass.com/regv2.asp?id=537009", src, (None, None),
+                before=("08:00", "09:00"), after=("16:30", "17:30"), care_separate=True,
+                notes="Bring lunch, 2 snacks and a water bottle. Shorts or leggings with a tucked-in T-shirt, bare feet, hair tied back, no jewelry."),
+    ]))
+
+
 def draft_sql(c):
     p, v, g = c["provider"], c["venue"], c["program"]
     out = [f"-- DRAFT: {c['label']} (winter 2026)\n-- Built by scripts/camps/build-winter-2026-seeds.py from {p['source_url']} (checked {CHECKED}).\n"
@@ -225,7 +250,7 @@ begin
   if n <> 1 then raise exception 'Not published: program {g['id']} is missing'; end if;
 
   update public.camp_sessions set publication_state = 'published', published_at = coalesce(published_at, timezone('utc', now()))
-   where id in ({sids}) and source_url ~* '^https://' and source_checked_date is not null and start_date is not null;
+   where id in ({sids}) and source_url ~* '^https://' and source_checked_date is not null{"" if c.get("allow_undated") else " and start_date is not null"};
   get diagnostics n = row_count;
   if n <> {n} then raise exception 'Not published: expected {n} sessions with a source, check date and start date, found %', n; end if;
 end $$;
