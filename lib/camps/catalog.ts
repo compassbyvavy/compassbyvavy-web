@@ -6,9 +6,10 @@
  * session truth).
  *
  * Non-production: gated real-dev (MSC-0201) plus gated fictional fixtures.
- * Production: empty, except Cloudflare Workers preview hosts with
- * COMPASS_CAMPS_REVIEW_PREVIEW=true, which load sample fixtures only.
- * MSC-0201 stays production-gated and is never served in review mode.
+ * Production: published Supabase rows, anon key, server-side only.
+ * Cloudflare Workers preview hosts with COMPASS_CAMPS_REVIEW_PREVIEW=true
+ * still load sample fixtures only. MSC-0201 stays production-gated and is
+ * never served in review mode. The site layout does not call this read.
  */
 
 import type {
@@ -20,6 +21,11 @@ import type {
 import { loadCampsDevFixtures } from "@/lib/camps/devFixtures";
 import { loadCampsRealDevCatalog } from "@/lib/camps/realDevCatalog";
 import {
+  fetchPublishedCampsCatalog,
+  readPublicCampsSupabaseConfig,
+  type PublicCampsSupabaseConfig,
+} from "@/lib/camps/campsSupabase";
+import {
   CAMPS_REVIEW_PREVIEW_FLAG,
   isCampsReviewPreviewEnabled,
 } from "@/lib/camps/reviewPreviewGate";
@@ -28,9 +34,18 @@ export type CampsCatalogLoadOptions = {
   hostname?: string | null;
   reviewFlag?: string | null;
   nodeEnv?: string;
+  /**
+   * Production read settings. Undefined reads the environment.
+   * Null means there are no credentials, which is a failed read.
+   */
+  supabase?: PublicCampsSupabaseConfig | null;
 };
 
-export type CampsCatalogSourceLabel = "real_dev" | "dev_fixtures" | "mixed_dev";
+export type CampsCatalogSourceLabel =
+  | "real_dev"
+  | "dev_fixtures"
+  | "mixed_dev"
+  | "published";
 
 export type CampsCatalogBundle = {
   providers: Provider[];
@@ -45,13 +60,19 @@ export type CampsCatalogBundle = {
   sourceCheckedDate?: string;
 };
 
+export type CampsCatalogLoadResult =
+  | { status: "ready"; catalog: CampsCatalogBundle }
+  | { status: "empty" }
+  | { status: "failed" };
+
 /**
  * Parent-facing provenance banner for browse/detail. Always honest about
- * preview sources. Returns null only when there is no catalog.
+ * preview sources. Published rows have no banner.
  */
 export function formatCampsCatalogBanner(
   catalog: CampsCatalogBundle,
 ): string | null {
+  if (catalog.sourceLabel === "published") return null;
   if (catalog.sourceLabel === "real_dev") {
     return `DEV ONLY — real-data preview (candidate ${catalog.sourceCandidateId ?? "MSC-0201"}). Source-checked ${catalog.sourceCheckedDate ?? ""} from the provider site. Calendar years for listed weeks are not yet verified. Not fictional fixtures; not a full Mississauga directory.`;
   }
@@ -61,25 +82,24 @@ export function formatCampsCatalogBanner(
   return `DEV ONLY — preview catalog. Includes gated fictional fixtures plus real-data candidate ${catalog.sourceCandidateId ?? "MSC-0201"} (source-checked ${catalog.sourceCheckedDate ?? ""}; calendar years for those weeks are not yet verified). Not a full Mississauga directory. No account required.`;
 }
 
-/**
- * Soft load: catalog for public Camps routes, or null when unavailable
- * (production today; empty published set in the future).
- *
- * Fixtures and real-dev are each gated on NODE_ENV. Production returns null
- * unless the Cloudflare Workers review-preview dual gate is on, in which
- * case only the sample/dev fixture catalog is served — never MSC-0201.
- */
-export function loadCampsCatalog(
-  options: CampsCatalogLoadOptions = {},
-): CampsCatalogBundle | null {
-  const nodeEnv = options.nodeEnv ?? process.env.NODE_ENV;
-  const reviewPreview = isCampsReviewPreviewEnabled({
+function reviewPreviewEnabled(options: CampsCatalogLoadOptions): boolean {
+  return isCampsReviewPreviewEnabled({
     reviewFlag:
       options.reviewFlag !== undefined
         ? options.reviewFlag
         : process.env[CAMPS_REVIEW_PREVIEW_FLAG],
     hostname: options.hostname,
   });
+}
+
+/**
+ * In-memory dev and review-preview catalog. Never calls the network.
+ */
+function assembleLocalCampsCatalog(
+  options: CampsCatalogLoadOptions = {},
+): CampsCatalogBundle | null {
+  const nodeEnv = options.nodeEnv ?? process.env.NODE_ENV;
+  const reviewPreview = reviewPreviewEnabled(options);
   const real = loadCampsRealDevCatalog();
   const fixtures = loadCampsDevFixtures({
     allowReviewPreview: reviewPreview,
@@ -127,25 +147,59 @@ export function loadCampsCatalog(
 }
 
 /**
- * Detail-page loader: same catalog as listing (shared session truth).
- * Returns null for unknown slug, missing catalog, or production gate —
- * callers should 404. Never falls back to a different program.
+ * Site chrome. In production this returns null unless the review-preview
+ * dual gate is on, and it never reads Supabase. Non-production still gets
+ * the in-memory preview catalog.
  */
-export function resolvePublishedCampDetail(
+export function loadCampsCatalogForLayout(
+  options: CampsCatalogLoadOptions = {},
+): CampsCatalogBundle | null {
+  const nodeEnv = options.nodeEnv ?? process.env.NODE_ENV;
+  if (nodeEnv === "production" && !reviewPreviewEnabled(options)) return null;
+  return assembleLocalCampsCatalog(options);
+}
+
+/**
+ * Catalog for pages that show camps.
+ *
+ * Non-production and review preview stay on the in-memory gates.
+ * Production reads published rows. A failed read is not an empty catalog.
+ */
+export async function loadCampsCatalog(
+  options: CampsCatalogLoadOptions = {},
+): Promise<CampsCatalogLoadResult> {
+  const nodeEnv = options.nodeEnv ?? process.env.NODE_ENV;
+  if (nodeEnv !== "production" || reviewPreviewEnabled(options)) {
+    const local = assembleLocalCampsCatalog(options);
+    return local ? { status: "ready", catalog: local } : { status: "empty" };
+  }
+  const config =
+    options.supabase !== undefined ? options.supabase : readPublicCampsSupabaseConfig();
+  if (!config) return { status: "failed" };
+  return fetchPublishedCampsCatalog(config);
+}
+
+/**
+ * Detail-page loader: same catalog as listing (shared session truth).
+ * Returns null for unknown slug, an empty published catalog, or a failed
+ * read. Callers that need to tell failure from absence should use
+ * loadCampsCatalog directly. Never falls back to a different program.
+ */
+export async function resolvePublishedCampDetail(
   slug: string,
   options: CampsCatalogLoadOptions = {},
-): {
+): Promise<{
   program: CampProgram;
   provider: Provider;
   sessions: CampSession[];
   venuesById: Record<string, Venue>;
   catalog: CampsCatalogBundle;
-} | null {
-  const catalog = loadCampsCatalog(options);
-  if (!catalog) return null;
-  const detail = resolveCatalogProgramBySlug(catalog, slug);
+} | null> {
+  const result = await loadCampsCatalog(options);
+  if (result.status !== "ready") return null;
+  const detail = resolveCatalogProgramBySlug(result.catalog, slug);
   if (!detail) return null;
-  return { ...detail, catalog };
+  return { ...detail, catalog: result.catalog };
 }
 
 export function resolveCatalogProgramBySlug(
