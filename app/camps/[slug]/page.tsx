@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
-import { Suspense } from "react";
-import { CampDetailClient } from "@/components/camps/CampDetailClient";
+import { CampPage } from "@/components/camps/CampPage";
+import { buildCampPageView } from "@/lib/camps/campPage";
 import { CampsCatalogUnavailable } from "@/components/camps/CampsCatalogUnavailable";
 import { loadCampsCatalogStatusForRequest } from "@/lib/camps/campsServerCatalog";
 import {
@@ -37,19 +37,16 @@ export default async function CampDetailPage({ params }: PageProps) {
 
   const banner = formatCampsCatalogBanner(catalog);
 
+  const view = buildCampPageView({
+    program: published.program,
+    provider: published.provider,
+    sessions: published.sessions,
+    venuesById: published.venuesById,
+  });
+
   return (
     <div className="container camp-detail-page">
-      <Suspense fallback={<p className="camp-card-note">Loading session details…</p>}>
-        <CampDetailClient
-          program={published.program}
-          provider={published.provider}
-          sessions={published.sessions}
-          venuesById={published.venuesById}
-          nowIso="2026-08-28T16:00:00.000Z"
-          showDevBanner={Boolean(banner)}
-          catalogBanner={banner}
-        />
-      </Suspense>
+      <CampPage view={view} program={published.program} sessions={published.sessions} banner={banner} />
     </div>
   );
 }
