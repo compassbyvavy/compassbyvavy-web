@@ -114,6 +114,7 @@ function session(overrides: Record<string, unknown> = {}) {
     fee_notes: null,
     registration_status: "availability_unknown",
     registration_opens_on: null,
+    registration_deadline_on: null,
     waitlist_url: null,
     registration_url: "https://example.invalid/register",
     source_url: "https://example.invalid/source",

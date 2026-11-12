@@ -59,7 +59,7 @@ const sessions = [
   s("h1", "2026-12-21", "2026-12-23", ["09:00", "13:30"], 67, HALF),
   s("h2", "2026-12-28", "2026-12-30", ["09:00", "13:30"], 67, HALF),
 ];
-const view = () => buildCampPageView({ program, provider, sessions, venuesById: { v1: venue } });
+const view = () => buildCampPageView({ program, provider, sessions, venuesById: { v1: venue }, today: "2026-11-11" });
 
 describe("camp page view", () => {
   it("answers ages, dates, hours and price up front", () => {
@@ -94,8 +94,27 @@ describe("camp page view", () => {
       provider,
       sessions: sessions.map((x) => ({ ...x, seatAvailability: "confirmed_full" as const })),
       venuesById: { v1: venue },
+      today: "2026-11-11",
     });
     assert.equal(full.status.text, "Full on every date");
+  });
+
+  it("shows a published registration deadline as a date, never a countdown", () => {
+    const withDeadline = (today: string, extra: Partial<CampSession> = {}) =>
+      buildCampPageView({
+        program,
+        provider,
+        sessions: [s("d", "2026-12-21", "2026-12-23", ["09:00", "16:00"], 98, FULL, { registrationDeadlineOn: "2026-12-14", ...extra })],
+        venuesById: { v1: venue },
+        today,
+      });
+    assert.equal(withDeadline("2026-11-11").options[0].dates[0].spots.text, "Spots available · checked Nov 11 · registration closes Dec 14");
+    assert.equal(withDeadline("2026-12-14").options[0].dates[0].spots.tone, "open");
+    const passed = withDeadline("2026-12-15");
+    assert.deepEqual(passed.options[0].dates[0].spots, { text: "Registration closed Dec 14", tone: "full" });
+    assert.equal(passed.status.text, "Registration closed");
+    const opens = withDeadline("2026-11-11", { registrationOpensOn: "2026-12-01", registrationStatus: "not_yet_open" });
+    assert.equal(opens.options[0].dates[0].spots.text, "Registration opens Dec 1 · registration closes Dec 14");
   });
 
   it("lists what the camp's website doesn't say, instead of guessing", () => {

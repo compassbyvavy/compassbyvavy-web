@@ -48,7 +48,7 @@ SESSION_CASTS = {"schedule_format": "camp_session_schedule_format", "stay_type":
 
 def session(sid, program, venue, start, end, label, hours, price, unit, fee_notes, reg_url, source, ages,
             reg_status="availability_unknown", before=None, after=None, care_included=False, notes=None,
-            care_separate=False, seats="unknown",
+            care_separate=False, seats="unknown", deadline=None,
             schedule_format="short_session"):
     b_off = "yes" if before else "unknown"
     a_off = "yes" if after else "unknown"
@@ -70,6 +70,8 @@ def session(sid, program, venue, start, end, label, hours, price, unit, fee_note
         "age_min_inclusive": True if ages[0] is not None else None,
         "age_max_inclusive": True if ages[1] is not None else None,
         "age_assessed_at_date": None, "age_assessment_rule": "unknown", "notes": notes,
+        # Only written when a camp publishes one (needs migration 20261111090000).
+        **({"registration_deadline_on": deadline} if deadline else {}),
     }
 
 

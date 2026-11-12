@@ -131,6 +131,11 @@ export function formatHours(start?: string | null, end?: string | null): { text:
   return { text: `${s.text}–${e.text}`, minutes: e.minutes - s.minutes };
 }
 
+/** Today's date in Toronto, as YYYY-MM-DD. */
+export function torontoToday(now: Date = new Date()): string {
+  return new Intl.DateTimeFormat("en-CA", { timeZone: "America/Toronto", year: "numeric", month: "2-digit", day: "2-digit" }).format(now);
+}
+
 export function money(n: number): string {
   return Number.isInteger(n) ? `$${n}` : `$${n.toFixed(2)}`;
 }
@@ -155,21 +160,31 @@ function unitText(unit: CampSession["priceUnit"]): string {
   }
 }
 
-function spotsFor(s: CampSession): SpotsView {
+/**
+ * Registration and spots for one session, in parent words. Dates only: a
+ * deadline reads "Registration closes Dec 14", never a countdown. `today` is
+ * an ISO date so the page and tests agree on what has passed.
+ */
+function spotsFor(s: CampSession, today: string): SpotsView {
   const when = s.sourceCheckedDate ? ` · checked ${shortDate(s.sourceCheckedDate)}` : "";
+  const deadline = s.registrationDeadlineOn ?? null;
+  const deadlinePassed = deadline != null && deadline < today;
+  const closes = deadline && !deadlinePassed ? ` · registration closes ${shortDate(deadline)}` : "";
   if (s.seatAvailability === "confirmed_full" || s.registrationStatus === "waitlist") {
     return { text: `Full${s.waitlistUrl ? ", waitlist" : ""}${when}`, tone: "full" };
   }
-  if (s.registrationStatus === "registration_closed") return { text: `Registration closed${when}`, tone: "full" };
-  if (s.registrationStatus === "not_yet_open") {
+  if (s.registrationStatus === "registration_closed" || deadlinePassed) {
+    return { text: deadlinePassed ? `Registration closed ${shortDate(deadline!)}` : `Registration closed${when}`, tone: "full" };
+  }
+  if (s.registrationStatus === "not_yet_open" || (s.registrationOpensOn && s.registrationOpensOn > today)) {
     return {
-      text: s.registrationOpensOn ? `Registration opens ${shortDate(s.registrationOpensOn)}` : "Registration not open yet",
+      text: s.registrationOpensOn ? `Registration opens ${shortDate(s.registrationOpensOn)}${closes}` : "Registration not open yet",
       tone: "unknown",
     };
   }
-  if (s.seatAvailability === "confirmed_available") return { text: `Spots available${when}`, tone: "open" };
-  if (s.registrationStatus === "registration_open") return { text: `Registration open${when}`, tone: "open" };
-  return { text: "Check spots with the camp", tone: "unknown" };
+  if (s.seatAvailability === "confirmed_available") return { text: `Spots available${when}${closes}`, tone: "open" };
+  if (s.registrationStatus === "registration_open") return { text: `Registration open${when}${closes}`, tone: "open" };
+  return { text: `Check spots with the camp${closes}`, tone: "unknown" };
 }
 
 function careText(c: CampSession["beforeCare"], kind: "Before" | "After"): string | null {
@@ -198,8 +213,11 @@ export function buildCampPageView(args: {
   provider: Provider;
   sessions: CampSession[];
   venuesById: Record<string, Venue>;
+  /** ISO date for "today" (Toronto). Defaults to the current date. */
+  today?: string;
 }): CampPageView {
   const { program, provider, venuesById } = args;
+  const today = args.today ?? torontoToday();
   const sessions = [...args.sessions].sort(
     (a, b) => (a.startDate ?? "9999").localeCompare(b.startDate ?? "9999") || a.id.localeCompare(b.id),
   );
@@ -246,7 +264,7 @@ export function buildCampPageView(args: {
       perDay,
       dates: g.map((s) => ({
         text: formatDateRange(s.startDate, s.endDate) ?? "Dates not posted yet",
-        spots: spotsFor(s),
+        spots: spotsFor(s, today),
         bookUrl: s.registrationUrl ?? null,
       })),
       units,
@@ -289,8 +307,10 @@ export function buildCampPageView(args: {
     { label: "Price", value: priceFrom ? `${priceFrom}${priceFromNote ? ` ${priceFromNote}` : ""}` : "Check with the camp" },
   ];
 
-  const statusSource = sessions.map(spotsFor);
-  const status: SpotsView = statusSource.every((s) => s.tone === "full")
+  const statusSource = sessions.map((s) => spotsFor(s, today));
+  const status: SpotsView = statusSource.length && statusSource.every((s) => s.text.startsWith("Registration closed"))
+    ? { text: "Registration closed", tone: "full" }
+    : statusSource.length && statusSource.every((s) => s.tone === "full")
     ? { text: "Full on every date", tone: "full" }
     : statusSource.find((s) => s.tone === "open") ?? statusSource[0] ?? { text: "Check spots with the camp", tone: "unknown" };
 
