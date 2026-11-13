@@ -1,13 +1,19 @@
+import { activenet } from "./adapters/activenet";
+import { iclasspro } from "./adapters/iclasspro";
+import { jackrabbit } from "./adapters/jackrabbit";
+import { squarespace } from "./adapters/squarespace";
 import { fetchPage } from "./http";
 import { runSpotCheck } from "./run";
 import { loadDueRefs, loadStoppedSystems, saveResults, type CheckerEnv } from "./supabase";
 import type { SpotAdapter } from "./types";
 
-/**
- * Adapters are registered after the research note. An empty map means a
- * system is logged and not fetched.
- */
-export const adapters: Record<string, SpotAdapter> = {};
+/** Systems the research note said to build. Acuity is absent on purpose. */
+export const adapters: Record<string, SpotAdapter> = {
+  iclasspro,
+  jackrabbit,
+  activenet,
+  squarespace,
+};
 
 export default {
   async scheduled(_event: unknown, env: CheckerEnv, ctx: { waitUntil(promise: Promise<unknown>): void }): Promise<void> {
