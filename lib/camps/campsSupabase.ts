@@ -149,6 +149,7 @@ const SESSION_COLUMNS = [
   "publication_state",
   "published_at",
   `venues(${VENUE_COLUMNS})`,
+  "camp_session_spots(spots_left,state,checked_at)",
 ].join(",");
 
 /** PostgREST URL for published programs and their published relations. */
@@ -346,6 +347,20 @@ function careWindow(row: Row, prefix: "before_care" | "after_care") {
   };
 }
 
+function mapSpotCheck(value: unknown): CampSession["spotCheck"] {
+  const row = Array.isArray(value) ? value[0] : value;
+  if (!isRow(row)) return null;
+  const state = str(row.state);
+  if (state !== "available" && state !== "full" && state !== "waitlist" && state !== "unknown") {
+    return null;
+  }
+  const checkedAt = str(row.checked_at);
+  if (!checkedAt) return null;
+  const spotsLeft = row.spots_left == null ? null : whole(row.spots_left);
+  if (row.spots_left != null && spotsLeft == null) return null;
+  return { spotsLeft, state, checkedAt };
+}
+
 function mapSession(row: Row, programId: string, venues: Map<string, Venue>): CampSession | null {
   if (!isPublished(row)) return null;
   const id = str(row.id);
@@ -385,6 +400,7 @@ function mapSession(row: Row, programId: string, venues: Map<string, Venue>): Ca
     sourceCheckedDate: isoDate(row.source_checked_date),
     providerConfirmed: bool(row.provider_confirmed),
     seatAvailability: enumOrNull<SeatAvailabilityFact>(row.seat_availability, SEATS, "unknown"),
+    spotCheck: mapSpotCheck(row.camp_session_spots),
     ageMin: whole(row.age_min),
     ageMax: whole(row.age_max),
     ageMinInclusive: bool(row.age_min_inclusive),
