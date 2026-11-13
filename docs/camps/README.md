@@ -38,3 +38,26 @@ If no workbook file is attached to the agent run, leave `docs/camps/schema/READM
 - `/camps/preview` — **development-only** CampCard preview (fixture gate → 404 in production)
 - `/camps/admin/ingestion` — engine review admin
 - `/camps/admin/ingestion/sources` — engine source registry
+
+## Cloudflare settings (read before adding one)
+
+The website worker is `compassbyvavy-web`. Every pull request uploads a preview
+version to it. Adding or editing a variable or secret in the Cloudflare dashboard
+("Add variables and deploy") creates a new live version from the **newest upload**,
+which can be an unmerged pull request, not `main`.
+
+That happened on Nov 13, 2026: the Google Maps secrets went live on top of the
+unmerged spots checker (PR #66), and `/camps` showed "Sessions couldn't be loaded"
+until we rolled back to the `main` version.
+
+Safe order:
+
+1. Add the setting as a **Secret** (Text variables are replaced on every deploy).
+2. Open **Deployments** and check the active version's branch is `main`.
+3. If it isn't, use ⋯ → **Rollback** on the newest `main` version, or merge any
+   change to `main`. A fresh `main` build keeps the dashboard secrets.
+
+Settings the camps pages read: `SUPABASE_URL`, `SUPABASE_ANON_KEY`,
+`GOOGLE_MAPS_BROWSER_KEY` (Google key limited to compassbyvavy.ca and
+www.compassbyvavy.ca, Maps JavaScript API and Maps Embed API) and
+`GOOGLE_MAPS_MAP_ID`. The service-role key never goes on this worker.
