@@ -1689,6 +1689,8 @@
 }
 .camp-spots {
   font-size: 0.92rem;
+  overflow-wrap: anywhere;
+  min-width: 0;
 }
 .camp-spots.is-open {
   color: var(--green);
@@ -1698,6 +1700,28 @@
 }
 .camp-spots.is-unknown {
   color: var(--muted);
+}
+.camp-spots.is-warning,
+.camp-status.is-warning {
+  color: #8a5f2a;
+}
+.camp-status.is-warning::before {
+  background: #8a5f2a;
+}
+.camp-card-spots {
+  margin: 0;
+  font-weight: 700;
+  font-size: 0.88rem;
+  overflow-wrap: anywhere;
+}
+.camp-card-spots.is-open {
+  color: var(--camps-pine);
+}
+.camp-card-spots.is-full {
+  color: #9b3b2b;
+}
+.camp-card-spots.is-warning {
+  color: var(--camps-amber-deep);
 }
 .camp-date-book {
   min-height: 44px;

@@ -85,6 +85,40 @@ describe("camp page view", () => {
     assert.ok(full.feeNotes.includes("Pick only the days you want."));
   });
 
+  it("shows a fresh checker count with the clock time", () => {
+    const fresh = buildCampPageView({
+      program,
+      provider,
+      sessions: [
+        s("f1", "2026-12-21", "2026-12-23", ["09:00", "16:00"], 98, FULL, {
+          seatAvailability: "unknown",
+          spotCheck: { spotsLeft: 8, state: "available", checkedAt: "2026-11-13T11:15:00.000Z" },
+        }),
+      ],
+      venuesById: { v1: venue },
+      today: "2026-11-13",
+      now: new Date("2026-11-13T11:45:00.000Z"),
+    });
+    assert.equal(fresh.options[0].dates[0].spots.text, "8 spots left · checked 6:15 am");
+    assert.equal(fresh.options[0].dates[0].spots.tone, "open");
+    const aged = buildCampPageView({
+      program,
+      provider,
+      sessions: [
+        s("f1", "2026-12-21", "2026-12-23", ["09:00", "16:00"], 98, FULL, {
+          seatAvailability: "confirmed_available",
+          sourceCheckedDate: "2026-11-01",
+          spotCheck: { spotsLeft: 8, state: "available", checkedAt: "2026-11-11T11:15:00.000Z" },
+        }),
+      ],
+      venuesById: { v1: venue },
+      today: "2026-11-13",
+      now: new Date("2026-11-13T11:45:00.000Z"),
+    });
+    assert.equal(aged.options[0].dates[0].spots.text, "Spots available · checked Nov 11");
+    assert.equal(aged.options[0].dates[0].spots.text.includes("8"), false);
+  });
+
   it("shows spots with their check date, never as live", () => {
     const v = view();
     assert.deepEqual(v.status, { text: "Spots available · checked Nov 11", tone: "open" });

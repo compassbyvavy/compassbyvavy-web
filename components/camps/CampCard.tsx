@@ -184,6 +184,9 @@ export function CampCard({
         </div>
 
         <p className="camp-card-evidence">{summary.evidence.label}</p>
+        {summary.spots ? (
+          <p className={`camp-card-spots is-${summary.spots.tone}`}>{summary.spots.text}</p>
+        ) : null}
 
         <div className="camp-card-actions">
           <Link className="camp-card-cta" href={detailHref}>

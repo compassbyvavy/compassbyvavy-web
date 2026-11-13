@@ -22,6 +22,7 @@ import {
   type RegistrationDisplayStateId,
 } from "@/lib/camps/registrationAction";
 import { summarizeMatchingSessionAges } from "@/lib/camps/sessionEligibility";
+import { soonestSpotLine, type SpotLine } from "@/lib/camps/spotsLine";
 
 export type CampCardPriceSummary =
   | {
@@ -101,6 +102,8 @@ export type CampCardSummary = {
   /** Provider-confirmed support tags only — never a generic Inclusive badge. */
   supportTags: string[];
   evidence: CampCardEvidenceSummary;
+  /** Soonest session's spots line, or null when there is no seat fact. */
+  spots: SpotLine | null;
 };
 
 function formatPriceAmount(amount: number): string {
@@ -515,6 +518,7 @@ export function buildCampCardSummary(input: {
     eligibilityLabel: ageSummary.label,
     categoryLabel: program.primaryCategory ?? null,
     themeLabels: program.secondaryThemes ?? [],
+    spots: soonestSpotLine(matchingSessions, now ?? new Date()),
     supportTags: (program.accessibilitySupportTags ?? []).filter((t) =>
       t.trim(),
     ),
