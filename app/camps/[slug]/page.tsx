@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { CampPage } from "@/components/camps/CampPage";
 import { buildCampPageView } from "@/lib/camps/campPage";
+import { googleMapsBrowserKey, mapsEmbedUrl } from "@/lib/camps/campMap";
 import { CampsCatalogUnavailable } from "@/components/camps/CampsCatalogUnavailable";
 import { loadCampsCatalogStatusForRequest } from "@/lib/camps/campsServerCatalog";
 import {
@@ -44,9 +45,18 @@ export default async function CampDetailPage({ params }: PageProps) {
     venuesById: published.venuesById,
   });
 
+  const mapsKey = googleMapsBrowserKey();
+  const mapEmbedUrl = mapsKey && view.mapQuery ? mapsEmbedUrl(mapsKey, view.mapQuery) : null;
+
   return (
     <div className="container camp-detail-page">
-      <CampPage view={view} program={published.program} sessions={published.sessions} banner={banner} />
+      <CampPage
+        view={view}
+        program={published.program}
+        sessions={published.sessions}
+        banner={banner}
+        mapEmbedUrl={mapEmbedUrl}
+      />
     </div>
   );
 }

@@ -2,6 +2,7 @@ import { CampCostTool } from "@/components/camps/CampCostTool";
 import { ShareIconButton, StickyBookBar, VenueSection } from "@/components/discover/VenueTools";
 import { SaveControl } from "@/components/shortlist/SaveControl";
 import type { CampProgram, CampSession } from "@/data/camps/types";
+import { directionsUrl } from "@/lib/camps/campMap";
 import type { CampPageView } from "@/lib/camps/campPage";
 import { saveRefForCard } from "@/lib/shortlist/refs";
 
@@ -15,10 +16,13 @@ export function CampPage({
   program,
   sessions,
   banner,
+  mapEmbedUrl = null,
 }: {
   view: CampPageView;
   program: CampProgram;
   sessions: CampSession[];
+  /** Maps Embed URL; null (no key) shows no map. */
+  mapEmbedUrl?: string | null;
   banner?: string | null;
 }) {
   const primaryBook = view.bookLinks[0] ?? null;
@@ -115,7 +119,19 @@ export function CampPage({
           ))}
           <p className="venue-muted">Booking and payment happen on {view.providerName}&apos;s own site.</p>
           <CampCostTool options={view.options} />
-          {view.address ? <p className="venue-plan-contact">{view.address}</p> : null}
+          {view.address ? (
+            <p className="venue-plan-contact">
+              {view.address}
+              {view.mapQuery ? (
+                <>
+                  {" · "}
+                  <a href={directionsUrl(view.mapQuery)} rel="noopener noreferrer" target="_blank">
+                    Directions
+                  </a>
+                </>
+              ) : null}
+            </p>
+          ) : null}
         </div>
       </aside>
 
@@ -215,10 +231,28 @@ export function CampPage({
                 <dd>
                   {view.address}
                   {view.area ? <span className="venue-muted"> · {view.area}</span> : null}
+                  {view.mapQuery ? (
+                    <>
+                      {" · "}
+                      <a href={directionsUrl(view.mapQuery)} rel="noopener noreferrer" target="_blank">
+                        Directions
+                      </a>
+                    </>
+                  ) : null}
                 </dd>
               </div>
             ) : null}
           </dl>
+          {mapEmbedUrl ? (
+            <iframe
+              className="camp-map"
+              title={`Map: ${view.address ?? view.providerName}`}
+              src={mapEmbedUrl}
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+              allowFullScreen
+            />
+          ) : null}
           {view.notes.length ? (
             <ul className="venue-list">
               {view.notes.map((n) => (

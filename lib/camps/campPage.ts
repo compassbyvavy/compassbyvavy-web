@@ -6,6 +6,7 @@
  * returns everything the page shows, in parent words. Nothing is invented: a
  * fact the camp doesn't publish becomes an entry in `askTheCamp`, never a guess.
  */
+import { campMapQuery } from "@/lib/camps/campMap";
 import type { CampProgram, CampSession, Provider, Venue } from "@/data/camps/types";
 
 /** Ontario HST. */
@@ -51,6 +52,8 @@ export type CampPageView = {
   providerUrl: string | null;
   crumb: string[];
   address: string | null;
+  /** Venue name + address for the map and directions; null with no single venue. */
+  mapQuery: string | null;
   area: string | null;
   lede: string | null;
   themes: string[];
@@ -232,6 +235,7 @@ export function buildCampPageView(args: {
     : venues.length > 1
       ? `${venues.length} locations`
       : null;
+  const mapQuery = venue ? campMapQuery(venue.name, address) : null;
   const area = venue ? [venue.neighbourhood, venue.city].filter(Boolean).join(", ") || null : null;
 
   // One option per distinct hours + price + booking link (e.g. full day and half day).
@@ -357,6 +361,7 @@ export function buildCampPageView(args: {
     providerUrl: provider.websiteUrl ?? null,
     crumb: ["Mississauga", "Camps", ...(dated.some((s) => s.startDate!.slice(5, 7) === "12" || s.startDate!.slice(5, 7) === "01") ? ["Winter break"] : [])],
     address,
+    mapQuery,
     area,
     lede: program.description ?? null,
     themes: (program.secondaryThemes?.length ? program.secondaryThemes : [program.primaryCategory]).filter(
