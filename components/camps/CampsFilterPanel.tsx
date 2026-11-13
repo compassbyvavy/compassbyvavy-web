@@ -104,11 +104,9 @@ export function CampsFilterPanel({
       <details className="camps-filter-group camps-filter-group-priority" open>
         <summary>Your kids</summary>
         <div className="camps-filter-group-body">
-          <p className="camps-filter-kicker">Ages first — same session</p>
           <p className="camps-field-hint">
-            Add each child. A camp session must fit every age on that session
-            — we do not combine one week for one sibling with another week for
-            another.
+            Add each child&apos;s age. We show dates that fit all of them, so
+            siblings can go together.
           </p>
           <div className="camps-age-badges" role="group" aria-label="Sibling ages">
             {uniqueDraftAges(filters.childAge).map((age) => (

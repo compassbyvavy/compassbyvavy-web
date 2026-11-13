@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 import { CampsCatalogUnavailable } from "@/components/camps/CampsCatalogUnavailable";
-import { CampsWithRainyDay } from "@/components/camps/CampsWithRainyDay";
+import { CampsListingClient } from "@/components/camps/CampsListingClient";
 import { loadCampsCatalogStatusForRequest } from "@/lib/camps/campsServerCatalog";
 import { formatCampsCatalogBanner } from "@/lib/camps/catalog";
 import { googleMapsBrowserKey, googleMapsMapId } from "@/lib/camps/campMap";
@@ -24,14 +24,8 @@ export default async function CampsListingPage() {
 
   return (
     <div className="container camps-listing-page">
-      <nav className="camps-tools" aria-label="Camp planning tools">
-        <span className="camps-tools-label">Planning tools</span>
-        <a href="/calendar">School PA days</a>
-        <a href="/discover/ages">Sibling age check</a>
-        <a href="/discover/access">Sensory &amp; transit access</a>
-      </nav>
       <Suspense fallback={<p className="camp-card-note">Loading camps…</p>}>
-        <CampsWithRainyDay
+        <CampsListingClient
           programs={catalog.programs}
           providers={catalog.providers}
           sessions={catalog.sessions}

@@ -8,9 +8,11 @@ import { campCost, money, type CampOptionView } from "@/lib/camps/campPage";
  * sessions, and how many children. Shows tax when the camp's price is plus HST.
  * Discounts the camp doesn't price (sibling codes) are never subtracted.
  */
-export function CampCostTool({ options }: { options: CampOptionView[] }) {
+export function CampCostTool({ options, initialKey }: { options: CampOptionView[]; initialKey?: string }) {
   const priced = options.filter((o) => o.price != null && o.units.length > 0);
-  const [optionKey, setOptionKey] = useState(priced[0]?.key ?? "");
+  const [optionKey, setOptionKey] = useState(
+    priced.some((o) => o.key === initialKey) ? initialKey! : (priced[0]?.key ?? ""),
+  );
   const option = priced.find((o) => o.key === optionKey) ?? priced[0];
   const [chosen, setChosen] = useState<Set<string>>(() => new Set(option ? option.units.map((u) => u.id) : []));
   const [children, setChildren] = useState(1);

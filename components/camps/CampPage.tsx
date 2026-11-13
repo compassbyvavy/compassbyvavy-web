@@ -1,5 +1,5 @@
-import { CampCostTool } from "@/components/camps/CampCostTool";
 import { CampDatesPicker } from "@/components/camps/CampDatesPicker";
+import { keepRangesTogether } from "@/components/camps/keepRangesTogether";
 import { ShareIconButton, StickyBookBar } from "@/components/discover/VenueTools";
 import { SaveControl } from "@/components/shortlist/SaveControl";
 import type { CampProgram, CampSession } from "@/data/camps/types";
@@ -118,13 +118,7 @@ export function CampPage({
               {view.providerName} says this camp runs, but hasn&apos;t posted the dates yet. Check back, or ask them.
             </p>
           )}
-          <CampDatesPicker options={view.options} providerName={view.providerName} />
-          {canCost ? (
-            <details className="cp-cost" id="cost">
-              <summary>Work out the cost for your family</summary>
-              <CampCostTool options={view.options} />
-            </details>
-          ) : null}
+          <CampDatesPicker options={view.options} providerName={view.providerName} withCost={canCost} />
         </section>
 
         {view.experience ? (
@@ -244,23 +238,5 @@ export function CampPage({
         </StickyBookBar>
       ) : null}
     </article>
-  );
-}
-
-/**
- * Keeps a date or time range on one line ("Dec 28–30", "9:00–1:30") so a
- * narrow tile breaks between ranges, never inside one ("Dec 28–" / "30").
- */
-const RANGE = /([A-Z][a-z]{2} \d{1,2}–\d{1,2}|\d{1,2}:\d{2}–\d{1,2}:\d{2}|\S+–\S+)/g;
-
-function keepRangesTogether(text: string) {
-  return text.split(RANGE).map((part, i) =>
-    i % 2 === 1 ? (
-      <span key={i} className="camp-nowrap">
-        {part}
-      </span>
-    ) : (
-      part
-    ),
   );
 }

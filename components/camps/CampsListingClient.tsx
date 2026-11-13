@@ -65,13 +65,11 @@ import {
 
 const LISTING_VIEW_KEY = "compass.camps.listingView";
 
+// Launch scope (Jan 2027): winter break and PA days only.
 const TIMING_CHIPS: { id: TimingShortcutId; label: string }[] = [
-  { id: "all", label: "All dates" },
-  { id: "summer", label: "Summer" },
-  { id: "march_break", label: "March Break" },
-  { id: "winter_break", label: "Winter Break" },
-  { id: "pa_days", label: "PA Days" },
-  { id: "weekends", label: "Weekends" },
+  { id: "all", label: "All camps" },
+  { id: "winter_break", label: "Winter break" },
+  { id: "pa_days", label: "PA days" },
 ];
 
 export type CampsListingClientProps = {
@@ -378,7 +376,7 @@ export function CampsListingClient({
             : null
         }
         ctaLabel={
-          options?.flatSessionId ? "View this session" : "View dates & details"
+          options?.flatSessionId ? "See this date" : "See dates and details"
         }
         groupedDisclosure={!options?.flatSessionId}
       />
@@ -400,104 +398,63 @@ export function CampsListingClient({
       ) : null}
 
       <header className="camps-listing-intro">
-        <p className="camps-listing-kicker">Mississauga camps</p>
-        <h1>Every camp we can verify — not just our favourites</h1>
+        <p className="camps-listing-kicker">Mississauga</p>
+        <h1>Winter break &amp; PA day camps</h1>
         <p className="camps-listing-lede">
-          Search and filter by the same session facts parents need: age, dates,
-          venue, hours, care, and price. Coverage is ongoing — this is not a
-          promise that every Mississauga camp is listed yet. No account
-          required.
+          Checked with each camp&apos;s own website. You book on their site.
         </p>
       </header>
 
       <div className="camps-listing-top">
-        <div className="camps-toolbar">
-          <div className="camps-field camps-toolbar-city">
-            <span id="camps-browse-location-label">Browse location</span>
-            <p
-              className="camps-toolbar-city-value"
-              aria-labelledby="camps-browse-location-label"
-            >
-              {browseLabel ?? "All listed areas"}
-              {filters.whereId ? (
-                <button
-                  type="button"
-                  className="camps-text-btn"
-                  onClick={clearBrowseLocation}
-                >
-                  Clear
-                </button>
-              ) : null}
-            </p>
+        <div className="camps-quick" role="group" aria-label="Choose camps">
+          <div className="camps-timing-chips" role="group" aria-label="When">
+            {TIMING_CHIPS.map((chip) => (
+              <button
+                key={chip.id}
+                type="button"
+                className={
+                  filters.timingShortcut === chip.id
+                    ? "camps-chip camps-chip-active"
+                    : "camps-chip"
+                }
+                aria-pressed={filters.timingShortcut === chip.id}
+                onClick={() =>
+                  setFilters((f) => ({ ...f, timingShortcut: chip.id }))
+                }
+              >
+                {chip.label}
+              </button>
+            ))}
           </div>
-          <p className="camps-toolbar-distance" role="note">
-            <span className="camps-field">
-              <span>Distance</span>
-            </span>
-            <span>{distanceChrome.reason}</span>
-          </p>
-          <label className="camps-sort">
-            <span>Sort</span>
-            <select
-              value={sort}
-              aria-label="Sort results"
-              onChange={(e) => setSort(e.target.value as ListingSortId)}
-            >
-              <option value="soonest_start">Soonest start</option>
-              <option value="price_asc">Price (low to high)</option>
-              <option value="name_asc">Name A–Z</option>
-            </select>
-          </label>
+
+          <form
+            className="camps-search-row"
+            onSubmit={(e) => {
+              e.preventDefault();
+            }}
+            role="search"
+            aria-label="Camp search"
+          >
+            <label className="camps-quick-search">
+              <span className="visually-hidden">Search camps</span>
+              <input
+                type="search"
+                placeholder="Search camp, provider or area"
+                value={keywordDraft}
+                onChange={(e) => setKeywordDraft(e.target.value)}
+              />
+            </label>
+          </form>
         </div>
-        <p className="camps-field-hint camps-toolbar-city-hint">
-          {filters.whereId
-            ? `Showing camps held in ${browseLabel ?? "this place"} only. Change the location in the bar at the top of the page.`
-            : `Camps are listed in ${LISTING_BROWSE_CITY} so far. Choose a location at the top of the page to narrow results.`}{" "}
-          We do not silently widen to another city or invent kilometres.
-        </p>
 
-        <form
-          className="camps-search-row"
-          onSubmit={(e) => {
-            e.preventDefault();
-          }}
-          role="search"
-          aria-label="Camp search"
-        >
-          <label className="camps-field camps-search-keyword">
-            <span>Keyword</span>
-            <input
-              type="search"
-              placeholder="Camp, provider, neighbourhood…"
-              value={keywordDraft}
-              onChange={(e) => setKeywordDraft(e.target.value)}
-            />
-          </label>
-        </form>
-
-        <div
-          className="camps-timing-chips"
-          role="group"
-          aria-label="Timing shortcuts"
-        >
-          {TIMING_CHIPS.map((chip) => (
-            <button
-              key={chip.id}
-              type="button"
-              className={
-                filters.timingShortcut === chip.id
-                  ? "camps-chip camps-chip-active"
-                  : "camps-chip"
-              }
-              aria-pressed={filters.timingShortcut === chip.id}
-              onClick={() =>
-                setFilters((f) => ({ ...f, timingShortcut: chip.id }))
-              }
-            >
-              {chip.label}
+        {filters.whereId ? (
+          <p className="camps-where-line">
+            Showing camps in {browseLabel ?? "this area"} only.{" "}
+            <button type="button" className="camps-text-btn" onClick={clearBrowseLocation}>
+              Show all areas
             </button>
-          ))}
-        </div>
+          </p>
+        ) : null}
 
         <div className="camps-result-controls">
           <p className="camps-result-count" aria-live="polite">
@@ -512,33 +469,21 @@ export function CampsListingClient({
             aria-controls={filterPanelId}
             onClick={() => setDrawerOpen(true)}
           >
-            Filters{activeFilterCount > 0 ? ` (${activeFilterCount})` : ""}
+            More filters{activeFilterCount > 0 ? ` (${activeFilterCount})` : ""}
           </button>
 
-          <fieldset className="camps-view-toggle">
-            <legend className="visually-hidden">
-              Group sessions by camp
-            </legend>
-            {LISTING_VIEW_OPTIONS.map((option) => (
-              <label
-                key={option.id}
-                className={
-                  listingView === option.id
-                    ? "camps-view-option is-active"
-                    : "camps-view-option"
-                }
-              >
-                <input
-                  type="radio"
-                  name="camps-listing-view"
-                  value={option.id}
-                  checked={listingView === option.id}
-                  onChange={() => setListingView(option.id)}
-                />
-                <span>{option.label}</span>
-              </label>
-            ))}
-          </fieldset>
+          <label className="camps-sort">
+            <span className="visually-hidden">Sort</span>
+            <select
+              value={sort}
+              aria-label="Sort results"
+              onChange={(e) => setSort(e.target.value as ListingSortId)}
+            >
+              <option value="soonest_start">Soonest first</option>
+              <option value="price_asc">Lowest price</option>
+              <option value="name_asc">Name A–Z</option>
+            </select>
+          </label>
 
           {showMapToggle ? (
             <button
@@ -741,28 +686,19 @@ export function CampsListingClient({
             </>
           )}
 
-          <section
-            className="camps-collections-teaser"
-            aria-labelledby="camps-collections-title"
-          >
-            <p className="camps-teaser-eyebrow">Supplementary</p>
-            <h2 id="camps-collections-title">Collections</h2>
-            <p>
-              Theme collections may appear here later. They supplement the
-              directory — they never replace searchable results.
-            </p>
-          </section>
-
           <footer className="camps-trust-footer">
-            <h2>Coverage &amp; trust</h2>
             <p>
-              Inclusion is neutral and ongoing. Source-checked facts stay
-              distinct from provider-confirmed ones. Know a Mississauga camp we
-              missed?{" "}
+              Every camp is listed on its merits: no paid placement. Know a
+              Mississauga camp we missed?{" "}
               <a href="mailto:hello@compassbyvavy.ca?subject=Camp%20we%20missed">
                 Tell us
               </a>
               .
+            </p>
+            <p className="camps-tools-links">
+              Planning tools: <a href="/calendar">School PA days</a> ·{" "}
+              <a href="/discover/ages">Sibling age check</a> ·{" "}
+              <a href="/discover/access">Sensory &amp; transit access</a>
             </p>
           </footer>
         </div>

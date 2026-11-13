@@ -1,6 +1,7 @@
 "use client";
 
 import { useId, useState } from "react";
+import { CampCostTool } from "@/components/camps/CampCostTool";
 import type { CampOptionView } from "@/lib/camps/campPage";
 
 /** "Spots available · checked Nov 11" → main + checked, so a shared check date is said once. */
@@ -15,7 +16,16 @@ export function splitChecked(text: string): { main: string; checked: string | nu
  * one option, then one row per date with its spots and a Book link. A check
  * date shared by every row is said once under the list.
  */
-export function CampDatesPicker({ options, providerName }: { options: CampOptionView[]; providerName: string }) {
+export function CampDatesPicker({
+  options,
+  providerName,
+  withCost = false,
+}: {
+  options: CampOptionView[];
+  providerName: string;
+  /** Fold the cost tool under the dates, starting on the chosen option. */
+  withCost?: boolean;
+}) {
   const [active, setActive] = useState(options[0]?.key ?? "");
   const id = useId();
   const option = options.find((o) => o.key === active) ?? options[0];
@@ -92,6 +102,13 @@ export function CampDatesPicker({ options, providerName }: { options: CampOption
           </ul>
         ) : null}
       </div>
+
+      {withCost ? (
+        <details className="cp-cost" id="cost">
+          <summary>Work out the cost for your family</summary>
+          <CampCostTool key={option.key} options={options} initialKey={option.key} />
+        </details>
+      ) : null}
     </div>
   );
 }

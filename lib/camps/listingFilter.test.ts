@@ -523,12 +523,10 @@ describe("grouped/flat consistency", () => {
 });
 
 describe("listing counts and empty/unknown states", () => {
-  it("labels camps and sessions separately", () => {
+  it("counts camps in parent words, with camps still waiting for dates", () => {
     const results = buildListingResults(catalog, filters());
-    assert.equal(
-      formatListingCounts(results),
-      "1 camp · 2 matching sessions · 1 camp awaiting dates",
-    );
+    assert.equal(results.matchingSessionCount, 2);
+    assert.equal(formatListingCounts(results), "1 camp · 1 more with dates to come");
   });
 
   it("empty matches when nothing fits — no invented widening", () => {
@@ -539,7 +537,7 @@ describe("listing counts and empty/unknown states", () => {
     assert.equal(results.programCount, 0);
     assert.equal(results.matchingSessionCount, 0);
     assert.equal(toFlatRows(results).length, 0);
-    assert.match(formatListingCounts(results), /0 camps · 0 matching sessions/);
+    assert.match(formatListingCounts(results), /^0 camps/);
   });
 
   it("awaiting-dates program stays reachable until a session filter rules it out", () => {

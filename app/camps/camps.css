@@ -2295,3 +2295,138 @@
 .cp-price span { font-size: 0.95rem; font-weight: 600; color: var(--muted); }
 .cp-aside-link { font-weight: 600; color: var(--green-dark); }
 .cp-cost .camp-cost-title { display: none; }
+
+/* ===== Camps list, Nov 13 redesign ===== */
+.camps-listing-intro { margin-bottom: 16px; }
+.camps-listing-intro h1 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--green-dark);
+}
+.camps-listing-top {
+  gap: 12px;
+  margin-bottom: 18px;
+  padding: 0 0 14px;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  border-radius: 0;
+  background: none;
+}
+.camps-quick {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 16px;
+}
+.camps-quick .camps-timing-chips { margin: 0; }
+.camps-quick .camps-search-row {
+  display: block;
+  flex: 1 1 240px;
+  margin: 0;
+}
+.camps-quick-search input {
+  width: 100%;
+  min-height: 44px;
+  padding: 0 16px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--paper);
+  font: inherit;
+}
+.camps-where-line { margin: 0; font-size: 0.92rem; }
+.camps-sort select {
+  min-height: 44px;
+  padding: 0 12px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--paper);
+  font: inherit;
+  font-weight: 600;
+}
+.camps-trust-footer { margin-top: 32px; font-size: 0.92rem; }
+.camps-tools-links { color: var(--camps-muted); }
+
+/* Card */
+.cc {
+  display: grid;
+  gap: 8px;
+  align-content: start;
+  padding: 18px 18px 16px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: var(--paper);
+  transition: box-shadow 0.15s ease, border-color 0.15s ease;
+}
+.cc:hover { border-color: #cfc6b4; box-shadow: 0 8px 24px rgba(38, 36, 31, 0.08); }
+.cc-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+.cc-by {
+  margin: 0;
+  padding-top: 4px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--camps-muted);
+}
+.cc-by span { font-weight: 400; }
+.cc-title {
+  margin: -4px 0 0;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 1.35rem;
+  line-height: 1.2;
+}
+.cc-title a { color: var(--green-dark); text-decoration: none; }
+.cc-title a:hover { text-decoration: underline; }
+.cc-note { margin: 0; font-size: 0.9rem; color: var(--camps-muted); }
+.cc-status {
+  justify-self: start;
+  margin: 2px 0 0;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: var(--surface);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+.cc-status.is-open { background: var(--sage); color: var(--green-dark); }
+.cc-status.is-full { background: #f6e3dc; color: #7a3416; }
+.cc-status.is-warning { background: #fbefd9; color: #6b4a12; }
+.cc-facts {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px 16px;
+  margin: 6px 0 0;
+  padding-top: 10px;
+  border-top: 1px solid var(--line);
+}
+.cc-facts dt {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--camps-muted);
+}
+.cc-facts dd { margin: 2px 0 0; font-size: 0.95rem; font-weight: 600; line-height: 1.35; }
+.cc-cta {
+  justify-self: start;
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  margin-top: 4px;
+  font-weight: 700;
+  color: var(--green-dark);
+}
+/* Filters live in the "More filters" panel on every screen size; cards get the width. */
+.camps-listing-layout { grid-template-columns: minmax(0, 1fr); }
+.camps-listing-sidebar { display: none; }
+.camps-filters-open { display: inline-flex; align-items: center; }
+@media (min-width: 760px) {
+  .camps-results-grid[data-view="program"] { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (min-width: 1180px) {
+  .camps-results-grid[data-view="program"] { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}

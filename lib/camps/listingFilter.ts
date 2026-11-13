@@ -947,14 +947,9 @@ export function toFlatRows(results: ListingResultSet): ListingFlatRow[] {
 
 export function formatListingCounts(results: ListingResultSet): string {
   const camps = results.programCount;
-  const sessions = results.matchingSessionCount;
-  const campWord = camps === 1 ? "camp" : "camps";
-  const sessionWord = sessions === 1 ? "matching session" : "matching sessions";
-  let label = `${camps} ${campWord} · ${sessions} ${sessionWord}`;
+  let label = `${camps} ${camps === 1 ? "camp" : "camps"}`;
   if (results.awaitingDatesCount > 0) {
-    const awaitingWord =
-      results.awaitingDatesCount === 1 ? "camp" : "camps";
-    label += ` · ${results.awaitingDatesCount} ${awaitingWord} awaiting dates`;
+    label += ` · ${results.awaitingDatesCount} more with dates to come`;
   }
   return label;
 }
