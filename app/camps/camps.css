@@ -1588,3 +1588,292 @@
     white-space: nowrap;
   }
 }
+
+/* ---- Parent-first camp page (CampPage) — builds on the venue page layout ---- */
+.camp-page .camp-provider {
+  margin: 2px 0 6px;
+  color: var(--muted);
+  font-weight: 600;
+}
+.camp-page .camp-provider a {
+  color: var(--green);
+}
+.camp-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 8px 0 0;
+  font-weight: 700;
+}
+.camp-status::before {
+  content: "";
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--muted);
+}
+.camp-status.is-open {
+  color: var(--green);
+}
+.camp-status.is-open::before {
+  background: var(--green);
+}
+.camp-status.is-full {
+  color: #9b3b2b;
+}
+.camp-status.is-full::before {
+  background: #9b3b2b;
+}
+.camp-callout {
+  margin: 0 0 16px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: #f6ecd9;
+  color: var(--ink);
+}
+.camp-options {
+  display: grid;
+  gap: 16px;
+}
+.camp-option {
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: var(--paper);
+  padding: 18px 18px 12px;
+}
+.camp-option-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px 16px;
+  margin-bottom: 10px;
+}
+.camp-option-head h3 {
+  margin: 0;
+  font-size: 1.15rem;
+}
+.camp-option-hours {
+  margin: 2px 0 0;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+.camp-option-price {
+  display: grid;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.camp-option-price strong {
+  font-size: 1.1rem;
+}
+.camp-option-price span {
+  color: var(--muted);
+  font-size: 0.88rem;
+}
+.camp-dates {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.camp-dates li {
+  display: grid;
+  grid-template-columns: minmax(84px, auto) 1fr auto;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  border-top: 1px solid var(--line);
+}
+.camp-date {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.camp-spots {
+  font-size: 0.92rem;
+}
+.camp-spots.is-open {
+  color: var(--green);
+}
+.camp-spots.is-full {
+  color: #9b3b2b;
+}
+.camp-spots.is-unknown {
+  color: var(--muted);
+}
+.camp-date-book {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  padding: 0 16px;
+  border-radius: 999px;
+  border: 1px solid var(--green);
+  color: var(--green);
+  font-weight: 700;
+  text-decoration: none;
+}
+.camp-date-book:hover,
+.camp-date-book:focus-visible {
+  background: var(--green);
+  color: #fff;
+}
+.camp-fee-notes {
+  margin-top: 8px;
+}
+.camp-facts {
+  display: grid;
+  gap: 10px;
+  margin: 0 0 12px;
+}
+.camp-facts div {
+  display: grid;
+  grid-template-columns: minmax(120px, 30%) 1fr;
+  gap: 12px;
+}
+.camp-facts dt {
+  font-weight: 700;
+}
+.camp-facts dd {
+  margin: 0;
+}
+.camp-ask {
+  margin-top: 16px;
+  padding: 14px 16px;
+  border-radius: 12px;
+  background: var(--surface);
+}
+.camp-ask h3 {
+  margin: 0 0 4px;
+  font-size: 1rem;
+}
+.camp-email {
+  font-weight: 700;
+  user-select: all;
+}
+.camp-book-more {
+  width: 100%;
+  margin-top: 8px;
+}
+
+/* Cost tool in the "Plan your camp days" card */
+.camp-cost {
+  display: grid;
+  gap: 14px;
+  margin-bottom: 16px;
+}
+.camp-cost-title {
+  margin: 0;
+  font-size: 1rem;
+}
+.camp-cost-field {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+}
+.camp-cost-field legend,
+.camp-cost-kids label {
+  margin-bottom: 6px;
+  font-weight: 700;
+  font-size: 0.92rem;
+}
+.camp-cost-choices,
+.camp-cost-days {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.camp-choice,
+.camp-day {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 6px 12px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--paper);
+  cursor: pointer;
+}
+.camp-choice span {
+  display: grid;
+  font-weight: 700;
+}
+.camp-choice small {
+  font-weight: 400;
+  color: var(--muted);
+}
+.camp-choice.is-on,
+.camp-day.is-on {
+  border-color: var(--green);
+  background: #e8efe9;
+}
+.camp-choice input,
+.camp-day input {
+  accent-color: var(--green);
+}
+.camp-cost-kids {
+  display: grid;
+}
+.camp-stepper {
+  display: inline-flex;
+  align-items: center;
+  width: max-content;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--paper);
+}
+.camp-stepper button {
+  width: 44px;
+  height: 44px;
+  border: 0;
+  background: transparent;
+  font-size: 1.2rem;
+  cursor: pointer;
+}
+.camp-stepper input {
+  width: 44px;
+  height: 44px;
+  border: 0;
+  text-align: center;
+  font: inherit;
+  font-weight: 700;
+}
+.camp-cost-result {
+  display: grid;
+  gap: 4px;
+  padding-top: 10px;
+  border-top: 1px solid var(--line);
+  font-variant-numeric: tabular-nums;
+}
+.camp-cost-line,
+.camp-cost-total {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 0;
+}
+.camp-cost-total {
+  font-size: 1.25rem;
+  font-weight: 800;
+}
+
+@media (max-width: 559px) {
+  .camp-dates li {
+    grid-template-columns: 1fr auto;
+  }
+  .camp-dates .camp-spots {
+    grid-column: 1;
+    grid-row: 2;
+  }
+  .camp-dates .camp-date-book {
+    grid-row: 1 / span 2;
+    grid-column: 2;
+  }
+  .camp-option-price {
+    text-align: left;
+  }
+  .camp-facts div {
+    grid-template-columns: 1fr;
+    gap: 2px;
+  }
+}

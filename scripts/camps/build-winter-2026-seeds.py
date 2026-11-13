@@ -48,7 +48,7 @@ SESSION_CASTS = {"schedule_format": "camp_session_schedule_format", "stay_type":
 
 def session(sid, program, venue, start, end, label, hours, price, unit, fee_notes, reg_url, source, ages,
             reg_status="availability_unknown", before=None, after=None, care_included=False, notes=None,
-            care_separate=False,
+            care_separate=False, seats="unknown", deadline=None,
             schedule_format="short_session"):
     b_off = "yes" if before else "unknown"
     a_off = "yes" if after else "unknown"
@@ -66,19 +66,28 @@ def session(sid, program, venue, start, end, label, hours, price, unit, fee_note
         "price_amount": price, "price_unit": unit, "currency": "CAD" if price is not None else None,
         "fee_notes": fee_notes, "registration_status": reg_status, "registration_url": reg_url,
         "source_url": source, "source_checked_date": CHECKED, "provider_confirmed": False,
-        "seat_availability": "unknown", "age_min": ages[0], "age_max": ages[1],
+        "seat_availability": seats, "age_min": ages[0], "age_max": ages[1],
         "age_min_inclusive": True if ages[0] is not None else None,
         "age_max_inclusive": True if ages[1] is not None else None,
         "age_assessed_at_date": None, "age_assessment_rule": "unknown", "notes": notes,
+        # Only written when a camp publishes one (needs migration 20261111090000).
+        **({"registration_deadline_on": deadline} if deadline else {}),
     }
 
 
 CAMPS = []
 
 # --- COOKSMART (MSC-0381) -------------------------------------------------
+# Reviewed with Vineeta 2026-11-11 (Winter camp review sheet): tag Cooking only, their own line as the
+# description, + HST from the booking pages, sibling code, cancellation policy, spots open on every date.
 src = "https://www.cooksmart.ca/programs/camps-hub/winter-camp"
-full = "https://cooksmartscheduling.as.me/?appointmentType=99733065"
-half = "https://cooksmartscheduling.as.me/?appointmentType=99732924"
+full = "https://cooksmartscheduling.as.me/schedule/7b98e4f9/?appointmentTypeIds[]=99733065"
+half = "https://cooksmartscheduling.as.me/schedule/7b98e4f9/?appointmentTypeIds[]=99732924"
+full_fee = ("$98 + HST per day (CA$110.74 with tax). Snacks and lunch included, which the kids make themselves. "
+            "Siblings: book a quantity of 2 and use code CSFAMILY2. Pick only the days you want.")
+half_fee = ("$67 + HST per half day (CA$75.71 with tax). Snacks and lunch included, which the kids make themselves. "
+            "Pick only the days you want.")
+spots = "Every date had spots on Nov 11, 2026."
 CAMPS.append(dict(
     slug="msc-0381-cooksmart-winter-2026", label="COOKSMART winter holiday cooking camp",
     provider=dict(id="prov-cooksmart", name="COOKSMART", website_url="https://www.cooksmart.ca/",
@@ -87,23 +96,27 @@ CAMPS.append(dict(
                address_line="1700 Mazo Crescent", postal_code="L5J 1Y8"),
     program=dict(id="MSC-0381", slug="cooksmart-winter-holiday-cooking-camp",
                  name="Winter Holiday Cooking Camp",
-                 description="Hands-on cooking camp over the winter break, as a full day or a half day. "
-                             "Book single days or several dates across both weeks.",
-                 primary_category="Culinary", secondary_themes=["Cooking", "Baking"],
-                 typical_age_min=5, typical_age_max=12, audience="child_only"),
+                 description="\u201cHolidays are for fun and learning essential life skills!\u201d \u2014 COOKSMART",
+                 primary_category="Culinary", secondary_themes=["Cooking"],
+                 typical_age_min=5, typical_age_max=12, audience="child_only",
+                 experience_summary="A full day (9:00\u20134:00) or a half day (9:00\u20131:30) of cooking, "
+                                    "where the kids make their own healthy snacks and lunch.",
+                 policies_summary="Cancel in writing. More than a month before: refund minus $60. 2\u20134 weeks: "
+                                  "minus $100. 2 weeks or less: 50% charge. Within 72 hours or once camp starts: "
+                                  "no refund. Rescheduling when possible; a child sick 3+ days may be offered other dates."),
     sessions=[
         session("MSC-0381-2026-12-21-full", "MSC-0381", "venue-cooksmart-clarkson", "2026-12-21", "2026-12-23",
-                "Full day, Dec 21–23 (book any days)", ("09:00", "16:00"), 98, "per_day",
-                "$98 per day. Hot lunch and afternoon snacks included. SK to Grade 7.", full, src, (5, 12)),
+                "Full day, Dec 21, 22, 23", ("09:00", "16:00"), 98, "per_day", full_fee, full, full, (5, 12),
+                reg_status="registration_open", seats="confirmed_available", notes=spots),
         session("MSC-0381-2026-12-28-full", "MSC-0381", "venue-cooksmart-clarkson", "2026-12-28", "2026-12-30",
-                "Full day, Dec 28–30 (book any days)", ("09:00", "16:00"), 98, "per_day",
-                "$98 per day. Hot lunch and afternoon snacks included. SK to Grade 7.", full, src, (5, 12)),
+                "Full day, Dec 28, 29, 30", ("09:00", "16:00"), 98, "per_day", full_fee, full, full, (5, 12),
+                reg_status="registration_open", seats="confirmed_available", notes=spots),
         session("MSC-0381-2026-12-21-half", "MSC-0381", "venue-cooksmart-clarkson", "2026-12-21", "2026-12-23",
-                "Half day, Dec 21–23 (book any days)", ("09:00", "13:30"), 67, "per_day",
-                "$67 per half day. Hot lunch included. SK to Grade 7.", half, src, (5, 12)),
+                "Half day, Dec 21, 22, 23", ("09:00", "13:30"), 67, "per_day", half_fee, half, half, (5, 12),
+                reg_status="registration_open", seats="confirmed_available", notes=spots),
         session("MSC-0381-2026-12-28-half", "MSC-0381", "venue-cooksmart-clarkson", "2026-12-28", "2026-12-30",
-                "Half day, Dec 28–30 (book any days)", ("09:00", "13:30"), 67, "per_day",
-                "$67 per half day. Hot lunch included. SK to Grade 7.", half, src, (5, 12)),
+                "Half day, Dec 28, 29, 30", ("09:00", "13:30"), 67, "per_day", half_fee, half, half, (5, 12),
+                reg_status="registration_open", seats="confirmed_available", notes=spots),
     ]))
 
 # --- Futures Gymnastics (MSC-0285) ---------------------------------------
