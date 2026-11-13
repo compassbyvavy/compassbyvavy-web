@@ -121,6 +121,13 @@ function session(overrides: Record<string, unknown> = {}) {
     source_checked_date: "2026-08-01",
     provider_confirmed: false,
     seat_availability: null,
+    camp_session_spots: overrides.id
+      ? null
+      : {
+          spots_left: 8,
+          state: "available",
+          checked_at: "2026-11-13T11:15:00+00:00",
+        },
     age_min: null,
     age_max: null,
     age_min_inclusive: null,
@@ -374,6 +381,11 @@ describe("published camps supabase read", { concurrency: 1 }, () => {
     assert.equal(live.scheduleFormat, "unknown");
     assert.equal(live.stayType, null);
     assert.equal(live.seatAvailability, null);
+    assert.deepEqual(live.spotCheck, {
+      spotsLeft: 8,
+      state: "available",
+      checkedAt: "2026-11-13T11:15:00+00:00",
+    });
     assert.equal(live.venueId, "venue-port");
 
     const missingVenue = catalog.sessions.find((item) => item.id === "sess-no-venue");

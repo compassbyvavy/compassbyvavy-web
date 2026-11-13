@@ -256,6 +256,15 @@ export type CampSession = {
    */
   seatAvailability?: SeatAvailabilityFact | null;
   /**
+   * Latest checker reading, when the published catalog included one.
+   * Null spotsLeft means the booking page showed no number.
+   */
+  spotCheck?: {
+    spotsLeft: number | null;
+    state: "available" | "full" | "waitlist" | "unknown";
+    checkedAt: string;
+  } | null;
+  /**
    * Exact session eligibility in whole years (flat fields; same names as program).
    * Missing bounds, inclusive flags, or assessment rule/date ⇒ unknown — not eligible.
    * Program-level ages must never fill these in at match time.
