@@ -1877,3 +1877,7 @@
     gap: 2px;
   }
 }
+
+.camp-nowrap {
+  white-space: nowrap;
+}

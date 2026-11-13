@@ -85,7 +85,7 @@ export function CampPage({
           {view.answers.map((a) => (
             <div key={a.label}>
               <dt>{a.label}</dt>
-              <dd>{a.value}</dd>
+              <dd>{keepRangesTogether(a.value)}</dd>
             </div>
           ))}
         </dl>
@@ -292,5 +292,23 @@ export function CampPage({
         </StickyBookBar>
       ) : null}
     </article>
+  );
+}
+
+/**
+ * Keeps a date or time range on one line ("Dec 28–30", "9:00–1:30") so a
+ * narrow tile breaks between ranges, never inside one ("Dec 28–" / "30").
+ */
+const RANGE = /([A-Z][a-z]{2} \d{1,2}\u2013\d{1,2}|\d{1,2}:\d{2}\u2013\d{1,2}:\d{2}|\S+\u2013\S+)/g;
+
+function keepRangesTogether(text: string) {
+  return text.split(RANGE).map((part, i) =>
+    i % 2 === 1 ? (
+      <span key={i} className="camp-nowrap">
+        {part}
+      </span>
+    ) : (
+      part
+    ),
   );
 }
