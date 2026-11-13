@@ -2,6 +2,7 @@ import { CampCostTool } from "@/components/camps/CampCostTool";
 import { ShareIconButton, StickyBookBar, VenueSection } from "@/components/discover/VenueTools";
 import { SaveControl } from "@/components/shortlist/SaveControl";
 import type { CampProgram, CampSession } from "@/data/camps/types";
+import { directionsUrl } from "@/lib/camps/campMap";
 import type { CampPageView } from "@/lib/camps/campPage";
 import { saveRefForCard } from "@/lib/shortlist/refs";
 
@@ -15,10 +16,13 @@ export function CampPage({
   program,
   sessions,
   banner,
+  mapEmbedUrl = null,
 }: {
   view: CampPageView;
   program: CampProgram;
   sessions: CampSession[];
+  /** Maps Embed URL; null (no key) shows no map. */
+  mapEmbedUrl?: string | null;
   banner?: string | null;
 }) {
   const primaryBook = view.bookLinks[0] ?? null;
@@ -85,7 +89,7 @@ export function CampPage({
           {view.answers.map((a) => (
             <div key={a.label}>
               <dt>{a.label}</dt>
-              <dd>{a.value}</dd>
+              <dd>{keepRangesTogether(a.value)}</dd>
             </div>
           ))}
         </dl>
@@ -115,7 +119,19 @@ export function CampPage({
           ))}
           <p className="venue-muted">Booking and payment happen on {view.providerName}&apos;s own site.</p>
           <CampCostTool options={view.options} />
-          {view.address ? <p className="venue-plan-contact">{view.address}</p> : null}
+          {view.address ? (
+            <p className="venue-plan-contact">
+              {view.address}
+              {view.mapQuery ? (
+                <>
+                  {" · "}
+                  <a href={directionsUrl(view.mapQuery)} rel="noopener noreferrer" target="_blank">
+                    Directions
+                  </a>
+                </>
+              ) : null}
+            </p>
+          ) : null}
         </div>
       </aside>
 
@@ -215,10 +231,28 @@ export function CampPage({
                 <dd>
                   {view.address}
                   {view.area ? <span className="venue-muted"> · {view.area}</span> : null}
+                  {view.mapQuery ? (
+                    <>
+                      {" · "}
+                      <a href={directionsUrl(view.mapQuery)} rel="noopener noreferrer" target="_blank">
+                        Directions
+                      </a>
+                    </>
+                  ) : null}
                 </dd>
               </div>
             ) : null}
           </dl>
+          {mapEmbedUrl ? (
+            <iframe
+              className="camp-map"
+              title={`Map: ${view.address ?? view.providerName}`}
+              src={mapEmbedUrl}
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+              allowFullScreen
+            />
+          ) : null}
           {view.notes.length ? (
             <ul className="venue-list">
               {view.notes.map((n) => (
@@ -292,5 +326,23 @@ export function CampPage({
         </StickyBookBar>
       ) : null}
     </article>
+  );
+}
+
+/**
+ * Keeps a date or time range on one line ("Dec 28–30", "9:00–1:30") so a
+ * narrow tile breaks between ranges, never inside one ("Dec 28–" / "30").
+ */
+const RANGE = /([A-Z][a-z]{2} \d{1,2}\u2013\d{1,2}|\d{1,2}:\d{2}\u2013\d{1,2}:\d{2}|\S+\u2013\S+)/g;
+
+function keepRangesTogether(text: string) {
+  return text.split(RANGE).map((part, i) =>
+    i % 2 === 1 ? (
+      <span key={i} className="camp-nowrap">
+        {part}
+      </span>
+    ) : (
+      part
+    ),
   );
 }

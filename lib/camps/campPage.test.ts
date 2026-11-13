@@ -125,6 +125,7 @@ describe("camp page view", () => {
     const v = view();
     assert.deepEqual(v.themes, ["Cooking"]);
     assert.equal(v.address, "1700 Mazo Crescent, Mississauga, ON L5J 1Y8");
+    assert.equal(v.mapQuery, "COOKSMART Clarkson, 1700 Mazo Crescent, Mississauga, ON L5J 1Y8");
     assert.deepEqual(v.crumb, ["Mississauga", "Camps", "Winter break"]);
   });
 

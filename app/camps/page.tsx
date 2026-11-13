@@ -3,6 +3,7 @@ import { CampsCatalogUnavailable } from "@/components/camps/CampsCatalogUnavaila
 import { CampsWithRainyDay } from "@/components/camps/CampsWithRainyDay";
 import { loadCampsCatalogStatusForRequest } from "@/lib/camps/campsServerCatalog";
 import { formatCampsCatalogBanner } from "@/lib/camps/catalog";
+import { googleMapsBrowserKey, googleMapsMapId } from "@/lib/camps/campMap";
 
 export const dynamic = "force-dynamic";
 
@@ -35,8 +36,11 @@ export default async function CampsListingPage() {
           providers={catalog.providers}
           sessions={catalog.sessions}
           venues={catalog.venues}
-          nowIso="2026-08-28T16:00:00.000Z"
+          // Published camps use today's date. The fixed date keeps the dev fixtures readable.
+          nowIso={catalog.sourceLabel === "published" ? undefined : "2026-08-28T16:00:00.000Z"}
           catalogBanner={formatCampsCatalogBanner(catalog)}
+          mapsKey={googleMapsBrowserKey()}
+          mapId={googleMapsMapId()}
         />
       </Suspense>
     </div>

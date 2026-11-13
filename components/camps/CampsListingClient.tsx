@@ -17,6 +17,8 @@ import type {
 } from "@/data/camps/types";
 import { CampCard } from "@/components/camps/CampCard";
 import { CampsFilterPanel } from "@/components/camps/CampsFilterPanel";
+import { CampsMap } from "@/components/camps/CampsMap";
+import { campMapPins } from "@/lib/camps/campMap";
 import {
   announceBrowseLocation,
   useLocationIndex,
@@ -83,6 +85,10 @@ export type CampsListingClientProps = {
   showDevBanner?: boolean;
   /** Optional override for the listing provenance banner. */
   catalogBanner?: string | null;
+  /** Google Maps browser key; null hides the map. */
+  mapsKey?: string | null;
+  /** Google Maps Map ID for the pins. */
+  mapId?: string | null;
 };
 
 function readListingViewFallback(): ListingViewId {
@@ -108,6 +114,8 @@ export function CampsListingClient({
   nowIso,
   showDevBanner = false,
   catalogBanner = null,
+  mapsKey = null,
+  mapId = null,
 }: CampsListingClientProps) {
   const router = useRouter();
   const pathname = usePathname();
@@ -295,6 +303,13 @@ export function CampsListingClient({
   );
 
   const flatRows = useMemo(() => toFlatRows(results), [results]);
+  const [mapOpen, setMapOpen] = useState(false);
+  const mapPanelId = useId();
+  const mapPins = useMemo(
+    () => (mapsKey ? campMapPins(results.matches, venuesById) : null),
+    [mapsKey, results, venuesById],
+  );
+  const showMapToggle = Boolean(mapsKey && mapPins && mapPins.pins.length > 0);
   const providerGroups = useMemo(() => toProviderGroups(results), [results]);
   const activeFilterCount = countActiveFilters(appliedFilters);
   const activeChips = useMemo(
@@ -524,6 +539,18 @@ export function CampsListingClient({
               </label>
             ))}
           </fieldset>
+
+          {showMapToggle ? (
+            <button
+              type="button"
+              className="camps-map-toggle"
+              aria-expanded={mapOpen}
+              aria-controls={mapPanelId}
+              onClick={() => setMapOpen((open) => !open)}
+            >
+              {mapOpen ? "Hide map" : "Show map"}
+            </button>
+          ) : null}
         </div>
 
         {ageFilterNotice ? (
@@ -604,6 +631,15 @@ export function CampsListingClient({
             </div>
           ) : (
             <>
+              {mapOpen && showMapToggle && mapsKey && mapPins ? (
+                <CampsMap
+                  id={mapPanelId}
+                  apiKey={mapsKey}
+                  mapId={mapId}
+                  pins={mapPins.pins}
+                  unmappedCamps={mapPins.unmappedCamps}
+                />
+              ) : null}
               <div
                 className="camps-results-grid"
                 data-view={listingView}
