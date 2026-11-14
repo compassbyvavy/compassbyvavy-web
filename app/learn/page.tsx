@@ -1,39 +1,60 @@
 import Link from "next/link";
+import { AGE_BANDS, PRINTABLES } from "@/lib/learn/printables";
 import "./learn.css";
 
 export const metadata = {
-  title: "Learn — coming soon",
+  title: "Learn",
   description:
-    "Age-stage guides, seasonal playbooks and best-of roundups for families. Not live yet.",
-  robots: { index: false, follow: true },
+    "Free printable learning scavenger hunts for ages 3 to 9, plus age-stage guides, seasonal playbooks and best-of roundups (coming soon).",
 };
+
+function firstSentence(text: string): string {
+  const end = text.indexOf(". ");
+  return end === -1 ? text : text.slice(0, end + 1);
+}
 
 export default function LearnPage() {
   return (
-    <section className="page-hero coming-soon-page">
+    <section className="page-hero">
       <div className="container narrow">
         <span className="eyebrow">Learn</span>
         <h1>Guides for every age and season</h1>
         <p className="hero-lead">
-          Age-stage guides, seasonal playbooks and best-of roundups, written
-          from the same checked facts as the listings.
+          Free printable learning hunts you can use today, with age-stage guides,
+          seasonal playbooks and best-of roundups on the way.
         </p>
-        <div className="content-card">
+
+        <div className="content-card" id="printables">
           <p className="coming-soon-kicker">Free printables</p>
+          <h2>Learning scavenger hunts</h2>
           <p>
-            At-home activities you can print today. They don&apos;t send you
-            anywhere, so they&apos;re ready now.
+            Print, cut, hide and hunt. Every chit teaches a real fact, then gives
+            a clue to the next hiding spot around the house.
           </p>
-          <Link className="learn-printable-card" href="/learn/space-mission-scavenger-hunt">
-            <span className="eyebrow">Ages 6–8 · 40 clue chits</span>
-            <h3>Space Mission Scavenger Hunt</h3>
-            <p>
-              An indoor treasure hunt from the Sun to the edge of the universe,
-              with a space fact on every chit.
-            </p>
-            <span className="learn-card-cta">See the printable →</span>
-          </Link>
+          {AGE_BANDS.map((band) => {
+            const items = PRINTABLES.filter((p) => p.ages === band.ages);
+            if (items.length === 0) return null;
+            return (
+              <div className="learn-band" key={band.ages}>
+                <h3>{band.label}</h3>
+                <p className="learn-band-blurb">{band.blurb}</p>
+                <div className="learn-card-grid">
+                  {items.map((p) => (
+                    <Link className="learn-printable-card" href={`/learn/${p.slug}`} key={p.slug}>
+                      <span className="eyebrow">
+                        {p.chits} chits · {p.minutes} min
+                      </span>
+                      <h3>{p.title}</h3>
+                      <p>{firstSentence(p.lede)}</p>
+                      <span className="learn-card-cta">See the printable →</span>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            );
+          })}
         </div>
+
         <div className="content-card">
           <p className="coming-soon-kicker">Guides: coming soon</p>
           <p>

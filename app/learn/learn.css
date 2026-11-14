@@ -207,3 +207,69 @@
     grid-template-columns: 1fr;
   }
 }
+
+.learn-bullets {
+  display: grid;
+  gap: 6px;
+  margin: 0 0 8px;
+  padding-left: 20px;
+}
+
+.learn-chit-challenge {
+  margin: 0;
+  padding: 4px 10px;
+  background: #f5ebdd;
+  border-left: 4px solid var(--amber);
+  border-radius: 6px;
+  font-size: 0.85rem;
+}
+
+.learn-chit-pic {
+  margin: 0;
+  font-size: 2.2rem;
+  line-height: 1;
+  text-align: center;
+}
+
+.learn-band {
+  margin-top: 26px;
+}
+
+.learn-band > h3 {
+  margin: 0 0 2px;
+  font-size: 1.35rem;
+}
+
+.learn-band-blurb {
+  margin: 0 0 12px;
+  color: var(--muted);
+}
+
+.learn-card-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.learn-card-grid .learn-printable-card {
+  margin-top: 0;
+}
+
+.learn-printable-card .eyebrow {
+  margin-bottom: 0;
+}
+
+.learn-more {
+  margin-top: 38px;
+}
+
+.learn-more > h2 {
+  margin-bottom: 14px;
+  font-size: 1.5rem;
+}
+
+@media (max-width: 620px) {
+  .learn-card-grid {
+    grid-template-columns: 1fr;
+  }
+}
