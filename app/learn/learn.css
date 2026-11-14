@@ -1,0 +1,209 @@
+/* Learn: printable activities. Uses the locked Compass palette from globals.css. */
+
+.learn-printable h1 {
+  text-wrap: balance;
+}
+
+.learn-crumb {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 18px;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.learn-crumb a {
+  color: var(--green);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.learn-facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 0 0 26px;
+}
+
+.learn-facts div {
+  padding: 10px 16px;
+  background: white;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+}
+
+.learn-facts dt {
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.learn-facts dd {
+  margin: 0;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+.learn-fineprint {
+  margin: 14px 0 0;
+  color: var(--muted);
+  font-size: 0.92rem;
+}
+
+.learn-stages,
+.learn-steps {
+  display: grid;
+  gap: 14px;
+  margin: 0 0 8px;
+  padding: 0;
+  list-style: none;
+}
+
+.learn-stages li {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 14px;
+  align-items: start;
+}
+
+.learn-stage-no {
+  padding: 2px 12px;
+  background: var(--coral);
+  color: white;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.learn-stages h3 {
+  margin: 0 0 2px;
+  font-size: 1.15rem;
+}
+
+.learn-stages p {
+  margin: 0;
+  color: var(--muted);
+}
+
+.learn-stage-chits {
+  color: var(--ink);
+  font-weight: 700;
+}
+
+.learn-steps {
+  counter-reset: step;
+}
+
+.learn-steps li {
+  position: relative;
+  padding-left: 40px;
+  counter-increment: step;
+}
+
+.learn-steps li::before {
+  content: counter(step);
+  position: absolute;
+  left: 0;
+  top: 0;
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  background: var(--sage);
+  color: var(--green);
+  border-radius: 50%;
+  font-weight: 800;
+}
+
+.learn-chits {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.learn-chit {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 14px;
+  background: var(--cream);
+  border: 2px dashed var(--line);
+  border-radius: 12px;
+}
+
+.learn-chit header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: var(--green);
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.learn-chit-no {
+  color: var(--coral);
+  font-family: var(--font-display);
+  font-size: 1.3rem;
+  letter-spacing: 0;
+}
+
+.learn-chit-fact {
+  margin: 0;
+  font-size: 0.88rem;
+  line-height: 1.45;
+}
+
+.learn-chit-fact b {
+  color: var(--green);
+}
+
+.learn-chit-clue {
+  margin: 0;
+  padding-top: 8px;
+  border-top: 1px dashed var(--line);
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+/* Learn landing: printable teaser card */
+.learn-printable-card {
+  display: grid;
+  gap: 6px;
+  margin-top: 18px;
+  padding: 20px;
+  background: var(--cream);
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  text-decoration: none;
+}
+
+.learn-printable-card:hover {
+  border-color: var(--green);
+}
+
+.learn-printable-card h3 {
+  margin: 0;
+  font-size: 1.3rem;
+}
+
+.learn-printable-card p {
+  margin: 0;
+  color: var(--muted);
+}
+
+.learn-printable-card .learn-card-cta {
+  color: var(--green);
+  font-weight: 800;
+}
+
+@media (max-width: 720px) {
+  .learn-chits {
+    grid-template-columns: 1fr;
+  }
+}
