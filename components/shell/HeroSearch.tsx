@@ -1,7 +1,9 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { buildHeroSearchHref } from "@/lib/shell/heroSearch";
 import type { LocationOption } from "@/lib/taxonomy/catalog";
 
 const WHEN = [
@@ -13,11 +15,15 @@ const WHEN = [
   { label: "Summer", href: "/camps/summer" },
 ];
 
+const AGE_KEY = "compass.age.1";
+
 export function HeroSearch({ city, locations }: { city: string; locations: LocationOption[] }) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [where, setWhere] = useState("");
+  const [chosenSlug, setChosenSlug] = useState<string | null>(null);
   const [agesOpen, setAgesOpen] = useState(false);
+  const [ages, setAges] = useState("");
   const [what, setWhat] = useState("");
   const matches = useMemo(() => {
     const needle = where.trim().toLowerCase();
@@ -25,15 +31,48 @@ export function HeroSearch({ city, locations }: { city: string; locations: Locat
     return locations.filter((item) => item.name.toLowerCase().includes(needle)).slice(0, 8);
   }, [locations, where]);
 
-  function chooseWhere(slug: string) {
+  useEffect(() => {
+    const stored = window.localStorage.getItem(AGE_KEY);
+    if (stored) setAges(stored);
+  }, []);
+
+  function citySlug(): string | null {
+    if (chosenSlug) return chosenSlug;
+    const needle = where.trim().toLowerCase();
+    if (!needle) return city || null;
+    const exact = locations.find((item) => item.name.toLowerCase() === needle);
+    return exact?.slug ?? null;
+  }
+
+  function searchHref(): string {
+    return buildHeroSearchHref({ citySlug: citySlug(), ages, words: what });
+  }
+
+  function rememberCity() {
+    const slug = citySlug();
+    if (!slug) return;
     document.cookie = `compass_city=${slug}; path=/; max-age=31536000; samesite=lax`;
-    setWhere("");
-    router.push(slug === "ontario" ? "/discover" : `/${slug}/discover`);
+  }
+
+  function goSearch() {
+    rememberCity();
+    router.push(searchHref());
+  }
+
+  function chooseWhere(slug: string) {
+    const item = locations.find((location) => location.slug === slug);
+    setChosenSlug(slug);
+    setWhere(item?.name ?? "");
   }
 
   function chooseWhen(href: string) {
     if (!href) return;
     router.push(href.startsWith("/camps") ? `/${city}${href}` : href);
+  }
+
+  function onAgesChange(value: string) {
+    setAges(value);
+    window.localStorage.setItem(AGE_KEY, value);
   }
 
   return (
@@ -47,11 +86,14 @@ export function HeroSearch({ city, locations }: { city: string; locations: Locat
           <input
             placeholder="City or region"
             value={where}
-            onChange={(event) => setWhere(event.target.value)}
+            onChange={(event) => {
+              setWhere(event.target.value);
+              setChosenSlug(null);
+            }}
             aria-label="City or region"
           />
         </label>
-        {where.trim() ? (
+        {where.trim() && !chosenSlug ? (
           <ul className="where-results">
             {matches.map((item) => (
               <li key={item.slug}>
@@ -72,25 +114,26 @@ export function HeroSearch({ city, locations }: { city: string; locations: Locat
             ))}
           </select>
         </label>
-        <div className="who-field">
-          <span>Who</span>
-          <button className="text-button" type="button" onClick={() => setAgesOpen((value) => !value)}>
-            Add ages
-          </button>
+        <label>
+          Who
           {agesOpen ? (
-            <div className="age-fields">
-              <label>
-                Age
-                <input
-                  inputMode="numeric"
-                  aria-label="Child age"
-                  onChange={(event) => window.localStorage.setItem("compass.age.1", event.target.value)}
-                />
-              </label>
-              <p>Ages stay on this device. Nothing is filled in for you.</p>
-            </div>
-          ) : null}
-        </div>
+            <>
+              <input
+                inputMode="numeric"
+                aria-label="Child age"
+                placeholder="Add ages"
+                value={ages}
+                autoFocus
+                onChange={(event) => onAgesChange(event.target.value)}
+              />
+              <p className="age-note">Ages stay on this device. Nothing is filled in for you.</p>
+            </>
+          ) : (
+            <button className="hero-field-control" type="button" onClick={() => setAgesOpen(true)}>
+              {ages.trim() ? ages : <span className="hero-placeholder">Add ages</span>}
+            </button>
+          )}
+        </label>
         <label>
           What
           <input
@@ -101,12 +144,14 @@ export function HeroSearch({ city, locations }: { city: string; locations: Locat
             onKeyDown={(event) => {
               if (event.key === "Enter") {
                 event.preventDefault();
-                const params = what.trim() ? `?q=${encodeURIComponent(what.trim())}` : "";
-                router.push(`/${city}/discover${params}`);
+                goSearch();
               }
             }}
           />
         </label>
+        <Link className="button hero-search-submit" href={searchHref()} onClick={rememberCity}>
+          Search
+        </Link>
       </div>
     </div>
   );

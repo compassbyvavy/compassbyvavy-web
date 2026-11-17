@@ -60,11 +60,11 @@ export async function HomeView({
           <h1>Less searching. More childhood adventures.</h1>
           <p>Family fun across Ontario, checked by a parent.</p>
           <HeroSearch city={city} locations={locations} />
-          <p className="photo-credit">
-            Lake of Two Rivers, Algonquin Provincial Park. Photo by Tony Webster,{" "}
-            <a href="https://creativecommons.org/licenses/by/2.0/">CC BY 2.0</a>.
-          </p>
         </div>
+        <p className="photo-credit">
+          Lake of Two Rivers, Algonquin Provincial Park. Photo by Tony Webster,{" "}
+          <a href="https://creativecommons.org/licenses/by/2.0/">CC BY 2.0</a>.
+        </p>
       </section>
 
       <section className="band cream trust-band">
