@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ChevronDown } from "lucide-react";
 import { CategoryIcon } from "@/components/shell/icons";
 import { WaitlistForm } from "@/components/shell/WaitlistForm";
 import { BoardPicker } from "@/components/shell/BoardPicker";
@@ -31,14 +32,15 @@ export function DiscoverHub({ city, cityName }: { city: string; cityName: string
                   <CategoryIcon name={category.icon} camps={category.slug === "camps"} />
                 </span>
                 <h2>{category.name}</h2>
-                <p>{category.cardCopy}</p>
+                {category.editorial ? <p className="editorial">{category.editorial}</p> : null}
+                <p className="card-copy">{category.cardCopy}</p>
                 <SubcategoryList city={city} category={category} rows={subs} />
                 {category.status === "live" ? (
                   <Link className="button" href={`/${city}/${category.slug}`}>
                     Browse
                   </Link>
                 ) : (
-                  <Link className="button" href={`/${city}/${category.slug}#notify`}>
+                  <Link className="button outline" href={`/${city}/${category.slug}#notify`}>
                     Notify me
                   </Link>
                 )}
@@ -72,8 +74,12 @@ function SubcategoryList({
         ))}
       </ul>
       {rest > 0 ? (
-        <details>
-          <summary>+ {rest} more</summary>
+        <details className="sub-more">
+          <summary>
+            <span className="when-closed">+ {rest} more</span>
+            <span className="when-open">Show less</span>
+            <ChevronDown aria-hidden="true" size={16} strokeWidth={1.75} />
+          </summary>
           <ul>
             {rows.slice(6).map((row) => (
               <li key={row.id}>

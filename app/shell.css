@@ -645,6 +645,34 @@ summary:focus-visible {
   align-content: start;
 }
 
+.category-card h2 {
+  margin-bottom: 2px;
+  font-size: 24px;
+  line-height: 1.2;
+}
+
+.category-card .editorial {
+  margin: 0;
+  color: var(--deep-fox);
+  font-family: var(--font-display), Georgia, serif;
+  font-size: 17px;
+  font-style: italic;
+  font-weight: 500;
+  line-height: 1.35;
+}
+
+.category-card .card-copy {
+  margin: 4px 0 0;
+  color: var(--body);
+  font-size: 15px;
+  line-height: 1.4;
+}
+
+.category-card .button {
+  justify-self: start;
+  width: auto;
+}
+
 .sub-list ul {
   margin: 8px 0;
   padding: 0;
@@ -654,15 +682,58 @@ summary:focus-visible {
 .sub-list a,
 .text-link {
   color: var(--forest);
+  text-decoration: none;
 }
 
-.sub-list summary {
-  min-height: 44px;
+.sub-list a:hover,
+.sub-list a:focus-visible,
+.text-link:hover,
+.text-link:focus-visible {
+  text-decoration: underline;
+}
+
+.sub-more summary {
   display: inline-flex;
   align-items: center;
-  cursor: pointer;
+  gap: 6px;
+  min-height: 44px;
+  margin-top: 4px;
+  padding: 0;
+  border: 0;
+  background: transparent;
   color: var(--forest);
+  font: inherit;
   font-weight: 600;
+  list-style: none;
+  cursor: pointer;
+}
+
+.sub-more summary::-webkit-details-marker {
+  display: none;
+}
+
+.sub-more summary::marker {
+  content: "";
+}
+
+.sub-more .when-open {
+  display: none;
+}
+
+.sub-more[open] .when-closed {
+  display: none;
+}
+
+.sub-more[open] .when-open {
+  display: inline;
+}
+
+.sub-more svg {
+  transition: transform 160ms ease;
+}
+
+.sub-more[open] svg {
+  transform: rotate(180deg);
 }
 
 .planner-band,
