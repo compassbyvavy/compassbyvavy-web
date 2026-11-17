@@ -62,6 +62,8 @@ Every site-wide decision, newest first. Page-level decisions (Plan, Guides, Shop
 | 2 | Nov 16 | **Services** and **Shopping** come out of Discover; their place types stay in the data as Parked | Services is a later, higher-risk job; Shopping clashes with Shop |
 | 1 | Nov 16 | Discover has **9 categories**, Camps first | Camps is the launch focus |
 
+**33 · Nov 17 · Creative review adopted.** New hero promise ("Less searching. More childhood adventures."); a "How Compass works" section replaces the separate Plan and household bands; Everything on Compass stays but moves to a quiet tabbed band at the bottom; Discover cards show 6 subcategories then "+ N more"; no "Coming soon" grids; subcategory pages are noindex until listings are live; clear trust levels (Vavy-checked = visited in person); camp availability is per session; Saved, Planned and Booked look different in Plan. Why: smaller but complete beats enormous but unfinished.
+
 ## Brand and design
 
 **The logo is the fox-ear compass mark with "Compass by Vavy" beside it in forest green.** On the website it sits on its own, with white or cream around it. The green round version is the app icon: used only where a platform puts the logo in a circle or square (Instagram, phone home screen, Google profile, email avatar). It's one logo with two uses, decided November 17 after comparing both at real size.
@@ -206,14 +208,15 @@ The whole site is about 140 pages at launch: 9 category pages, 99 subcategory pa
 
 | Page | Shows | Never shows |
 | --- | --- | --- |
-| Home | Hero with the waitlist, the 9-category row, "Camps for every school break" (the 4 When chips), "Ways to explore" (occasion tiles), the Plan band, the household intelligence band, founder note, Guides shelf, how we check, Everything on Compass, newsletter | "This weekend" rows, collection rails, place cards |
-| Discover hub | 9 category cards, each with every subcategory as chips | Counts of places |
-| Category and subcategory | Intro, subcategory chips (Camps: When and Type rows), "What you'll find here" (the place types as plain words), "What we check for every listing", "Notify me when \[category\] opens in \[city\]" | Filters, map, cards |
+| Home | The 12 sections in "Home page", shell versions: hero with search, waitlist and the example planner card; category row; school-break camp tiles; How Compass works; founder note; real guides only; how we check; Everything on Compass (tabbed); waitlist band | "This weekend", occasion tiles, collection rails, place cards, "Coming soon" grids |
+| Discover hub | 9 category cards with editorial lines and every subcategory (first 6, then "+ N more") | Counts of places |
+| Category | Intro, subcategory chips (Camps: When and Type rows), "What you'll find here", "What we check for every listing", a related guide if one exists, "Notify me when \[category\] opens in \[city\]" | Filters, map, cards |
+| Subcategory | The same, for that subcategory. Pages are `noindex` and left out of the sitemap while listings are off, so search engines don't see 99 thin pages | Filters, map, cards |
 | PA days | Board picker, the 6 launch boards, how PA day matching will work, Notify me | Camp lists |
-| Plan | Planner preview with an example week labelled "Example" (generic labels only, such as "Swim lesson", "PA day: no plan yet", "Free: Get ideas"), Saved shelf on the device, the waitlist | Real venues in the example |
-| Guides | All six shelves; real guides and printables that exist as files; "Coming soon" cards for the rest | Stand-in article text |
-| Shop | The first book with Notify me | A price, a review or a rating |
-| Account | "What your account will do" and the waitlist | Sign-in forms that don't work yet |
+| Plan | Planner preview with an example week labelled "Example" (generic labels only, such as "Swim lesson", "PA day: camp needed", "Free: find ideas"), Saved shelf on the device, the waitlist | Real venues in the example |
+| Guides | Real guides and printables that exist as files; shelves with nothing real are hidden; if none exist yet, one line: "The first guides arrive January 1" | Stand-in article text, grids of "Coming soon" cards |
+| Shop | The first book with Notify me (footer link only) | A price, a review or a rating |
+| Account | "Your family, your way": what an account will do and how it improves suggestions, plus the waitlist | Sign-in forms that don't work yet; the board's "What signed-out visitors see" panel |
 
 ### Empty-state copy
 
@@ -230,27 +233,28 @@ The whole site is about 140 pages at launch: 9 category pages, 99 subcategory pa
 
 ## Home page
 
-**The home page is search-first and photo-led, with 12 sections and nothing else.** Board: 1. Home. Each row is clean and airy, like Airbnb or Netflix. Sections that need listings hide themselves until listings are live; they never show empty.
+**The home page tells one story: find it, save it, plan it.** It's search-first, with one emotional promise and the planner shown as the reason to use Compass. Board: 1. Home (the spec wins where they differ). Sections that need listings hide themselves until listings are live; they never show empty, and there are no "Coming soon" grids.
 
 | # | Section | Shell mode (today) | After listings go live | Copy |
 | --- | --- | --- | --- | --- |
 | 1 | Header | As in Brand and design | Same | — |
-| 2 | Hero (cream band) | Big headline, search bar with city picker, waitlist email field | One line plus search; waitlist moves lower | "Places, camps, classes and events across Ontario, checked by a parent." Sub: "Find it, plan it, and know it's worth the drive." Button: "Join the waitlist" |
-| 3 | Category row | 9 round icons with labels, Camps first, each linking to its category | Same | — |
+| 2 | Hero (cream band) | Headline, search bar (Where · When · Who · What), waitlist email field under it, and beside it an example planner card telling one family's story (labelled "Example") | Headline, search, occasion chips under the search; waitlist moves lower | Headline: "Less searching. More childhood adventures." Sub: "Camps, places and classes across Ontario that fit your family: their ages, your schedule and the time you have. Checked by a parent." Example card: "Fri: PA day, camp needed · Sat: swimming 9 am · Sun: free day, find ideas. One day needs a plan." |
+| 3 | Category row | 9 line icons with labels, Camps first | Same | — |
 | 4 | This weekend in \[city\] | Hidden | Dated picks for the coming weekend | "This weekend in \[city\]" |
-| 5 | Camps for every school break | 4 large When tiles: Winter break and holidays, PA days, March break, Summer, each linking to its Camps page | Tiles plus a row of camp cards | "Camps for every school break" Sub: "Dates, ages, hours, cost and spots left, all in one place." |
-| 6 | Ways to explore | 10 occasion tiles (Rainy day, Snow day, Hot day, PA day, Birthday party, Grandparents visiting, First outing with a baby, After school, Long weekend, Free this weekend) linking to Notify me | 2–3 seasonal collection rows plus occasions | "Ways to explore" |
-| 7 | Plan band | Planner preview image (example week) | Live planner preview from the family's own week | "Your family's week, sorted." Sub: "Save what you love, see every PA day and break, and fill free time in one tap." Button: "See how Plan works" |
-| 8 | Household intelligence band | 3 cards: Fits all my kids, No clashes, Never miss registration | Same | "Built for families with more than one schedule." |
-| 9 | Founder note (cream band) | Vineeta's photo and 2–3 lines | Same | Signed "Vineeta, Ontario parent of two and founder" (Vineeta writes the note) |
-| 10 | Guides | Shelf of guides and free printables that exist; "Coming soon" cards for the rest | Same | "For the parenting learning curve" |
-| 11 | How we check (trust strip) | 3 points: Checked by a parent; Latest verified date on every listing; No paid rankings | Same | Link: "How we check places" |
-| 12 | Everything on Compass | Every category as a heading with all its subcategories as links (99 links) | Same | "Everything on Compass" |
-| — | Newsletter and footer | Email with unticked consent box; footer | Same | "A short note when something good opens near you." |
+| 5 | Ways to explore | Hidden | Occasion tiles (Rainy day, Snow day, PA day, Free this weekend, Birthday party, Grandparents visiting…) | "Ways to explore" |
+| 6 | Camps for every school break | 4 large When tiles (Winter break and holidays, PA days, March break, Summer), each to its Camps page | Tiles plus a row of camp cards | "Camps for every school break" Sub: "Dates, ages, hours and real costs, all in one place." |
+| 7 | How Compass works | 3 steps: **Discover** ("Find places and camps that fit your kids"), **Save** ("Heart anything; it waits for you"), **Plan** ("See your week, PA days and breaks, and fill free time in one tap"). Under them, three proof cards: Fits all my kids · School breaks covered · Never miss registration | Same, with the family's own week once signed in | "How Compass works" |
+| 8 | Founder note (cream band, larger) | Vineeta's photo, a 2–3 line note in Newsreader, signature | Same | "Vineeta, Ontario parent of two and founder" (Vineeta writes the note) |
+| 9 | Guides | Only guides and printables that really exist; the whole row hides if there are none | Same | "For the parenting learning curve" |
+| 10 | How we check | The verification standard in three lines (see "Trust levels" below) and a link to `/how-we-check` | Same | "What 'checked' means on Compass" |
+| 11 | Everything on Compass | At the very bottom, quiet and tabbed like Airbnb's footer: 9 category tabs; the chosen tab shows that category's subcategories as links. All 99 links stay in the page | Same | "Everything on Compass" |
+| 12 | Waitlist band and footer | "Be first in on January 1" with email and unticked consent box | Newsletter | "One email when we open, then the occasional weekend idea." |
 
 **Phones (390px):** category row, tiles and shelves scroll sideways; hero search becomes one tap-to-open field; no bottom tab bar.
 
-**Rules:** wire every email form to the existing waitlist submit logic, with success and error states. Keep the old waitlist page. Never invent venues, prices or counts. Brand copy says Ontario; a city name appears only where the content is local.
+**Rules:** wire every email form to the existing waitlist submit logic, with success and error states. Keep the old waitlist page. Never invent venues, prices or counts. Every link leads somewhere useful. Brand copy says Ontario; a city name appears only where the content is local.
+
+**Trust levels (used on every page):** **Vavy-checked** means Vineeta visited in person, shown with the visit date. **Verified \[date\]** means the details were confirmed with the venue, by phone, email or its website, and the place page says which. Anything not confirmed shows "Not confirmed yet". Never call a place Vavy-checked because its website was read.
 
 ## Discover: 9 categories and all 99 subcategories
 
@@ -476,7 +480,7 @@ These stay in the data but never appear in Discover, search or sitemaps. Parked 
 
 ### Discover hub (`/[city]/discover`)
 
-Headline "Discover family fun across Ontario" (or "…in \[city\]"), the search bar, then 9 category cards in a 3-column grid (1 column on phones). Each card: category icon tile (photo once photos exist), name, card copy, every subcategory as small chips that link to its page, and a button: "Browse" (live) or "Notify me" (coming soon). Never "COMING SOON" in capitals. Below: "This weekend" and 2 collections (hidden in shell mode), then the "List your camp or venue" band.
+Headline "Discover family fun across Ontario" (or "…in \[city\]"), the search bar, a "Browse by occasion" row (live only), then 9 category cards in a 3-column grid (1 column on phones). Each card: a photo once photos exist (until then a cream tile with the line icon), the name, a short editorial line, the card copy, and the subcategories as quiet text links: the first 6 show, and "+ N more" opens the rest in place, so every subcategory is on the page without crowding it. Button: "Browse" (live) or "Notify me" (coming soon). Editorial lines: Camps "School breaks, sorted"; Play & Fun "Rainy-day favourites"; Parks & Nature "Get outside together"; Animals & Farms "Meet the animals"; Learning & Culture "Curious minds welcome"; Classes & Programs "Lessons they'll love"; Events "What's on this week"; Food & Treats "Where kids eat happily"; Day Trips & Getaways "Worth the drive". Below the grid: the "List your camp or venue" band.
 
 ### Category and subcategory page (`/[city]/[category]` and `/[city]/[category]/[subcategory]`)
 
@@ -485,6 +489,15 @@ Top to bottom: breadcrumb (Discover › Category › Subcategory); title from th
 ### Place page (`/[city]/places/[place-slug]`)
 
 Photo gallery (Vineeta's own photos where possible), name, Vavy-checked pill, "Latest verified \[date\]", the answer strip (price for a family, ages, open today, drive time), then sections answering every question below, the map, "Save", "Add to plan", "Compare" and "Remind me". Built today as a template only; no public places until listings go live.
+
+### Listing design rules (from the November 17 creative review)
+
+- **Place page, at a glance:** right under the title, three short lines: **Best for**, **Parent tip**, **Know before you go** (Vineeta writes these; hidden until written). Practical details sit in four expandable groups: Tickets and booking; Kids and facilities; Food and comfort; Accessibility and safety.
+- **Verification panel** on every place page: the last check date, how it was checked (visit, phone, email, website) and a list of anything still unconfirmed.
+- **Camp card order:** photo; camp name and provider; city and ages; then four clear lines: Dates, Hours, Price, Availability; then two tags at most (for example Before and after care, STEM). The **Book** button (to the provider's own page) is more prominent than Compare.
+- **Availability belongs to each camp session (week), not the camp.** Changing the week changes the price, ages and availability shown. Statuses: Registration open, Spots confirmed, Waitlist, Availability unknown. Never show "spots left" without a source and time.
+- **Camp filters:** "Fits all my kids" (2 or more children), "Available to book" (confirmed sessions only), and a total-cost view including before- and after-care and sibling discounts when confirmed.
+- No star ratings or reviews until there are real ones from real families.
 
 ### What every listing must answer
 
@@ -651,6 +664,8 @@ Routes are in the site map. The top of Plan shows the view switch (Month · Week
 - **Reminders:** only what the parent asked for, or items they saved or booked. No marketing in reminders. One-click unsubscribe per type, CASL consent and sender details. No more than one reminder email a day per family; batch the rest.
 - **Design:** Get ideas works in one tap from any free slot. On phones the calendar is an agenda list, not a squeezed grid.
 
+**Three states, three looks:** Saved (outline heart, on the shelf), Planned (on a day, solid colour of the child), Booked (marked by the parent with "I booked this", with a check and the word Booked). The planner never makes a saved camp look booked.
+
 ## Household intelligence
 
 **Household intelligence is what makes Compass the place a family runs its weeks from, not just a list of places.** It means Compass knows the family's kids, school board, saves and bookings, and does the thinking a parent does in their head: who fits, what clashes, what's due, what's free. Five features ship January 1 inside Plan; ten more follow on the roadmap. Everything runs as code on the site from the family's own data; nothing is guessed.
@@ -810,6 +825,8 @@ A side menu on desktop, stacked at the top on phones.
 | Privacy and data | `/account/privacy` | "Download everything we hold" and "Delete my family's data" (confirm once, then everything is deleted) |
 | Account settings | `/account/settings` | Sign-in email, connected Google account, sign out, "Sign out everywhere" |
 
+The top of `/account` opens with a friendly summary, "Your family, your way", and one line on how each detail improves suggestions. Kids' ages and the school board are asked for only when a feature needs them, never at sign-up. The board's "What signed-out visitors see" panel is a design note only: it never appears inside a signed-in account.
+
 ### When parents are asked to sign up
 
 Only at these three moments, with one short line of why:
@@ -873,7 +890,7 @@ No sign-up walls, no pop-ups on arrival, no "create an account to continue". Whe
 | `reminders` | `owner`, `item_type`, `item_id`, `kind` (registration\_opens, deadline, spots\_low, changed, pa\_day, weekend\_email), `send_at`, `sent_at`, `channel` | Max one email a day per family |
 | `email_preferences` | `family_id`, `type`, `on`, `consented_at` | One row per email type |
 | `calendar_feed_tokens` | `family_id`, `token` | Private .ics link; can be reset |
-| `programs` (extend) | `registration_opens_at`, `registration_closes_at`, `spots_left`, `spots_updated_at`, `sibling_discount` (GAP-021) | Spots and changes come from Camp Watcher |
+| `programs` (extend) | `registration_opens_at`, `registration_closes_at`, `sibling_discount` (GAP-021); and per session in `program_sessions`: `price`, `availability_status` (registration\_open, spots\_confirmed, waitlist, unknown), `spots_left`, `spots_updated_at`, `spots_source` | Spots and changes come from Camp Watcher |
 | `receipts` (2027) | `family_id`, `child_id`, `booking_id`, `amount`, `file`, `year` | Receipts for tax time |
 | `outing_feedback`, `memories` (2027) | `child_id`, `plan_item_id`, `rating` / `note`, `photo` | Private; deletable |
 
@@ -920,12 +937,12 @@ Goal: put the whole site live today as a finished outline in "launch shell mode"
 
 Work from a new branch off main. Start by inspecting the repo, the Supabase schema and the current routes, and reply with a short plan (what you add, what you change, what you hide, any conflict with the spec). Then build:
 
-1. Brand: apply "Brand and design" exactly. Colours, Inter / Fredoka (logo only) / Newsreader (Guides only), spacing, buttons, cards. Logo: the fox-ear compass mark on its own (public/brand/mark.svg) plus the one-colour wordmark "Compass by Vavy" (#33503E on light, #F4E9D0 on dark). Favicon from mark.svg. Apple-touch-icon, Android icon and the Open Graph image from the green round version (public/brand/mark-on-green.png). Vavy-checked is the small green pill; remove the old round stamp everywhere.
+1. Brand: apply "Brand and design" exactly. Colours, Inter / Fredoka (logo only) / Newsreader (Guides only), spacing, buttons, cards. Logo: the fox-ear compass mark on its own (public/brand/mark.svg) plus the one-colour wordmark "Compass by Vavy" (#33503E on light, #F4E9D0 on dark). Favicon from mark.svg. Apple-touch-icon, Android icon and the Open Graph image from the green round version (public/brand/mark-on-green.png). Vavy-checked is the small green pill, used only for places Vineeta visited in person; remove the old round stamp everywhere. Until real photos exist, tiles are warm cream (#FBF6EC) with a thin forest-green line icon, never pastel colour blocks.
 2. Header and footer on every page, exactly as specified: menu Discover · Plan · Guides · Account (Shop appears only when a book is on_sale, otherwise footer only), search "Search places, camps, classes" with the "City or region" picker, heart for Saved, "Join the waitlist" button. No "List your camp" in the header. Phones: logo, search icon, heart, menu button; no bottom tab bar.
 3. Structure data: seed discover_categories, discover_subcategories and place_types from the workbook in data/taxonomy/ with scripts/seed-discover.ts (upsert by ID, safe to re-run). Use the new names Play & Fun (/play-fun) and Day Trips & Getaways (/day-trips-getaways); permanent redirects from any old slug. Do not import or change any listing data.
 4. Launch shell mode: add site_settings.listings_live = false. While false, no place, camp, class, event, price, age, count or listing photo appears anywhere. Keep existing camp and indoor playground records untouched in the database; their public URLs send a temporary 302 redirect to their subcategory page and are left out of the sitemap.
-5. Pages, all from "Site map" with the "Today (shell)" column as the rule: the home page (12 sections from "Home page", shell versions), the Discover hub (9 category cards, each with every subcategory as chips), all 9 category pages and all 99 subcategory pages (intro, chips with Camps in When and Type rows and season ordering, "What you'll find here" from place_types, "What we check for every listing", Notify me), /everything, the PA days page, the Plan preview with an example week clearly labelled "Example" and the Saved shelf on the device, Guides (all six shelves, only real files, "Coming soon" cards for the rest, /learn redirects to /guides), Shop (the Québec City ages 6–8 book with Notify me, no price), Account preview, /about, /how-we-check, /for-camps, /contact, /privacy, /terms, /accessibility.
-6. Every page title follows the page title patterns in "Discover: 9 categories and all 99 subcategories", with "Ontario" when no city is picked. Set descriptions and Open Graph images. The sitemap lists all category and subcategory pages.
+5. Pages, all from "Site map" with the "Today (shell)" column as the rule: the home page (12 sections from "Home page", shell versions), the Discover hub (9 category cards with editorial lines, each listing every subcategory: the first 6 shown, the rest one tap away with "+ N more"), all 9 category pages and all 99 subcategory pages (intro, chips with Camps in When and Type rows and season ordering, "What you'll find here" from place_types, "What we check for every listing", Notify me), /everything, the PA days page, the Plan preview with an example week clearly labelled "Example" and the Saved shelf on the device, Guides (only real guides and printables; shelves with nothing real are hidden; no "Coming soon" grids; /learn redirects to /guides), Shop (the Québec City ages 6–8 book with Notify me, no price), Account preview, /about, /how-we-check, /for-camps, /contact, /privacy, /terms, /accessibility.
+6. Every page title follows the page title patterns in "Discover: 9 categories and all 99 subcategories", with "Ontario" when no city is picked. Set descriptions and Open Graph images. While listings_live is false, subcategory pages are noindex and left out of the sitemap; the sitemap lists the home page, Discover, the 9 category pages, Guides and the company pages.
 7. Every email form (waitlist, Notify me, newsletter) uses the existing waitlist submit logic, with success and error states, an unticked consent box for marketing, and records category, subcategory and city where relevant. Keep the existing /waitlist page.
 8. Brand copy is Ontario-wide, as in "Brand voice". Use the empty-state copy in "Launch shell mode".
 9. Check every page at 1440px and 390px: rows and chips scroll sideways, tap targets at least 44px, no bottom tab bar, contrast at least 4.5:1.
@@ -1036,6 +1053,9 @@ Read docs/compass-master-spec.md: "Location, regions, drive time and PA days". B
 - [ ] Read and approve the plain-language Privacy, Terms and Accessibility pages before launch
 - [ ] Confirm the weather data licence terms (Environment and Climate Change Canada) before launch
 - [ ] Close old PR #75 once today's pull request is merged
+
+* [ ] 4–6 small Vavy spot illustrations (planner intro, empty states, a guide header, the waitlist band): Vavy used sparingly, so the site feels grown-up to parents and magical to kids
+* [ ] Phone (390px) designs for search, filters, the camp page, the planner and booking, before Jobs 2 and 6
 
 ### Checklist: today's launch shell
 
