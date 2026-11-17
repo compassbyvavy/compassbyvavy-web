@@ -18,21 +18,22 @@
  * - What kids do, Category, Refunds, What to bring, Inclusion → the program
  *   column only when every break states the same text. A blank break does not
  *   inherit another break's text. Split or single-break wording stays on that session.
- * - Ages → session age_min/age_max only for a clear range or "N+".
- *   Program typical ages are set only when every break states that same range.
- *   Any other wording stays in the session notes.
+ * - Ages → session age_min/age_max for a clear range or "N+". An en dash or
+ *   em dash counts as a hyphen. Program typical ages are set only when every
+ *   break states that same range. Any other wording stays in the session notes.
  * - Venue → venues.name. No venue row when the cell is empty.
- * - Area → venues.neighbourhood. Not a city, and not a geocode.
- * - Dates → camp_sessions.timing_label. start_date/end_date only when the
- *   whole cell is one unambiguous range that includes a year.
- * - Single days? → session notes. Not schedule_format.
- * - Hours → core_hours_start/end only when the whole cell is one clock range
- *   with am/pm or 24-hour times. Otherwise the wording stays in notes.
+ * - Area → venues.neighbourhood. Not a city, and not a map pin.
+ * - Dates → camp_sessions.timing_label, as written. start_date is the first
+ *   day and end_date is the last day when every range is in one year.
+ * - Single days? → session notes. Not a schedule type.
+ * - Hours → the "Full day" range, or the first range if none is labelled.
+ *   "9:00–4:00" is 9:00 am–4:00 pm. The full cell stays in the notes when it
+ *   says more than that one range.
  * - Before care / After care → the tri-state columns only for an exact
  *   yes/no/included/extra, or one clock range. Otherwise notes, and the
  *   columns stay unknown.
- * - Price → price_amount, price_unit, and CAD only when the whole cell is
- *   one amount with day, week, or session. Otherwise the cell stays in fee_notes.
+ * - Price → the "Full day" amount, or the first amount. "$350 a week + tax"
+ *   is 350 per week. A cell with more than one price keeps its full text in fee notes.
  * - Fee notes → camp_sessions.fee_notes
  * - What to bring → camp_programs.preparation_notes. Not camp_packing_items
  *   (that table has no stable key, and required vs suggested would be a guess).
@@ -44,11 +45,16 @@
  *   cells agree. A blank cell does not erase a number stated on another break.
  * - Source → source_url on the session, and on the provider when the filled
  *   cells are the same http(s) URL. A sentence is kept in research notes.
- * - Checked → source_checked_date only when the cell is a real date
+ * - Checked → source_checked_date for YYYY-MM-DD, including a sheet time
+ *   suffix. A slash date is stored only when the day and month cannot be swapped.
  * - Inclusion → camp_programs.support_info
  * - #, Status, Missing, Your decision, and any Source/Checked cell that is
  *   not a URL or a date → providers.research_notes (the camp page does not read it)
+ * - A cell containing "(check)", "?", or "confirming" is a research note.
+ *   It is not loaded as a value.
  * - Spots → not loaded. camp_session_spots and seat_availability stay untouched.
+ * - A checklist camp that matches a hand-written winter seed by provider name,
+ *   website domain, or source URL reuses that seed's ids.
  * - Your decision → published only when the trimmed cell starts with "Approved".
  *   Every other cell, including a blank one, stays draft with published_at null.
  */
@@ -98,11 +104,33 @@ export class IntakeImportError extends Error {
 
 export type IntakeSkip = { rowNumber: number; reason: string };
 
+export type IntakeMatch = {
+  rowNumber: number;
+  camp: string;
+  hits: Array<{ label: string; by: string }>;
+  reused: boolean;
+};
+
+export type IntakeCoverage = {
+  rowNumber: number;
+  camp: string;
+  breakName: string;
+  ages: CoverageKind;
+  dates: CoverageKind;
+  hours: CoverageKind;
+  price: CoverageKind;
+  registrationLink: CoverageKind;
+};
+
+export type CoverageKind = "field" | "notes" | "empty" | "research note";
+
 export type IntakeSummary = {
   rowsRead: number;
   published: number;
   unpublished: number;
   skipped: IntakeSkip[];
+  matches: IntakeMatch[];
+  coverage: IntakeCoverage[];
 };
 
 export type IntakeImport = {
@@ -122,6 +150,101 @@ type KeptRow = {
   approved: boolean;
   cell: Cell;
 };
+
+export type SeedCamp = {
+  providerId: string;
+  providerName: string;
+  programId: string;
+  programSlug: string;
+  programName: string;
+  venueId: string;
+  venueName: string;
+  sessionIds: string[];
+  domains: string[];
+  urls: string[];
+};
+
+/** Hand-written winter camps in supabase/seeds/camps. A checklist match updates these ids. */
+export const WINTER_SEED_CAMPS: SeedCamp[] = [
+  {
+    providerId: "prov-gymnastics-mississauga",
+    providerName: "Gymnastics Mississauga",
+    programId: "MSC-0046",
+    programSlug: "gymnastics-mississauga-holiday-camp",
+    programName: "Holiday Gym Camp",
+    venueId: "venue-gymnastics-mississauga-rose-cherry",
+    venueName: "Gymnastics Mississauga (Paramount Fine Food Centre)",
+    sessionIds: ["MSC-0046-winter-2026-27"],
+    domains: ["gymmississauga.org"],
+    urls: ["https://gymmississauga.org/", "https://gymmississauga.org/winter-camps/"],
+  },
+  {
+    providerId: "prov-ymca-gta",
+    providerName: "YMCA of Greater Toronto",
+    programId: "MSC-0049",
+    programSlug: "ymca-mississauga-winter-break-day-camp",
+    programName: "Winter Break Day Camp (Variety)",
+    venueId: "venue-mississauga-ymca",
+    venueName: "Mississauga YMCA",
+    sessionIds: ["MSC-0049-2026-12-21", "MSC-0049-2026-12-29"],
+    domains: ["ymcagta.org"],
+    urls: [
+      "https://www.ymcagta.org/",
+      "https://www.ymcagta.org/camps-and-outdoor-education/winter-and-march-break-day-camp",
+      "https://anc.ca.apm.activecommunities.com/ymcagta/activity/search/detail/115093?onlineSiteId=0&locale=en-US&from_original_cui=true",
+    ],
+  },
+  {
+    providerId: "prov-magnitude-kids-centre",
+    providerName: "Magnitude Kids Centre",
+    programId: "MSC-0081",
+    programSlug: "magnitude-holiday-camp",
+    programName: "Holiday Camp",
+    venueId: "venue-magnitude-kitimat",
+    venueName: "Magnitude Kids Centre",
+    sessionIds: ["MSC-0081-2026-12-21"],
+    domains: ["magnitudewell.ca"],
+    urls: ["https://www.magnitudewell.ca/", "https://www.magnitudewell.ca/holiday", "https://www.magnitudewell.ca/holiday/p/holiday-camp"],
+  },
+  {
+    providerId: "prov-futures-gymnastics",
+    providerName: "Futures Gymnastics",
+    programId: "MSC-0285",
+    programSlug: "futures-gymnastics-winter-camp",
+    programName: "Winter Gymnastics Camp",
+    venueId: "venue-futures-gymnastics-millcreek",
+    venueName: "Futures Gymnastics",
+    sessionIds: ["MSC-0285-2026-12-21", "MSC-0285-2026-12-28"],
+    domains: ["futuresgymnastics.com"],
+    urls: [
+      "https://futuresgymnastics.com/",
+      "https://futuresgymnastics.com/pages/upcoming-camps.html",
+      "https://portal.iclasspro.com/futures/camps/135?sortBy=time",
+    ],
+  },
+  {
+    providerId: "prov-cooksmart",
+    providerName: "COOKSMART",
+    programId: "MSC-0381",
+    programSlug: "cooksmart-winter-holiday-cooking-camp",
+    programName: "Winter Holiday Cooking Camp",
+    venueId: "venue-cooksmart-clarkson",
+    venueName: "COOKSMART Clarkson",
+    sessionIds: [
+      "MSC-0381-2026-12-21-full",
+      "MSC-0381-2026-12-28-full",
+      "MSC-0381-2026-12-21-half",
+      "MSC-0381-2026-12-28-half",
+    ],
+    domains: ["cooksmart.ca", "cooksmartscheduling.as.me"],
+    urls: [
+      "https://www.cooksmart.ca/",
+      "https://www.cooksmart.ca/programs/camps-hub/winter-camp",
+      "https://cooksmartscheduling.as.me/schedule/7b98e4f9/?appointmentTypeIds[]=99733065",
+      "https://cooksmartscheduling.as.me/schedule/7b98e4f9/?appointmentTypeIds[]=99732924",
+    ],
+  },
+];
 
 const MONTHS: Record<string, number> = {
   jan: 1, january: 1, feb: 2, february: 2, mar: 3, march: 3,
@@ -146,8 +269,8 @@ const REGISTRATION: Record<string, string> = {
   "no upcoming dates": "no_upcoming_dates",
 };
 
-const TIME_12 = String.raw`(\d{1,2})(?::([0-5]\d))?\s*(am|pm)`;
-const RANGE_SEP = String.raw`\s*(?:to|[-–—])\s*`;
+const TIME_ANY = String.raw`(\d{1,2})(?::([0-5]\d))?\s*(am|pm)?`;
+const RANGE_SEP = String.raw`\s*(?:to|-)\s*`;
 
 export function formatIntakeSummary(summary: IntakeSummary): string {
   const lines = [
@@ -159,11 +282,22 @@ export function formatIntakeSummary(summary: IntakeSummary): string {
   for (const skip of summary.skipped) {
     lines.push(`- row ${skip.rowNumber}: ${skip.reason}`);
   }
+  lines.push(`matched: ${summary.matches.length}`);
+  for (const match of summary.matches) {
+    const hits = match.hits.map((hit) => `${hit.label} by ${hit.by}`).join("; ");
+    lines.push(`- row ${match.rowNumber} ${match.camp} → ${hits}${match.reused ? "" : " (not reused)"}`);
+  }
+  lines.push("coverage:");
+  for (const row of summary.coverage) {
+    lines.push(
+      `- row ${row.rowNumber} ${row.camp} / ${row.breakName}: ages ${row.ages}, dates ${row.dates}, hours ${row.hours}, price ${row.price}, registration link ${row.registrationLink}`,
+    );
+  }
   lines.push("spots column: not loaded");
   return lines.join("\n");
 }
 
-export function importIntake(csv: string): IntakeImport {
+export function importIntake(csv: string, seeds: readonly SeedCamp[] = WINTER_SEED_CAMPS): IntakeImport {
   const table = parseCsv(csv);
   if (table.length === 0) throw new IntakeImportError("The checklist has no header row.");
   const header = table[0].map((cell) => cell.trim());
@@ -187,6 +321,13 @@ export function importIntake(csv: string): IntakeImport {
     const breakName = cell.Break;
     if (!camp || !breakName) {
       skipped.push({ rowNumber, reason: !camp ? "missing camp" : "missing break" });
+      return;
+    }
+    if (isResearchNote(camp) || isResearchNote(breakName)) {
+      skipped.push({
+        rowNumber,
+        reason: isResearchNote(camp) ? "camp name is a research note" : "break is a research note",
+      });
       return;
     }
     const campSlug = slugify(camp);
@@ -223,18 +364,21 @@ export function importIntake(csv: string): IntakeImport {
       breakName,
       campSlug,
       breakSlug,
-      approved: cell["Your decision"].startsWith("Approved"),
+      approved: !isResearchNote(cell["Your decision"]) && cell["Your decision"].startsWith("Approved"),
       cell,
     });
   });
 
+  const matches = matchCamps(kept, seeds);
   const summary: IntakeSummary = {
     rowsRead: data.length,
     published: kept.filter((row) => row.approved).length,
     unpublished: kept.filter((row) => !row.approved).length,
     skipped,
+    matches: matches.reports,
+    coverage: kept.filter((row) => row.approved).map(coverageFor),
   };
-  return { sql: renderSql(kept), summary, summaryText: formatIntakeSummary(summary) };
+  return { sql: renderSql(kept, matches.bySlug), summary, summaryText: formatIntakeSummary(summary) };
 }
 
 function parseCsv(text: string): string[][] {
@@ -270,30 +414,39 @@ function parseCsv(text: string): string[][] {
   return rows.filter((record, index) => index === 0 || record.some((value) => value.trim() !== ""));
 }
 
-function renderSql(rows: KeptRow[]): string {
-  const byCamp = new Map<string, KeptRow[]>();
+function renderSql(rows: KeptRow[], matchBySlug: Map<string, SeedCamp | null>): string {
+  const byCamp = new Map<string, { rows: KeptRow[]; seed: SeedCamp | null }>();
   for (const row of rows) {
-    const list = byCamp.get(row.campSlug) ?? [];
-    list.push(row);
-    byCamp.set(row.campSlug, list);
+    const seed = matchBySlug.get(row.campSlug) ?? null;
+    const key = seed ? `seed:${seed.programId}` : `new:${row.campSlug}`;
+    const group = byCamp.get(key) ?? { rows: [], seed };
+    group.rows.push(row);
+    byCamp.set(key, group);
   }
   const camps = [...byCamp.keys()].sort();
   const statements: string[] = [];
-  for (const slug of camps) {
-    const group = byCamp.get(slug)!;
+  for (const key of camps) {
+    const { rows: group, seed } = byCamp.get(key)!;
     const approved = group.some((row) => row.approved);
-    statements.push(providerSql(group, approved));
-    for (const venue of venuesFor(group)) statements.push(venue.statement);
-    statements.push(programSql(group, approved));
-    const sessions = [...group].sort((a, b) => a.breakSlug.localeCompare(b.breakSlug));
-    for (const row of sessions) statements.push(sessionSql(row, group));
+    statements.push(providerSql(group, approved, seed));
+    for (const venue of venuesFor(group, seed)) statements.push(venue.statement);
+    statements.push(programSql(group, approved, seed));
+    const sessions = [...group].sort((a, b) => a.breakSlug.localeCompare(b.breakSlug) || a.rowNumber - b.rowNumber);
+    const seenSession = new Set<string>();
+    for (const row of sessions) {
+      const id = sessionIdFor(row, group, seed);
+      if (seenSession.has(id)) continue;
+      seenSession.add(id);
+      statements.push(sessionSql(row, group, seed));
+    }
   }
   return [
     "-- Checklist import. Generated by npm run camps:import.",
     "-- Run this yourself in the Supabase SQL editor. The app does not run it.",
     "-- Upserts intake rows in providers, venues, camp_programs, and camp_sessions.",
     "-- Does not remove rows and does not write spot counts.",
-    "-- Ids are intake-{camp slug} and intake-{camp slug}--{break slug}.",
+    "-- New ids are intake-{camp slug} and intake-{camp slug}--{break slug}.",
+    "-- A camp that matches a hand-written winter seed reuses that seed's ids.",
     "-- Approved rows are published. Every other row stays a draft.",
     "begin;",
     ...statements,
@@ -302,169 +455,200 @@ function renderSql(rows: KeptRow[]): string {
   ].join("\n");
 }
 
-function providerSql(group: KeptRow[], approved: boolean): string {
+function providerSql(group: KeptRow[], approved: boolean, seed: SeedCamp | null): string {
   const first = group[0];
-  const source = agreed(group.map((row) => (isHttpUrl(row.cell.Source) ? row.cell.Source : "")));
-  const checked = agreed(group.map((row) => parseChecked(row.cell.Checked) ?? ""));
-  const register = agreed(group.map((row) => (isHttpUrl(row.cell["Register link"]) ? row.cell["Register link"] : "")));
+  const source = agreed(group.map((row) => (isHttpUrl(shown(row, "Source")) ? shown(row, "Source") : "")));
+  const checked = agreed(group.map((row) => parseChecked(shown(row, "Checked")) ?? ""));
+  const register = agreed(group.map((row) => (isHttpUrl(shown(row, "Register link")) ? shown(row, "Register link") : "")));
   return upsert("providers", [
-    ["id", sqlText(`intake-${first.campSlug}`)],
+    ["id", sqlText(seed?.providerId ?? `intake-${first.campSlug}`)],
     ["name", sqlText(first.camp)],
-    ["registration_info_url", sqlText(register)],
-    ["contact_email", sqlText(agreed(group.map((row) => row.cell.Email)))],
-    ["contact_phone", sqlText(agreed(group.map((row) => row.cell.Phone)))],
-    ["source_url", sqlText(source)],
-    ["source_checked_date", sqlDate(checked)],
-    ["research_notes", sqlText(researchNotes(group))],
+    nullable("registration_info_url", sqlText(register), seed),
+    nullable("contact_email", sqlText(agreed(group.map((row) => shown(row, "Email")))), seed),
+    nullable("contact_phone", sqlText(agreed(group.map((row) => shown(row, "Phone")))), seed),
+    nullable("source_url", sqlText(source), seed),
+    nullable("source_checked_date", sqlDate(checked), seed),
+    nullable("research_notes", sqlText(researchNotes(group)), seed),
     ["publication_state", publication(approved)],
-    ["published_at", publishedAt(approved)],
+    ["published_at", publishedAt(approved), "publish"],
   ]);
 }
 
-function programSql(group: KeptRow[], approved: boolean): string {
+function programSql(group: KeptRow[], approved: boolean, seed: SeedCamp | null): string {
   const first = group[0];
-  const programName = statedOnEveryRow(group.map((row) => row.cell["Program name"]));
+  const programName = statedOnEveryRow(group.map((row) => shown(row, "Program name")));
   const ages = agreedAges(group);
+  const name: SqlPair = programName
+    ? ["name", sqlText(programName)]
+    : seed
+      ? ["name", sqlText(seed.programName), "keep"]
+      : ["name", sqlText(first.camp)];
   return upsert("camp_programs", [
-    ["id", sqlText(`intake-${first.campSlug}`)],
-    ["slug", sqlText(`intake-${first.campSlug}`)],
-    ["provider_id", sqlText(`intake-${first.campSlug}`)],
-    ["name", sqlText(programName ?? first.camp)],
-    ["description", sqlText(statedOnEveryRow(group.map((row) => row.cell["What kids do"])))],
-    ["primary_category", sqlText(statedOnEveryRow(group.map((row) => row.cell.Category)))],
-    ["typical_age_min", sqlInt(ages?.min ?? null)],
-    ["typical_age_max", sqlInt(ages?.max ?? null)],
-    ["typical_age_min_inclusive", ages ? "true" : "null"],
-    ["typical_age_max_inclusive", ages?.max != null ? "true" : "null"],
-    ["support_info", sqlText(statedOnEveryRow(group.map((row) => row.cell.Inclusion)))],
-    ["policies_summary", sqlText(statedOnEveryRow(group.map((row) => row.cell.Refunds)))],
-    ["preparation_notes", sqlText(statedOnEveryRow(group.map((row) => row.cell["What to bring"])))],
+    ["id", sqlText(seed?.programId ?? `intake-${first.campSlug}`)],
+    ["slug", sqlText(seed?.programSlug ?? `intake-${first.campSlug}`), seed ? "keep" : "set"],
+    ["provider_id", sqlText(seed?.providerId ?? `intake-${first.campSlug}`)],
+    name,
+    nullable("description", sqlText(statedOnEveryRow(group.map((row) => shown(row, "What kids do")))), seed),
+    nullable("primary_category", sqlText(statedOnEveryRow(group.map((row) => shown(row, "Category")))), seed),
+    nullable("typical_age_min", sqlInt(ages?.min ?? null), seed),
+    nullable("typical_age_max", sqlInt(ages?.max ?? null), seed),
+    nullable("typical_age_min_inclusive", ages ? "true" : "null", seed),
+    nullable("typical_age_max_inclusive", ages?.max != null ? "true" : "null", seed),
+    nullable("support_info", sqlText(statedOnEveryRow(group.map((row) => shown(row, "Inclusion")))), seed),
+    nullable("policies_summary", sqlText(statedOnEveryRow(group.map((row) => shown(row, "Refunds")))), seed),
+    nullable("preparation_notes", sqlText(statedOnEveryRow(group.map((row) => shown(row, "What to bring")))), seed),
     ["publication_state", publication(approved)],
-    ["published_at", publishedAt(approved)],
+    ["published_at", publishedAt(approved), "publish"],
   ]);
 }
 
 type VenuePlan = { id: string; statement: string; matches: (row: KeptRow) => boolean };
 
-function venuesFor(group: KeptRow[]): VenuePlan[] {
+function venuesFor(group: KeptRow[], seed: SeedCamp | null): VenuePlan[] {
   const buckets = new Map<string, KeptRow[]>();
   for (const row of group) {
-    if (!row.cell.Venue) continue;
-    const key = `${row.cell.Venue}\n${row.cell.Area}`;
+    const name = shown(row, "Venue");
+    if (!name) continue;
+    const key = `${name}\n${shown(row, "Area")}`;
     const list = buckets.get(key) ?? [];
     list.push(row);
     buckets.set(key, list);
   }
+  if (buckets.size === 0 && seed) {
+    const approved = group.some((row) => row.approved);
+    return [{
+      id: seed.venueId,
+      matches: () => true,
+      statement: upsert("venues", [
+        ["id", sqlText(seed.venueId)],
+        ["name", sqlText(seed.venueName), "keep"],
+        nullable("neighbourhood", "null", seed),
+        ["publication_state", publication(approved)],
+        ["published_at", publishedAt(approved), "publish"],
+      ]),
+    }];
+  }
   const used = new Set<string>();
-  return [...buckets.entries()].sort(([a], [b]) => a.localeCompare(b)).map(([, rows]) => {
-    const name = rows[0].cell.Venue;
-    const area = rows[0].cell.Area;
-    let id = `intake-${rows[0].campSlug}--${slugify(name) || "venue"}`;
-    if (area && slugify(area)) id += `--${slugify(area)}`;
-    if (used.has(id)) id += `--${used.size + 1}`;
+  return [...buckets.entries()].sort(([a], [b]) => a.localeCompare(b)).map(([, rows], index) => {
+    const name = shown(rows[0], "Venue");
+    const area = shown(rows[0], "Area");
+    let id = seed && buckets.size === 1
+      ? seed.venueId
+      : `intake-${rows[0].campSlug}--${slugify(name) || "venue"}`;
+    if (!seed || buckets.size !== 1) {
+      if (area && slugify(area)) id += `--${slugify(area)}`;
+      if (used.has(id)) id += `--${index + 1}`;
+    }
     used.add(id);
     const approved = rows.some((row) => row.approved);
+    const namePair: SqlPair = seed && id === seed.venueId ? ["name", sqlText(name)] : ["name", sqlText(name)];
     return {
       id,
-      matches: (row) => row.cell.Venue === name && row.cell.Area === area,
+      matches: (row) => shown(row, "Venue") === name && shown(row, "Area") === area,
       statement: upsert("venues", [
         ["id", sqlText(id)],
-        ["name", sqlText(name)],
-        ["neighbourhood", sqlText(area || null)],
+        namePair,
+        nullable("neighbourhood", sqlText(area || null), seed && id === seed.venueId ? seed : null),
         ["publication_state", publication(approved)],
-        ["published_at", publishedAt(approved)],
+        ["published_at", publishedAt(approved), "publish"],
       ]),
     };
   });
 }
 
-function venueIdFor(row: KeptRow, group: KeptRow[]): string | null {
-  if (!row.cell.Venue) return null;
-  const plan = venuesFor(group).find((venue) => venue.matches(row));
-  return plan?.id ?? null;
+function venueIdFor(row: KeptRow, group: KeptRow[], seed: SeedCamp | null): string | null {
+  const plans = venuesFor(group, seed);
+  if (!shown(row, "Venue")) return seed ? plans[0]?.id ?? seed.venueId : null;
+  return plans.find((venue) => venue.matches(row))?.id ?? null;
 }
 
-function sessionSql(row: KeptRow, group: KeptRow[]): string {
-  const venueId = venueIdFor(row, group);
-  const ages = parseAges(row.cell.Ages);
-  const hours = parseClockRange(row.cell.Hours);
-  const dates = parseDateRange(row.cell.Dates);
-  const before = parseCare(row.cell["Before care"]);
-  const after = parseCare(row.cell["After care"]);
-  const price = parsePrice(row.cell.Price);
-  const registration = parseRegistration(row.cell.Registration);
+function sessionSql(row: KeptRow, group: KeptRow[], seed: SeedCamp | null): string {
+  const venueId = venueIdFor(row, group, seed);
+  const ages = parseAges(shown(row, "Ages"));
+  const hours = parseHoursCell(shown(row, "Hours"));
+  const dates = parseDateRange(shown(row, "Dates"));
+  const before = parseCare(shown(row, "Before care"));
+  const after = parseCare(shown(row, "After care"));
+  const price = parsePrice(shown(row, "Price"));
+  const registration = parseRegistration(shown(row, "Registration"));
   const shared = (column: (typeof INTAKE_COLUMNS)[number]) =>
-    statedOnEveryRow(group.map((item) => item.cell[column]));
-  const onlyWhenSplit = (column: (typeof INTAKE_COLUMNS)[number]) => (shared(column) ? "" : row.cell[column]);
+    statedOnEveryRow(group.map((item) => shown(item, column)));
+  const onlyWhenSplit = (column: (typeof INTAKE_COLUMNS)[number]) => (shared(column) ? "" : shown(row, column));
   const notes = joinNotes([
     labeled("Break", row.breakName),
     labeled("Program name", onlyWhenSplit("Program name")),
     labeled("What kids do", onlyWhenSplit("What kids do")),
     labeled("Category", onlyWhenSplit("Category")),
-    labeled("Area", venueId ? "" : row.cell.Area),
-    labeled("Single days", row.cell["Single days?"]),
-    labeled("Hours", hours ? "" : row.cell.Hours),
-    labeled("Ages", ages ? "" : row.cell.Ages),
-    labeled("Before care", before.keepRaw ? row.cell["Before care"] : ""),
-    labeled("After care", after.keepRaw ? row.cell["After care"] : ""),
-    labeled("Registration", registration.keepRaw ? row.cell.Registration : ""),
+    labeled("Area", venueId ? "" : shown(row, "Area")),
+    labeled("Single days", shown(row, "Single days?")),
+    labeled("Hours", hours && !hours.keepFullText ? "" : shown(row, "Hours")),
+    labeled("Ages", ages ? "" : shown(row, "Ages")),
+    labeled("Before care", before.keepRaw ? shown(row, "Before care") : ""),
+    labeled("After care", after.keepRaw ? shown(row, "After care") : ""),
+    labeled("Registration", registration.keepRaw ? shown(row, "Registration") : ""),
     labeled("What to bring", onlyWhenSplit("What to bring")),
-    labeled("Food", row.cell.Food),
+    labeled("Food", shown(row, "Food")),
     labeled("Refunds", onlyWhenSplit("Refunds")),
-    labeled("Staff", row.cell.Staff),
+    labeled("Staff", shown(row, "Staff")),
     labeled("Inclusion", onlyWhenSplit("Inclusion")),
-    labeled("Trips", row.cell.Trips),
-    labeled("Parking", row.cell.Parking),
+    labeled("Trips", shown(row, "Trips")),
+    labeled("Parking", shown(row, "Parking")),
   ]);
+  const breakOnly = notes === labeled("Break", row.breakName);
+  const careStated = (cell: string, care: Care) => Boolean(cell) && !care.keepRaw;
+  const registrationStated = Boolean(shown(row, "Registration")) && !registration.keepRaw;
   return upsert("camp_sessions", [
-    ["id", sqlText(`intake-${row.campSlug}--${row.breakSlug}`)],
-    ["program_id", sqlText(`intake-${row.campSlug}`)],
-    ["venue_id", sqlText(venueId)],
-    ["start_date", sqlDate(dates?.start ?? null)],
-    ["end_date", sqlDate(dates?.end ?? null)],
-    ["timing_label", sqlText(row.cell.Dates || null)],
-    ["core_hours_start", sqlTime(hours?.start ?? null)],
-    ["core_hours_end", sqlTime(hours?.end ?? null)],
-    ["before_care_offered", tri(before.offered)],
-    ["before_care_start_time", sqlTime(before.start)],
-    ["before_care_end_time", sqlTime(before.end)],
-    ["before_care_separate_booking", tri(before.separate)],
-    ["after_care_offered", tri(after.offered)],
-    ["after_care_start_time", sqlTime(after.start)],
-    ["after_care_end_time", sqlTime(after.end)],
-    ["after_care_separate_booking", tri(after.separate)],
-    ["price_amount", price ? sqlNumber(price.amount) : "null"],
-    ["price_unit", price ? `'${price.unit}'::public.price_unit` : "null"],
-    ["currency", price ? `'${price.currency}'::public.camp_currency` : "null"],
-    ["fee_notes", sqlText(feeText(row.cell.Price, row.cell["Fee notes"], price != null))],
-    ["registration_status", `'${registration.status}'::public.camp_registration_status`],
-    ["registration_url", sqlText(isHttpUrl(row.cell["Register link"]) ? row.cell["Register link"] : null)],
-    ["source_url", sqlText(isHttpUrl(row.cell.Source) ? row.cell.Source : null)],
-    ["source_checked_date", sqlDate(parseChecked(row.cell.Checked))],
-    ["age_min", sqlInt(ages?.min ?? null)],
-    ["age_max", sqlInt(ages?.max ?? null)],
-    ["age_min_inclusive", ages ? "true" : "null"],
-    ["age_max_inclusive", ages?.max != null ? "true" : "null"],
-    ["notes", sqlText(notes)],
+    ["id", sqlText(sessionIdFor(row, group, seed))],
+    ["program_id", sqlText(seed?.programId ?? `intake-${row.campSlug}`)],
+    nullable("venue_id", sqlText(venueId), seed),
+    nullable("start_date", sqlDate(dates?.start ?? null), seed),
+    nullable("end_date", sqlDate(dates?.end ?? null), seed),
+    nullable("timing_label", sqlText(shown(row, "Dates") || null), seed),
+    nullable("core_hours_start", sqlTime(hours?.start ?? null), seed),
+    nullable("core_hours_end", sqlTime(hours?.end ?? null), seed),
+    triPair("before_care_offered", before.offered, careStated(shown(row, "Before care"), before), seed),
+    nullable("before_care_start_time", sqlTime(before.start), seed),
+    nullable("before_care_end_time", sqlTime(before.end), seed),
+    triPair("before_care_separate_booking", before.separate, careStated(shown(row, "Before care"), before), seed),
+    triPair("after_care_offered", after.offered, careStated(shown(row, "After care"), after), seed),
+    nullable("after_care_start_time", sqlTime(after.start), seed),
+    nullable("after_care_end_time", sqlTime(after.end), seed),
+    triPair("after_care_separate_booking", after.separate, careStated(shown(row, "After care"), after), seed),
+    nullable("price_amount", price ? sqlNumber(price.amount) : "null", seed),
+    nullable("price_unit", price ? `'${price.unit}'::public.price_unit` : "null", seed),
+    nullable("currency", price ? `'${price.currency}'::public.camp_currency` : "null", seed),
+    nullable("fee_notes", sqlText(feeText(shown(row, "Price"), shown(row, "Fee notes"), price)), seed),
+    ["registration_status", `'${registration.status}'::public.camp_registration_status`, seed && !registrationStated ? "registration" : "set"],
+    nullable("registration_url", sqlText(isHttpUrl(shown(row, "Register link")) ? shown(row, "Register link") : null), seed),
+    nullable("source_url", sqlText(isHttpUrl(shown(row, "Source")) ? shown(row, "Source") : null), seed),
+    nullable("source_checked_date", sqlDate(parseChecked(shown(row, "Checked"))), seed),
+    nullable("age_min", sqlInt(ages?.min ?? null), seed),
+    nullable("age_max", sqlInt(ages?.max ?? null), seed),
+    nullable("age_min_inclusive", ages ? "true" : "null", seed),
+    nullable("age_max_inclusive", ages?.max != null ? "true" : "null", seed),
+    ["notes", sqlText(notes), seed && breakOnly ? "keep" : "set"],
     ["publication_state", publication(row.approved)],
-    ["published_at", publishedAt(row.approved)],
+    ["published_at", publishedAt(row.approved), "publish"],
   ]);
 }
 
 function researchNotes(group: KeptRow[]): string | null {
-  const phone = agreed(group.map((row) => row.cell.Phone));
-  const email = agreed(group.map((row) => row.cell.Email));
+  const phone = agreed(group.map((row) => shown(row, "Phone")));
+  const email = agreed(group.map((row) => shown(row, "Email")));
   const blocks = group.map((row) => {
+    const withheld = INTAKE_COLUMNS.filter((name) => name !== "Spots" && isResearchNote(row.cell[name]))
+      .map((name) => `${name}: ${row.cell[name]}`);
     const lines = [
-      row.cell["#"] ? `# ${row.cell["#"]}` : "",
-      row.cell.Status ? `Status: ${row.cell.Status}` : "",
-      row.cell.Missing ? `Missing: ${row.cell.Missing}` : "",
-      row.cell["Your decision"] ? `Your decision: ${row.cell["Your decision"]}` : "",
-      !phone && row.cell.Phone ? `Phone: ${row.cell.Phone}` : "",
-      !email && row.cell.Email ? `Email: ${row.cell.Email}` : "",
-      row.cell["Register link"] && !isHttpUrl(row.cell["Register link"]) ? `Register link: ${row.cell["Register link"]}` : "",
-      !isHttpUrl(row.cell.Source) && row.cell.Source ? `Source: ${row.cell.Source}` : "",
-      row.cell.Checked && !parseChecked(row.cell.Checked) ? `Checked: ${row.cell.Checked}` : "",
+      ...withheld,
+      shown(row, "#") ? `# ${shown(row, "#")}` : "",
+      shown(row, "Status") ? `Status: ${shown(row, "Status")}` : "",
+      shown(row, "Missing") ? `Missing: ${shown(row, "Missing")}` : "",
+      shown(row, "Your decision") ? `Your decision: ${shown(row, "Your decision")}` : "",
+      !phone && shown(row, "Phone") ? `Phone: ${shown(row, "Phone")}` : "",
+      !email && shown(row, "Email") ? `Email: ${shown(row, "Email")}` : "",
+      shown(row, "Register link") && !isHttpUrl(shown(row, "Register link")) ? `Register link: ${shown(row, "Register link")}` : "",
+      !isHttpUrl(shown(row, "Source")) && shown(row, "Source") ? `Source: ${shown(row, "Source")}` : "",
+      shown(row, "Checked") && !parseChecked(shown(row, "Checked")) ? `Checked: ${shown(row, "Checked")}` : "",
     ].filter(Boolean);
     return lines.length ? `${row.breakName}: ${lines.join("; ")}` : "";
   }).filter(Boolean);
@@ -472,21 +656,40 @@ function researchNotes(group: KeptRow[]): string | null {
 }
 
 function agreedAges(group: KeptRow[]): { min: number; max: number | null } | null {
-  const raw = group.map((row) => row.cell.Ages.trim());
+  const raw = group.map((row) => shown(row, "Ages").trim());
   if (raw.some((value) => !value) || raw.some((value) => value !== raw[0])) return null;
   return parseAges(raw[0]);
 }
 
-function upsert(table: string, pairs: Array<[string, string]>): string {
+type UpdateMode = "set" | "coalesce" | "keep" | "publish" | "tri" | "registration";
+type SqlPair = [string, string, UpdateMode?];
+
+function nullable(column: string, value: string, seed: SeedCamp | null): SqlPair {
+  return [column, value, seed ? "coalesce" : "set"];
+}
+
+function triPair(column: string, value: Care["offered"], stated: boolean, seed: SeedCamp | null): SqlPair {
+  return [column, tri(value), seed && !stated ? "tri" : "set"];
+}
+
+function upsert(table: string, pairs: SqlPair[]): string {
   const columns = pairs.map(([column]) => column);
   const values = pairs.map(([, value]) => value);
-  const updates = columns.filter((column) => column !== "id").map((column) => {
-    if (column === "published_at") {
+  const updates = pairs.filter(([column]) => column !== "id").map(([column, , mode = "set"]) => {
+    if (mode === "publish" || column === "published_at") {
       return `  published_at = case
     when excluded.publication_state = 'published'::public.publication_state
       then coalesce(public.${table}.published_at, timezone('utc', now()))
     else null
   end`;
+    }
+    if (mode === "keep") return `  ${column} = public.${table}.${column}`;
+    if (mode === "coalesce") return `  ${column} = coalesce(excluded.${column}, public.${table}.${column})`;
+    if (mode === "tri") {
+      return `  ${column} = coalesce(nullif(excluded.${column}, 'unknown'::public.confirmed_tri_state), public.${table}.${column})`;
+    }
+    if (mode === "registration") {
+      return `  ${column} = coalesce(nullif(excluded.${column}, 'availability_unknown'::public.camp_registration_status), public.${table}.${column})`;
     }
     return `  ${column} = excluded.${column}`;
   });
@@ -514,8 +717,8 @@ function tri(value: "yes" | "no" | "unknown"): string {
   return `'${value}'::public.confirmed_tri_state`;
 }
 
-function feeText(price: string, notes: string, structured: boolean): string | null {
-  const parts = [structured ? "" : price.trim(), notes.trim()].filter(Boolean);
+function feeText(price: string, notes: string, parsed: { keepFullText: boolean } | null): string | null {
+  const parts = [!parsed || parsed.keepFullText ? price.trim() : "", notes.trim()].filter(Boolean);
   return parts.length ? parts.join(" ") : null;
 }
 
@@ -540,6 +743,117 @@ function statedOnEveryRow(values: string[]): string | null {
   const trimmed = values.map((value) => value.trim());
   if (trimmed.some((value) => !value)) return null;
   return trimmed.every((value) => value === trimmed[0]) ? trimmed[0] : null;
+}
+
+function shown(row: KeptRow, column: (typeof INTAKE_COLUMNS)[number]): string {
+  return isResearchNote(row.cell[column]) ? "" : row.cell[column];
+}
+
+function isResearchNote(value: string): boolean {
+  return /\(check\)/i.test(value) || value.includes("?") || /\bconfirming\b/i.test(value);
+}
+
+function dashesToHyphen(value: string): string {
+  return value.replace(/[\u2013\u2014]/g, "-");
+}
+
+function sessionIdFor(row: KeptRow, group: KeptRow[], seed: SeedCamp | null): string {
+  if (seed && seed.sessionIds.length === 1 && group.length === 1) return seed.sessionIds[0];
+  if (seed) return `${seed.programId}--${row.breakSlug}`;
+  return `intake-${row.campSlug}--${row.breakSlug}`;
+}
+
+function normName(value: string): string {
+  return value
+    .toLowerCase()
+    .replace(/\([^)]*\)/g, " ")
+    .replace(/&/g, " and ")
+    .replace(/[^a-z0-9]+/g, " ")
+    .trim()
+    .replace(/\s+/g, " ");
+}
+
+function namesMatch(checklist: string, seed: string): boolean {
+  const left = normName(checklist);
+  const right = normName(seed);
+  if (!left || !right) return false;
+  if (left === right) return true;
+  const [shorter, longer] = left.length <= right.length ? [left, right] : [right, left];
+  return shorter.length >= 4 && longer.startsWith(`${shorter} `);
+}
+
+function canonicalUrl(value: string): string | null {
+  if (!isHttpUrl(value)) return null;
+  try {
+    const url = new URL(value.trim());
+    const host = url.hostname.toLowerCase().replace(/^www\./, "");
+    return `${host}${url.pathname.replace(/\/$/, "")}${url.search}`.toLowerCase();
+  } catch {
+    return null;
+  }
+}
+
+function domainOf(value: string): string | null {
+  if (!isHttpUrl(value)) return null;
+  try {
+    return new URL(value.trim()).hostname.toLowerCase().replace(/^www\./, "");
+  } catch {
+    return null;
+  }
+}
+
+function matchCamps(rows: KeptRow[], seeds: readonly SeedCamp[]): { bySlug: Map<string, SeedCamp | null>; reports: IntakeMatch[] } {
+  const bySlug = new Map<string, SeedCamp | null>();
+  const reports: IntakeMatch[] = [];
+  for (const slug of [...new Set(rows.map((row) => row.campSlug))]) {
+    const group = rows.filter((row) => row.campSlug === slug);
+    const first = group[0];
+    const names = [first.camp, ...group.map((row) => shown(row, "Program name"))].filter(Boolean);
+    const urls = group.flatMap((row) => [shown(row, "Source"), shown(row, "Register link")]).filter(isHttpUrl);
+    const checklistUrls = new Set(urls.map(canonicalUrl).filter((url): url is string => Boolean(url)));
+    const checklistDomains = new Set(urls.map(domainOf).filter((domain): domain is string => Boolean(domain)));
+    const hits = seeds.flatMap((seed) => {
+      const reasons: string[] = [];
+      if (names.some((name) => namesMatch(name, seed.providerName))) reasons.push("provider name");
+      const seedUrls = new Set(seed.urls.map(canonicalUrl).filter((url): url is string => Boolean(url)));
+      if ([...checklistUrls].some((url) => seedUrls.has(url))) reasons.push("source URL");
+      const domain = [...checklistDomains].find((item) => seed.domains.includes(item));
+      if (domain) reasons.push(`website domain ${domain}`);
+      return reasons.length ? [{ seed, by: reasons.join(" and ") }] : [];
+    });
+    bySlug.set(slug, hits.length === 1 ? hits[0].seed : null);
+    if (hits.length) {
+      reports.push({
+        rowNumber: first.rowNumber,
+        camp: first.camp,
+        hits: hits.map((hit) => ({
+          label: `${hit.seed.providerName} (${hit.seed.providerId} / ${hit.seed.programId})`,
+          by: hit.by,
+        })),
+        reused: hits.length === 1,
+      });
+    }
+  }
+  return { bySlug, reports };
+}
+
+function coverageKind(original: string, parsed: boolean): CoverageKind {
+  if (isResearchNote(original)) return "research note";
+  if (!original.trim()) return "empty";
+  return parsed ? "field" : "notes";
+}
+
+function coverageFor(row: KeptRow): IntakeCoverage {
+  return {
+    rowNumber: row.rowNumber,
+    camp: row.camp,
+    breakName: row.breakName,
+    ages: coverageKind(row.cell.Ages, parseAges(shown(row, "Ages")) != null),
+    dates: coverageKind(row.cell.Dates, parseDateRange(shown(row, "Dates")) != null),
+    hours: coverageKind(row.cell.Hours, parseHoursCell(shown(row, "Hours")) != null),
+    price: coverageKind(row.cell.Price, parsePrice(shown(row, "Price")) != null),
+    registrationLink: coverageKind(row.cell["Register link"], isHttpUrl(shown(row, "Register link"))),
+  };
 }
 
 function slugify(value: string): string {
@@ -567,10 +881,12 @@ function realDate(year: number, month: number, day: number): string | null {
 }
 
 function parseChecked(cell: string): string | null {
-  const text = cell.trim();
+  const text = dashesToHyphen(cell.trim());
   if (!text) return null;
-  const iso = /^(\d{4})-(\d{2})-(\d{2})$/.exec(text);
+  const iso = /^(\d{4})-(\d{2})-(\d{2})(?:[T\s]\d{2}:\d{2}(?::\d{2})?(?:\.\d+)?)?$/.exec(text);
   if (iso) return realDate(+iso[1], +iso[2], +iso[3]);
+  const ymdSlash = /^(\d{4})\/(\d{1,2})\/(\d{1,2})$/.exec(text);
+  if (ymdSlash) return realDate(+ymdSlash[1], +ymdSlash[2], +ymdSlash[3]);
   const named = new RegExp(`^(${MONTH_PATTERN})\\s+(\\d{1,2}),\\s*(\\d{4})$`, "i").exec(text);
   if (named) return realDate(+named[3], MONTHS[named[1].toLowerCase()], +named[2]);
   const dayFirst = new RegExp(`^(\\d{1,2})\\s+(${MONTH_PATTERN})\\s+(\\d{4})$`, "i").exec(text);
@@ -586,9 +902,15 @@ function parseChecked(cell: string): string | null {
 }
 
 function parseDateRange(cell: string): { start: string; end: string } | null {
-  const text = cell.trim();
+  const text = dashesToHyphen(cell.trim());
   if (!text) return null;
-  const isoRange = /^(\d{4}-\d{2}-\d{2})\s*(?:to|[-–—])\s*(\d{4}-\d{2}-\d{2})$/i.exec(text);
+  const exact = parseExactDateRange(text);
+  if (exact) return exact;
+  return parseLooseDateRange(text);
+}
+
+function parseExactDateRange(text: string): { start: string; end: string } | null {
+  const isoRange = /^(\d{4}-\d{2}-\d{2})\s*(?:to|-)\s*(\d{4}-\d{2}-\d{2})$/i.exec(text);
   if (isoRange) {
     const start = parseChecked(isoRange[1]);
     const end = parseChecked(isoRange[2]);
@@ -598,7 +920,7 @@ function parseDateRange(cell: string): { start: string; end: string } | null {
   const single = parseChecked(text);
   if (single) return { start: single, end: single };
   const sameMonth = new RegExp(
-    `^(${MONTH_PATTERN})\\s+(\\d{1,2})\\s*[-–—]\\s*(\\d{1,2}),\\s*(\\d{4})$`,
+    `^(${MONTH_PATTERN})\\s+(\\d{1,2})\\s*-\\s*(\\d{1,2}),\\s*(\\d{4})$`,
     "i",
   ).exec(text);
   if (sameMonth) {
@@ -609,7 +931,7 @@ function parseDateRange(cell: string): { start: string; end: string } | null {
     return null;
   }
   const cross = new RegExp(
-    `^(${MONTH_PATTERN})\\s+(\\d{1,2}),\\s*(\\d{4})\\s*(?:to|[-–—])\\s*(${MONTH_PATTERN})\\s+(\\d{1,2}),\\s*(\\d{4})$`,
+    `^(${MONTH_PATTERN})\\s+(\\d{1,2}),\\s*(\\d{4})\\s*(?:to|-)\\s*(${MONTH_PATTERN})\\s+(\\d{1,2}),\\s*(\\d{4})$`,
     "i",
   ).exec(text);
   if (!cross) return null;
@@ -617,6 +939,28 @@ function parseDateRange(cell: string): { start: string; end: string } | null {
   const end = realDate(+cross[6], MONTHS[cross[4].toLowerCase()], +cross[5]);
   if (start && end && start <= end) return { start, end };
   return null;
+}
+
+function parseLooseDateRange(text: string): { start: string; end: string } | null {
+  const years = [...text.matchAll(/\b((?:19|20)\d{2})\b/g)].map((match) => match[1]);
+  const unique = [...new Set(years)];
+  if (unique.length !== 1) return null;
+  const year = +unique[0];
+  const pattern = new RegExp(`\\b(${MONTH_PATTERN})\\s+(\\d{1,2})(?:\\s*-\\s*(\\d{1,2}))?\\b`, "gi");
+  const dates: string[] = [];
+  for (const match of text.matchAll(pattern)) {
+    const month = MONTHS[match[1].toLowerCase()];
+    const startDay = +match[2];
+    const endDay = match[3] ? +match[3] : startDay;
+    if (endDay < startDay) return null;
+    const start = realDate(year, month, startDay);
+    const end = realDate(year, month, endDay);
+    if (!start || !end) return null;
+    dates.push(start, end);
+  }
+  if (!dates.length) return null;
+  dates.sort();
+  return { start: dates[0], end: dates[dates.length - 1] };
 }
 
 function clock12(hourText: string, minuteText: string | undefined, ampm: string): string | null {
@@ -628,14 +972,33 @@ function clock12(hourText: string, minuteText: string | undefined, ampm: string)
   return `${String(hour24).padStart(2, "0")}:${String(minute).padStart(2, "0")}`;
 }
 
+function parseHoursCell(cell: string): { start: string; end: string; keepFullText: boolean } | null {
+  const text = dashesToHyphen(cell.trim());
+  if (!text) return null;
+  const parts = text.split(/\s*;\s*/).filter(Boolean);
+  const parsed = parts.flatMap((part) => {
+    const match = /^(.*?)(\d{1,2}(?::[0-5]\d)?\s*(?:am|pm)?\s*(?:to|-)\s*\d{1,2}(?::[0-5]\d)?\s*(?:am|pm)?)\s*$/i.exec(part);
+    if (!match) return [];
+    const range = parseClockRange(match[2]);
+    return range ? [{ label: match[1], range }] : [];
+  });
+  if (!parsed.length) return null;
+  const chosen = parsed.find((item) => /full\s*day/i.test(item.label)) ?? parsed[0];
+  const bare = parts.length === 1 && chosen.label.trim() === "";
+  return { ...chosen.range, keepFullText: !bare };
+}
+
 function parseClockRange(cell: string): { start: string; end: string } | null {
-  const text = cell.trim();
-  const twelve = new RegExp(`^${TIME_12}${RANGE_SEP}${TIME_12}$`, "i").exec(text);
-  if (twelve) {
-    const start = clock12(twelve[1], twelve[2], twelve[3]);
-    const end = clock12(twelve[4], twelve[5], twelve[6]);
-    if (start && end) return { start, end };
-    return null;
+  const text = dashesToHyphen(cell.trim());
+  const twelve = new RegExp(`^${TIME_ANY}${RANGE_SEP}${TIME_ANY}$`, "i").exec(text);
+  if (twelve && Number(twelve[1]) <= 12 && Number(twelve[4]) <= 12) {
+    const hasMeridian = Boolean(twelve[3] || twelve[6]);
+    const hasMinutes = twelve[2] != null && twelve[5] != null;
+    if (hasMeridian || hasMinutes) {
+      const start = campClock(twelve[1], twelve[2], twelve[3]);
+      const end = campClock(twelve[4], twelve[5], twelve[6]);
+      if (start && end) return { start, end };
+    }
   }
   const twentyFour = new RegExp(String.raw`^([01]?\d|2[0-3]):([0-5]\d)${RANGE_SEP}([01]?\d|2[0-3]):([0-5]\d)$`, "i").exec(text);
   if (!twentyFour) return null;
@@ -643,6 +1006,15 @@ function parseClockRange(cell: string): { start: string; end: string } | null {
     start: `${twentyFour[1].padStart(2, "0")}:${twentyFour[2]}`,
     end: `${twentyFour[3].padStart(2, "0")}:${twentyFour[4]}`,
   };
+}
+
+function campClock(hourText: string, minuteText: string | undefined, ampm: string | undefined): string | null {
+  const hour = Number(hourText);
+  const minute = minuteText == null || minuteText === "" ? 0 : Number(minuteText);
+  if (hour < 1 || hour > 12 || minute > 59) return null;
+  if (ampm) return clock12(hourText, minuteText, ampm);
+  if (hour >= 7 && hour <= 11) return clock12(hourText, minuteText, "am");
+  return clock12(hourText, minuteText, "pm");
 }
 
 type Care = {
@@ -661,7 +1033,7 @@ function parseCare(cell: string): Care {
   if (/^(no|n|none|not offered)$/i.test(text)) return { ...unknown, offered: "no" };
   if (/^(included|included in (?:the )?price)$/i.test(text)) return { ...unknown, offered: "yes", separate: "no" };
   if (/^(extra|additional fee|additional cost)$/i.test(text)) return { ...unknown, offered: "yes", separate: "yes" };
-  const range = parseClockRange(text);
+  const range = parseClockRange(dashesToHyphen(text));
   if (range) return { offered: "yes", start: range.start, end: range.end, separate: "unknown", keepRaw: false };
   const noted = /^(.+?)\s*,\s*(included|extra|additional fee)$/i.exec(text);
   if (noted) {
@@ -679,20 +1051,39 @@ function parseCare(cell: string): Care {
   return { ...unknown, keepRaw: true };
 }
 
-function parsePrice(cell: string): { amount: string; unit: "per_day" | "per_week" | "per_session"; currency: "CAD" } | null {
-  const text = cell.trim();
-  const match = /^(?:CAD\s*\$?|\$)(\d+(?:\.\d{1,2})?)\s*(?:\/|per|a)\s*(day|week|session)$/i.exec(text)
-    ?? /^(\d+(?:\.\d{1,2})?)\s*CAD\s*(?:\/|per|a)\s*(day|week|session)$/i.exec(text);
-  if (!match) return null;
-  const unit = match[2].toLowerCase();
-  const units = { day: "per_day", week: "per_week", session: "per_session" } as const;
-  if (!(unit in units)) return null;
-  return { amount: match[1], unit: units[unit as keyof typeof units], currency: "CAD" };
+function parsePrice(cell: string): { amount: string; unit: "per_day" | "per_week" | "per_session"; currency: "CAD"; keepFullText: boolean } | null {
+  const text = dashesToHyphen(cell.trim());
+  if (!text) return null;
+  const parts = text.split(/\s*;\s*/).filter(Boolean);
+  const parsed = parts.flatMap((part) => {
+    const item = parsePricePart(part);
+    return item ? [item] : [];
+  });
+  if (!parsed.length) return null;
+  const chosen = parsed.find((item) => /full\s*day/i.test(item.label)) ?? parsed[0];
+  const simple = /^(?:cad\s*\$?|\$)\s*\d+(?:\.\d{1,2})?\s*(?:\/|per|a)\s*(?:day|week|session)$/i.test(text)
+    || /^\d+(?:\.\d{1,2})?\s*cad\s*(?:\/|per|a)\s*(?:day|week|session)$/i.test(text);
+  return { amount: chosen.amount, unit: chosen.unit, currency: "CAD", keepFullText: !simple };
+}
+
+function parsePricePart(part: string): { amount: string; unit: "per_day" | "per_week" | "per_session"; label: string } | null {
+  const amountMatch = /(?:CAD\s*\$?|\$)\s*(\d+(?:\.\d{1,2})?)|(\d+(?:\.\d{1,2})?)\s*CAD/i.exec(part);
+  if (!amountMatch) return null;
+  const amount = amountMatch[1] || amountMatch[2];
+  const unit = /\b(?:full\s*day|half\s*day|per\s*day|a\s*day|\/\s*day)\b/i.test(part)
+    ? "per_day"
+    : /\b(?:per\s*week|a\s*week|\/\s*week)\b/i.test(part)
+      ? "per_week"
+      : /\b(?:per\s*session|a\s*session|\/\s*session)\b/i.test(part)
+        ? "per_session"
+        : null;
+  if (!unit) return null;
+  return { amount, unit, label: part };
 }
 
 function parseAges(cell: string): { min: number; max: number | null } | null {
-  const text = cell.trim();
-  const range = /^(?:ages?\s+)?(\d{1,2})\s*(?:[-–—]|to)\s*(\d{1,2})$/i.exec(text);
+  const text = dashesToHyphen(cell.trim());
+  const range = /^(?:ages?\s+)?(\d{1,2})\s*(?:-|to)\s*(\d{1,2})$/i.exec(text);
   if (range) {
     const min = +range[1];
     const max = +range[2];

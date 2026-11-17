@@ -155,7 +155,7 @@ describe("camp intake import", () => {
     assert.equal(result.summary.skipped.length, 3);
     assert.match(result.summaryText, /duplicate of "North Camp" \+ "Winter" \(kept row 2\)/);
     assert.match(result.summaryText, /missing camp/);
-    assert.match(result.summaryText, /camp name has no letters or numbers/);
+    assert.match(result.summaryText, /camp name is a research note/);
     assert.equal(result.sql.split("intake-north-camp--winter").length - 1, 1);
   });
 
@@ -191,6 +191,90 @@ describe("camp intake import", () => {
     const program = result.sql.split("insert into public.camp_programs")[1]?.split("insert into")[0] ?? "";
     assert.match(program, /Water bottle\./);
     assert.equal(result.summary.rowsRead, 1);
+  });
+
+  it("reads the KSG checklist row, including en dashes and a research-note area", () => {
+    const result = importIntake(csv([{
+      Camp: "KSG Gymnastics (Kids Supergym)",
+      Break: "Winter",
+      Ages: "4\u201312",
+      Dates: "Mon\u2013Wed Dec 21\u201323 and Dec 28\u201330, 2026",
+      Hours: "Full day 9:00\u20134:00; AM 9:00\u201312:00; PM 1:00\u20134:00",
+      Price: "Full day $68; half day $42",
+      Area: "Meadowvale / Erin Mills (check)",
+      Checked: "2026-11-17",
+      "Your decision": "Approved",
+    }]));
+    assert.equal(result.summary.published, 1);
+    assert.match(result.sql, /'2026-12-21'::date/);
+    assert.match(result.sql, /'2026-12-30'::date/);
+    assert.match(result.sql, /Mon\u2013Wed Dec 21\u201323 and Dec 28\u201330, 2026/);
+    assert.match(result.sql, /'09:00'::time/);
+    assert.match(result.sql, /'16:00'::time/);
+    assert.match(result.sql, /Full day 9:00\u20134:00/);
+    assert.match(result.sql, /\n  4,\n  12,/);
+    assert.match(result.sql, /\n  68,/);
+    assert.match(result.sql, /'per_day'::public\.price_unit/);
+    assert.match(result.sql, /'CAD'::public\.camp_currency/);
+    assert.match(result.sql, /half day \$42/);
+    assert.match(result.sql, /'2026-11-17'::date/);
+    assert.match(result.sql, /Area: Meadowvale \/ Erin Mills \(check\)/);
+    assert.equal(result.sql.includes("insert into public.venues"), false);
+    assert.match(result.summaryText, /ages field, dates field, hours field, price field, registration link empty/);
+    assert.equal(result.summary.matches.length, 0);
+  });
+
+  it("reads a March range, a weekly price, and an unambiguous sheet datetime", () => {
+    const result = importIntake(csv([{
+      Camp: "March Camp",
+      Break: "March Break",
+      Dates: "Mar 15\u201319, 2027",
+      Price: "$350 a week + tax",
+      Ages: "5\u201410",
+      Checked: "2026-11-13 00:00:00",
+      "Your decision": "Approved",
+    }]));
+    assert.match(result.sql, /'2027-03-15'::date/);
+    assert.match(result.sql, /'2027-03-19'::date/);
+    assert.match(result.sql, /\n  350,/);
+    assert.match(result.sql, /'per_week'::public\.price_unit/);
+    assert.match(result.sql, /\$350 a week \+ tax/);
+    assert.match(result.sql, /\n  5,\n  10,/);
+    assert.match(result.sql, /'2026-11-13'::date/);
+  });
+
+  it("leaves a slash date empty only when the day and month are both possible", () => {
+    const result = importIntake(csv([{
+      Camp: "Slash Camp",
+      Break: "Winter",
+      Checked: "11/03/2026",
+      "Your decision": "Approved",
+    }]));
+    assert.equal(result.sql.includes("::date"), false);
+    assert.match(result.sql, /Checked: 11\/03\/2026/);
+  });
+
+  it("updates an existing winter camp instead of adding a second card", () => {
+    const byName = importIntake(csv([{
+      Camp: "COOKSMART",
+      Break: "Winter",
+      "Your decision": "Approved",
+    }]));
+    assert.match(byName.sql, /'prov-cooksmart'/);
+    assert.match(byName.sql, /'MSC-0381'/);
+    assert.match(byName.sql, /'cooksmart-winter-holiday-cooking-camp'/);
+    assert.equal(byName.sql.includes("intake-cooksmart"), false);
+    assert.match(byName.summaryText, /row 2 COOKSMART → COOKSMART \(prov-cooksmart \/ MSC-0381\) by provider name/);
+
+    const byDomain = importIntake(csv([{
+      Camp: "Kitchen Classes",
+      Break: "Winter",
+      Source: "https://www.cooksmart.ca/programs/other",
+      "Your decision": "Hold",
+    }]));
+    assert.match(byDomain.sql, /'prov-cooksmart'/);
+    assert.match(byDomain.summaryText, /by website domain cooksmart\.ca/);
+    assert.equal(byDomain.summary.published, 0);
   });
 
   it("writes the same SQL on a second run", () => {
