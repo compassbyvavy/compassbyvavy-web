@@ -11,6 +11,9 @@
 .dev.vars*
 cloudflare-env.d.ts
 
+# Discover workbook import (produced by scripts/seed-discover.ts)
+/data/taxonomy/generated/
+
 # local
 .DS_Store
 *.pem
