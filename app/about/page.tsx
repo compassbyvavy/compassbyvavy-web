@@ -1,38 +1,25 @@
-export const metadata = {
+import { shellMeta } from "@/lib/shell/meta";
+
+export const metadata = shellMeta({
   title: "About",
-  description: "The story and purpose behind Compass by Vavy.",
-};
+  description: "Compass by Vavy is built by Vineeta, an Ontario parent of two.",
+  path: "/about",
+});
 
 export default function AboutPage() {
   return (
-    <section className="page-hero">
-      <div className="container narrow">
-        <span className="eyebrow">Our story</span>
-        <h1>Built from one parent’s search for better family experiences</h1>
-        <p className="hero-lead">
-          Compass by Vavy is being created to help families discover, compare
-          and plan meaningful experiences without searching across dozens of
-          websites and social accounts.
+    <section className="band">
+      <div className="shell-wrap prose">
+        <h1>About Compass by Vavy</h1>
+        <p className="lede">
+          Compass by Vavy is built by Vineeta, an Ontario parent of two. It is for families across Ontario: places, camps, classes and events, checked by a parent.
         </p>
-        <div className="content-card">
-          <h2>Our purpose</h2>
-          <p>
-            Childhood moves quickly. We want to make it easier for parents to
-            find experiences that bring families together, support children’s
-            interests and make weekends feel less stressful.
-          </p>
-          <h2>Our first focus</h2>
-          <p>
-            We are starting in the Greater Toronto Area, beginning with
-            Mississauga camps you can browse without an account. Parks, play,
-            events, classes, food, travel, shopping, and services are on the
-            map as coming-soon categories — not live directories yet.
-          </p>
-          <h2>Contact</h2>
-          <p>
-            Reach us at <a href="mailto:hello@compassbyvavy.ca">hello@compassbyvavy.ca</a>.
-          </p>
-        </div>
+        <p>
+          The longer story is Vineeta&apos;s to write. Listings are not on the site yet.
+        </p>
+        <p>
+          Contact <a href="mailto:hello@compassbyvavy.ca">hello@compassbyvavy.ca</a>.
+        </p>
       </div>
     </section>
   );

@@ -1,44 +1,35 @@
-export const metadata = {
+import Link from "next/link";
+import { WaitlistForm } from "@/components/shell/WaitlistForm";
+import { shellMeta } from "@/lib/shell/meta";
+
+export const metadata = shellMeta({
   title: "Account",
-  description:
-    "Compass works without an account. Your saved list stays on this device.",
-  robots: { index: false, follow: true },
-};
+  description: "A preview of a Compass account. Sign-in is not open yet.",
+  path: "/account",
+});
 
 export default function AccountPage() {
   return (
-    <section className="page-hero coming-soon-page">
-      <div className="container narrow">
-        <span className="eyebrow">Account</span>
-        <h1>No account needed</h1>
-        <p className="hero-lead">
-          You can browse, save and compare without signing up. Your saved list
-          and tracker live on this device only.
-        </p>
-        <div className="content-card">
-          <p className="coming-soon-kicker">Accounts are coming later</p>
-          <p>
-            When accounts arrive, they&apos;ll let you keep your list across
-            devices and add your children&apos;s ages and interests. Our
-            commitments won&apos;t change:
+    <section className="band">
+      <div className="shell-wrap account-layout">
+        <aside className="account-nav">
+          <Link href="/account">Account</Link>
+          <Link href="/account/reminders">Reminders</Link>
+          <Link href="/account/purchases">Purchases</Link>
+          <Link href="/account/settings">Settings</Link>
+          <Link href="/privacy">Privacy</Link>
+        </aside>
+        <div className="prose">
+          <h1>Your family, your way</h1>
+          <p className="lede">
+            An account will hold the ages, the school board, and the reminders you choose. It is not open yet, and this page does not sign you in.
           </p>
           <ul>
-            <li>You can delete your data at any time.</li>
-            <li>Your data is never sold.</li>
-            <li>There are no public child profiles.</li>
-            <li>
-              Nothing about your family is shared with a provider unless you
-              choose to share it.
-            </li>
+            <li>Details you add make suggestions more useful. None are filled in for you.</li>
+            <li>Saves on this device stay on this device until you have an account.</li>
+            <li>We will email you when accounts open.</li>
           </ul>
-          <div className="coming-soon-actions">
-            <a className="button button-primary" href="/saved">
-              Go to your saved list
-            </a>
-            <a className="button button-secondary" href="/privacy">
-              Read our privacy notes
-            </a>
-          </div>
+          <WaitlistForm idPrefix="account-waitlist" sourcePage="/account" buttonLabel="Notify me" />
         </div>
       </div>
     </section>

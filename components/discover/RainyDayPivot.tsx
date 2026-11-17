@@ -27,9 +27,13 @@ export function RainyDayPivot({
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const stored = window.localStorage.getItem(WEATHER_AREA_STORAGE_KEY);
-    if (stored && WEATHER_AREAS.some((area) => area.id === stored)) {
-      setAreaId(stored);
+    try {
+      const stored = window.localStorage.getItem(WEATHER_AREA_STORAGE_KEY);
+      if (stored && WEATHER_AREAS.some((area) => area.id === stored)) {
+        setAreaId(stored);
+      }
+    } catch {
+      /* blocked storage keeps the default area */
     }
   }, []);
 
