@@ -6,6 +6,7 @@
   --body: #4e5549;
   --fox: #c9702f;
   --deep-fox: #8a4a1e;
+  --gold: #e0a526;
   --line: #e7e0d4;
   --white: #ffffff;
 }
@@ -873,6 +874,20 @@ summary:focus-visible {
   min-height: 44px;
   display: inline-flex;
   align-items: center;
+}
+
+.shell-footer .waitlist-form .button {
+  appearance: none;
+  height: 44px;
+  min-height: 44px;
+  padding: 0 18px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--gold);
+  color: var(--ink);
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1;
 }
 
 .copyright {
