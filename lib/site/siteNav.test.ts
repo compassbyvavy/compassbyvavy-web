@@ -1,12 +1,25 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { SITE_NAV_LINKS, isSiteNavActive } from "@/lib/site/siteNav";
+import { SHOW_SHOP_IN_MAIN_MENU, SITE_NAV_LINKS, isSiteNavActive, mainMenuLinks } from "@/lib/site/siteNav";
 
 describe("site navigation", () => {
-  it("shows Discover, Plan, Learn, Shop and Account, in that order", () => {
+  it("shows Discover, Plan, Learn, Shop and Sign in, in that order", () => {
     assert.deepEqual(
       SITE_NAV_LINKS.map((link) => link.label),
-      ["Discover", "Plan", "Learn", "Shop", "Account"],
+      ["Discover", "Plan", "Learn", "Shop", "Sign in"],
+    );
+    assert.equal(SITE_NAV_LINKS.find((link) => link.id === "account")?.href, "/account");
+  });
+
+  it("hides Shop from the main menu until the flag is on", () => {
+    assert.equal(SHOW_SHOP_IN_MAIN_MENU, false);
+    assert.deepEqual(
+      mainMenuLinks().map((link) => link.label),
+      ["Discover", "Plan", "Learn", "Sign in"],
+    );
+    assert.deepEqual(
+      mainMenuLinks(true).map((link) => link.label),
+      ["Discover", "Plan", "Learn", "Shop", "Sign in"],
     );
   });
 
@@ -24,6 +37,8 @@ describe("site navigation", () => {
     assert.equal(isSiteNavActive("/saved", "plan"), true);
     assert.equal(isSiteNavActive("/saved/tracker", "plan"), true);
     assert.equal(isSiteNavActive("/calendar", "plan"), true);
+    assert.equal(isSiteNavActive("/plan/saved", "plan"), true);
+    assert.equal(isSiteNavActive("/planet", "plan"), false);
     assert.equal(isSiteNavActive("/learn", "learn"), true);
     assert.equal(isSiteNavActive("/account", "account"), true);
   });

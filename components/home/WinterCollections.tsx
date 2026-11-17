@@ -1,9 +1,6 @@
-const cards = [
-  { title: "Winter break camps", scene: "tent" },
-  { title: "PA day camps", scene: "calendar" },
-  { title: "Indoor play for cold days", scene: "blocks" },
-  { title: "Sledding and skating", scene: "hill" },
-] as const;
+import { WINTER_CARDS, type WinterScene } from "@/lib/home/home";
+
+const cards = WINTER_CARDS;
 
 export function WinterCollections() {
   return (
@@ -20,10 +17,10 @@ export function WinterCollections() {
         </div>
         <div className="home-winter-grid">
           {cards.map((card) => (
-            <article className="home-winter-card" key={card.title}>
+            <a className="home-winter-card" href={card.href} key={card.title}>
               <WinterCover scene={card.scene} />
               <h3>{card.title}</h3>
-            </article>
+            </a>
           ))}
         </div>
       </div>
@@ -31,7 +28,7 @@ export function WinterCollections() {
   );
 }
 
-function WinterCover({ scene }: { scene: (typeof cards)[number]["scene"] }) {
+function WinterCover({ scene }: { scene: WinterScene }) {
   return (
     <svg className="home-winter-cover" viewBox="0 0 320 180" aria-hidden="true">
       <rect width="320" height="180" rx="16" fill="#E7EEF0" />

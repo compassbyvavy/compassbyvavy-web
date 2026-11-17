@@ -1,18 +1,25 @@
-import { HOME_CATEGORIES } from "@/lib/home/home";
+"use client";
+
 import { CategoryIcon } from "@/components/home/icons";
+import { useHomePlace } from "@/components/home/useHomePlace";
+import { homeCategories, homeCategoryHref, linkSlugForPlace } from "@/lib/home/home";
 
 export function CategoryRow() {
+  const [placeId] = useHomePlace();
+  const citySlug = linkSlugForPlace(placeId);
+  const categories = homeCategories();
+
   return (
     <section className="home-cats" id="discover" aria-label="Discover">
       <div className="container home-cats-row">
-        {HOME_CATEGORIES.map((category) => (
+        {categories.map((category) => (
           <a
-            key={category.label}
-            className={category.highlight ? "home-cat is-highlight" : "home-cat"}
-            href={category.href}
+            key={category.slug}
+            className={category.slug === "camps" ? "home-cat is-highlight" : "home-cat"}
+            href={homeCategoryHref(category, citySlug)}
           >
             <CategoryIcon name={category.icon} />
-            <span>{category.label}</span>
+            <span>{category.name}</span>
           </a>
         ))}
       </div>

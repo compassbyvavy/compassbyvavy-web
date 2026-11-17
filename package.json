@@ -13,6 +13,7 @@
     "cf-typegen": "wrangler types --env-interface CloudflareEnv cloudflare-env.d.ts"
   },
   "dependencies": {
+    "lucide-react": "1.73.0",
     "next": "16.2.11",
     "react": "19.2.8",
     "react-dom": "19.2.8"

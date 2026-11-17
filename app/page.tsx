@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { CategoryRow } from "@/components/home/CategoryRow";
 import { Hero } from "@/components/home/Hero";
+import { LearnRow } from "@/components/home/LearnRow";
 import { PlanTeaser } from "@/components/home/PlanTeaser";
 import { TrustSection } from "@/components/home/TrustSection";
 import { WaitlistBand } from "@/components/home/WaitlistBand";
@@ -32,6 +33,7 @@ export default function HomePage() {
       <CategoryRow />
       <WinterCollections />
       <PlanTeaser />
+      <LearnRow />
       <TrustSection />
       <WaitlistBand />
     </div>
