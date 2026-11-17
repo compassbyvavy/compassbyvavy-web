@@ -6,6 +6,8 @@ Nov 17, 2026 · @Vineeta Agarwal
 
 **This is the one master spec for compassbyvavy.ca.** It holds every page, every category and subcategory, the brand, the planner, household intelligence, Guides, Shop, Account, the rules and every Cursor prompt. If the website and this document ever disagree, this document wins. It replaces the older "Website build spec" doc, which stays only as history.
 
+**North star:** a parent goes from "What can we do?" to "This works for my children, on this date, within my budget: save it or book it" with as little effort as possible. Every page is judged against that. The look is warm family editorial plus a genuinely useful planner; Plan is the signature feature, Discover and Camps are exceptionally practical, Shop stays secondary, and nothing invented (ratings, prices, availability, bookings, badges) is ever shown.
+
 **Today's goal:** put the whole website live as a finished outline: every page, every category and every subcategory, with no listings and no camp data yet. Listings switch on later with one setting. Section "Launch shell mode" explains how.
 
 ### How to update the website today (about 45 minutes)
@@ -42,7 +44,7 @@ Every site-wide decision, newest first. Page-level decisions (Plan, Guides, Shop
 | 22 | Nov 17 | Main menu: **Discover · Plan · Guides · Shop · Account**. Shop shows only once a book is on sale | Five clear doors, nothing else |
 | 21 | Nov 17 | Play & Entertainment is now **Play & Fun** (`/play-fun`); Travel & Getaways is now **Day Trips & Getaways** (`/day-trips-getaways`). IDs `CAT-002`, `CAT-008` unchanged | Warmer parent words; day trips are the big search |
 | 20 | Nov 17 | Camps chips in two rows (**When**, then **Type**); chips ordered by season; seasonal-only subcategories hide out of season | Parents start from the date |
-| 19 | Nov 17 | Fonts: **Inter** for headings and text, **Fredoka** only in the logo, **Newsreader** only in Guides and quotes | Clean like Airbnb, warm where Vineeta speaks |
+| 19 | Nov 17 | Fonts: **Newsreader for the wordmark and headings, Inter for interface and text, Fredoka only on kids' products (updated by #34)** | Clean like Airbnb, warm where Vineeta speaks |
 | 18 | Nov 17 | **No bottom tab bar** on phones. Phone header: logo, search icon, heart, menu button | Clean, like the best sites |
 | 17 | Nov 17 | Layout is **search-first and photo-led**, white page with cream bands, like Airbnb and Netflix | Earlier design felt childish and empty |
 | 16 | Nov 16 | Discover lists **every subcategory** on its cards and in "Everything on Compass" | Parents see the full range at a glance |
@@ -64,6 +66,8 @@ Every site-wide decision, newest first. Page-level decisions (Plan, Guides, Shop
 
 **33 · Nov 17 · Creative review adopted.** New hero promise ("Less searching. More childhood adventures."); a "How Compass works" section replaces the separate Plan and household bands; Everything on Compass stays but moves to a quiet tabbed band at the bottom; Discover cards show 6 subcategories then "+ N more"; no "Coming soon" grids; subcategory pages are noindex until listings are live; clear trust levels (Vavy-checked = visited in person); camp availability is per session; Saved, Planned and Booked look different in Plan. Why: smaller but complete beats enormous but unfinished.
 
+**34 · Nov 17 · New visual direction.** The "Family Adventures" home mockup is the target look. Headings and the wordmark move to Newsreader for an editorial, grown-up feel; Inter stays for every interface element; Fredoka moves to kids' products only. Real or licensed photos only, never AI or stock photos of children.
+
 ## Brand and design
 
 **The logo is the fox-ear compass mark with "Compass by Vavy" beside it in forest green.** On the website it sits on its own, with white or cream around it. The green round version is the app icon: used only where a platform puts the logo in a circle or square (Instagram, phone home screen, Google profile, email avatar). It's one logo with two uses, decided November 17 after comparing both at real size.
@@ -77,10 +81,10 @@ Every site-wide decision, newest first. Page-level decisions (Plan, Guides, Shop
 
 ### Logo rules
 
-- Wordmark "Compass by Vavy" in Fredoka, one colour: forest green `#33503E` on light backgrounds, cream `#F4E9D0` on dark. Never two colours.
+- Wordmark "Compass by Vavy" in Newsreader semibold, one colour: forest green `#33503E` on light backgrounds, cream `#F4E9D0` on dark. Never two colours.
 - Website header: the mark on its own, 40px tall, plus the wordmark. Phones: 32px. Footer (forest green): the mark on its own with the wordmark in cream.
 - Favicon: the mark on its own (the fox ears stay recognisable at 16px). Apple-touch-icon, Android icon and Instagram: the green round version.
-- Files in `public/brand/`: `mark.svg` is the mark on its own (website and favicon); `mark-on-green.png` is the green round version (app icons, Instagram, Open Graph image). Cursor makes a matching `mark-on-green.svg` if the set has none. The wordmark is live text in Fredoka, so it's always one colour. Older files (`logo.svg`, `logo-dark.svg`, `vavy-checked.svg`) are not used on the site.
+- Files in `public/brand/`: `mark.svg` is the mark on its own (website and favicon); `mark-on-green.png` is the green round version (app icons, Instagram, Open Graph image). Cursor makes a matching `mark-on-green.svg` if the set has none. The wordmark is live text in Newsreader, so it's always one colour. Older files (`logo.svg`, `logo-dark.svg`, `vavy-checked.svg`) are not used on the site.
 - The round Vavy badge (with the fox and "Compass by Vavy" around the ring) is for print and merch only: stickers, book back covers, Instagram highlights. The "Vavy Sets Out" illustration is the character art for Shop, books, printables and Instagram. Neither is a logo.
 - Vavy-checked on the site is a small pill: green `#33503E` background, white text "✓ Vavy-checked". The old round stamp is retired.
 
@@ -100,9 +104,9 @@ Every site-wide decision, newest first. Page-level decisions (Plan, Guides, Shop
 
 ### Type
 
-- **Inter** for every heading and all text. Headings bold. Desktop H1 48/56, H2 30/38, H3 20/28, body 16/26, small 14/20. Phone H1 32/40, H2 24/32.
-- **Fredoka** only in the logo wordmark and Vavy badges.
-- **Newsreader** only for Guides headlines, article text and quotes in Vineeta's voice.
+- **Newsreader** (semibold) for the wordmark "Compass by Vavy", page headlines and section headings across the site ("Less searching. More childhood adventures.", "Explore by category", "Plan, save and never miss a date."), plus Guides articles and Vineeta's quotes. This is what makes the site feel editorial and grown-up.
+- **Inter** for everything you use: menus, search, buttons, chips, cards, forms, the planner, body text. Desktop H1 56/60, H2 32/40, H3 20/28, body 16/26, small 14/20. Phone H1 36/42, H2 26/32.
+- **Fredoka** only on things made for kids: activity books, printables and the round Vavy badge. Never on the website.
 
 ### Layout
 
@@ -234,6 +238,16 @@ The whole site is about 140 pages at launch: 9 category pages, 99 subcategory pa
 ## Home page
 
 **The home page tells one story: find it, save it, plan it.** It's search-first, with one emotional promise and the planner shown as the reason to use Compass. Board: 1. Home (the spec wins where they differ). Sections that need listings hide themselves until listings are live; they never show empty, and there are no "Coming soon" grids.
+
+**Visual target: the "Family Adventures" home mockup (November 17).** Match its look: full-width photo hero with the headline in Newsreader, the search bar floating over the photo, occasion chips under it, a cream wave with the Vavy fox and a three-point trust strip, photo category tiles with small round icons, the green planner band showing one family's week, photo collection cards, guide cards and the green waitlist band. **Corrections to the mockup:**
+
+1. **No AI or stock photos of children.** Every photo is Vineeta's own (with consent) or properly licensed. Until real photos exist, the hero uses a landscape photo with no people, and tiles use cream with the line icon.
+2. **Header:** the fox-ear mark on its own (not the round green logo), and pre-launch "Join the waitlist" instead of "Account". Shop isn't in the menu until a book is on sale.
+3. **Search defaults:** Where shows "City or region" (or the parent's own choice), Kids shows "Add ages". Never prefilled example ages.
+4. **Trust strip copy:** "Checked by a parent: every listing shows when and how it was checked" · "Built for real family life: camps, PA days, weekends and more" · "Free to explore: no account needed". Don't describe Vavy-checked as "verified"; Vavy-checked means visited in person.
+5. **Shell mode:** "This season on Compass" and the occasion chips hide until listings are live. Category tiles still show and lead to the honest category previews.
+6. **The planner band** is the "How Compass works" section: keep the green band, the example week (labelled "Example") and "Try the planner", and add the three steps Discover · Save · Plan as a small line above it.
+7. **The Vavy fox** must match the brand's Vavy artwork (fox orange, pink scarf, green backpack), used once per page at most. "Everything on Compass" stays as the tabbed band above the waitlist band.
 
 | # | Section | Shell mode (today) | After listings go live | Copy |
 | --- | --- | --- | --- | --- |
@@ -937,7 +951,7 @@ Goal: put the whole site live today as a finished outline in "launch shell mode"
 
 Work from a new branch off main. Start by inspecting the repo, the Supabase schema and the current routes, and reply with a short plan (what you add, what you change, what you hide, any conflict with the spec). Then build:
 
-1. Brand: apply "Brand and design" exactly. Colours, Inter / Fredoka (logo only) / Newsreader (Guides only), spacing, buttons, cards. Logo: the fox-ear compass mark on its own (public/brand/mark.svg) plus the one-colour wordmark "Compass by Vavy" (#33503E on light, #F4E9D0 on dark). Favicon from mark.svg. Apple-touch-icon, Android icon and the Open Graph image from the green round version (public/brand/mark-on-green.png). Vavy-checked is the small green pill, used only for places Vineeta visited in person; remove the old round stamp everywhere. Until real photos exist, tiles are warm cream (#FBF6EC) with a thin forest-green line icon, never pastel colour blocks.
+1. Brand: apply "Brand and design" exactly. Colours, Newsreader for the wordmark and headings / Inter for all interface and body text / no Fredoka on the website, spacing, buttons, cards. Logo: the fox-ear compass mark on its own (public/brand/mark.svg) plus the one-colour wordmark "Compass by Vavy" (#33503E on light, #F4E9D0 on dark). Favicon from mark.svg. Apple-touch-icon, Android icon and the Open Graph image from the green round version (public/brand/mark-on-green.png). Vavy-checked is the small green pill, used only for places Vineeta visited in person; remove the old round stamp everywhere. Until real photos exist, tiles are warm cream (#FBF6EC) with a thin forest-green line icon, never pastel colour blocks.
 2. Header and footer on every page, exactly as specified: menu Discover · Plan · Guides · Account (Shop appears only when a book is on_sale, otherwise footer only), search "Search places, camps, classes" with the "City or region" picker, heart for Saved, "Join the waitlist" button. No "List your camp" in the header. Phones: logo, search icon, heart, menu button; no bottom tab bar.
 3. Structure data: seed discover_categories, discover_subcategories and place_types from the workbook in data/taxonomy/ with scripts/seed-discover.ts (upsert by ID, safe to re-run). Use the new names Play & Fun (/play-fun) and Day Trips & Getaways (/day-trips-getaways); permanent redirects from any old slug. Do not import or change any listing data.
 4. Launch shell mode: add site_settings.listings_live = false. While false, no place, camp, class, event, price, age, count or listing photo appears anywhere. Keep existing camp and indoor playground records untouched in the database; their public URLs send a temporary 302 redirect to their subcategory page and are left out of the sitemap.
@@ -1056,6 +1070,8 @@ Read docs/compass-master-spec.md: "Location, regions, drive time and PA days". B
 
 * [ ] 4–6 small Vavy spot illustrations (planner intro, empty states, a guide header, the waitlist band): Vavy used sparingly, so the site feels grown-up to parents and magical to kids
 * [ ] Phone (390px) designs for search, filters, the camp page, the planner and booking, before Jobs 2 and 6
+
+**Phone design reference (November 17 app screens).** Use for the phone layouts in Jobs 2 and 6, not tonight: Plan as a day-by-day agenda list; "For your family" as the signed-in parent's personal page ("Perfect for both kids", "This weekend"); the Saved list with filters; the Nearby map with one card; the Guides list. **Later idea:** a trip itinerary page (for example Québec City, day by day, with "Add to plan") as part of Guides › Worth the drive, built only from verified places. **Not adopted:** a bottom tab bar on the website (it stays out; a native app may have one later); new menu items such as Trips, Stays, Things to Do or Road Trips (Day Trips & Getaways covers them); star ratings and review counts; a sign-up screen on arrival; AI-written itineraries.
 
 ### Checklist: today's launch shell
 
