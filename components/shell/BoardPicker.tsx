@@ -9,7 +9,11 @@ export function BoardPicker() {
   const [board, setBoard] = useState("");
 
   useEffect(() => {
-    setBoard(window.localStorage.getItem(KEY) ?? "");
+    try {
+      setBoard(window.localStorage.getItem(KEY) ?? "");
+    } catch {
+      setBoard("");
+    }
   }, []);
 
   return (

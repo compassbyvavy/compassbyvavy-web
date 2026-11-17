@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useSyncExternalStore } from "react";
-import { readSaved, subscribeSaved } from "@/components/shell/saved";
+import { getSavedServerSnapshot, readSaved, subscribeSaved } from "@/components/shell/saved";
 import { WaitlistForm } from "@/components/shell/WaitlistForm";
 
 const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
@@ -98,7 +98,7 @@ function MonthGrid() {
 }
 
 export function SavedShelf() {
-  const items = useSyncExternalStore(subscribeSaved, readSaved, () => []);
+  const items = useSyncExternalStore(subscribeSaved, readSaved, getSavedServerSnapshot);
   return (
     <aside className="saved-shelf" aria-label="Saved">
       <h2>Saved</h2>

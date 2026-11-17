@@ -62,7 +62,12 @@ export function BoardCalendar({
   const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
-    const stored = window.localStorage.getItem(BOARD_KEY);
+    let stored: string | null = null;
+    try {
+      stored = window.localStorage.getItem(BOARD_KEY);
+    } catch {
+      stored = null;
+    }
     if (SCHOOL_BOARDS.some((board) => board.id === stored)) {
       setBoardId(stored as SchoolBoardId);
     }
