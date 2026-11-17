@@ -900,6 +900,31 @@ summary:focus-visible {
   font-weight: 700;
 }
 
+.section-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.section-head h2 {
+  margin-bottom: 0;
+}
+
+.section-head a {
+  color: var(--forest);
+  font-size: 15px;
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.section-head a:hover,
+.section-head a:focus-visible {
+  text-decoration: underline;
+}
+
 .tab-row,
 .chip-row,
 .view-switch {
@@ -909,8 +934,65 @@ summary:focus-visible {
   padding-bottom: 8px;
 }
 
-.chip-row[hidden] {
+.chip-row[hidden],
+.everything-links[hidden] {
   display: none;
+}
+
+.everything .tab-row {
+  flex-wrap: nowrap;
+  gap: 22px;
+  margin: 0 0 8px;
+  padding: 0;
+  overflow-x: auto;
+  border-bottom: 1px solid var(--line);
+}
+
+.everything .tab {
+  flex: 0 0 auto;
+  min-height: 44px;
+  margin: 0;
+  padding: 0 0 10px;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  border-radius: 0;
+  background: transparent;
+  color: var(--ink);
+  font-family: var(--font-body), Inter, system-ui, sans-serif;
+  font-size: 15px;
+  font-weight: 500;
+  gap: 0;
+}
+
+.everything .tab.active {
+  background: transparent;
+  color: var(--ink);
+  border-color: var(--ink);
+  font-weight: 600;
+}
+
+.everything-links {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 2px 28px;
+  margin: 12px 0 0;
+  padding: 0;
+}
+
+.everything-links a {
+  display: flex;
+  align-items: center;
+  min-height: 36px;
+  color: var(--body);
+  font-family: var(--font-body), Inter, system-ui, sans-serif;
+  font-size: 15px;
+  line-height: 1.35;
+  text-decoration: none;
+}
+
+.everything-links a:hover,
+.everything-links a:focus-visible {
+  text-decoration: underline;
 }
 
 .placeholder-note {
@@ -1276,6 +1358,16 @@ summary:focus-visible {
   .tab-row {
     flex-wrap: nowrap;
     overflow-x: auto;
+  }
+
+  .section-head h2 {
+    font-size: 22px;
+    line-height: 28px;
+  }
+
+  .everything-links {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 2px 16px;
   }
 
   .hero {
