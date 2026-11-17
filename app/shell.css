@@ -1341,6 +1341,95 @@ summary:focus-visible {
   margin: 0;
 }
 
+.shop-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+  margin-top: 32px;
+}
+
+.shop-card {
+  display: grid;
+  align-content: start;
+  gap: 8px;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: var(--white);
+}
+
+.shop-tile {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 180px;
+  margin-bottom: 8px;
+  border-radius: 12px;
+  background: #fbf6ec;
+}
+
+.shop-card h2 {
+  margin: 0;
+  font-size: 28px;
+  line-height: 1.2;
+}
+
+.shop-details {
+  display: grid;
+  gap: 2px;
+}
+
+.shop-details p,
+.shop-copy {
+  margin: 0;
+}
+
+.shop-details p {
+  color: var(--ink);
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.shop-copy {
+  color: var(--body);
+  font-size: 16px;
+  line-height: 1.45;
+}
+
+.shop-badge {
+  justify-self: start;
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  margin: 4px 0 8px;
+  padding: 0 12px;
+  border-radius: 999px;
+  background: var(--cream);
+  color: var(--forest);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.shop-card .waitlist-form {
+  max-width: none;
+}
+
+.shop-card .waitlist-form input[type="email"] {
+  width: 100%;
+}
+
+.shop-card .button {
+  min-height: 44px;
+  height: 44px;
+  padding: 0 18px;
+  border: 0;
+  border-radius: 999px;
+  background: #33503e;
+  color: #ffffff;
+  font-weight: 600;
+}
+
 .book-cover {
   display: grid;
   align-content: end;
@@ -1519,8 +1608,13 @@ summary:focus-visible {
   .shell-header .header-nav {
     display: flex;
     flex: 1 1 auto;
+    flex-wrap: wrap;
     order: 4;
     gap: 0;
+  }
+
+  .shop-grid {
+    grid-template-columns: 1fr;
   }
 
   .shell-header .header-nav a {

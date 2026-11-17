@@ -3,6 +3,12 @@ export type WaitlistInput = {
   sourcePage?: string;
   category?: string;
   subcategory?: string;
+  /**
+   * Shop product id (`winter-pack`, `quebec-book`). Stored in `subcategory`:
+   * the waitlist table has no product column, and subcategory already accepts
+   * a short id. Discover forms leave this unset and pass subcategory themselves.
+   */
+  product?: string;
   city?: string;
   consent?: boolean;
   company?: string;
@@ -57,7 +63,7 @@ export function validateWaitlist(input: WaitlistInput): WaitlistValidation {
       email,
       source_page: clip(input.sourcePage, 200),
       category: clip(input.category, 120),
-      subcategory: clip(input.subcategory, 120),
+      subcategory: clip(input.product?.trim() ? input.product : input.subcategory, 120),
       city: clip(input.city, 120),
       consented_at: new Date(now).toISOString(),
     },

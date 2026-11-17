@@ -17,10 +17,11 @@ export type SearchEntry = {
   parentName?: string;
 };
 
-const NAV = [
+export const MAIN_NAV = [
   { href: "/discover", label: "Discover" },
   { href: "/plan", label: "Plan" },
   { href: "/guides", label: "Guides" },
+  { href: "/shop", label: "Shop" },
   { href: "/account", label: "Account" },
 ];
 
@@ -140,7 +141,7 @@ export function SiteHeader({
         </form>
 
         <nav className="header-nav" aria-label="Main">
-          {NAV.map((item) => (
+          {MAIN_NAV.map((item) => (
             <Link key={item.href} href={item.href}>
               {item.label}
             </Link>
@@ -215,7 +216,7 @@ export function SiteHeader({
             <X aria-hidden="true" size={22} />
           </button>
           <nav>
-            {NAV.map((item) => (
+            {MAIN_NAV.map((item) => (
               <Link key={item.href} href={item.href} onClick={() => setMenuOpen(false)}>
                 {item.label}
               </Link>
