@@ -1,10 +1,11 @@
 import Link from "next/link";
 import { headers } from "next/headers";
-import { AlertTriangle, ArrowRight, CalendarDays, Check, Heart, Sparkles } from "lucide-react";
+import { AlertTriangle, ArrowRight, CalendarCheck, CalendarDays, Check, CircleHelp, Heart, MapPin, Sparkles } from "lucide-react";
 import { CategoryIcon } from "@/components/shell/icons";
 import { WaitlistForm } from "@/components/shell/WaitlistForm";
 import { EverythingTabs } from "@/components/shell/EverythingTabs";
 import { HeroSearch } from "@/components/shell/HeroSearch";
+import { PrintableCard } from "@/components/shell/PrintableCard";
 import { founderNoteVisibility } from "@/lib/shell/founderNote";
 import { TRUST_LINES } from "@/lib/shell/questions";
 import {
@@ -190,28 +191,37 @@ export async function HomeView({
 
       <section className="band">
         <div className="shell-wrap">
-          <h2>Guides and printables</h2>
-          <Link className="guide-card" href="/guides/printables/space-mission-scavenger-hunt">
-            <span className="kicker">Free printable · Ages 6–8</span>
-            <strong>Space Mission Scavenger Hunt</strong>
-            <span>40 clue chits, from the Sun to the edge of the universe.</span>
-          </Link>
+          <h2>For the parenting learning curve</h2>
+          <PrintableCard />
         </div>
       </section>
 
       <section className="band cream">
-        <div className="shell-wrap check-row">
-          <div>
-            <h2>How we check</h2>
-            <ul>
-              <li>The facts come from the source.</li>
-              <li>A missing fact stays unknown.</li>
-              <li>Every listing shows when it was checked.</li>
-            </ul>
-            <Link className="text-link" href="/how-we-check">
-              How we check
-            </Link>
-          </div>
+        <div className="shell-wrap">
+          <h2>What &apos;checked&apos; means on Compass</h2>
+          <ul className="check-meanings">
+            <li>
+              <MapPin aria-hidden="true" size={22} strokeWidth={1.75} color="#33503E" />
+              <p>
+                <strong>Vavy-checked:</strong> Vineeta visited in person, with the visit date.
+              </p>
+            </li>
+            <li>
+              <CalendarCheck aria-hidden="true" size={22} strokeWidth={1.75} color="#33503E" />
+              <p>
+                <strong>Verified [date]:</strong> details confirmed with the venue by phone, email or its website.
+              </p>
+            </li>
+            <li>
+              <CircleHelp aria-hidden="true" size={22} strokeWidth={1.75} color="#33503E" />
+              <p>
+                <strong>Not confirmed yet:</strong> if we don&apos;t know, we say so. We never guess.
+              </p>
+            </li>
+          </ul>
+          <Link className="button outline" href="/how-we-check">
+            How we check places
+          </Link>
         </div>
       </section>
 

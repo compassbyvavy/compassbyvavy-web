@@ -296,6 +296,12 @@ summary:focus-visible {
   color: var(--forest);
 }
 
+.button.outline {
+  border: 1.5px solid var(--forest);
+  background: transparent;
+  color: var(--forest);
+}
+
 .button:disabled {
   opacity: 0.7;
 }
@@ -796,6 +802,104 @@ summary:focus-visible {
   max-width: 420px;
 }
 
+.printable-card {
+  display: grid;
+  grid-template-columns: 168px minmax(0, 1fr);
+  gap: 20px;
+  align-items: center;
+  max-width: 720px;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: var(--white);
+  transition: transform 160ms ease, box-shadow 160ms ease;
+}
+
+.printable-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 24px rgba(43, 38, 34, 0.08);
+}
+
+.printable-thumb {
+  display: block;
+  overflow: hidden;
+  border-radius: 12px;
+  background: var(--cream);
+  aspect-ratio: 3 / 4;
+}
+
+.printable-thumb img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top center;
+}
+
+.printable-copy {
+  display: grid;
+  justify-items: start;
+  gap: 8px;
+  min-width: 0;
+}
+
+.printable-label {
+  margin: 0;
+  color: var(--deep-fox);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.printable-copy h3 {
+  margin: 0;
+  font-size: 22px;
+  line-height: 1.25;
+}
+
+.printable-copy h3 a {
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.printable-copy p {
+  margin: 0;
+  color: var(--body);
+  font-size: 15px;
+  line-height: 1.35;
+}
+
+.check-meanings {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 28px;
+  margin: 8px 0 24px;
+  padding: 0;
+  list-style: none;
+}
+
+.check-meanings li {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 12px;
+  align-items: start;
+}
+
+.check-meanings svg {
+  margin-top: 1px;
+}
+
+.check-meanings p {
+  margin: 0;
+  color: var(--ink);
+  font-size: 15px;
+  line-height: 1.4;
+}
+
+.check-meanings strong {
+  font-family: var(--font-body), Inter, system-ui, sans-serif;
+  font-weight: 700;
+}
+
 .tab-row,
 .chip-row,
 .view-switch {
@@ -1205,6 +1309,8 @@ summary:focus-visible {
 
   .trust-strip,
   .steps,
+  .check-meanings,
+  .printable-card,
   .icon-row,
   .break-row,
   .category-grid,
@@ -1220,6 +1326,10 @@ summary:focus-visible {
 
   .trust-band {
     padding: 20px 0;
+  }
+
+  .printable-thumb {
+    aspect-ratio: 16 / 9;
   }
 
   .icon-row {

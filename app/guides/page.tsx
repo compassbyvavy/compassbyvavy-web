@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { PrintableCard } from "@/components/shell/PrintableCard";
 import { shellMeta } from "@/lib/shell/meta";
 
 export const metadata = shellMeta({
@@ -12,14 +12,10 @@ export default function GuidesPage() {
     <section className="band">
       <div className="shell-wrap prose">
         <p className="kicker">Guides</p>
-        <h1>Guides and printables</h1>
+        <h1>For the parenting learning curve</h1>
         <p className="lede">Only what is really ready. Empty shelves stay hidden.</p>
         <h2>Free printables</h2>
-        <Link className="guide-card" href="/guides/printables/space-mission-scavenger-hunt">
-          <span className="kicker">Ages 6–8 · 40 clue chits</span>
-          <strong>Space Mission Scavenger Hunt</strong>
-          <span>An indoor hunt from the Sun to the edge of the universe.</span>
-        </Link>
+        <PrintableCard />
       </div>
     </section>
   );
