@@ -619,8 +619,11 @@ summary:focus-visible {
   white-space: nowrap;
 }
 
-.break-tile svg:last-child {
+.break-tile > svg {
   flex: 0 0 auto;
+}
+
+.break-tile svg:last-child {
   margin-left: auto;
 }
 
@@ -1227,7 +1230,10 @@ summary:focus-visible {
 
   .break-row {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+    width: calc(100% + 16px);
+    margin-inline: -8px;
     overflow: visible;
   }
 
@@ -1235,6 +1241,21 @@ summary:focus-visible {
   .break-tile {
     flex: none;
     width: auto;
+  }
+
+  .break-tile {
+    gap: 4px;
+    padding: 12px 6px;
+  }
+
+  .break-tile > svg:first-child {
+    width: 20px;
+    height: 20px;
+  }
+
+  .break-tile svg:last-child {
+    width: 14px;
+    height: 14px;
   }
 
   .icon-tile strong,
