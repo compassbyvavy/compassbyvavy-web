@@ -331,7 +331,7 @@ export function buildCampPageView(args: {
   if (options.some((o) => o.minutes == null && o.hours)) askTheCamp.push("Pick-up time");
   if (!priced.length) askTheCamp.push("Price");
   if (options.every((o) => !o.care.before && !o.care.after)) askTheCamp.push("Before and after care");
-  if (!program.packingItems?.length) askTheCamp.push("What to bring");
+  if (!program.packingItems?.length && !program.preparationNotes?.trim()) askTheCamp.push("What to bring");
   if (!program.policiesSummary) askTheCamp.push("Cancellation and refunds");
 
   const checkedDates = sessions.map((s) => s.sourceCheckedDate).filter((d): d is string => Boolean(d)).sort();
