@@ -1,113 +1,63 @@
 import type { Metadata } from "next";
-import { headers } from "next/headers";
-import Link from "next/link";
 import { Suspense } from "react";
-import { ShortlistProvider } from "@/components/shortlist/ShortlistProvider";
-import { CommandMenu } from "@/components/site/CommandMenu";
+import { SiteFooter, SiteHeader, type SearchEntry } from "@/components/shell/SiteChrome";
 import { OfflineCache } from "@/components/site/OfflineCache";
-import { SiteNav } from "@/components/site/SiteNav";
-import { loadCampsCatalogForLayout } from "@/lib/camps/catalog";
 import { campsFontVariables } from "@/lib/camps/fonts";
-import {
-  SiteSearchBar,
-  SiteSearchBarShell,
-} from "@/components/site/SiteSearchBar";
+import { requestCity } from "@/lib/shell/city";
+import { locationOptions, publicCategories, subcategoriesFor } from "@/lib/taxonomy/catalog";
 import "./globals.css";
+import "./shell.css";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://compassbyvavy.ca"),
   title: {
-    default: "Compass by Vavy | Family Adventures Made Easy",
+    default: "Compass by Vavy",
     template: "%s | Compass by Vavy",
   },
-  description:
-    "Discover parks, splash pads, indoor play, events, classes, camps and family getaways across Canada.",
-  keywords: [
-    "family activities",
-    "kids activities",
-    "parks",
-    "splash pads",
-    "family events",
-    "camps",
-    "classes",
-    "Ontario families",
-  ],
+  description: "Family fun across Ontario, checked by a parent.",
   openGraph: {
     title: "Compass by Vavy",
-    description: "Helping families discover amazing adventures.",
+    description: "Family fun across Ontario, checked by a parent.",
     url: "https://compassbyvavy.ca",
     siteName: "Compass by Vavy",
     type: "website",
     locale: "en_CA",
+    images: [{ url: "/brand/mark-on-green.png", alt: "Compass by Vavy" }],
   },
-  robots: {
-    index: true,
-    follow: true,
+  twitter: { card: "summary_large_image" },
+  icons: {
+    icon: [{ url: "/brand/mark.svg", type: "image/svg+xml" }],
+    apple: [{ url: "/brand/mark-on-green.png" }],
   },
   manifest: "/manifest.webmanifest",
 };
 
+function searchEntries(): SearchEntry[] {
+  return publicCategories().flatMap((category) => [
+    { name: category.name, kind: "category" as const, categorySlug: category.slug },
+    ...subcategoriesFor(category.id).map((row) => ({
+      name: row.name,
+      kind: "subcategory" as const,
+      categorySlug: category.slug,
+      subcategorySlug: row.slug,
+      parentName: category.name,
+    })),
+  ]);
+}
+
 export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
-  const hostname = (await headers()).get("host");
-  const catalog = loadCampsCatalogForLayout({ hostname });
-  const providers = new Map((catalog?.providers ?? []).map((provider) => [provider.id, provider.name]));
+  const city = await requestCity();
   return (
     <html lang="en">
       <body className={campsFontVariables}>
-        <ShortlistProvider>
-          <CommandMenu
-            camps={(catalog?.programs ?? []).map((program) => ({
-              id: program.id,
-              slug: program.slug,
-              name: program.name,
-              providerName: providers.get(program.providerId) ?? null,
-            }))}
-          />
-          <OfflineCache />
-          <header className="site-header">
-            <div className="container header-inner">
-              <Link className="brand" href="/" aria-label="Compass by Vavy home">
-                <span className="brand-mark" aria-hidden="true">✦</span>
-                <span>Compass by Vavy</span>
-              </Link>
-              <div className="header-search">
-                <Suspense fallback={<SiteSearchBarShell />}>
-                  <SiteSearchBar />
-                </Suspense>
-              </div>
-              <SiteNav />
-            </div>
-          </header>
-
-          <main>{children}</main>
-
-          <footer className="site-footer">
-            <div className="container footer-grid">
-              <div>
-                <div className="brand footer-brand">
-                  <span className="brand-mark" aria-hidden="true">✦</span>
-                  <span>Compass by Vavy</span>
-                </div>
-                <p>Helping families discover meaningful adventures.</p>
-              </div>
-              <div className="footer-links">
-                <a href="/#discover">Discover</a>
-                <Link href="/camps">Camps</Link>
-                <Link href="/saved">Saved</Link>
-                <Link href="/saved/tracker">Tracker</Link>
-                <Link href="/about">About</Link>
-                <Link href="/privacy">Privacy</Link>
-                <Link href="/terms">Terms</Link>
-                <a href="mailto:hello@compassbyvavy.ca">Contact</a>
-              </div>
-            </div>
-            <div className="container copyright">
-              © {new Date().getFullYear()} Compass by Vavy. All rights reserved.
-            </div>
-          </footer>
-        </ShortlistProvider>
+        <Suspense fallback={null}>
+          <SiteHeader city={city.slug} locations={locationOptions()} entries={searchEntries()} />
+        </Suspense>
+        <OfflineCache />
+        <main>{children}</main>
+        <SiteFooter city={city.slug} cityName={city.name} />
       </body>
     </html>
   );

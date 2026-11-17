@@ -559,8 +559,7 @@ describe("published camps supabase read", { concurrency: 1 }, () => {
     }
 
     const layout = readFileSync(path.join(repoRoot, "app/layout.tsx"), "utf8");
-    assert.match(layout, /loadCampsCatalogForLayout\(/);
-    assert.doesNotMatch(layout, /loadCampsCatalogForRequest/);
+    assert.doesNotMatch(layout, /loadCampsCatalog/);
     assert.doesNotMatch(layout, /campsSupabase/);
     assert.doesNotMatch(layout, /fetch\(/);
   });

@@ -1,16 +1,22 @@
 {
   "name": "Compass by Vavy",
   "short_name": "Compass",
-  "description": "Family activities and camps. Cached pages stay available offline.",
+  "description": "Family fun across Ontario, checked by a parent.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#FAF8F3",
+  "background_color": "#FFFFFF",
   "theme_color": "#33503E",
   "icons": [
     {
-      "src": "/icon.svg",
+      "src": "/brand/mark.svg",
       "sizes": "any",
       "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/brand/mark-on-green.png",
+      "sizes": "1024x1024",
+      "type": "image/png",
       "purpose": "any"
     }
   ]
