@@ -106,8 +106,7 @@ summary:focus-visible {
 }
 
 .lede,
-.empty-note,
-.photo-credit {
+.empty-note {
   max-width: 62ch;
   color: var(--body);
   font-size: 18px;
@@ -189,6 +188,7 @@ summary:focus-visible {
 .city-panel input,
 .hero-fields input,
 .hero-fields select,
+.hero-fields .hero-field-control,
 .waitlist-form input[type="email"],
 .board-picker select {
   min-height: 44px;
@@ -409,7 +409,7 @@ summary:focus-visible {
 .hero-copy {
   position: relative;
   z-index: 1;
-  padding: 72px 0;
+  padding: 72px 0 52px;
 }
 
 .hero h1,
@@ -419,25 +419,31 @@ summary:focus-visible {
   text-shadow: 0 1px 2px rgba(31, 46, 37, 0.45);
 }
 
-.photo-credit {
-  display: inline-block;
-  margin-top: 12px;
-  padding: 6px 10px;
-  border-radius: 8px;
-  background: rgba(31, 46, 37, 0.82);
-  color: var(--cream-deep);
-  font-size: 13px;
-  line-height: 1.4;
-  text-shadow: none;
+.hero .photo-credit {
+  position: absolute;
+  right: 16px;
+  bottom: 12px;
+  z-index: 2;
+  max-width: min(520px, calc(100% - 32px));
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  border-radius: 0;
+  color: rgb(255 255 255 / 80%);
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.35;
+  text-align: right;
+  text-shadow: 0 1px 2px rgba(31, 46, 37, 0.75);
 }
 
-.photo-credit a {
-  color: var(--white);
+.hero .photo-credit a {
+  color: rgb(255 255 255 / 80%);
 }
 
 .hero-fields {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr)) auto;
   gap: 8px;
   margin-top: 20px;
   padding: 12px;
@@ -456,19 +462,41 @@ summary:focus-visible {
   font-weight: 600;
 }
 
-.hero-fields .text-button {
+.hero-fields .hero-field-control {
+  appearance: none;
   display: flex;
   align-items: center;
-  width: 100%;
   justify-content: flex-start;
-  padding: 0 12px;
-  border: 1px solid var(--line);
-  border-radius: 12px;
-  background: var(--cream);
+  font: inherit;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: normal;
+  text-align: left;
+  cursor: pointer;
+}
+
+.hero-fields .hero-placeholder {
+  color: var(--body);
+}
+
+.hero-fields .age-note {
+  margin: 0;
+  color: var(--body);
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.35;
+}
+
+.hero-fields .hero-search-submit {
+  align-self: end;
+  white-space: nowrap;
+  background: var(--forest);
+  color: var(--white);
 }
 
 .hero-fields input,
 .hero-fields select,
+.hero-fields .hero-field-control,
 .waitlist-form input[type="email"],
 .board-picker select,
 .city-panel input,
@@ -1546,6 +1574,19 @@ summary:focus-visible {
 
   .hero {
     min-height: 520px;
+  }
+
+  .hero-copy {
+    padding-bottom: 72px;
+  }
+
+  .hero .photo-credit {
+    right: 12px;
+    bottom: 10px;
+  }
+
+  .hero-search-submit {
+    width: 100%;
   }
 
   .hero-search-open {
