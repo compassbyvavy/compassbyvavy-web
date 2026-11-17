@@ -1,7 +1,8 @@
 /**
- * The eight review flags. Code only: no model call, no guessed fix.
+ * The nine review flags. Code only: no model call, no guessed fix.
  */
 import { STALE_BEFORE, type CampListing, type WatcherSignal } from "@/lib/camps/pages/types";
+import { valueFoundInPage } from "@/lib/camps/pages/sourceText";
 import { isStaleCheck } from "@/lib/camps/pages/view";
 
 export type LinkCheck = { httpStatus: number | null };
@@ -38,6 +39,11 @@ export function flagsForCamp(
     watcher?: WatcherSignal | null;
     /** Omit to skip the register-link rule (the review pack passes a real check). */
     link?: LinkCheck | null;
+    /**
+     * Page text for adapter `page`. Omit to skip the check.
+     * `null` means the script tried and could not read the page.
+     */
+    sourcePage?: string | null;
   },
 ): string[] {
   const flags: string[] = [];
@@ -91,6 +97,20 @@ export function flagsForCamp(
   if (options.link && listing.registerUrl && options.link.httpStatus !== 200) {
     const status = options.link.httpStatus == null ? "no response" : `HTTP ${options.link.httpStatus}`;
     flags.push(`Register link did not return HTTP 200 (${status}).`);
+  }
+
+  if (listing.sourceAdapter === "page" && options.sourcePage !== undefined) {
+    if (options.sourcePage == null) {
+      flags.push("Source page could not be read.");
+    } else {
+      for (const [key, label] of KEYS) {
+        const value = listing[key].value?.trim();
+        if (!value) continue;
+        if (!valueFoundInPage(value, options.sourcePage)) {
+          flags.push(`Not found on source: ${label.toLowerCase()} "${value}".`);
+        }
+      }
+    }
   }
 
   return flags;

@@ -50,6 +50,7 @@ function unfilled(input: {
   place?: string;
   sourceUrl: string | null;
   sourceLabel: string | null;
+  sourceAdapter: CampListing["sourceAdapter"];
   registerUrl: string | null;
 }): CampListing {
   return {
@@ -84,6 +85,7 @@ function unfilled(input: {
     beforeYouGo: [],
     refunds: [],
     sources: input.sourceUrl && input.sourceLabel ? [{ label: input.sourceLabel, url: input.sourceUrl, checkedOn: null }] : [],
+    sourceAdapter: input.sourceAdapter,
     registerUrl: input.registerUrl,
     confirmedOn: null,
     priceFrom: "Ask the camp",
@@ -97,6 +99,7 @@ const ksg: CampListing = {
   provider: "KSG Gymnastics (Kids Supergym)",
   place: "3620A Laird Rd, Mississauga",
   breakId: "winter",
+  sourceAdapter: "jackrabbit",
   summary: "A gymnastics day camp you can book one day at a time: full days or half days, across six dates of the winter break.",
   ages: sourced("4–12", KSG, KSG_DAY),
   dates: sourced("Dec 21–23 & 28–30", KSG, KSG_DAY, "Mon–Wed both weeks"),
@@ -173,6 +176,7 @@ const longos: CampListing = {
   provider: "Longo's Loft",
   place: "Longo's Applewood, 1125 North Service Rd, Mississauga",
   breakId: "winter",
+  sourceAdapter: "longos",
   summary: "Eight different 3-hour morning cooking camps, one a day. Kids cook and eat their own lunch, and you can book just the days you want.",
   ages: sourced("6–12", LONGOS, LONGOS_DAY, "Grades 1–6 (as of Sept 2026)"),
   dates: sourced("Dec 21–24 & 28–31", LONGOS, LONGOS_DAY, "Mon–Thu both weeks"),
@@ -237,6 +241,7 @@ const ckp: CampListing = {
   provider: "Creative Kids Place",
   place: "3 Mississauga locations: Square One, Streetsville, Mississauga West",
   breakId: "march_break",
+  sourceAdapter: "page",
   summary:
     "A full-day crafts, Lego and STEM camp where kids pick one theme for the week. Every day has outdoor play, plus a maple syrup festival trip on Wednesday, an animal show on Thursday and a carnival with pizza lunch on Friday.",
   ages: sourced("4–12", SQ1, CKP_DAY, "Up to 13 for Lego at Streetsville"),
@@ -332,6 +337,7 @@ export const BATCH_1: CampListing[] = [
     breakId: "winter",
     sourceUrl: "https://app.jackrabbitclass.com/jr3.0/Openings/OpeningsJson?OrgID=537009",
     sourceLabel: "Jackrabbit openings feed (OrgID 537009, category Winter Break Camp)",
+    sourceAdapter: "jackrabbit",
     registerUrl: null,
   }),
   unfilled({
@@ -341,6 +347,7 @@ export const BATCH_1: CampListing[] = [
     breakId: "winter",
     sourceUrl: "https://portal.iclasspro.com/futures/camps/135?sortBy=time",
     sourceLabel: "Futures iClassPro winter camps",
+    sourceAdapter: "iclasspro",
     registerUrl: "https://portal.iclasspro.com/futures/camps/135?sortBy=time",
   }),
   unfilled({
@@ -350,6 +357,7 @@ export const BATCH_1: CampListing[] = [
     breakId: "march_break",
     sourceUrl: "https://portal.iclasspro.com/futures/events/121?sortBy=time",
     sourceLabel: "Futures iClassPro March Break",
+    sourceAdapter: "iclasspro",
     registerUrl: "https://portal.iclasspro.com/futures/events/121?sortBy=time",
   }),
   unfilled({
@@ -359,6 +367,7 @@ export const BATCH_1: CampListing[] = [
     breakId: "winter",
     sourceUrl: "https://cooksmartscheduling.as.me/schedule/7b98e4f9/?appointmentTypeIds[]=99733065",
     sourceLabel: "COOKSMART scheduling page",
+    sourceAdapter: "acuity",
     registerUrl: "https://cooksmartscheduling.as.me/schedule/7b98e4f9/?appointmentTypeIds[]=99733065",
   }),
   unfilled({
@@ -368,6 +377,7 @@ export const BATCH_1: CampListing[] = [
     breakId: "winter",
     sourceUrl: null,
     sourceLabel: null,
+    sourceAdapter: "manual",
     registerUrl: null,
   }),
   unfilled({
@@ -377,6 +387,7 @@ export const BATCH_1: CampListing[] = [
     breakId: "winter",
     sourceUrl: "https://anc.ca.apm.activecommunities.com/activemississauga/activity/search?onlineSiteId=0&activity_select_param=2&activity_category_ids=49&viewMode=list",
     sourceLabel: "ActiveMississauga camp search",
+    sourceAdapter: "activenet",
     registerUrl: "https://anc.ca.apm.activecommunities.com/activemississauga/activity/search?onlineSiteId=0&activity_select_param=2&activity_category_ids=49&viewMode=list",
   }),
   unfilled({
@@ -386,6 +397,7 @@ export const BATCH_1: CampListing[] = [
     breakId: "winter",
     sourceUrl: "https://exploringminds.ca/services/march-break-summer-camp/",
     sourceLabel: "Exploring Minds camp page (the winter watcher row points here)",
+    sourceAdapter: "page",
     registerUrl: "https://exploringminds.ca/services/march-break-summer-camp/",
   }),
   unfilled({
@@ -395,6 +407,7 @@ export const BATCH_1: CampListing[] = [
     breakId: "march_break",
     sourceUrl: "https://www.newtonsgroveschool.com/school-programs/extended-programming",
     sourceLabel: "Newton's Grove extended programming page",
+    sourceAdapter: "page",
     registerUrl: "https://www.newtonsgroveschool.com/school-programs/extended-programming",
   }),
 ];

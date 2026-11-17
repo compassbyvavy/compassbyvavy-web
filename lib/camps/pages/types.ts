@@ -95,6 +95,12 @@ export type InfoRow = { label: string; text: string };
 export type CostRow = { label: string; text: string; note: string | null; noteEndsOn?: string | null };
 export type SourceLink = { label: string; url: string; checkedOn: string | null };
 
+/**
+ * Where the facts come from. Only `page` is read as text in the review pack.
+ * Booking feeds are matched by Camp Watcher. `manual` has no page and no feed.
+ */
+export type SourceAdapter = "page" | "jackrabbit" | "longos" | "iclasspro" | "acuity" | "activenet" | "amilia" | "manual";
+
 /** A field that is not the same at every location of one camp. */
 export type LocationField = { location: string; field: string; value: string };
 
@@ -136,6 +142,7 @@ export type CampListing = {
   beforeYouGo: InfoRow[];
   refunds: InfoRow[];
   sources: SourceLink[];
+  sourceAdapter: SourceAdapter;
   registerUrl: string | null;
   /** Set only when an approved listing-form submission exists. */
   confirmedOn: string | null;

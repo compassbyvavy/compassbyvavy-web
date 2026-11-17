@@ -118,6 +118,18 @@ describe("review flags", () => {
     assert.ok(twice.some((flag) => /unreachable 2 nights/.test(flag)));
   });
 
+  it("flags a key value that is missing from a saved page, and skips a booking feed", () => {
+    const saved = "<html><body><p>Ages 4–12. Mar 15–19, 2027. Hours 9:00 am–4:00 pm.</p></body></html>";
+    const missingPrice: CampListing = { ...ckp, price: { ...ckp.price, value: "$999 a week" } };
+    const flagged = flagsForCamp(missingPrice, { today, breakPrices: [350], sourcePage: saved });
+    assert.ok(flagged.some((flag) => flag === 'Not found on source: price "$999 a week".'));
+    assert.equal(flagged.some((flag) => /Not found on source: ages/.test(flag)), false);
+    const feed = flagsForCamp(ksg, { today, breakPrices: [68], sourcePage: "nothing here" });
+    assert.equal(feed.some((flag) => /not found on source/.test(flag)), false);
+    const unread = flagsForCamp(ckp, { today, breakPrices: [350], sourcePage: null });
+    assert.ok(unread.some((flag) => flag === "Source page could not be read."));
+  });
+
   it("flags a register link that does not return HTTP 200", () => {
     const bad = flagsForCamp(ksg, { today, breakPrices: [68], link: { httpStatus: 404 } });
     const down = flagsForCamp(ksg, { today, breakPrices: [68], link: { httpStatus: null } });

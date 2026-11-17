@@ -55,7 +55,7 @@ Rules:
 `npm run review-pack -- --batch <n>` writes `docs/camps/review/batch-<nn>.md`. For each camp in the batch:
 
 - the preview link
-- a table of every fact shown on the page: field, value, source URL, check date
+- a table of every fact shown on the page: field, value, source URL, check date, and "found on source" (yes / no / feed)
 - **Flags** from the rules below, or "No flags"
 
 Flag rules (code only):
@@ -68,6 +68,7 @@ Flag rules (code only):
 6. A Camp Watcher change for this camp is still pending.
 7. A source has been unreachable 2 nights in a row.
 8. The register link doesn't return HTTP 200 (the script checks it).
+9. **Not found on source:** for camps whose source is a web page (adapter `page`), the script fetches the page text and looks for each key value shown on our page: price, dates, hours, ages. It normalises spacing, dashes and "$". A value it can't find is flagged "not found on source". Camps read from booking feeds skip this, because the Watcher already matches them.
 
 At the end of the file, list a summary line per camp: name, number of flags, and the preview link.
 
@@ -93,7 +94,7 @@ Build the camp page template, preview link, review pack script and admin review 
 2. The preview route with a per-batch token, banner, noindex and expiry.
 3. A `review-pack` script with the 8 flag rules, writing `docs/camps/review/batch-<nn>.md`.
 4. An `/admin/camps/review` screen with Approve / Fix / Decline and Publish batch.
-5. Tests: a missing field shows "Ask the camp"; an expired deal line disappears; a fact checked before Sep 1, 2026 gets the "(2025–26)" tag; each flag rule fires on a fixture; an expired or wrong token can't open a preview.
+5. Tests: a missing field shows "Ask the camp"; an expired deal line disappears; a fact checked before Sep 1, 2026 gets the "(2025–26)" tag; each flag rule fires on a fixture (rule 9 with a saved page fixture where one value is missing); an expired or wrong token can't open a preview.
 6. Generate batch 1 previews and its review pack on the branch, so Vineeta can start the review.
 
 Rules: work on a branch, open a PR, send phone-sized screenshots of KSG, Longo's and Creative Kids Place pages next to the reference files. No commits to main, no deploys, no SQL against production, nothing published. No AI or LLM calls.
