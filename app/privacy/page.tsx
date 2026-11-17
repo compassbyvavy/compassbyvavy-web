@@ -12,7 +12,7 @@ export default function PrivacyPage() {
       <div className="shell-wrap prose">
         <h1>Privacy</h1>
         <p>
-          Compass by Vavy is in pre-launch. There are no accounts yet. The waitlist, Notify me, and newsletter forms store your email, the page you used, and any category, subcategory, and city attached to that form. They also store the time you ticked the consent box.
+          Compass by Vavy is in pre-launch. There are no accounts yet. The waitlist, Notify me, and newsletter forms store your email, the page you used, and any category, subcategory, and city attached to that form. A shop Notify me form stores the product id in the subcategory field. They also store the time you ticked the consent box.
         </p>
         <p>The consent box starts unticked. We use the address to send the note you asked for. We do not sell it.</p>
         <p>

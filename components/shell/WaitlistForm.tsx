@@ -7,6 +7,8 @@ type Props = {
   sourcePage: string;
   category?: string;
   subcategory?: string;
+  /** Shop product id. Saved on waitlist.subcategory. */
+  product?: string;
   city?: string;
   buttonLabel?: string;
   consentLabel?: string;
@@ -18,6 +20,7 @@ export function WaitlistForm({
   sourcePage,
   category,
   subcategory,
+  product,
   city,
   buttonLabel = "Join the waitlist",
   consentLabel = "Email me when Compass opens. I can unsubscribe any time.",
@@ -41,6 +44,7 @@ export function WaitlistForm({
       sourcePage,
       category,
       subcategory,
+      product,
       city,
     });
     if (!result.ok) {
@@ -64,6 +68,7 @@ export function WaitlistForm({
 
   return (
     <form className={stacked ? "waitlist-form stacked" : "waitlist-form"} onSubmit={onSubmit} noValidate>
+      {product ? <input type="hidden" name="product" value={product} /> : null}
       <div className="hp" aria-hidden="true">
         <label htmlFor={`${idPrefix}-company`}>Company</label>
         <input

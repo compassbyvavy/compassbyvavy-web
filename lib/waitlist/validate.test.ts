@@ -31,6 +31,35 @@ describe("waitlist validation", () => {
     }
   });
 
+  it("stores a shop product id in subcategory", () => {
+    const saved = validateWaitlist({
+      email: "parent@example.com",
+      consent: true,
+      sourcePage: "/shop",
+      category: "shop",
+      product: "winter-pack",
+      startedAt: now - 5000,
+      now,
+    });
+    assert.equal(saved.ok, true);
+    if (!saved.ok || saved.spam) return;
+    assert.equal(saved.row.subcategory, "winter-pack");
+    assert.equal(saved.row.category, "shop");
+    assert.equal(saved.row.source_page, "/shop");
+    assert.equal("product" in saved.row, false);
+
+    const book = validateWaitlist({
+      email: "parent@example.com",
+      consent: true,
+      sourcePage: "/shop",
+      category: "shop",
+      product: "quebec-book",
+      startedAt: now - 5000,
+      now,
+    });
+    assert.equal(book.ok && !book.spam && book.row.subcategory, "quebec-book");
+  });
+
   it("drops a filled honeypot without saving, and rejects an instant submit", () => {
     const spam = validateWaitlist({
       email: "parent@example.com",
