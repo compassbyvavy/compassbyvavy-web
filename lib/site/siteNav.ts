@@ -1,9 +1,9 @@
 /**
- * Site-wide main navigation. The header shows exactly these four links plus
- * the search bar: Discover · Plan · Learn · Account · Search.
+ * Site-wide main navigation. The header shows these links plus the search bar:
+ * Discover · Plan · Learn · Shop · Account.
  */
 
-export type SiteNavId = "discover" | "plan" | "learn" | "account";
+export type SiteNavId = "discover" | "plan" | "learn" | "shop" | "account";
 
 export type SiteNavLink = {
   id: SiteNavId;
@@ -15,6 +15,7 @@ export const SITE_NAV_LINKS: readonly SiteNavLink[] = [
   { id: "discover", href: "/#discover", label: "Discover" },
   { id: "plan", href: "/saved", label: "Plan" },
   { id: "learn", href: "/learn", label: "Learn" },
+  { id: "shop", href: "#", label: "Shop" },
   { id: "account", href: "/account", label: "Account" },
 ] as const;
 
@@ -32,6 +33,8 @@ export function isSiteNavActive(pathname: string, id: SiteNavId): boolean {
       return under(path, "/saved") || under(path, "/calendar");
     case "learn":
       return under(path, "/learn");
+    case "shop":
+      return false;
     case "account":
       return under(path, "/account");
   }

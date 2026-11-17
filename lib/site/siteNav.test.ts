@@ -3,10 +3,10 @@ import { describe, it } from "node:test";
 import { SITE_NAV_LINKS, isSiteNavActive } from "@/lib/site/siteNav";
 
 describe("site navigation", () => {
-  it("shows exactly Discover, Plan, Learn and Account, in that order", () => {
+  it("shows Discover, Plan, Learn, Shop and Account, in that order", () => {
     assert.deepEqual(
       SITE_NAV_LINKS.map((link) => link.label),
-      ["Discover", "Plan", "Learn", "Account"],
+      ["Discover", "Plan", "Learn", "Shop", "Account"],
     );
   });
 

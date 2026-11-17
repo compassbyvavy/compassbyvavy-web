@@ -6,7 +6,7 @@
  * add them with `.camps-theme` from camps.css.
  */
 
-import { Inter, Newsreader } from "next/font/google";
+import { Fredoka, Inter, Newsreader } from "next/font/google";
 
 export const campsNewsreader = Newsreader({
   subsets: ["latin"],
@@ -23,5 +23,12 @@ export const campsInter = Inter({
   display: "swap",
 });
 
+export const fredoka = Fredoka({
+  subsets: ["latin"],
+  weight: ["500", "600", "700"],
+  variable: "--font-fredoka",
+  display: "swap",
+});
+
 /** Class names to compose on a camps layout wrapper with `.camps-theme`. */
-export const campsFontVariables = `${campsNewsreader.variable} ${campsInter.variable}`;
+export const campsFontVariables = `${campsNewsreader.variable} ${campsInter.variable} ${fredoka.variable}`;

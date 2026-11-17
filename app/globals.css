@@ -3,21 +3,27 @@
 }
 
 :root {
-  /* Compass locked palette */
-  --ink: #26241f;
-  --muted: #6e7568;
-  --cream: #faf8f3; /* page background */
+  /* Compass brand. Fox orange is for marks and illustrations, not small text. */
+  --ink: #2b2622;
+  --muted: #4e5549;
+  --ground: #fbf6ec;
+  --cream: #fbf6ec;
+  --panel: #f4e9d0;
   --surface: #efeae0;
   --paper: #ffffff;
-  --sage: #e7ede6; /* pine, soft */
-  --green: #33503e; /* pine */
-  --green-dark: #1f2e25; /* pine, ink */
+  --sage: #e7ede6; /* soft panel tint already used across the site */
+  --sage-draw: #8fa98a; /* illustrations */
+  --green: #33503e;
+  --green-dark: #1f2e25;
+  --fox: #c9702f;
+  --fox-deep: #8a4a1e;
+  --gold: #e0a526;
   --amber: #a8763a;
-  --coral: #b16b42; /* terracotta accent */
+  --coral: #b16b42;
   --yellow: #f4c85b;
   --blue: #b9dce4;
-  --line: #e3dccb;
-  --shadow: 0 20px 60px rgba(38, 36, 31, 0.10);
+  --line: #e8dcc0;
+  --shadow: 0 20px 60px rgba(43, 38, 34, 0.10);
 }
 
 html {
@@ -40,7 +46,7 @@ a {
 }
 
 .container {
-  width: min(1160px, calc(100% - 40px));
+  width: min(1240px, calc(100% - 48px));
   margin: 0 auto;
 }
 
@@ -132,18 +138,18 @@ a {
   position: sticky;
   top: 0;
   z-index: 50;
-  background: rgba(250, 248, 243, 0.94);
+  background: rgba(251, 246, 236, 0.94);
   border-bottom: 1px solid var(--line);
   backdrop-filter: blur(14px);
 }
 
 .header-inner {
-  min-height: 72px;
+  min-height: 80px;
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
-  grid-template-areas: "brand search nav";
+  grid-template-columns: auto minmax(240px, 1fr) auto auto;
+  grid-template-areas: "brand search nav account";
   align-items: center;
-  gap: 28px;
+  gap: 20px;
 }
 
 .header-inner > .brand {
@@ -162,7 +168,20 @@ a {
   grid-area: nav;
   display: flex;
   align-items: center;
-  gap: 24px;
+  gap: 22px;
+}
+
+.site-nav-link.site-nav-account {
+  grid-area: account;
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 16px;
+  border: 1.5px solid var(--ink);
+  border-bottom-color: var(--ink);
+  border-radius: 999px;
+  color: var(--ink);
+  background: transparent;
 }
 
 .site-nav-link {
@@ -746,7 +765,7 @@ a.category-card {
 @media (max-width: 620px) {
   .container,
   .narrow {
-    width: min(100% - 28px, 1160px);
+    width: min(100% - 48px, 1240px);
   }
 
   .brand {
@@ -1057,47 +1076,29 @@ a.category-card {
 
 @media (max-width: 920px) {
   .header-inner {
-    grid-template-columns: auto minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1fr) auto;
     grid-template-areas:
-      "brand nav"
-      "search search";
-    gap: 10px 20px;
-    padding: 10px 0 12px;
-  }
-
-  .site-nav {
-    justify-self: end;
-  }
-
-  .header-search {
-    max-width: none;
-  }
-}
-
-@media (max-width: 620px) {
-  /* On phones the header scrolls away so content gets the screen. */
-  .site-header {
-    position: static;
-  }
-
-  .header-inner {
-    grid-template-columns: minmax(0, 1fr);
-    grid-template-areas:
-      "brand"
-      "nav"
-      "search";
-    gap: 8px;
+      "brand account"
+      "search search"
+      "nav nav";
+    gap: 10px 16px;
+    padding: 12px 0;
     min-height: 0;
   }
 
   .site-nav {
     justify-self: stretch;
-    justify-content: space-between;
-    gap: 8px;
+    overflow-x: auto;
+    gap: 18px;
+    padding-bottom: 2px;
+  }
+
+  .header-search {
+    max-width: none;
   }
 
   .site-nav-link {
-    font-size: 0.92rem;
+    font-size: 0.95rem;
   }
 
   /* One row: location trigger beside the search field */

@@ -4,7 +4,7 @@
   "description": "Family activities and camps. Cached pages stay available offline.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#FAF8F3",
+  "background_color": "#FBF6EC",
   "theme_color": "#33503E",
   "icons": [
     {

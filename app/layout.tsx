@@ -1,18 +1,14 @@
 import type { Metadata } from "next";
 import { headers } from "next/headers";
-import Link from "next/link";
-import { Suspense } from "react";
 import { ShortlistProvider } from "@/components/shortlist/ShortlistProvider";
 import { CommandMenu } from "@/components/site/CommandMenu";
 import { OfflineCache } from "@/components/site/OfflineCache";
-import { SiteNav } from "@/components/site/SiteNav";
+import { SiteFooter } from "@/components/home/SiteFooter";
+import { SiteHeader } from "@/components/home/SiteHeader";
 import { loadCampsCatalogForLayout } from "@/lib/camps/catalog";
 import { campsFontVariables } from "@/lib/camps/fonts";
-import {
-  SiteSearchBar,
-  SiteSearchBarShell,
-} from "@/components/site/SiteSearchBar";
 import "./globals.css";
+import "@/components/home/home.css";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://compassbyvavy.ca"),
@@ -39,6 +35,7 @@ export const metadata: Metadata = {
     siteName: "Compass by Vavy",
     type: "website",
     locale: "en_CA",
+    images: [{ url: "/brand/mark-on-green.png", width: 1080, height: 1080, alt: "Compass by Vavy" }],
   },
   robots: {
     index: true,
@@ -66,47 +63,11 @@ export default async function RootLayout({
             }))}
           />
           <OfflineCache />
-          <header className="site-header">
-            <div className="container header-inner">
-              <Link className="brand" href="/" aria-label="Compass by Vavy home">
-                <span className="brand-mark" aria-hidden="true">✦</span>
-                <span>Compass by Vavy</span>
-              </Link>
-              <div className="header-search">
-                <Suspense fallback={<SiteSearchBarShell />}>
-                  <SiteSearchBar />
-                </Suspense>
-              </div>
-              <SiteNav />
-            </div>
-          </header>
+          <SiteHeader />
 
           <main>{children}</main>
 
-          <footer className="site-footer">
-            <div className="container footer-grid">
-              <div>
-                <div className="brand footer-brand">
-                  <span className="brand-mark" aria-hidden="true">✦</span>
-                  <span>Compass by Vavy</span>
-                </div>
-                <p>Helping families discover meaningful adventures.</p>
-              </div>
-              <div className="footer-links">
-                <a href="/#discover">Discover</a>
-                <Link href="/camps">Camps</Link>
-                <Link href="/saved">Saved</Link>
-                <Link href="/saved/tracker">Tracker</Link>
-                <Link href="/about">About</Link>
-                <Link href="/privacy">Privacy</Link>
-                <Link href="/terms">Terms</Link>
-                <a href="mailto:hello@compassbyvavy.ca">Contact</a>
-              </div>
-            </div>
-            <div className="container copyright">
-              © {new Date().getFullYear()} Compass by Vavy. All rights reserved.
-            </div>
-          </footer>
+          <SiteFooter />
         </ShortlistProvider>
       </body>
     </html>

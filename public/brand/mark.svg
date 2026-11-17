@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 214" fill="none" role="img" aria-label="Compass by Vavy">
+  <path d="M58 102 L70 22 L108 92 Z" fill="#2B2622"/>
+  <path d="M142 102 L130 22 L92 92 Z" fill="#2B2622"/>
+  <path d="M64 100 L74 36 L104 92 Z" fill="#C9702F"/>
+  <path d="M136 100 L126 36 L96 92 Z" fill="#C9702F"/>
+  <path d="M76 96 L82 52 L100 90 Z" fill="#F4E9D0"/>
+  <path d="M124 96 L118 52 L100 90 Z" fill="#F4E9D0"/>
+  <circle cx="100" cy="122" r="86" fill="#2B2622"/>
+  <circle cx="100" cy="122" r="80" fill="#E0A526"/>
+  <circle cx="100" cy="122" r="70" fill="#FBF6EC"/>
+  <g fill="#E7D7B0" opacity="0.95">
+    <polygon points="100,62 108,114 100,108 92,114"/>
+    <polygon points="100,182 92,130 100,136 108,130"/>
+    <polygon points="40,122 92,114 98,122 92,130"/>
+    <polygon points="160,122 108,130 102,122 108,114"/>
+    <polygon points="58,80 96,112 100,104 90,96"/>
+    <polygon points="142,80 104,112 100,104 110,96"/>
+    <polygon points="58,164 90,148 100,140 96,132"/>
+    <polygon points="142,164 110,148 100,140 104,132"/>
+  </g>
+  <g stroke="#C9B58A" stroke-width="2" stroke-linecap="round">
+    <path d="M100 58 v10 M100 176 v10 M46 122 h10 M144 122 h10"/>
+    <path d="M66 78 l6 6 M134 78 l-6 6 M66 166 l6 -6 M134 166 l-6 -6"/>
+    <path d="M100 68 v6 M100 170 v6 M56 122 h6 M138 122 h6"/>
+  </g>
+  <polygon points="100,48 114,122 100,112 86,122" fill="#C9702F"/>
+  <polygon points="100,196 88,122 100,132 112,122" fill="#2B2622"/>
+  <circle cx="100" cy="122" r="9" fill="#FBF6EC" stroke="#2B2622" stroke-width="3"/>
+</svg>
