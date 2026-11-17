@@ -13,18 +13,18 @@ type Tab = {
 
 export function EverythingTabs({ city, categories }: { city: string; categories: Tab[] }) {
   const [active, setActive] = useState(categories[0]?.slug ?? "camps");
-  const current = categories.find((category) => category.slug === active) ?? categories[0];
-  if (!current) return null;
   return (
     <div>
       <div className="tab-row" role="tablist" aria-label="Categories">
         {categories.map((category) => (
           <button
             key={category.slug}
+            id={`everything-tab-${category.slug}`}
             type="button"
             role="tab"
-            aria-selected={category.slug === current.slug}
-            className={category.slug === current.slug ? "tab active" : "tab"}
+            aria-selected={category.slug === active}
+            aria-controls={`everything-panel-${category.slug}`}
+            className={category.slug === active ? "tab active" : "tab"}
             onClick={() => setActive(category.slug)}
           >
             <CategoryIcon name={category.icon} camps={category.slug === "camps"} size={18} />
@@ -32,13 +32,22 @@ export function EverythingTabs({ city, categories }: { city: string; categories:
           </button>
         ))}
       </div>
-      <div className="chip-row" role="tabpanel">
-        {current.subs.map((sub) => (
-          <Link key={sub.slug} className="chip" href={`/${city}/${current.slug}/${sub.slug}`}>
-            {sub.name}
-          </Link>
-        ))}
-      </div>
+      {categories.map((category) => (
+        <div
+          key={category.slug}
+          id={`everything-panel-${category.slug}`}
+          className="chip-row"
+          role="tabpanel"
+          aria-labelledby={`everything-tab-${category.slug}`}
+          hidden={category.slug !== active}
+        >
+          {category.subs.map((sub) => (
+            <Link key={sub.slug} className="chip" href={`/${city}/${category.slug}/${sub.slug}`}>
+              {sub.name}
+            </Link>
+          ))}
+        </div>
+      ))}
     </div>
   );
 }

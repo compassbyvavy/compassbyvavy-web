@@ -1,8 +1,10 @@
 import Link from "next/link";
+import { headers } from "next/headers";
 import { CategoryIcon } from "@/components/shell/icons";
 import { WaitlistForm } from "@/components/shell/WaitlistForm";
 import { EverythingTabs } from "@/components/shell/EverythingTabs";
 import { HeroSearch } from "@/components/shell/HeroSearch";
+import { founderNoteVisibility } from "@/lib/shell/founderNote";
 import { TRUST_LINES } from "@/lib/shell/questions";
 import {
   orderForSeason,
@@ -19,7 +21,7 @@ const BREAKS = [
   ["summer", "Summer"],
 ] as const;
 
-export function HomeView({
+export async function HomeView({
   city,
   cityName,
   locations,
@@ -29,6 +31,8 @@ export function HomeView({
   locations: LocationOption[];
 }) {
   const categories = publicCategories();
+  const host = (await headers()).get("host");
+  const founder = founderNoteVisibility(host);
   return (
     <>
       <section className="hero">
@@ -120,12 +124,17 @@ export function HomeView({
         </div>
       </section>
 
-      <section className="band cream">
-        <div className="shell-wrap founder">
-          <h2>Built by a parent, for parents.</h2>
-          <p>Vineeta, Ontario parent of two and founder.</p>
-        </div>
-      </section>
+      {founder === "placeholder" ? (
+        <section className="band cream" aria-label="Founder note placeholder">
+          <div className="shell-wrap founder">
+            <p className="kicker">Preview only · not for publication</p>
+            <h2>Founder note</h2>
+            <p className="placeholder-note">
+              Placeholder. Vineeta has not written this note. This is not her writing, and this section is hidden on the live site until she provides it.
+            </p>
+          </div>
+        </section>
+      ) : null}
 
       <section className="band">
         <div className="shell-wrap">

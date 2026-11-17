@@ -66,7 +66,14 @@ export function WaitlistForm({
     <form className={stacked ? "waitlist-form stacked" : "waitlist-form"} onSubmit={onSubmit} noValidate>
       <div className="hp" aria-hidden="true">
         <label htmlFor={`${idPrefix}-company`}>Company</label>
-        <input id={`${idPrefix}-company`} name="company" tabIndex={-1} autoComplete="off" />
+        <input
+          id={`${idPrefix}-company`}
+          name="company"
+          type="text"
+          tabIndex={-1}
+          autoComplete="off"
+          aria-hidden="true"
+        />
       </div>
       <label className="field" htmlFor={emailId}>
         <span className="field-label">Email</span>

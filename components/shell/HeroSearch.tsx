@@ -19,8 +19,6 @@ export function HeroSearch({ city, locations }: { city: string; locations: Locat
   const [where, setWhere] = useState("");
   const [agesOpen, setAgesOpen] = useState(false);
   const [what, setWhat] = useState("");
-  const cityName = locations.find((item) => item.slug === city)?.name ?? "City or region";
-
   const matches = useMemo(() => {
     const needle = where.trim().toLowerCase();
     if (!needle) return locations.filter((item) => item.group !== "city").slice(0, 6);
@@ -47,7 +45,7 @@ export function HeroSearch({ city, locations }: { city: string; locations: Locat
         <label>
           Where
           <input
-            placeholder={cityName}
+            placeholder="City or region"
             value={where}
             onChange={(event) => setWhere(event.target.value)}
             aria-label="City or region"
