@@ -1,14 +1,9 @@
 import Link from "next/link";
-import { ChevronDown } from "lucide-react";
+import { Car, ChevronDown, ClipboardCheck, Clock, Ticket, Users, Wallet } from "lucide-react";
 import { CategoryIcon } from "@/components/shell/icons";
 import { WaitlistForm } from "@/components/shell/WaitlistForm";
 import { BoardPicker } from "@/components/shell/BoardPicker";
-import { WHAT_WE_CHECK } from "@/lib/shell/questions";
 import {
-  fillCity,
-  isInSeason,
-  livePlaceTypesFor,
-  livePlaceTypesForCategory,
   orderForSeason,
   publicCategories,
   subcategoriesFor,
@@ -106,40 +101,37 @@ export function CategoryView({
   const when = subs.filter((row) => row.chipRow === "when");
   const type = subs.filter((row) => row.chipRow === "type");
   const plain = when.length + type.length === 0 ? subs : [];
-  const placeTypes = livePlaceTypesForCategory(category.id);
   return (
     <article className="band">
-      <div className="shell-wrap prose">
+      <div className="shell-wrap">
         <p className="kicker">
           <Link href={city === "ontario" ? "/discover" : `/${city}/discover`}>Discover</Link>
           {" · "}
           {cityName}
         </p>
-        <h1>{fillCity(category.pageTitle, cityName)}</h1>
+        <h1>{category.name} in {cityName}</h1>
         <p className="lede">{category.cardCopy}</p>
         {when.length > 0 ? <ChipRow city={city} category={category.slug} label="When" rows={when} /> : null}
         {type.length > 0 ? <ChipRow city={city} category={category.slug} label="Type" rows={type} /> : null}
         {plain.length > 0 ? <ChipRow city={city} category={category.slug} rows={plain} /> : null}
-        <p className="empty-note">
-          We&apos;re checking {category.name} in {cityName} before listings go on Compass. Get a note when it opens.
-        </p>
-        <h2>What you&apos;ll find here</h2>
-        <ul className="type-list">
-          {placeTypes.map((row) => (
-            <li key={row.id}>{row.name}</li>
+        <NotifyBox
+          idPrefix={`notify-${category.slug}`}
+          sourcePage={`/${city}/${category.slug}`}
+          name={category.name}
+          cityName={cityName}
+          categorySlug={category.slug}
+        />
+        <ul className="sub-cards">
+          {subs.map((row) => (
+            <li key={row.id}>
+              <Link className="sub-card" href={`/${city}/${category.slug}/${row.slug}`}>
+                <strong>{row.name}</strong>
+                <span>{asSentence(row.description)}</span>
+              </Link>
+            </li>
           ))}
         </ul>
         <CheckList />
-        <div id="notify">
-          <h2>Notify me</h2>
-          <WaitlistForm
-            idPrefix={`notify-${category.slug}`}
-            sourcePage={`/${city}/${category.slug}`}
-            category={category.slug}
-            city={cityName}
-            buttonLabel="Notify me"
-          />
-        </div>
       </div>
     </article>
   );
@@ -157,51 +149,27 @@ export function SubcategoryView({
   subcategory: DiscoverSubcategory;
 }) {
   const siblings = orderForSeason(subcategoriesFor(category.id));
-  const types = livePlaceTypesFor(subcategory.id);
-  const inSeason = isInSeason(subcategory.inSeasonMonths);
   return (
     <article className="band">
-      <div className="shell-wrap prose">
+      <div className="shell-wrap">
         <p className="kicker">
           <Link href={`/${city}/${category.slug}`}>{category.name}</Link>
           {" · "}
           {cityName}
         </p>
-        <h1>{fillCity(subcategory.pageTitle || subcategory.name, cityName)}</h1>
-        <p className="lede">{subcategory.description}</p>
-        {subcategory.inSeasonMonths ? (
-          <p className="season-note">
-            {inSeason ? "In season" : "Out of season"} · {subcategory.inSeasonMonths}
-            {subcategory.seasonalOnly ? " · Seasonal" : ""}
-          </p>
-        ) : null}
+        <h1>{subcategory.name} in {cityName}</h1>
+        <p className="lede">{asSentence(subcategory.description)}</p>
         <ChipRow city={city} category={category.slug} rows={siblings} current={subcategory.slug} />
         {category.slug === "camps" && subcategory.slug === "pa-days" ? <BoardPicker /> : null}
-        <p className="empty-note">
-          {subcategory.name} in {cityName} are coming soon, each one checked by a parent.
-        </p>
-        <h2>What you&apos;ll find here</h2>
-        {types.length > 0 ? (
-          <ul className="type-list">
-            {types.map((row) => (
-              <li key={row.id}>{row.name}</li>
-            ))}
-          </ul>
-        ) : (
-          <p>Place types for this page are still being sorted.</p>
-        )}
+        <NotifyBox
+          idPrefix={`notify-${subcategory.slug}`}
+          sourcePage={`/${city}/${category.slug}/${subcategory.slug}`}
+          name={subcategory.name}
+          cityName={cityName}
+          categorySlug={category.slug}
+          subcategorySlug={subcategory.slug}
+        />
         <CheckList />
-        <div id="notify">
-          <h2>Notify me</h2>
-          <WaitlistForm
-            idPrefix={`notify-${subcategory.slug}`}
-            sourcePage={`/${city}/${category.slug}/${subcategory.slug}`}
-            category={category.slug}
-            subcategory={subcategory.slug}
-            city={cityName}
-            buttonLabel="Notify me"
-          />
-        </div>
       </div>
     </article>
   );
@@ -232,7 +200,6 @@ function ChipRow({
             aria-current={row.slug === current ? "page" : undefined}
           >
             {row.name}
-            {row.inSeasonMonths && !isInSeason(row.inSeasonMonths) ? <span> · {row.inSeasonMonths}</span> : null}
           </Link>
         ))}
       </div>
@@ -240,16 +207,66 @@ function ChipRow({
   );
 }
 
+const CHECKS = [
+  { icon: Wallet, line: "Price for the family" },
+  { icon: Users, line: "Ages" },
+  { icon: Clock, line: "When it's open" },
+  { icon: Ticket, line: "Book or drop in" },
+  { icon: Car, line: "Getting there and parking" },
+  { icon: ClipboardCheck, line: "Last checked, and how" },
+] as const;
+
+function asSentence(text: string) {
+  const trimmed = text.trim();
+  if (!trimmed) return "";
+  return /[.!?]$/.test(trimmed) ? trimmed : `${trimmed}.`;
+}
+
+function NotifyBox({
+  idPrefix,
+  sourcePage,
+  name,
+  cityName,
+  categorySlug,
+  subcategorySlug,
+}: {
+  idPrefix: string;
+  sourcePage: string;
+  name: string;
+  cityName: string;
+  categorySlug: string;
+  subcategorySlug?: string;
+}) {
+  return (
+    <div className="notify-box" id="notify">
+      <h2>Get a note when {name} opens</h2>
+      <p>We&apos;re checking {name} in {cityName} before listings go on Compass.</p>
+      <WaitlistForm
+        idPrefix={idPrefix}
+        sourcePage={sourcePage}
+        category={categorySlug}
+        subcategory={subcategorySlug}
+        city={cityName}
+        buttonLabel="Notify me"
+      />
+    </div>
+  );
+}
+
 function CheckList() {
   return (
-    <>
+    <div className="check-short">
       <h2>What we check</h2>
-      <ul className="check-list">
-        {WHAT_WE_CHECK.map((item) => (
-          <li key={item}>{item}</li>
+      <ul>
+        {CHECKS.map((item) => (
+          <li key={item.line}>
+            <item.icon aria-hidden="true" size={18} strokeWidth={1.75} color="#33503E" />
+            <span>{item.line}</span>
+          </li>
         ))}
       </ul>
-    </>
+      <Link href="/how-we-check">See everything we check</Link>
+    </div>
   );
 }
 
