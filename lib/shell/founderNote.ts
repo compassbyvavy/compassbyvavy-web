@@ -1,7 +1,7 @@
 import { isCloudflareWorkersPreviewHostname } from "@/lib/camps/reviewPreviewGate";
 
 /**
- * The founder note is Vineeta's to write. Until she does, a marked
+ * Vineeta's note and photo are still to come. Until both are added, a marked
  * placeholder is shown only on local and Cloudflare preview hosts.
  * Production renders no founder section, so stand-in words never ship as hers.
  */

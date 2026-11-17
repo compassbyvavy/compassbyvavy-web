@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { headers } from "next/headers";
+import { AlertTriangle, ArrowRight, CalendarDays, Check, Heart, Sparkles } from "lucide-react";
 import { CategoryIcon } from "@/components/shell/icons";
 import { WaitlistForm } from "@/components/shell/WaitlistForm";
 import { EverythingTabs } from "@/components/shell/EverythingTabs";
@@ -15,10 +16,16 @@ import {
 import type { LocationOption } from "@/lib/taxonomy/catalog";
 
 const BREAKS = [
-  ["winter-break", "Winter break"],
-  ["pa-days", "PA days"],
-  ["march-break", "March break"],
-  ["summer", "Summer"],
+  { slug: "winter-break", name: "Winter break", copy: "Holiday camps" },
+  { slug: "pa-days", name: "PA days", copy: "Matched to your school board" },
+  { slug: "march-break", name: "March break", copy: "Spring break camps" },
+  { slug: "summer", name: "Summer", copy: "Day camps all summer" },
+] as const;
+
+const TRUST = [
+  { icon: Check, line: TRUST_LINES[0] },
+  { icon: CalendarDays, line: TRUST_LINES[1] },
+  { icon: Heart, line: TRUST_LINES[2] },
 ] as const;
 
 export async function HomeView({
@@ -59,10 +66,13 @@ export async function HomeView({
         </div>
       </section>
 
-      <section className="band cream">
+      <section className="band cream trust-band">
         <ul className="trust-strip">
-          {TRUST_LINES.map((line) => (
-            <li key={line}>{line}</li>
+          {TRUST.map(({ icon: Icon, line }) => (
+            <li key={line}>
+              <Icon aria-hidden="true" size={18} strokeWidth={1.75} color="#33503E" />
+              <span>{line}</span>
+            </li>
           ))}
         </ul>
       </section>
@@ -74,10 +84,12 @@ export async function HomeView({
             {categories.map((category) => (
               <Link key={category.id} className="icon-tile" href={`/${city}/${category.slug}`}>
                 <span className="icon-tile-mark">
-                  <CategoryIcon name={category.icon} camps={category.slug === "camps"} />
+                  <CategoryIcon name={category.icon} camps={category.slug === "camps"} size={26} />
                 </span>
-                <strong>{category.name}</strong>
-                <span>{category.editorial}</span>
+                <span className="tile-text">
+                  <strong>{category.name}</strong>
+                  <span className="tile-copy">{category.editorial}</span>
+                </span>
               </Link>
             ))}
           </div>
@@ -88,10 +100,14 @@ export async function HomeView({
         <div className="shell-wrap">
           <h2>Camps for every school break</h2>
           <div className="break-row">
-            {BREAKS.map(([slug, name]) => (
-              <Link key={slug} className="break-tile" href={`/${city}/camps/${slug}`}>
-                <CategoryIcon name="Tent" camps size={32} />
-                <strong>{name}</strong>
+            {BREAKS.map((item) => (
+              <Link key={item.slug} className="break-tile" href={`/${city}/camps/${item.slug}`}>
+                <CategoryIcon name="Tent" camps size={28} />
+                <span className="tile-text">
+                  <strong>{item.name}</strong>
+                  <span className="tile-copy">{item.copy}</span>
+                </span>
+                <ArrowRight aria-hidden="true" size={18} strokeWidth={1.75} color="#33503E" />
               </Link>
             ))}
           </div>
@@ -104,9 +120,27 @@ export async function HomeView({
             <p className="kicker">How Compass works</p>
             <h2>One place for the week, the weekend, and the school break.</h2>
             <ol className="steps">
-              <li>Tell us your city and ages</li>
-              <li>See what&apos;s on, already checked</li>
-              <li>Save what you like and build the week</li>
+              <li>
+                <span className="step-num">1</span>
+                <span>
+                  <strong>Discover</strong>
+                  Find places and camps that fit your kids
+                </span>
+              </li>
+              <li>
+                <span className="step-num">2</span>
+                <span>
+                  <strong>Save</strong>
+                  Heart anything; it waits for you
+                </span>
+              </li>
+              <li>
+                <span className="step-num">3</span>
+                <span>
+                  <strong>Plan</strong>
+                  See your week and fill free time in one tap
+                </span>
+              </li>
             </ol>
             <Link className="button light" href="/plan">
               Try the planner
@@ -115,9 +149,27 @@ export async function HomeView({
           <aside className="example-card" aria-label="Example week">
             <p className="example-flag">Example</p>
             <ul>
-              <li>Friday — PA day: camp needed</li>
-              <li>Saturday — Swim lesson</li>
-              <li>Sunday — Free: find ideas</li>
+              <li>
+                <strong>Fri</strong>
+                <span className="day-status alert">
+                  <AlertTriangle aria-hidden="true" size={16} strokeWidth={1.75} color="#8A4A1E" />
+                  PA day — camp needed
+                </span>
+              </li>
+              <li>
+                <strong>Sat</strong>
+                <span className="day-status">
+                  <Check aria-hidden="true" size={16} strokeWidth={1.75} color="#33503E" />
+                  Swim lesson · 9:00 AM
+                </span>
+              </li>
+              <li>
+                <strong>Sun</strong>
+                <span className="day-status">
+                  <Sparkles aria-hidden="true" size={16} strokeWidth={1.75} color="#8A6410" />
+                  Free day — find ideas
+                </span>
+              </li>
             </ul>
             <p>One day needs a plan.</p>
           </aside>
@@ -130,7 +182,7 @@ export async function HomeView({
             <p className="kicker">Preview only · not for publication</p>
             <h2>Founder note</h2>
             <p className="placeholder-note">
-              Placeholder. Vineeta has not written this note. This is not her writing, and this section is hidden on the live site until she provides it.
+              Placeholder. Vineeta has not added her note or photo. This is not her writing, and this section is hidden on the live site until she provides both.
             </p>
           </div>
         </section>
