@@ -220,6 +220,7 @@ describe("camp intake import", () => {
     assert.match(result.sql, /'2026-11-17'::date/);
     assert.match(result.sql, /Area: Meadowvale \/ Erin Mills \(check\)/);
     assert.equal(result.sql.includes("insert into public.venues"), false);
+    assert.equal(result.sql.includes("neighbourhood"), false);
     assert.match(result.summaryText, /ages field, dates field, hours field, price field, registration link empty/);
     assert.equal(result.summary.matches.length, 0);
   });
@@ -252,6 +253,35 @@ describe("camp intake import", () => {
     }]));
     assert.equal(result.sql.includes("::date"), false);
     assert.match(result.sql, /Checked: 11\/03\/2026/);
+  });
+
+  it("leaves neighbourhood empty when the area is stated", () => {
+    const result = importIntake(csv([{
+      Camp: "Area Camp",
+      Break: "Winter",
+      Venue: "Hall",
+      Area: "Clarkson",
+      "Your decision": "Approved",
+    }]));
+    const venue = result.sql.split("insert into public.venues")[1]?.split("insert into")[0] ?? "";
+    assert.match(venue, /'Hall',\n  null,/);
+    assert.match(venue, /neighbourhood = excluded\.neighbourhood/);
+    assert.equal(venue.includes("'Clarkson'"), false);
+    assert.match(result.sql, /Area: Clarkson\./);
+  });
+
+  it("clears neighbourhood on a matched winter camp", () => {
+    const result = importIntake(csv([{
+      Camp: "COOKSMART",
+      Break: "Winter",
+      Venue: "COOKSMART Clarkson",
+      Area: "Clarkson",
+      "Your decision": "Approved",
+    }]));
+    const venue = result.sql.split("insert into public.venues")[1]?.split("insert into")[0] ?? "";
+    assert.match(venue, /'COOKSMART Clarkson',\n  null,/);
+    assert.match(venue, /neighbourhood = excluded\.neighbourhood/);
+    assert.equal(venue.includes("'Clarkson'"), false);
   });
 
   it("updates an existing winter camp instead of adding a second card", () => {

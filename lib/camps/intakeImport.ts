@@ -22,7 +22,9 @@
  *   em dash counts as a hyphen. Program typical ages are set only when every
  *   break states that same range. Any other wording stays in the session notes.
  * - Venue → venues.name. No venue row when the cell is empty.
- * - Area → venues.neighbourhood. Not a city, and not a map pin.
+ * - Area → never venues.neighbourhood. Neighbourhood is empty on every row,
+ *   including a matched winter seed. A research-note area stays in
+ *   research_notes. Any other area wording stays in the session notes.
  * - Dates → camp_sessions.timing_label, as written. start_date is the first
  *   day and end_date is the last day when every range is in one year.
  * - Single days? → session notes. Not a schedule type.
@@ -522,7 +524,7 @@ function venuesFor(group: KeptRow[], seed: SeedCamp | null): VenuePlan[] {
       statement: upsert("venues", [
         ["id", sqlText(seed.venueId)],
         ["name", sqlText(seed.venueName), "keep"],
-        nullable("neighbourhood", "null", seed),
+        ["neighbourhood", "null", "set"],
         ["publication_state", publication(approved)],
         ["published_at", publishedAt(approved), "publish"],
       ]),
@@ -548,7 +550,7 @@ function venuesFor(group: KeptRow[], seed: SeedCamp | null): VenuePlan[] {
       statement: upsert("venues", [
         ["id", sqlText(id)],
         namePair,
-        nullable("neighbourhood", sqlText(area || null), seed && id === seed.venueId ? seed : null),
+        ["neighbourhood", "null", "set"],
         ["publication_state", publication(approved)],
         ["published_at", publishedAt(approved), "publish"],
       ]),
@@ -579,7 +581,7 @@ function sessionSql(row: KeptRow, group: KeptRow[], seed: SeedCamp | null): stri
     labeled("Program name", onlyWhenSplit("Program name")),
     labeled("What kids do", onlyWhenSplit("What kids do")),
     labeled("Category", onlyWhenSplit("Category")),
-    labeled("Area", venueId ? "" : shown(row, "Area")),
+    labeled("Area", shown(row, "Area")),
     labeled("Single days", shown(row, "Single days?")),
     labeled("Hours", hours && !hours.keepFullText ? "" : shown(row, "Hours")),
     labeled("Ages", ages ? "" : shown(row, "Ages")),
