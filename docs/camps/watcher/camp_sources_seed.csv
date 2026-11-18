@@ -1,0 +1,134 @@
+source_key,camp,break,intake_row,adapter,watch_url,adapter_params,check_every,notes
+active-kids-academy-karate-kids-canada--march_break,Active Kids Academy / Karate Kids Canada,march_break,2,manual,,,weekly,No website found: call or email
+air-riderz-mississauga--winter,Air Riderz Mississauga,winter,3,page,https://www.airriderz.com/mississauga/parties-events/camp/,,daily,
+air-riderz-mississauga--march_break,Air Riderz Mississauga,march_break,4,page,https://www.airriderz.com/mississauga/parties-events/camp/,,daily,
+always-connected-treatment-network--march_break,Always Connected Treatment Network,march_break,5,manual,,,weekly,No website found: call or email
+andrea-falcone-cooking-programs--winter,Andrea Falcone Cooking Programs,winter,6,page,https://andreafalcone.ca/product/winter-cooking-camp/,,daily,Location may be Etobicoke (Decision 7)
+andrea-falcone-cooking-programs--pa_day,Andrea Falcone Cooking Programs,pa_day,7,page,https://andreafalcone.ca/product/pa-cooking-camps/,,daily,
+andrea-falcone-cooking-programs--march_break,Andrea Falcone Cooking Programs,march_break,8,page,https://andreafalcone.ca/product/march-break-cooking-camp-2027/,,daily,
+balan-baseball--march_break,Balan Baseball,march_break,9,manual,,,weekly,No website found: call or email
+battle-arts-academy--winter,Battle Arts Academy,winter,10,page,https://battle-arts-camps.vibepreview.app/,,daily,2026-27 camp site linked from battleartsacademy.ca
+battle-arts-academy--pa_day,Battle Arts Academy,pa_day,11,page,https://battle-arts-camps.vibepreview.app/,,daily,
+boswin-robotics--march_break,Boswin Robotics,march_break,12,page,https://form.jotform.com/240296207142046,,daily,
+bronko-hockey--winter,Bronko Hockey,winter,13,page,https://bronkohockey.com/index.php?route=product/product&path=60_20&product_id=315,,daily,
+bronko-hockey--march_break,Bronko Hockey,march_break,14,page,https://bronkohockey.com/index.php?route=product/camp&product_id=318&path=60_20,,daily,
+city-of-mississauga--winter,City of Mississauga,winter,15,activenet,https://anc.ca.apm.activecommunities.com/activemississauga/activity/search?onlineSiteId=0&activity_select_param=2&activity_category_ids=49&viewMode=list,site=activemississauga; category_ids=49,daily,Existing ActiveMississauga REST adapter; list endpoint only returns indexed sessions
+city-of-mississauga--march_break,City of Mississauga,march_break,16,activenet,https://anc.ca.apm.activecommunities.com/activemississauga/activity/search?onlineSiteId=0&activity_select_param=2&activity_keyword=march%20break&viewMode=list,site=activemississauga; keyword=march break,daily,No 2027 sessions on Nov 15; registration last year opened late Nov
+cj-s-skatepark--winter,CJ's Skatepark,winter,17,page,https://cjsskatepark.com/?page_id=1007,,daily,Booking via Rock Gym Pro (phase 2 adapter)
+cj-s-skatepark--pa_day,CJ's Skatepark,pa_day,18,page,https://cjsskatepark.com/?page_id=970,,daily,CJ's PA days follow Toronto Catholic calendar
+cj-s-skatepark--march_break,CJ's Skatepark,march_break,19,page,https://cjsskatepark.com/?page_id=1056,,daily,
+code-ninjas-mississauga-west--winter,Code Ninjas Mississauga West,winter,20,codeninjas,https://members.codeninjas.com/e/?uuid=30d8d692-b163-415d-b5c0-47e847f4254a,uuid=30d8d692-b163-415d-b5c0-47e847f4254a,daily,Angular portal; watch rendered text (phase 2)
+code-ninjas-mississauga-west--march_break,Code Ninjas Mississauga West,march_break,21,codeninjas,https://members.codeninjas.com/e/?uuid=30d8d692-b163-415d-b5c0-47e847f4254a,uuid=30d8d692-b163-415d-b5c0-47e847f4254a,daily,
+code-ninjas-port-credit--winter,Code Ninjas Port Credit,winter,22,codeninjas,https://members.codeninjas.com/e/?uuid=44a681fc-ec91-45a7-8441-c3f438d1e33f,uuid=44a681fc-ec91-45a7-8441-c3f438d1e33f,daily,
+code-ninjas-port-credit--march_break,Code Ninjas Port Credit,march_break,23,codeninjas,https://members.codeninjas.com/e/?uuid=44a681fc-ec91-45a7-8441-c3f438d1e33f,uuid=44a681fc-ec91-45a7-8441-c3f438d1e33f,daily,
+cooksmart--winter,COOKSMART,winter,24,acuity,https://cooksmartscheduling.as.me/schedule/7b98e4f9/?appointmentTypeIds[]=99733065,"owner=7b98e4f9; appointmentTypeIds=99733065,99732924",daily,"Full day 99733065, half day 99732924"
+cooksmart--pa_day,COOKSMART,pa_day,25,page,https://www.cooksmart.ca/camps,,daily,No PA day camps on booking page (Nov 14)
+cooksmart--march_break,COOKSMART,march_break,26,page,https://cooksmartscheduling.as.me/schedule/7b98e4f9,owner=7b98e4f9,daily,"March Break type id: find on booking page, then switch to acuity adapter"
+cp-school--march_break,CP School,march_break,27,manual,,,weekly,No website found: call or email
+crane-creations-theatre-company--winter,Crane Creations Theatre Company,winter,28,page,https://cranecreations.ca/event/puppet-festival-mississauga/2026/christmas_camp/,,daily,
+crane-creations-theatre-company--march_break,Crane Creations Theatre Company,march_break,29,page,https://cranecreations.ca/,,daily,
+creative-kids-place--march_break,Creative Kids Place,march_break,30,page,https://www.creativekidsplace.ca/pages/camps/march-break-camp-square-one,"also: /march-break-camp-streetsville-mississauga-on, /march-break-camps-mississauga-west",daily,3 Mississauga sites
+empower-learning-centre--winter,Empower Learning Centre,winter,31,page,https://empowerlearningcentre.com/winter-camps-2024-2025/,,daily,
+empower-learning-centre--march_break,Empower Learning Centre,march_break,32,page,https://empowerlearningcentre.com/march-break-camps-2026/,,daily,
+engineering-for-kids-mississauga--winter,Engineering For Kids Mississauga,winter,33,page,https://www.engineeringforkids.com/mississauga/programs/camps/,,daily,Booking link broken Nov 15; may be inactive
+engineering-for-kids-mississauga--pa_day,Engineering For Kids Mississauga,pa_day,34,page,https://www.engineeringforkids.com/mississauga/programs/camps/,,daily,
+engineering-for-kids-mississauga--march_break,Engineering For Kids Mississauga,march_break,35,page,https://www.engineeringforkids.com/mississauga/programs/camps/,,daily,
+erin-mills-soccer-club--pa_day,Erin Mills Soccer Club,pa_day,36,page,https://www.erinmillssoccer.com/pa-day-camp,,daily,
+exploring-minds--pa_day,Exploring Minds,pa_day,37,page,https://exploringminds.ca/services/pa-day-camps/,,daily,
+exploring-minds--march_break,Exploring Minds,march_break,38,page,https://exploringminds.ca/services/march-break-summer-camp/,,daily,
+frontline-hockey-school--winter,Frontline Hockey School,winter,39,page,https://frontlinehockeyschool.ca/hockey-camps/december-christmas-camp/,,daily,
+funday--march_break,Funday,march_break,40,manual,,,weekly,Nothing online
+funday-academy--pa_day,Funday Academy,pa_day,41,manual,,,weekly,Nothing online
+futures-gymnastics--winter,Futures Gymnastics,winter,42,iclasspro,https://portal.iclasspro.com/futures/camps/135?sortBy=time,org=futures; locationId=2; typeId=135,daily,Winter. Site uses bot protection (PerimeterX)
+futures-gymnastics--pa_day,Futures Gymnastics,pa_day,43,iclasspro,https://portal.iclasspro.com/futures/events/126,org=futures; locationId=2; typeId=126,daily,PA days
+futures-gymnastics--march_break,Futures Gymnastics,march_break,44,iclasspro,https://portal.iclasspro.com/futures/events/121?sortBy=time,org=futures; locationId=2; typeId=121,daily,March Break
+great-big-theatre-company--march_break,Great Big Theatre Company,march_break,45,page,https://www.gbtc.com/,,daily,Which Mississauga site? to confirm
+gymnastics-mississauga--winter,Gymnastics Mississauga,winter,46,jackrabbit,https://app.jackrabbitclass.com/jr3.0/Openings/OpeningsJson?OrgID=537009,OrgID=537009; category1=Winter Break Camp,daily,
+gymnastics-mississauga--pa_day,Gymnastics Mississauga,pa_day,47,jackrabbit,https://app.jackrabbitclass.com/jr3.0/Openings/OpeningsJson?OrgID=537009,OrgID=537009; name starts 'PA day',daily,
+gymnastics-mississauga--march_break,Gymnastics Mississauga,march_break,48,jackrabbit,https://app.jackrabbitclass.com/jr3.0/Openings/OpeningsJson?OrgID=537009,OrgID=537009; watch for March Break category,daily,Only Easter Monday camp listed Nov 15
+hub-climbing-mississauga--march_break,Hub Climbing Mississauga,march_break,49,page,https://hubclimbing.com/mississauga/youth/,,daily,
+icna-mississauga--winter,ICNA Mississauga,winter,50,page,https://themasjidapp.org/966icna/events/6588,,daily,
+international-soccer-club-mississauga--pa_day,International Soccer Club Mississauga,pa_day,51,page,https://www.isoccerclubmississauga.com/2026-pa-day-camp/,,daily,
+international-soccer-club-mississauga--march_break,International Soccer Club Mississauga,march_break,52,page,https://www.isoccerclubmississauga.com/march-break,,daily,
+jack-of-sports--march_break,Jack of Sports,march_break,53,page,https://www.jackofsports.com/,,daily,March Break camps are Toronto only (Nov 15)
+jumbaloo--march_break,Jumbaloo,march_break,54,manual,,,weekly,No website found: call or email
+kendellhurst-academy--march_break,Kendellhurst Academy,march_break,55,manual,,,weekly,No website found: call or email
+kids-great-minds--winter,Kids Great Minds,winter,56,page,https://kidsgreatminds.org/,,daily,
+kids-great-minds--pa_day,Kids Great Minds,pa_day,57,page,https://kidsgreatminds.org/,,daily,
+kids-great-minds--march_break,Kids Great Minds,march_break,58,page,https://kidsgreatminds.org/,,daily,
+ksg-gymnastics-kids-supergym--pa_day,KSG Gymnastics (Kids Supergym),pa_day,59,jackrabbit,https://app.jackrabbitclass.com/jr3.0/Openings/OpeningsJson?OrgID=542952,OrgID=542952; watch for PA day classes,daily,KSG lists no PA day camps (Nov 15)
+kidz-at-play--winter,Kidz at Play,winter,60,manual,,,weekly,Facebook only
+kidz-at-play--pa_day,Kidz at Play,pa_day,61,manual,,,weekly,Facebook only
+kidz-at-play--march_break,Kidz at Play,march_break,62,manual,,,weekly,Facebook only
+life-time-mississauga--winter,Life Time Mississauga,winter,63,page,https://my.lifetime.life/clubs/on/mississauga/camps.html,,daily,Members only
+life-time-mississauga--pa_day,Life Time Mississauga,pa_day,64,page,https://my.lifetime.life/clubs/on/mississauga/camps.html,,daily,
+life-time-mississauga--march_break,Life Time Mississauga,march_break,65,page,https://my.lifetime.life/clubs/on/mississauga/camps.html,,daily,
+london-soccer-academy--winter,London Soccer Academy,winter,66,page,https://londonsocceracademy.com/winter-break-soccer-camp-2026/,,daily,
+longo-s-loft--winter,Longo's Loft,winter,67,longos,https://www.longos.com/cooking-classes/,event_ids=313-320; location=Longos Applewood (id 4),daily,Spots in embedded JSON on each /class-detail/{id}/ page
+magnitude-kids-centre--winter,Magnitude Kids Centre,winter,68,page,https://www.magnitudewell.ca/winter-camp,,daily,
+magnitude-kids-centre--pa_day,Magnitude Kids Centre,pa_day,69,page,https://www.magnitudewell.ca/pa-day,,daily,
+magnitude-kids-centre--march_break,Magnitude Kids Centre,march_break,70,page,https://www.magnitudewell.ca/,,daily,
+makerkids-mississauga-south--pa_day,MakerKids Mississauga South,pa_day,71,page,https://makerkids.com/stem-camps-pa-day-camps-at-makerkids-mississauga-south/,,daily,
+meadowlarke-stables-south--pa_day,Meadowlarke Stables South,pa_day,72,page,https://south.meadowlarkestables.com/,,daily,
+mentor-college-ballin-with-mr-b--winter,Mentor College / Ballin' with Mr. B,winter,73,page,https://www.mentorcollege.edu/Experience/DayCamps/,,daily,
+mentor-college-ballin-with-mr-b--march_break,Mentor College / Ballin' with Mr. B,march_break,74,page,https://www.mentorcollege.edu/Experience/DayCamps/,,daily,
+mentor-college-mr-t-baseball--winter,Mentor College / Mr. T (baseball),winter,75,page,https://www.mentorcollege.edu/Experience/DayCamps/,,daily,
+mentor-college-mr-t-baseball--march_break,Mentor College / Mr. T (baseball),march_break,76,page,https://www.mentorcollege.edu/Experience/DayCamps/,,daily,
+mississauga-minor-football-huskies--winter,Mississauga Minor Football / Huskies,winter,77,page,https://m-f-l.ca/camp/,,daily,
+monarchs-basketball--pa_day,Monarchs Basketball,pa_day,78,page,https://monarchsbasketball.ca/camps/,,daily,
+monarchs-basketball--march_break,Monarchs Basketball,march_break,79,page,https://monarchsbasketball.ca/camps/,,daily,
+newton-s-grove-school--pa_day,Newton's Grove School,pa_day,80,page,https://www.newtonsgroveschool.com/school-programs/extended-programming,,daily,
+newton-s-grove-school--march_break,Newton's Grove School,march_break,81,page,https://www.newtonsgroveschool.com/school-programs/extended-programming,,daily,
+north-mississauga-soccer-club--pa_day,North Mississauga Soccer Club,pa_day,82,page,https://nmsc.net/camps-clinics/pa-day-camps/,,daily,
+oakwood-academy--march_break,Oakwood Academy,march_break,83,page,https://oakwoodacademy.ca/student-life/oakwood-academy-camps/,,daily,
+omac-martial-arts--winter,OMAC Martial Arts,winter,84,page,https://omacmartialarts.ca/seasonal-camps/,,daily,
+omac-martial-arts--march_break,OMAC Martial Arts,march_break,85,page,https://omacmartialarts.ca/march-break-camp/,,daily,
+pakmen-volleyball--winter,Pakmen Volleyball,winter,86,page,https://www.pakmen.com/events/category/volleyball-camps/,,daily,
+pakmen-volleyball--pa_day,Pakmen Volleyball,pa_day,87,page,https://www.pakmen.com/events/category/volleyball-camps/pd-day-camps/,,daily,
+pakmen-volleyball--march_break,Pakmen Volleyball,march_break,88,page,https://www.pakmen.com/events/category/volleyball-camps/march-break-camp/,,daily,
+peel-montessori-school-carrington-college--march_break,Peel Montessori School / Carrington College,march_break,89,manual,,,weekly,No website found: call or email
+perfect-harmony-music-studio--march_break,Perfect Harmony Music Studio,march_break,90,manual,,,weekly,No website found: call or email
+plasp-child-care-services--winter,PLASP Child Care Services,winter,91,page,https://www.plasp.com/programs-fees/winter-spring-break-pa-day-program/winter-break-programs-peel/,,daily,Existing PLASP families only
+plasp-child-care-services--pa_day,PLASP Child Care Services,pa_day,92,page,https://www.plasp.com/programs-fees/peel-region-program-fees/,,daily,
+plasp-child-care-services--march_break,PLASP Child Care Services,march_break,93,page,https://www.plasp.com/programs-fees/peel-region-program-fees/,,daily,
+port-credit-academy-of-martial-arts--winter,Port Credit Academy of Martial Arts,winter,94,page,https://academyofmartialarts.ca/programs/karate-camps,,daily,
+port-credit-academy-of-martial-arts--march_break,Port Credit Academy of Martial Arts,march_break,95,page,https://academyofmartialarts.ca/programs/karate-camps,,daily,
+power-of-words-academy--march_break,Power of Words Academy,march_break,96,page,https://ourkids.net/camp/power-of-words-academy-toronto/1424,,daily,Directory only: location unconfirmed
+prodigy-martial-arts--pa_day,Prodigy Martial Arts,pa_day,97,page,https://prodigymartialarts.ca/camps/pa-day-camps,,daily,
+prodigy-martial-arts--march_break,Prodigy Martial Arts,march_break,98,page,https://prodigymartialarts.ca/camps/march-break-camp,,daily,
+pulse-taekwondo-academy--march_break,Pulse Taekwondo Academy,march_break,99,manual,,,weekly,No website found: call or email
+robothink-gta-wonderstem--winter,RoboThink GTA / WonderSTEM,winter,100,page,https://gta.myrobothink.com/,,daily,
+robothink-gta-wonderstem--march_break,RoboThink GTA / WonderSTEM,march_break,101,page,https://gta.myrobothink.com/,,daily,
+rooks-to-cooks--march_break,Rooks to Cooks,march_break,102,manual,,,weekly,Site won't load
+school-of-rock-streetsville--winter,School of Rock Streetsville,winter,103,page,https://www.schoolofrock.com/locations/streetsville/music-camps,,daily,
+school-of-rock-streetsville--march_break,School of Rock Streetsville,march_break,104,page,https://www.schoolofrock.com/locations/streetsville/music-camps,,daily,
+seal-camps-seal-swimming--march_break,Seal Camps / Seal Swimming,march_break,105,manual,,,weekly,Website gone (domain for sale)
+sing-music-studio--march_break,Sing Music Studio,march_break,106,manual,,,weekly,No website found: call or email
+sportball-mississauga--pa_day,Sportball Mississauga,pa_day,107,page,https://sportball.com/location/sportball-mississauga/camps/,,daily,
+sportball-mississauga--march_break,Sportball Mississauga,march_break,108,page,https://sportball.com/location/sportball-mississauga/camps/,,daily,
+st-jude-s-academy--pa_day,St. Jude's Academy,pa_day,109,page,https://www.stjudesacademy.com/athletics-programs-mississauga/sja-pd-day-camps-mississauga/,,daily,
+st-jude-s-academy--march_break,St. Jude's Academy,march_break,110,page,https://www.stjudesacademy.com/,,daily,
+stagecoach-mississauga-oakville--winter,Stagecoach Mississauga & Oakville,winter,111,page,https://www.stagecoachschools.ca/mississaugaoakville/,,daily,
+stagecoach-mississauga-oakville--march_break,Stagecoach Mississauga & Oakville,march_break,112,page,https://www.stagecoachschools.ca/mississaugaoakville/,,daily,
+stand-up-and-speak--march_break,Stand Up and Speak,march_break,113,page,https://www.camps.ca/stand-up-and-speak/2065/session/23475,,daily,Directory listing: find their own camp page
+su-badminton-club--winter,Su Badminton Club,winter,114,page,https://subadmintonclub.com/training-programs/,,daily,
+su-badminton-club--pa_day,Su Badminton Club,pa_day,115,page,https://subadmintonclub.com/training-programs/,,daily,
+su-badminton-club--march_break,Su Badminton Club,march_break,116,page,https://subadmintonclub.com/training-programs/,,daily,
+superkids-karate-mississauga--march_break,Superkids Karate Mississauga,march_break,117,manual,,,weekly,No website found: call or email
+sylvan-learning-erin-mills--pa_day,Sylvan Learning Erin Mills,pa_day,118,page,https://www.sylvanlearning.com/locations/ca/on/mississauga-tutoring/erin-mills-mississauga/promotions/,,daily,
+tac-sports-swim-steam--winter,"TAC Sports, Swim & STEAM",winter,119,page,https://tacsports.ca/winter-break-camp,,daily,No Mississauga site this winter
+tac-sports-swim-steam--pa_day,"TAC Sports, Swim & STEAM",pa_day,120,page,https://tacsports.ca/,,daily,
+tac-sports-swim-steam--march_break,"TAC Sports, Swim & STEAM",march_break,121,page,https://tacsports.ca/march-break-camp,,daily,"TFS Mississauga site, Mar 15-19"
+the-riverwood-conservancy--pa_day,The Riverwood Conservancy,pa_day,122,page,https://theriverwoodconservancy.org/padaycamp/,,daily,
+the-riverwood-conservancy--march_break,The Riverwood Conservancy,march_break,123,page,https://theriverwoodconservancy.org/marchbreak,,daily,
+visual-arts-mississauga--pa_day,Visual Arts Mississauga,pa_day,124,amilia,https://app.amilia.com/store/en/visual-arts-mississauga/shop/programs/137578?subCategoryIds=7224580&subCategoryIds=7224581&subCategoryIds=7463553&subCategoryIds=7463680&subCategoryIds=7464047&subCategoryIds=7464262,org=visual-arts-mississauga; program=137578,daily,Server-rendered HTML: price + 'Available spots'
+visual-arts-mississauga--march_break,Visual Arts Mississauga,march_break,125,amilia,https://app.amilia.com/store/en/visual-arts-mississauga/shop/programs/137578?subCategoryIds=7224580&subCategoryIds=7224581&subCategoryIds=7463553&subCategoryIds=7463680&subCategoryIds=7464047&subCategoryIds=7464262,org=visual-arts-mississauga; program=137578,daily,
+ymca-mississauga--winter,YMCA Mississauga,winter,126,page,https://www.ymcagta.org/activity/107735,also: /activity/107736,daily,"Week 1 #149231, Week 2 #149232"
+ymca-mississauga--march_break,YMCA Mississauga,march_break,127,page,https://www.ymcagta.org/activity/108213,,daily,Variety camp #149709
+yuan-art-studio--pa_day,YUAN Art Studio,pa_day,128,page,https://yuanartstudio.com/pa-day-camp-in-mississauga/,,daily,
+yuan-art-studio--march_break,YUAN Art Studio,march_break,129,page,https://yuanartstudio.com/,,daily,
+zebra-robotics-mississauga--winter,Zebra Robotics Mississauga,winter,130,page,https://zebrarobotics.com/mississauga/camps,,daily,
+zebra-robotics-mississauga--pa_day,Zebra Robotics Mississauga,pa_day,131,page,https://zebrarobotics.com/mississauga/camps,,daily,
+zebra-robotics-mississauga--march_break,Zebra Robotics Mississauga,march_break,132,page,https://zebrarobotics.com/mississauga/camps,,daily,
+exploring-minds--winter,Exploring Minds,winter,133,page,https://exploringminds.ca/services/march-break-summer-camp/,,daily,
+ksg-gymnastics-kids-supergym--winter,KSG Gymnastics (Kids Supergym),winter,134,jackrabbit,https://app.jackrabbitclass.com/jr3.0/Openings/OpeningsJson?OrgID=542952,OrgID=542952; session=2026 Winter Camp,daily,Registration opens Nov 17 1 pm

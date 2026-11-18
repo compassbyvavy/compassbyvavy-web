@@ -1,0 +1,43 @@
+{
+  "rows": [
+    {
+      "id": 22377848,
+      "category1": "Winter Break Camp",
+      "category2": "Full Day",
+      "name": "Holiday Camp, Monday Dec 21",
+      "start_date": "2026-12-21",
+      "start_time": "09:00",
+      "end_time": "16:30",
+      "min_age": "P05Y00M",
+      "max_age": "P14Y00M",
+      "openings": { "calculated_openings": 47 },
+      "tuition": { "fee": 80 },
+      "reg_start_date": "2026-10-01",
+      "online_reg_link": "https://app.jackrabbitclass.com/reg.asp?id=537009&preLoadClassID=22377848"
+    },
+    {
+      "id": 22377849,
+      "category1": "March Break Camp",
+      "name": "March Break, Monday Mar 15",
+      "start_date": "2027-03-15",
+      "start_time": "09:00",
+      "end_time": "16:30",
+      "min_age": "P05Y00M",
+      "max_age": "P14Y00M",
+      "openings": { "calculated_openings": 12 },
+      "tuition": { "fee": 80 },
+      "reg_start_date": "2026-11-01",
+      "online_reg_link": "https://app.jackrabbitclass.com/reg.asp?id=537009&preLoadClassID=22377849"
+    },
+    {
+      "id": 300,
+      "category1": "PA Day",
+      "name": "PA day, Friday Jan 29",
+      "start_date": "2027-01-29",
+      "start_time": "09:00",
+      "end_time": "15:00",
+      "openings": { "calculated_openings": 4 },
+      "tuition": { "fee": 70 }
+    }
+  ]
+}
