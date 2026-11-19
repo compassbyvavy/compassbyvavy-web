@@ -6,10 +6,10 @@
  * session truth).
  *
  * Non-production: gated real-dev (MSC-0201) plus gated fictional fixtures.
- * Production: published Supabase rows, anon key, server-side only.
- * Cloudflare Workers preview hosts with COMPASS_CAMPS_REVIEW_PREVIEW=true
- * still load sample fixtures only. MSC-0201 stays production-gated and is
- * never served in review mode. The site layout does not call this read.
+ * Production hosts: published rows from SUPABASE_URL / SUPABASE_ANON_KEY.
+ * Cloudflare preview hosts: published rows from STAGING_SUPABASE_URL /
+ * STAGING_SUPABASE_ANON_KEY. A preview host never loads fixtures, and a
+ * production host never loads fixtures. The site layout does not call this read.
  */
 
 import type {
@@ -23,12 +23,10 @@ import { loadCampsRealDevCatalog } from "@/lib/camps/realDevCatalog";
 import {
   fetchPublishedCampsCatalog,
   readPublicCampsSupabaseConfig,
+  readStagingCampsSupabaseConfig,
   type PublicCampsSupabaseConfig,
 } from "@/lib/camps/campsSupabase";
-import {
-  CAMPS_REVIEW_PREVIEW_FLAG,
-  isCampsReviewPreviewEnabled,
-} from "@/lib/camps/reviewPreviewGate";
+import { isCloudflareWorkersPreviewHostname } from "@/lib/camps/reviewPreviewGate";
 
 export type CampsCatalogLoadOptions = {
   hostname?: string | null;
@@ -39,6 +37,12 @@ export type CampsCatalogLoadOptions = {
    * Null means there are no credentials, which is a failed read.
    */
   supabase?: PublicCampsSupabaseConfig | null;
+  /**
+   * Staging read for a Cloudflare preview host. Undefined reads
+   * STAGING_SUPABASE_URL and STAGING_SUPABASE_ANON_KEY. Null means those
+   * settings are missing, which is a failed read and not a fixture catalog.
+   */
+  stagingSupabase?: PublicCampsSupabaseConfig | null;
 };
 
 export type CampsCatalogSourceLabel =
@@ -82,29 +86,20 @@ export function formatCampsCatalogBanner(
   return `DEV ONLY — preview catalog. Includes gated fictional fixtures plus real-data candidate ${catalog.sourceCandidateId ?? "MSC-0201"} (source-checked ${catalog.sourceCheckedDate ?? ""}; calendar years for those weeks are not yet verified). Not a full Mississauga directory. No account required.`;
 }
 
-function reviewPreviewEnabled(options: CampsCatalogLoadOptions): boolean {
-  return isCampsReviewPreviewEnabled({
-    reviewFlag:
-      options.reviewFlag !== undefined
-        ? options.reviewFlag
-        : process.env[CAMPS_REVIEW_PREVIEW_FLAG],
-    hostname: options.hostname,
-  });
+function isPreviewHost(options: CampsCatalogLoadOptions): boolean {
+  return isCloudflareWorkersPreviewHostname(options.hostname);
 }
 
 /**
- * In-memory dev and review-preview catalog. Never calls the network.
+ * In-memory dev catalog. Never calls the network, and never loads when
+ * NODE_ENV is production — including a Cloudflare preview host.
  */
 function assembleLocalCampsCatalog(
   options: CampsCatalogLoadOptions = {},
 ): CampsCatalogBundle | null {
   const nodeEnv = options.nodeEnv ?? process.env.NODE_ENV;
-  const reviewPreview = reviewPreviewEnabled(options);
   const real = loadCampsRealDevCatalog();
-  const fixtures = loadCampsDevFixtures({
-    allowReviewPreview: reviewPreview,
-    nodeEnv,
-  });
+  const fixtures = loadCampsDevFixtures({ nodeEnv });
 
   if (!real && !fixtures) return null;
 
@@ -147,29 +142,38 @@ function assembleLocalCampsCatalog(
 }
 
 /**
- * Site chrome. In production this returns null unless the review-preview
- * dual gate is on, and it never reads Supabase. Non-production still gets
- * the in-memory preview catalog.
+ * Site chrome. Production, including a Cloudflare preview host, returns null.
+ * This read never fetches Supabase and never returns fixtures in production.
+ * Non-production still gets the in-memory catalog.
  */
 export function loadCampsCatalogForLayout(
   options: CampsCatalogLoadOptions = {},
 ): CampsCatalogBundle | null {
   const nodeEnv = options.nodeEnv ?? process.env.NODE_ENV;
-  if (nodeEnv === "production" && !reviewPreviewEnabled(options)) return null;
+  if (nodeEnv === "production") return null;
   return assembleLocalCampsCatalog(options);
 }
 
 /**
  * Catalog for pages that show camps.
  *
- * Non-production and review preview stay on the in-memory gates.
- * Production reads published rows. A failed read is not an empty catalog.
+ * A Cloudflare preview host reads the staging project. Every other production
+ * host reads the production project. Neither path can return fixtures.
+ * Non-production stays on the in-memory gates. A failed read is not an empty catalog.
  */
 export async function loadCampsCatalog(
   options: CampsCatalogLoadOptions = {},
 ): Promise<CampsCatalogLoadResult> {
   const nodeEnv = options.nodeEnv ?? process.env.NODE_ENV;
-  if (nodeEnv !== "production" || reviewPreviewEnabled(options)) {
+  if (nodeEnv === "production" && isPreviewHost(options)) {
+    const staging =
+      options.stagingSupabase !== undefined
+        ? options.stagingSupabase
+        : readStagingCampsSupabaseConfig();
+    if (!staging) return { status: "failed" };
+    return fetchPublishedCampsCatalog(staging);
+  }
+  if (nodeEnv !== "production") {
     const local = assembleLocalCampsCatalog(options);
     return local ? { status: "ready", catalog: local } : { status: "empty" };
   }

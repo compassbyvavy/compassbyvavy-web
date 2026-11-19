@@ -20,6 +20,7 @@ import {
   fetchPublishedCampsCatalog,
   publishedCampsQueryUrl,
   readPublicCampsSupabaseConfig,
+  readStagingCampsSupabaseConfig,
   type CampsFetchInit,
 } from "@/lib/camps/campsSupabase";
 import { getRegistrationAction } from "@/lib/camps/registrationAction";
@@ -299,6 +300,22 @@ describe("published camps supabase read", { concurrency: 1 }, () => {
       }),
       { url: "https://proj.supabase.co", anonKey: "anon-from-public" },
     );
+    assert.equal(
+      readStagingCampsSupabaseConfig({
+        SUPABASE_URL: "https://proj.supabase.co",
+        SUPABASE_ANON_KEY: "anon-key",
+        STAGING_SUPABASE_URL: "https://staging.supabase.co/",
+      }),
+      null,
+    );
+    assert.deepEqual(
+      readStagingCampsSupabaseConfig({
+        STAGING_SUPABASE_URL: "https://staging.supabase.co/",
+        STAGING_SUPABASE_ANON_KEY: "staging-anon",
+        SUPABASE_SERVICE_ROLE_KEY: "service-role-secret",
+      }),
+      { url: "https://staging.supabase.co", anonKey: "staging-anon" },
+    );
 
     const previous = process.env.NODE_ENV;
     const keys = [
@@ -485,7 +502,7 @@ describe("published camps supabase read", { concurrency: 1 }, () => {
     }
   });
 
-  it("does not fetch in non-production or on a review preview", async () => {
+  it("does not fetch fixtures in non-production, and preview fetches staging", async () => {
     const previous = process.env.NODE_ENV;
     const savedUrl = process.env.SUPABASE_URL;
     const savedKey = process.env.SUPABASE_ANON_KEY;
@@ -507,20 +524,51 @@ describe("published camps supabase read", { concurrency: 1 }, () => {
       if (dev.status === "ready") assert.equal(dev.catalog.sourceLabel, "mixed_dev");
 
       setNodeEnv("production");
-      const preview = await loadCampsCatalog({
+      const missingStaging = await loadCampsCatalog({
         nodeEnv: "production",
         hostname: PREVIEW_HOST,
         reviewFlag: "true",
       });
       assert.equal(calls, 0);
+      assert.equal(missingStaging.status, "failed");
+
+      let stagingUrl = "";
+      const preview = await loadCampsCatalog({
+        nodeEnv: "production",
+        hostname: PREVIEW_HOST,
+        reviewFlag: "true",
+        supabase: {
+          url: "https://proj.supabase.co",
+          anonKey: "anon-key",
+          fetchImpl: async () => {
+            throw new Error("preview must not read the production project");
+          },
+        },
+        stagingSupabase: {
+          url: "https://staging.supabase.co",
+          anonKey: "staging-anon",
+          fetchImpl: async (url) => {
+            stagingUrl = url;
+            return jsonResponse([publishedProgram()], "0-0/1");
+          },
+        },
+      });
+      assert.equal(calls, 0);
+      assert.match(stagingUrl, /^https:\/\/staging\.supabase\.co\//);
       assert.equal(preview.status, "ready");
       if (preview.status === "ready") {
-        assert.equal(preview.catalog.sourceLabel, "dev_fixtures");
+        assert.equal(preview.catalog.sourceLabel, "published");
+        assert.equal(preview.catalog.includesFictionalFixtures, false);
         assert.equal(
-          preview.catalog.programs.some((program) => program.slug === "nutty-summer-science-camp"),
+          preview.catalog.programs.some((program) => program.slug === "stem-explorers-dev"),
           false,
         );
+        assert.equal(preview.catalog.programs[0]?.slug, "harbour-arts-week");
       }
+      assert.equal(
+        loadCampsCatalogForLayout({ nodeEnv: "production", hostname: PREVIEW_HOST, reviewFlag: "true" }),
+        null,
+      );
     } finally {
       globalThis.fetch = originalFetch;
       setNodeEnv(previous);
@@ -548,6 +596,10 @@ describe("published camps supabase read", { concurrency: 1 }, () => {
     process.env.SUPABASE_ANON_KEY = "anon-key";
     try {
       assert.equal(loadCampsCatalogForLayout(), null);
+      assert.equal(
+        loadCampsCatalogForLayout({ hostname: PREVIEW_HOST, reviewFlag: "true" }),
+        null,
+      );
       assert.equal(calls, 0);
     } finally {
       globalThis.fetch = originalFetch;
@@ -559,8 +611,7 @@ describe("published camps supabase read", { concurrency: 1 }, () => {
     }
 
     const layout = readFileSync(path.join(repoRoot, "app/layout.tsx"), "utf8");
-    assert.match(layout, /loadCampsCatalogForLayout\(/);
-    assert.doesNotMatch(layout, /loadCampsCatalogForRequest/);
+    assert.doesNotMatch(layout, /loadCampsCatalog/);
     assert.doesNotMatch(layout, /campsSupabase/);
     assert.doesNotMatch(layout, /fetch\(/);
   });
