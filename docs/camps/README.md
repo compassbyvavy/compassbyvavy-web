@@ -57,7 +57,12 @@ Safe order:
 3. If it isn't, use ⋯ → **Rollback** on the newest `main` version, or merge any
    change to `main`. A fresh `main` build keeps the dashboard secrets.
 
-Settings the camps pages read: `SUPABASE_URL`, `SUPABASE_ANON_KEY`,
+Settings the camps pages read on a production host: `SUPABASE_URL`, `SUPABASE_ANON_KEY`,
 `GOOGLE_MAPS_BROWSER_KEY` (Google key limited to compassbyvavy.ca and
 www.compassbyvavy.ca, Maps JavaScript API and Maps Embed API) and
-`GOOGLE_MAPS_MAP_ID`. The service-role key never goes on this worker.
+`GOOGLE_MAPS_MAP_ID`. A Cloudflare preview host
+(`*-compassbyvavy-web.compassbyvavy.workers.dev`, never the bare production
+workers.dev name) reads camps from `STAGING_SUPABASE_URL` and
+`STAGING_SUPABASE_ANON_KEY` instead, and does not show fixture camps. Set those
+two as Secrets on the `compassbyvavy-web` worker. The service-role key never
+goes on this worker.

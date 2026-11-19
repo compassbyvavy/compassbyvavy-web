@@ -11,8 +11,10 @@
   "observability": {
     "enabled": true
   },
-  // Explicit review flags. Production traffic still cannot load samples:
-  // each *ReviewPreviewEnabled helper also requires a Cloudflare Preview URL host.
+  // Play and Discover sample catalogs still require their review flags plus a
+  // preview host. Camp pages do not: a preview host reads staging Supabase
+  // (STAGING_SUPABASE_URL and STAGING_SUPABASE_ANON_KEY), and production reads
+  // SUPABASE_URL and SUPABASE_ANON_KEY. Neither host loads camp fixtures.
   "vars": {
     "COMPASS_CAMPS_REVIEW_PREVIEW": "true",
     "COMPASS_PLAY_REVIEW_PREVIEW": "true",
