@@ -155,6 +155,18 @@ describe("camp page view", () => {
     assert.deepEqual(view().askTheCamp, ["Before and after care", "What to bring"]);
   });
 
+  it("keeps a stated what-to-bring note off the ask-the-camp list", () => {
+    const v = buildCampPageView({
+      program: { ...program, preparationNotes: "Closed shoes." },
+      provider,
+      sessions,
+      venuesById: { v1: venue },
+      today: "2026-11-11",
+    });
+    assert.equal(v.askTheCamp.includes("What to bring"), false);
+    assert.ok(v.askTheCamp.includes("Before and after care"));
+  });
+
   it("uses the camp's own themes, and the address in one line", () => {
     const v = view();
     assert.deepEqual(v.themes, ["Cooking"]);

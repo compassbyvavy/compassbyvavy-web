@@ -116,7 +116,7 @@ describe("COMPASS_CAMPS_REVIEW_PREVIEW dual gate", () => {
   });
 });
 
-describe("review preview catalog — fixtures only, never MSC-0201", () => {
+describe("preview catalog — staging rows, never fixtures", () => {
   const originalNodeEnv = process.env.NODE_ENV;
 
   function setNodeEnv(value: string): void {
@@ -142,23 +142,32 @@ describe("review preview catalog — fixtures only, never MSC-0201", () => {
     try {
       const production = await loadCampsCatalog({
         hostname: "compassbyvavy.ca",
+        reviewFlag: "true",
         supabase,
+        stagingSupabase: {
+          url: "https://staging.supabase.co",
+          anonKey: "staging-anon",
+          fetchImpl: async () => {
+            throw new Error("production must not read staging");
+          },
+        },
       });
       assert.equal(production.status, "empty");
-      const previewWithoutFlag = await loadCampsCatalog({
+      const previewWithoutStaging = await loadCampsCatalog({
         hostname: PREVIEW_COMMIT_HOST,
-        reviewFlag: undefined,
+        reviewFlag: "true",
         supabase,
+        stagingSupabase: null,
       });
-      assert.equal(previewWithoutFlag.status, "empty");
+      assert.equal(previewWithoutStaging.status, "failed");
       const flagWithoutPreviewHost = await loadCampsCatalog({
         hostname: "compassbyvavy.ca",
         reviewFlag: "true",
         supabase,
       });
       assert.equal(flagWithoutPreviewHost.status, "empty");
-      assert.equal(calls, 3);
-      for (const result of [production, previewWithoutFlag, flagWithoutPreviewHost]) {
+      assert.equal(calls, 2);
+      for (const result of [production, previewWithoutStaging, flagWithoutPreviewHost]) {
         assert.notEqual(result.status, "ready");
       }
     } finally {
@@ -166,45 +175,50 @@ describe("review preview catalog — fixtures only, never MSC-0201", () => {
     }
   });
 
-  it("preview + flag loads sample camps and keeps MSC-0201 gated", async () => {
+  it("preview reads staging and never the fixture camps", async () => {
     setNodeEnv("production");
-    let calls = 0;
+    const seen: string[] = [];
+    const staging = {
+      url: "https://staging.supabase.co",
+      anonKey: "staging-anon",
+      fetchImpl: async (url: string) => {
+        seen.push(url);
+        return new Response("[]", { headers: { "Content-Range": "*/0" } });
+      },
+    };
+    const productionSupabase = {
+      url: "https://proj.supabase.co",
+      anonKey: "anon-key",
+      fetchImpl: async () => {
+        throw new Error("preview must not read the production project");
+      },
+    };
     try {
       assert.equal(loadCampsRealDevCatalog(), null);
       const result = await loadCampsCatalog({
         hostname: PREVIEW_COMMIT_HOST,
         reviewFlag: "true",
-        supabase: {
-          url: "https://proj.supabase.co",
-          anonKey: "anon-key",
-          fetchImpl: async () => {
-            calls += 1;
-            return new Response("[]", { headers: { "Content-Range": "*/0" } });
-          },
-        },
+        supabase: productionSupabase,
+        stagingSupabase: staging,
       });
-      assert.equal(calls, 0);
-      assert.equal(result.status, "ready");
-      if (result.status !== "ready") return;
-      const catalog = result.catalog;
-      assert.equal(catalog.sourceLabel, "dev_fixtures");
-      assert.equal(catalog.includesFictionalFixtures, true);
-      assert.ok(catalog.programs.some((p) => p.slug === "stem-explorers-dev"));
+      assert.equal(seen.length, 1);
+      assert.match(seen[0], /^https:\/\/staging\.supabase\.co\//);
+      assert.equal(result.status, "empty");
       assert.equal(
-        catalog.programs.some((p) => p.slug === "nutty-summer-science-camp"),
-        false,
-      );
-      assert.ok(await resolvePublishedCampDetail("stem-explorers-dev", {
-        hostname: PREVIEW_COMMIT_HOST,
-        reviewFlag: "true",
-      }));
-      assert.equal(
-        await resolvePublishedCampDetail("nutty-summer-science-camp", {
+        await resolvePublishedCampDetail("stem-explorers-dev", {
           hostname: PREVIEW_COMMIT_HOST,
           reviewFlag: "true",
+          stagingSupabase: staging,
         }),
         null,
       );
+      const branchPreview = await loadCampsCatalog({
+        hostname: PREVIEW_BRANCH_HOST,
+        reviewFlag: undefined,
+        supabase: productionSupabase,
+        stagingSupabase: null,
+      });
+      assert.equal(branchPreview.status, "failed");
     } finally {
       setNodeEnv(originalNodeEnv);
     }

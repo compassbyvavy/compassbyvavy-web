@@ -56,6 +56,20 @@ export function readPublicCampsSupabaseConfig(
   return { url: url.replace(/\/$/, ""), anonKey };
 }
 
+/**
+ * Staging project for Cloudflare preview hosts only.
+ * These names are dashboard secrets on the compassbyvavy-web worker.
+ * They are never the production URL, and never a service-role key.
+ */
+export function readStagingCampsSupabaseConfig(
+  env: Record<string, string | undefined> = process.env,
+): PublicCampsSupabaseConfig | null {
+  const url = env.STAGING_SUPABASE_URL ?? null;
+  const anonKey = env.STAGING_SUPABASE_ANON_KEY ?? null;
+  if (!url || !anonKey) return null;
+  return { url: url.replace(/\/$/, ""), anonKey };
+}
+
 const PROGRAM_COLUMNS = [
   "id",
   "slug",

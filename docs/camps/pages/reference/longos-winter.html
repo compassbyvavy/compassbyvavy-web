@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Longo's Loft Winter Cooking Camps (Applewood) · Compass by Vavy (review draft)</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Newsreader:opsz,wght@6..72,500;6..72,600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#FAF8F3; --pine:#33503E; --amber:#A8763A; --ink:#26241F;
+    --surface:#EFEAE0; --border:#E3DCCB; --terra:#B16B42; --muted:#6B675E;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 Inter,system-ui,sans-serif;padding-bottom:92px}
+  a{color:var(--pine)}
+  .wrap{max-width:760px;margin:0 auto;padding:0 20px}
+  .draft{background:var(--terra);color:#fff;font-size:13px;text-align:center;padding:8px 12px}
+  header.top{border-bottom:1px solid var(--border);background:#fff}
+  header.top .wrap{display:flex;align-items:center;justify-content:space-between;height:56px}
+  .logo{font-family:Newsreader,serif;font-size:21px;font-weight:600;color:var(--pine);text-decoration:none}
+  .crumbs{font-size:13px;color:var(--muted);margin:18px 0 6px}
+  .crumbs a{color:var(--muted);text-decoration:none}
+  h1{font-family:Newsreader,serif;font-weight:600;font-size:32px;line-height:1.15;margin:4px 0 6px}
+  .provider{color:var(--muted);font-size:15px;margin:0 0 14px}
+  .verdict{background:#fff;border:1px solid var(--border);border-left:4px solid var(--pine);border-radius:10px;padding:12px 14px;font-size:15px;margin:0 0 16px}
+  .facts{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin:0 0 14px}
+  .fact{background:#fff;border:1px solid var(--border);border-radius:12px;padding:11px 13px}
+  .fact .k{font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
+  .fact .v{font-weight:600;font-size:15px;margin-top:2px}
+  .fact .s{font-size:13px;color:var(--muted)}
+  .status{display:flex;gap:10px;align-items:flex-start;background:#FBF1E4;border:1px solid #EBD3B2;border-radius:12px;padding:12px 14px;font-size:15px;margin-bottom:18px}
+  .dot{width:10px;height:10px;border-radius:50%;background:var(--amber);margin-top:7px;flex:none}
+  .status b{display:block}
+  .status span{color:var(--muted);font-size:13px}
+  nav.pills{position:sticky;top:0;z-index:5;background:var(--bg);padding:10px 0;border-bottom:1px solid var(--border);display:flex;gap:8px;overflow-x:auto;scrollbar-width:none}
+  nav.pills::-webkit-scrollbar{display:none}
+  nav.pills a{flex:none;background:var(--pine);color:#fff;text-decoration:none;font-size:14px;font-weight:500;padding:9px 15px;border-radius:999px;min-height:40px;display:flex;align-items:center}
+  section{padding:26px 0 6px;border-bottom:1px solid var(--border)}
+  h2{font-family:Newsreader,serif;font-weight:600;font-size:24px;margin:0 0 6px}
+  .sub{color:var(--muted);font-size:14px;margin:0 0 14px}
+  .week{font-weight:600;font-size:14px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin:18px 0 8px}
+  .day{background:#fff;border:1px solid var(--border);border-radius:14px;margin-bottom:10px;overflow:hidden}
+  .day h3{margin:0;padding:11px 14px;font-size:16px;background:var(--surface)}
+  .opt{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:11px 14px;border-top:1px solid var(--border);cursor:pointer;min-height:56px}
+  .opt:first-of-type{border-top:0}
+  .opt .l1{font-weight:600;font-size:15px}
+  .opt .l2{font-size:13px;color:var(--muted)}
+  .opt .price{text-align:right;font-weight:600;white-space:nowrap}
+  .opt .price small{display:block;font-weight:400;color:var(--muted);font-size:12px}
+  .opt input{width:22px;height:22px;accent-color:var(--pine);flex:none}
+  .opt.sel{background:#EEF3EF}
+  .note{font-size:13px;color:var(--muted);margin:6px 0 14px}
+  dl{margin:0}
+  .row{display:grid;grid-template-columns:140px 1fr;gap:12px;padding:11px 0;border-top:1px solid var(--border);font-size:15px}
+  .row:first-child{border-top:0}
+  dt{color:var(--muted)}
+  dd{margin:0}
+  blockquote{margin:0 0 14px;padding:12px 14px;background:#fff;border:1px solid var(--border);border-radius:12px;font-family:Newsreader,serif;font-size:18px;line-height:1.4}
+  blockquote cite{display:block;font-family:Inter,sans-serif;font-style:normal;font-size:12px;color:var(--muted);margin-top:6px}
+  ul.plain{padding-left:18px;margin:0 0 12px}
+  ul.plain li{margin:4px 0}
+  .src{font-size:14px}
+  .src li{margin:6px 0}
+  .review{margin:30px 0 10px;background:#FFF8F2;border:2px dashed var(--terra);border-radius:14px;padding:14px 16px;font-size:14px}
+  .review h2{font-size:19px;color:var(--terra)}
+  .review li{margin:5px 0}
+  .bar{position:fixed;left:0;right:0;bottom:0;background:#fff;border-top:1px solid var(--border);box-shadow:0 -4px 16px rgba(0,0,0,.06);z-index:10}
+  .bar .wrap{display:flex;align-items:center;justify-content:space-between;gap:12px;height:76px}
+  .bar .sum{font-size:14px;line-height:1.3}
+  .bar .sum b{font-size:16px;display:block}
+  .btns{display:flex;gap:8px}
+  .btn{border:0;border-radius:10px;font:600 15px Inter,sans-serif;padding:0 16px;height:46px;cursor:pointer;text-decoration:none;display:flex;align-items:center}
+  .btn.pri{background:var(--pine);color:#fff}
+  .btn.sec{background:var(--surface);color:var(--ink)}
+  .btn[aria-disabled=true]{opacity:.45;pointer-events:none}
+  @media (min-width:700px){
+    h1{font-size:40px}
+    .facts{grid-template-columns:repeat(3,1fr)}
+    .days{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+    .days .day{margin:0}
+  }
+</style>
+<style>.camp .desc{font-size:13px;color:var(--muted);margin-top:3px} .camp .l1{font-size:16px}</style>
+</head><body>
+<div class="draft">Review draft: not published on compassbyvavy.ca. Built from Longo's own pages, checked Nov 15, 2026.</div>
+<header class="top"><div class="wrap"><a class="logo" href="#">Compass</a><span style="font-size:14px;color:var(--muted)">Mississauga</span></div></header>
+<main class="wrap">
+  <div class="crumbs"><a href="#">Discover</a> › <a href="#">Camps</a> › <a href="#">Winter break</a></div>
+  <h1>Winter Cooking Camps</h1>
+  <p class="provider">Longo's Loft · Longo's Applewood, 1125 North Service Rd, Mississauga</p>
+  <div class="verdict">Eight different <b>3-hour morning cooking camps</b>, one a day. Kids cook and eat their own lunch, and you can book just the days you want.</div>
+  <div class="facts">
+    <div class="fact"><div class="k">Ages</div><div class="v">6–12</div><div class="s">Grades 1–6 (as of Sept 2026)</div></div>
+    <div class="fact"><div class="k">Dates</div><div class="v">Dec 21–24 &amp; 28–31</div><div class="s">Mon–Thu both weeks</div></div>
+    <div class="fact"><div class="k">Price</div><div class="v">$45 a camp</div><div class="s">per child, per day</div></div>
+    <div class="fact"><div class="k">Hours</div><div class="v">10:00 am–1:00 pm</div><div class="s">Morning only</div></div>
+    <div class="fact"><div class="k">Before &amp; after care</div><div class="v">None</div><div class="s">Drop-off program</div></div>
+    <div class="fact"><div class="k">Lunch</div><div class="v">Included</div><div class="s">Kids make it at camp</div></div>
+  </div>
+  <div class="status" style="background:#EEF3EF;border-color:#C9D9CE"><div class="dot" style="background:var(--pine)"></div><div><b>Registration open</b>17–20 spots left on each date.<br><span>Checked Nov 15, 2026 on Longo's booking page</span></div></div>
+</main>
+<nav class="pills wrap" aria-label="Sections">
+  <a href="#sessions">Dates &amp; spots</a><a href="#logistics">Before you go</a><a href="#money">Changes &amp; refunds</a><a href="#checked">How we checked</a>
+</nav>
+<main class="wrap">
+  <section id="sessions">
+    <h2>Dates &amp; spots</h2>
+    <p class="sub">Each day is a different theme. Spots at Longo's Applewood, checked Nov 15, 2026.</p>
+    <div id="list"></div>
+  </section>
+  <section id="logistics">
+    <h2>Before you go</h2>
+    <dl>
+      <div class="row"><dt>Drop-off</dt><dd>A parent signs the child in at The Loft (the cooking room in the store) and signs a release and waiver. You can print and fill the waiver in advance.</dd></div>
+      <div class="row"><dt>Food</dt><dd>Kids make and eat their own snacks and lunch. No outside food or drinks. Bring a refillable water bottle. Baked treats can come home.</dd></div>
+      <div class="row"><dt>Allergies</dt><dd>Nuts are left out of kids' classes, but The Loft is not allergy- or nut-free. Contact the Loft Coordinator before camp about any allergy.</dd></div>
+      <div class="row"><dt>Age check</dt><dd>Children must be 6–12. A child below the age can be refused at drop-off.</dd></div>
+      <div class="row"><dt>Where</dt><dd>Longo's Applewood, 1125 North Service Rd, Mississauga<br>Store: 905-566-1125 · Guest Care: 1-800-956-6467</dd></div>
+    </dl>
+  </section>
+  <section id="money">
+    <h2>Changes &amp; refunds</h2>
+    <dl>
+      <div class="row"><dt>Cancel</dt><dd>Online in My Account → My Orders, up to 48 hours before camp starts.</dd></div>
+      <div class="row"><dt>Change date or child</dt><dd>Through Longo's Guest Care, up to 48 hours before.</dd></div>
+      <div class="row"><dt>Missed camps</dt><dd>Not refunded.</dd></div>
+    </dl>
+  </section>
+  <section id="checked">
+    <h2>How we checked</h2>
+    <ul class="src plain">
+      <li>Themes, dates, times, price and spots: each camp's booking page on longos.com (Applewood), checked Nov 15, 2026</li>
+      <li>Ages, food, allergies and cancellations: <a href="https://www.longos.com/cooking-classes/cooking-camp/">Longo's cooking camp page</a>, checked Nov 15, 2026</li>
+    </ul>
+  </section>
+  <div class="review">
+    <h2>Review notes (only you see this box)</h2>
+    <ul>
+      <li><b>Only Applewood in Mississauga.</b> Longo's has 4 other Mississauga stores (Glen Erin, Meadowvale, Ponytrail, Winston Churchill), but none of them run these camps.</li>
+      <li><b>Same camps also run</b> at Longo's Southeast Oakville and Burloak (Oakville). Not shown here; add as their own listings for Oakville?</li>
+      <li><b>Price:</b> $45 with no tax note on the booking page.</li>
+      <li><b>Register buttons</b> go to each day's booking page; the parent still picks Applewood there.</li>
+      <li><b>Category:</b> Culinary. Area: Applewood (Dixie &amp; QEW).</li>
+    </ul>
+  </div>
+</main>
+<div class="bar"><div class="wrap"><div class="sum" id="sum"><b>Pick a day</b>$45 each</div>
+<div class="btns"><a class="btn sec" href="#" id="save" aria-disabled="true">Save</a><a class="btn pri" id="reg" href="https://www.longos.com/cooking-classes/cooking-camp/">Register</a></div></div></div>
+<script>
+const camps=[{"id": 313, "dow": "Mon", "d": "Dec 21", "t": "Holiday Movie Marathon", "desc": "Treats inspired by holiday movies: Buddy's maple popcorn, Grinch grilled cheese, Polar Express hot chocolate.", "spots": 19}, {"id": 314, "dow": "Tue", "d": "Dec 22", "t": "Winter Around the World", "desc": "Foods from winter celebrations: sugar cookie trees, Mexican hot chocolate (Las Posadas), latkes (Hanukkah), jollof rice (Kwanzaa).", "spots": 20}, {"id": 315, "dow": "Wed", "d": "Dec 23", "t": "Ski, Sled, Skate... Snack!", "desc": "Mini grilled cheese and tomato soup, cinnamon sugar snowflakes, grab-and-go trail mix.", "spots": 20}, {"id": 316, "dow": "Thu", "d": "Dec 24", "t": "Cookies for Santa", "desc": "Decorated sugar cookies, candy cane chocolate chip cookies, reindeer food, hot chocolate stir sticks. Lunch is Longo's cheese pizza.", "spots": 19}, {"id": 317, "dow": "Mon", "d": "Dec 28", "t": "Pie in the Sky", "desc": "Dough from around the world: Neapolitan pizza, Turkish pie, French flammekueche, apple pie dip, cherry pie cookie cups.", "spots": 18}, {"id": 318, "dow": "Tue", "d": "Dec 29", "t": "Battle for the Multiverse", "desc": "Superhero-themed superfoods: smoothies, wraps, carrot hummus, banana parfaits.", "spots": 18}, {"id": 319, "dow": "Wed", "d": "Dec 30", "t": "Let It Snow!", "desc": "Snowman pizza bianco, snowball potato puffs, melted snowman fudge, frosty cupcakes.", "spots": 17}, {"id": 320, "dow": "Thu", "d": "Dec 31", "t": "Happy Noon Year!", "desc": "New Year's party food: pizza pockets, mac & cheese cups, countdown snack mix, confetti cupcakes, and a noon countdown toast.", "spots": 20}];
+const host=document.getElementById('list');
+camps.forEach(c=>{
+  const card=document.createElement('div');card.className='day camp';
+  const url='https://www.longos.com/class-detail/'+c.id+'/'+encodeURIComponent('Winter Camp: '+c.t);
+  card.innerHTML='<label class="opt"><input type="checkbox" data-url="'+url+'" data-d="'+c.d+'">'+
+   '<div style="flex:1"><div class="l2">'+c.dow+', '+c.d+' · 10:00–1:00</div><div class="l1">'+c.t+'</div><div class="desc">'+c.desc+'</div>'+
+   '<div class="l2" style="margin-top:4px">'+c.spots+' spots · checked Nov 15</div></div><div class="price">$45</div></label>';
+  host.appendChild(card);
+});
+function update(){
+  const sel=[...document.querySelectorAll('.opt input:checked')];
+  document.querySelectorAll('.opt').forEach(l=>l.classList.toggle('sel',l.querySelector('input').checked));
+  const sum=document.getElementById('sum'),reg=document.getElementById('reg'),save=document.getElementById('save');
+  if(!sel.length){sum.innerHTML='<b>Pick a day</b>$45 each';reg.href='https://www.longos.com/cooking-classes/cooking-camp/';save.setAttribute('aria-disabled','true');return;}
+  sum.innerHTML='<b>'+sel.length+' day'+(sel.length>1?'s':'')+' · $'+(45*sel.length)+'</b>'+sel.map(i=>i.dataset.d).join(', ');
+  reg.href=sel[0].dataset.url; save.setAttribute('aria-disabled','false');
+}
+host.addEventListener('change',update);
+document.getElementById('save').addEventListener('click',e=>{e.preventDefault();const b=e.currentTarget;b.textContent='Saved';setTimeout(()=>b.textContent='Save',1500);});
+</script></body></html>

@@ -16,8 +16,10 @@ cloudflare-env.d.ts
 *.pem
 npm-debug.log*
 tsconfig.tsbuildinfo
-
 # listing form uploads and the local outbox (no real email)
 /data/camps/listing-form/state.json
 /data/camps/listing-form/files/
 /data/camps/listing-form/outbox.log
+.env*
+!.env.example
+

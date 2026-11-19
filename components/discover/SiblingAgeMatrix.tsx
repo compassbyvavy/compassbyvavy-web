@@ -109,7 +109,11 @@ export function SiblingAgeMatrix({
   const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
-    setFamily(parseFamilyAges(window.localStorage.getItem(FAMILY_AGES_STORAGE_KEY)));
+    try {
+      setFamily(parseFamilyAges(window.localStorage.getItem(FAMILY_AGES_STORAGE_KEY)));
+    } catch {
+      setFamily(EMPTY_FAMILY_AGES);
+    }
     setHydrated(true);
   }, []);
 

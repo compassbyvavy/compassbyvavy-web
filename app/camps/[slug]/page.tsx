@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { CampPage } from "@/components/camps/CampPage";
-import { buildCampPageView } from "@/lib/camps/campPage";
+import { CampListingPage } from "@/components/camps/pages/CampListingPage";
+import { buildCampPageView, torontoToday } from "@/lib/camps/campPage";
 import { googleMapsBrowserKey, mapsEmbedUrl } from "@/lib/camps/campMap";
 import { CampsCatalogUnavailable } from "@/components/camps/CampsCatalogUnavailable";
 import { loadCampsCatalogStatusForRequest } from "@/lib/camps/campsServerCatalog";
@@ -8,6 +9,11 @@ import {
   formatCampsCatalogBanner,
   resolveCatalogProgramBySlug,
 } from "@/lib/camps/catalog";
+import { listingBySlug } from "@/lib/camps/pages/batch1";
+import { approvalDate, editedSummary, isCampLive } from "@/lib/camps/pages/review";
+import { readReviewState } from "@/lib/camps/pages/store";
+import { buildCampListingPage } from "@/lib/camps/pages/view";
+import "@/app/camps/listing.css";
 
 export const dynamic = "force-dynamic";
 
@@ -23,6 +29,18 @@ type PageProps = {
  */
 export default async function CampDetailPage({ params }: PageProps) {
   const { slug } = await params;
+  const listing = listingBySlug(slug);
+  if (listing) {
+    const state = readReviewState();
+    if (!isCampLive(state, listing.slug)) notFound();
+    const edited = editedSummary(state, listing.slug);
+    const page = buildCampListingPage(listing, {
+      today: torontoToday(),
+      approvedOn: approvalDate(state, listing.slug),
+      ...(edited === undefined ? {} : { summary: edited }),
+    });
+    return <CampListingPage page={page} />;
+  }
   const result = await loadCampsCatalogStatusForRequest();
   if (result.status === "failed") {
     return <CampsCatalogUnavailable reason="failed" />;
