@@ -1,0 +1,70 @@
+.confirm {
+  width: min(440px, calc(100% - 32px));
+  margin: 24px auto 80px;
+  color: var(--ink);
+}
+
+.confirm h1,
+.confirm h2 {
+  font-family: var(--font-display);
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  margin: 0 0 8px;
+}
+
+.confirm h1 { font-size: 1.7rem; line-height: 1.15; }
+.confirm h2 { font-size: 1.25rem; margin-top: 28px; }
+.confirm .lede, .confirm .help { color: var(--muted); margin: 0 0 12px; }
+.confirm .banner {
+  background: #f3e6d4;
+  border-radius: 12px;
+  padding: 10px 12px;
+  margin: 0 0 16px;
+}
+.confirm section {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 14px;
+  margin: 12px 0;
+}
+.confirm label, .confirm .field { display: block; margin: 12px 0; }
+.confirm .lbl { font-size: 0.92rem; font-weight: 600; }
+.confirm input[type="text"],
+.confirm input[type="email"],
+.confirm input[type="tel"],
+.confirm textarea {
+  width: 100%;
+  margin-top: 6px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 10px 12px;
+  font: inherit;
+  background: var(--cream);
+  color: var(--ink);
+}
+.confirm textarea { min-height: 72px; }
+.confirm .value {
+  margin: 6px 0;
+  padding: 10px 12px;
+  background: var(--sage);
+  border-radius: 12px;
+}
+.confirm .row { display: flex; gap: 8px; }
+.confirm button, .confirm .btn {
+  border: 0;
+  border-radius: 999px;
+  padding: 10px 14px;
+  font: inherit;
+  background: var(--surface);
+  color: var(--ink);
+}
+.confirm button.pri, .confirm .pri {
+  background: var(--green);
+  color: white;
+}
+.confirm button.on { outline: 2px solid var(--amber); }
+.confirm .tag { color: var(--amber); font-size: 0.85rem; }
+.confirm .check { display: flex; gap: 8px; align-items: flex-start; margin: 10px 0; }
+.confirm .error { color: #8a3d2a; }
+.confirm .ok { color: var(--green); }
