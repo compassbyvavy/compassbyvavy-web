@@ -8,6 +8,7 @@
     "start": "next start",
     "test": "tsx --test \"lib/**/*.test.ts\" \"workers/spots-checker/**/*.test.ts\"",
     "test:camps": "npm test",
+    "review-pack": "tsx scripts/camps/review-pack.ts",
     "camps:import": "tsx scripts/camps/import-intake.ts",
     "preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
     "deploy": "opennextjs-cloudflare build && opennextjs-cloudflare deploy",

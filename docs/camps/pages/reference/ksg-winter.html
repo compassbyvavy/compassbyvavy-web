@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>KSG Gymnastics Winter Camp 2026 · Compass by Vavy (review draft)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Newsreader:opsz,wght@6..72,500;6..72,600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#FAF8F3; --pine:#33503E; --amber:#A8763A; --ink:#26241F;
+    --surface:#EFEAE0; --border:#E3DCCB; --terra:#B16B42; --muted:#6B675E;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 Inter,system-ui,sans-serif;padding-bottom:92px}
+  a{color:var(--pine)}
+  .wrap{max-width:760px;margin:0 auto;padding:0 20px}
+  .draft{background:var(--terra);color:#fff;font-size:13px;text-align:center;padding:8px 12px}
+  header.top{border-bottom:1px solid var(--border);background:#fff}
+  header.top .wrap{display:flex;align-items:center;justify-content:space-between;height:56px}
+  .logo{font-family:Newsreader,serif;font-size:21px;font-weight:600;color:var(--pine);text-decoration:none}
+  .crumbs{font-size:13px;color:var(--muted);margin:18px 0 6px}
+  .crumbs a{color:var(--muted);text-decoration:none}
+  h1{font-family:Newsreader,serif;font-weight:600;font-size:32px;line-height:1.15;margin:4px 0 6px}
+  .provider{color:var(--muted);font-size:15px;margin:0 0 14px}
+  .verdict{background:#fff;border:1px solid var(--border);border-left:4px solid var(--pine);border-radius:10px;padding:12px 14px;font-size:15px;margin:0 0 16px}
+  .facts{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin:0 0 14px}
+  .fact{background:#fff;border:1px solid var(--border);border-radius:12px;padding:11px 13px}
+  .fact .k{font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
+  .fact .v{font-weight:600;font-size:15px;margin-top:2px}
+  .fact .s{font-size:13px;color:var(--muted)}
+  .status{display:flex;gap:10px;align-items:flex-start;background:#FBF1E4;border:1px solid #EBD3B2;border-radius:12px;padding:12px 14px;font-size:15px;margin-bottom:18px}
+  .dot{width:10px;height:10px;border-radius:50%;background:var(--amber);margin-top:7px;flex:none}
+  .status b{display:block}
+  .status span{color:var(--muted);font-size:13px}
+  nav.pills{position:sticky;top:0;z-index:5;background:var(--bg);padding:10px 0;border-bottom:1px solid var(--border);display:flex;gap:8px;overflow-x:auto;scrollbar-width:none}
+  nav.pills::-webkit-scrollbar{display:none}
+  nav.pills a{flex:none;background:var(--pine);color:#fff;text-decoration:none;font-size:14px;font-weight:500;padding:9px 15px;border-radius:999px;min-height:40px;display:flex;align-items:center}
+  section{padding:26px 0 6px;border-bottom:1px solid var(--border)}
+  h2{font-family:Newsreader,serif;font-weight:600;font-size:24px;margin:0 0 6px}
+  .sub{color:var(--muted);font-size:14px;margin:0 0 14px}
+  .week{font-weight:600;font-size:14px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin:18px 0 8px}
+  .day{background:#fff;border:1px solid var(--border);border-radius:14px;margin-bottom:10px;overflow:hidden}
+  .day h3{margin:0;padding:11px 14px;font-size:16px;background:var(--surface)}
+  .opt{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:11px 14px;border-top:1px solid var(--border);cursor:pointer;min-height:56px}
+  .opt:first-of-type{border-top:0}
+  .opt .l1{font-weight:600;font-size:15px}
+  .opt .l2{font-size:13px;color:var(--muted)}
+  .opt .price{text-align:right;font-weight:600;white-space:nowrap}
+  .opt .price small{display:block;font-weight:400;color:var(--muted);font-size:12px}
+  .opt input{width:22px;height:22px;accent-color:var(--pine);flex:none}
+  .opt.sel{background:#EEF3EF}
+  .note{font-size:13px;color:var(--muted);margin:6px 0 14px}
+  dl{margin:0}
+  .row{display:grid;grid-template-columns:140px 1fr;gap:12px;padding:11px 0;border-top:1px solid var(--border);font-size:15px}
+  .row:first-child{border-top:0}
+  dt{color:var(--muted)}
+  dd{margin:0}
+  blockquote{margin:0 0 14px;padding:12px 14px;background:#fff;border:1px solid var(--border);border-radius:12px;font-family:Newsreader,serif;font-size:18px;line-height:1.4}
+  blockquote cite{display:block;font-family:Inter,sans-serif;font-style:normal;font-size:12px;color:var(--muted);margin-top:6px}
+  ul.plain{padding-left:18px;margin:0 0 12px}
+  ul.plain li{margin:4px 0}
+  .src{font-size:14px}
+  .src li{margin:6px 0}
+  .review{margin:30px 0 10px;background:#FFF8F2;border:2px dashed var(--terra);border-radius:14px;padding:14px 16px;font-size:14px}
+  .review h2{font-size:19px;color:var(--terra)}
+  .review li{margin:5px 0}
+  .bar{position:fixed;left:0;right:0;bottom:0;background:#fff;border-top:1px solid var(--border);box-shadow:0 -4px 16px rgba(0,0,0,.06);z-index:10}
+  .bar .wrap{display:flex;align-items:center;justify-content:space-between;gap:12px;height:76px}
+  .bar .sum{font-size:14px;line-height:1.3}
+  .bar .sum b{font-size:16px;display:block}
+  .btns{display:flex;gap:8px}
+  .btn{border:0;border-radius:10px;font:600 15px Inter,sans-serif;padding:0 16px;height:46px;cursor:pointer;text-decoration:none;display:flex;align-items:center}
+  .btn.pri{background:var(--pine);color:#fff}
+  .btn.sec{background:var(--surface);color:var(--ink)}
+  .btn[aria-disabled=true]{opacity:.45;pointer-events:none}
+  @media (min-width:700px){
+    h1{font-size:40px}
+    .facts{grid-template-columns:repeat(3,1fr)}
+    .days{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+    .days .day{margin:0}
+  }
+</style>
+</head>
+<body>
+<div class="draft">Review draft: not published on compassbyvavy.ca. Built from KSG's own pages, checked Nov 15, 2026.</div>
+<header class="top"><div class="wrap"><a class="logo" href="#">Compass</a><span style="font-size:14px;color:var(--muted)">Mississauga</span></div></header>
+
+<main class="wrap">
+  <div class="crumbs"><a href="#">Discover</a> › <a href="#">Camps</a> › <a href="#">Winter break</a></div>
+  <h1>Winter Camp 2026</h1>
+  <p class="provider">KSG Gymnastics (Kids Supergym) · 3620A Laird Rd, Mississauga</p>
+
+  <div class="verdict">A gymnastics day camp you can book <b>one day at a time</b>: full days or half days, across six dates of the winter break.</div>
+
+  <div class="facts" id="answers">
+    <div class="fact"><div class="k">Ages</div><div class="v">4–12</div></div>
+    <div class="fact"><div class="k">Dates</div><div class="v">Dec 21–23 &amp; 28–30</div><div class="s">Mon–Wed both weeks</div></div>
+    <div class="fact"><div class="k">Price</div><div class="v">$68 full day</div><div class="s">$42 half day</div></div>
+    <div class="fact"><div class="k">Camp hours</div><div class="v">9:00–4:00</div><div class="s">Half days 9–12 or 1–4</div></div>
+    <div class="fact"><div class="k">Before &amp; after care</div><div class="v">8:00–9:00 · 4:00–5:30</div><div class="s">$9 each, $18 both, per day</div></div>
+    <div class="fact"><div class="k">Booking</div><div class="v">Single days</div><div class="s">No full-week commitment</div></div>
+  </div>
+
+  <div class="status"><div class="dot"></div><div><b>Registration opens Tue, Nov 17 at 1:00 pm</b>Book by Nov 30 for $60 full days and $38 half days.<br><span>Checked Nov 15, 2026 on KSG's camp page</span></div></div>
+</main>
+
+<nav class="pills wrap" aria-label="Sections">
+  <a href="#sessions">Dates &amp; spots</a>
+  <a href="#cost">Cost</a>
+  <a href="#about">What kids do</a>
+  <a href="#logistics">Before you go</a>
+  <a href="#checked">How we checked</a>
+</nav>
+
+<main class="wrap">
+  <section id="sessions">
+    <h2>Dates &amp; spots</h2>
+    <p class="sub">Pick the days and the option you need. Spots are the openings KSG lists for each option, checked Nov 15, 2026 (before registration opened).</p>
+    <div id="daylist"></div>
+    <p class="note">No camp on Dec 24 or Dec 31.</p>
+  </section>
+
+  <section id="cost">
+    <h2>Cost</h2>
+    <dl>
+      <div class="row"><dt>Full day</dt><dd>$68 a day<br><span class="note">$60 if booked by Nov 30, 2026</span></dd></div>
+      <div class="row"><dt>Half day</dt><dd>$42 a half day (morning or afternoon)<br><span class="note">$38 if booked by Nov 30, 2026</span></dd></div>
+      <div class="row"><dt>Before care</dt><dd>$9 a day (8:00–9:00)</dd></div>
+      <div class="row"><dt>After care</dt><dd>$9 a day (4:00–5:30)</dd></div>
+      <div class="row"><dt>Both</dt><dd>$18 a day</dd></div>
+      <div class="row"><dt>Registration fee</dt><dd>$54 for 2026/27, if not already paid</dd></div>
+    </dl>
+    <p class="note">The Nov 30 rate applies to camp days only. Care and the registration fee stay at their regular prices.</p>
+  </section>
+
+  <section id="about">
+    <h2>What kids do</h2>
+    <blockquote>“Gymnastics, new skills and winter-break fun for ages 4–12.”<cite>KSG Gymnastics</cite></blockquote>
+    <ul class="plain">
+      <li>Gymnastics skills and tricks on vault, bars, beam and floor</li>
+      <li>Themed activities that change through the camp</li>
+    </ul>
+  </section>
+
+  <section id="logistics">
+    <h2>Before you go</h2>
+    <dl>
+      <div class="row"><dt>How to register</dt><dd>Through KSG's Jackrabbit parent portal, from Nov 17 at 1:00 pm. Members and new families open at the same time. New to KSG? Contact the office for help.</dd></div>
+      <div class="row"><dt>Care</dt><dd>Booked as an add-on. KSG says care booking is “coming soon”.</dd></div>
+      <div class="row"><dt>Where</dt><dd>3620A Laird Road, Mississauga</dd></div>
+      <div class="row"><dt>Contact</dt><dd>kidssupergym.miss@gmail.com<br>905-607-5437</dd></div>
+    </dl>
+  </section>
+
+  <section id="checked">
+    <h2>How we checked</h2>
+    <ul class="src plain">
+      <li>Dates, ages, hours, prices, care, registration date and openings: <a href="https://kids-supergym.com/winter-camp-2026">KSG Winter Camp 2026 page</a>, checked Nov 15, 2026</li>
+      <li>Spots change once registration opens. We'll recheck after Nov 17.</li>
+    </ul>
+  </section>
+
+  <div class="review">
+    <h2>Review notes (only you see this box)</h2>
+    <ul>
+      <li><b>Left out because KSG doesn't publish it yet:</b> lunch and snacks, what to wear and bring, nut/allergy policy, staff ratio, refunds and cancellations.</li>
+      <li><b>Register button</b> goes to KSG's camp page. Exact per-day booking links appear only once registration opens on Nov 17.</li>
+      <li><b>Black Friday prices</b> expire Nov 30. They're shown as a dated line so nothing goes stale.</li>
+      <li><b>Area:</b> left as "Mississauga" only. Tell me the neighbourhood you want for the filter.</li>
+      <li><b>Name:</b> shown as "KSG Gymnastics (Kids Supergym)", per Decision 4.</li>
+    </ul>
+  </div>
+</main>
+
+<div class="bar"><div class="wrap">
+  <div class="sum" id="sum"><b>Pick a day</b>From $42</div>
+  <div class="btns">
+    <a class="btn sec" href="#" id="save" aria-disabled="true">Save</a>
+    <a class="btn pri" href="https://kids-supergym.com/winter-camp-2026" id="reg">Register</a>
+  </div>
+</div></div>
+
+<script>
+const weeks=[
+ {label:'Week 1',days:[['Mon','Dec 21'],['Tue','Dec 22'],['Wed','Dec 23']]},
+ {label:'Week 2',days:[['Mon','Dec 28'],['Tue','Dec 29'],['Wed','Dec 30']]}
+];
+const opts=[
+ {k:'full',name:'Full day',time:'9:00–4:00',price:68,spots:16},
+ {k:'am',name:'Half day, morning',time:'9:00–12:00',price:42,spots:8},
+ {k:'pm',name:'Half day, afternoon',time:'1:00–4:00',price:42,spots:8}
+];
+const host=document.getElementById('daylist');
+weeks.forEach(w=>{
+  const h=document.createElement('div');h.className='week';h.textContent=w.label;host.appendChild(h);
+  const g=document.createElement('div');g.className='days';
+  w.days.forEach(([dow,d])=>{
+    const card=document.createElement('div');card.className='day';
+    card.innerHTML='<h3>'+dow+', '+d+'</h3>';
+    opts.forEach(o=>{
+      const id=(d+o.k).replace(/\s/g,'');
+      const lab=document.createElement('label');lab.className='opt';
+      lab.innerHTML='<input type="checkbox" id="'+id+'" data-p="'+o.price+'" data-d="'+d+'" data-k="'+o.k+'">'+
+        '<div style="flex:1"><div class="l1">'+o.name+'</div><div class="l2">'+o.time+' · '+o.spots+' spots · checked Nov 15</div></div>'+
+        '<div class="price">$'+o.price+'</div>';
+      card.appendChild(lab);
+    });
+    g.appendChild(card);
+  });
+  host.appendChild(g);
+});
+function update(){
+  const sel=[...document.querySelectorAll('.opt input:checked')];
+  document.querySelectorAll('.opt').forEach(l=>l.classList.toggle('sel',l.querySelector('input').checked));
+  const sum=document.getElementById('sum');
+  if(!sel.length){sum.innerHTML='<b>Pick a day</b>From $42';document.getElementById('save').setAttribute('aria-disabled','true');return;}
+  const total=sel.reduce((a,i)=>a+ +i.dataset.p,0);
+  const days=new Set(sel.map(i=>i.dataset.d)).size;
+  sum.innerHTML='<b>'+sel.length+' option'+(sel.length>1?'s':'')+' · '+days+' day'+(days>1?'s':'')+' · $'+total+'</b>Before care, fees and tax';
+  document.getElementById('save').setAttribute('aria-disabled','false');
+}
+host.addEventListener('change',e=>{
+  const i=e.target; if(!i.matches('input')) return;
+  if(i.checked){
+    // full day and half days on the same date don't mix
+    document.querySelectorAll('.opt input[data-d="'+i.dataset.d+'"]').forEach(o=>{
+      if(o!==i && (i.dataset.k==='full' || o.dataset.k==='full')) o.checked=false;
+    });
+  }
+  update();
+});
+document.getElementById('save').addEventListener('click',e=>{e.preventDefault();const b=e.currentTarget;b.textContent='Saved';setTimeout(()=>b.textContent='Save',1500);});
+</script>
+</body>
+</html>
