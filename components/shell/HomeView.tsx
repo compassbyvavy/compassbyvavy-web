@@ -68,14 +68,18 @@ export async function HomeView({
       </section>
 
       <section className="band cream trust-band">
-        <ul className="trust-strip">
-          {TRUST.map(({ icon: Icon, line }) => (
-            <li key={line}>
-              <Icon aria-hidden="true" size={18} strokeWidth={1.75} color="#33503E" />
-              <span>{line}</span>
-            </li>
-          ))}
-        </ul>
+        <div className="trust-strip">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img className="trust-fox" src="/brand/vavy-fox.svg" alt="" />
+          <ul>
+            {TRUST.map(({ icon: Icon, line }) => (
+              <li key={line}>
+                <Icon aria-hidden="true" size={18} strokeWidth={1.75} color="#33503E" />
+                <span>{line}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
       </section>
 
       <section className="band">

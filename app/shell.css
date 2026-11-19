@@ -539,8 +539,27 @@ summary:focus-visible {
 .trust-strip {
   width: min(1280px, calc(100% - 48px));
   margin: 0 auto;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px 28px;
+}
+
+.trust-fox {
+  display: block;
+  height: 140px;
+  width: auto;
+  flex: 0 0 auto;
+}
+
+.trust-strip ul {
+  flex: 1 1 36rem;
+  min-width: min(100%, 16rem);
+  margin: 0;
+  padding: 0;
+  list-style: none;
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 12px 28px;
   align-items: center;
 }
@@ -1708,7 +1727,7 @@ summary:focus-visible {
     display: grid;
   }
 
-  .trust-strip,
+  .trust-strip ul,
   .steps,
   .check-meanings,
   .printable-card,
@@ -1727,6 +1746,19 @@ summary:focus-visible {
 
   .trust-band {
     padding: 20px 0;
+  }
+
+  .trust-strip {
+    gap: 12px 16px;
+  }
+
+  .trust-fox {
+    height: 96px;
+  }
+
+  .trust-strip ul {
+    flex-basis: 14rem;
+    min-width: min(100%, 14rem);
   }
 
   .printable-thumb {
