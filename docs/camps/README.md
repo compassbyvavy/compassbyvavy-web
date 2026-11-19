@@ -8,6 +8,12 @@
 4. Build guide — execution order (Prompt 1 → 6) — **`cursor-build-guide.md` present**
 5. **Workbook schema notes** — field/schema reference only; **not** approved production seed data
 
+## Camp Watcher
+
+Spec and seed: [watcher/build-spec.md](./watcher/build-spec.md) and [watcher/camp_sources_seed.csv](./watcher/camp_sources_seed.csv).
+
+The nightly worker is `workers/camp-watcher/`. It does not write spot counts. Those stay with `workers/spots-checker/`.
+
 ## Ingestion engine
 
 Architecture: [INGESTION_ARCHITECTURE.md](./INGESTION_ARCHITECTURE.md)
