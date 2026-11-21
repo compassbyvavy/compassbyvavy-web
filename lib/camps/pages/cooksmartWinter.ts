@@ -10,9 +10,15 @@ export const COOKSMART_WINTER_SLUG = "cooksmart-winter";
 
 export const COOKSMART_CHECKED_ON = "2026-11-21";
 
-/** Public `/camps/cooksmart-winter` tab title + description (layout template adds `| Compass by Vavy`). */
+/**
+ * Public `/camps/cooksmart-winter` tab title + description.
+ * app/camps/layout.tsx sets a plain string title, which stops the root
+ * "%s | Compass by Vavy" template from reaching camp pages, so the full tab
+ * title is set as an absolute title here.
+ */
 export const COOKSMART_PAGE_META = {
   title: "COOKSMART Winter Holiday Cooking Camp, Mississauga",
+  tabTitle: "COOKSMART Winter Holiday Cooking Camp, Mississauga | Compass by Vavy",
   description:
     "Screen-free cooking camp for ages 5–12: kids cook lunch, bake and learn life skills. Book single days, Dec 21–23 & 28–30, 2026.",
   path: `/camps/${COOKSMART_WINTER_SLUG}`,
@@ -20,11 +26,12 @@ export const COOKSMART_PAGE_META = {
 
 /** Same robots as other public shell pages: index + follow. */
 export function cooksmartPageMetadata(): Metadata {
-  return shellMeta({
+  const meta = shellMeta({
     title: COOKSMART_PAGE_META.title,
     description: COOKSMART_PAGE_META.description,
     path: COOKSMART_PAGE_META.path,
   });
+  return { ...meta, title: { absolute: COOKSMART_PAGE_META.tabTitle } };
 }
 
 /** City slugs that may show the COOKSMART card on winter-break. */

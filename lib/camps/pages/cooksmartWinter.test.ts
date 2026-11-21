@@ -34,7 +34,9 @@ describe("COOKSMART winter Format C", () => {
     );
     assert.equal(COOKSMART_PAGE_META.path, `/camps/${COOKSMART_WINTER_SLUG}`);
     const meta = cooksmartPageMetadata();
-    assert.equal(meta.title, COOKSMART_PAGE_META.title);
+    assert.deepEqual(meta.title, {
+      absolute: "COOKSMART Winter Holiday Cooking Camp, Mississauga | Compass by Vavy",
+    });
     assert.equal(meta.description, COOKSMART_PAGE_META.description);
     assert.deepEqual(meta.robots, { index: true, follow: true });
     assert.equal(cooksmartWinter.providerLine, "COOKSMART · 1700 Mazo Crescent, Mississauga");

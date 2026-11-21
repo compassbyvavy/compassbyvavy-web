@@ -1,4 +1,6 @@
 import assert from "node:assert/strict";
+import { readFileSync, writeFileSync } from "node:fs";
+import path from "node:path";
 import { describe, it } from "node:test";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
@@ -41,11 +43,16 @@ function winterBreakHtml(show: boolean): string {
 }
 
 describe("bundled review-state for Worker deploys", () => {
-  it("ships an empty bundled file by default so COOKSMART stays hidden", () => {
-    assert.equal(bundledReviewState.publishedOn, null);
-    assert.deepEqual(bundledReviewState.decisions, {});
-    assert.equal(isCampLive(bundledReviewState as ReviewState, COOKSMART_WINTER_SLUG), false);
-    const html = winterBreakHtml(isCampLive(bundledReviewState as ReviewState, COOKSMART_WINTER_SLUG));
+  it("bundles a readable review state, and an empty state keeps COOKSMART hidden", () => {
+    // The committed file holds real approvals, so only check its shape here.
+    assert.ok(bundledReviewState && typeof bundledReviewState === "object");
+    assert.ok(
+      bundledReviewState.decisions &&
+        typeof bundledReviewState.decisions === "object",
+    );
+    const empty = emptyReviewState();
+    assert.equal(isCampLive(empty, COOKSMART_WINTER_SLUG), false);
+    const html = winterBreakHtml(isCampLive(empty, COOKSMART_WINTER_SLUG));
     assert.doesNotMatch(html, new RegExp(parentCopy.checkedSoFar));
   });
 
@@ -57,37 +64,53 @@ describe("bundled review-state for Worker deploys", () => {
     });
     assert.equal(approved.ok, true);
     if (!approved.ok) return;
-    const published = publishBatch(approved.state, { slugs: [COOKSMART_WINTER_SLUG], today });
+    const published = publishBatch(approved.state, {
+      slugs: [COOKSMART_WINTER_SLUG],
+      today,
+    });
     assert.equal(published.ok, true);
     if (!published.ok) return;
 
     assert.equal(isCampLive(published.state, COOKSMART_WINTER_SLUG), true);
-    assert.equal(campPublishedOn(published.state, COOKSMART_WINTER_SLUG), today);
+    assert.equal(
+      campPublishedOn(published.state, COOKSMART_WINTER_SLUG),
+      today,
+    );
 
-    const html = winterBreakHtml(isCampLive(published.state, COOKSMART_WINTER_SLUG));
+    const html = winterBreakHtml(
+      isCampLive(published.state, COOKSMART_WINTER_SLUG),
+    );
     assert.match(html, new RegExp(parentCopy.checkedSoFar));
     assert.match(html, new RegExp(`href="${COOKSMART_CHECKED_SO_FAR.href}"`));
   });
 
   it("keeps the in-memory copy after writeReviewState so local approve needs no restart", () => {
-    resetReviewStateCacheForTests();
-    const approved = decideCamp(emptyReviewState(), {
-      slug: COOKSMART_WINTER_SLUG,
-      status: "approved",
-      today,
-    });
-    assert.equal(approved.ok, true);
-    if (!approved.ok) return;
-    const published = publishBatch(approved.state, { slugs: [COOKSMART_WINTER_SLUG], today });
-    assert.equal(published.ok, true);
-    if (!published.ok) return;
+    // writeReviewState writes the real data/camps/pages/review-state.json, which holds
+    // live approvals. Save it first and put it back byte for byte afterwards.
+    const file = path.join(process.cwd(), "data/camps/pages/review-state.json");
+    const original = readFileSync(file, "utf8");
+    try {
+      resetReviewStateCacheForTests();
+      const approved = decideCamp(emptyReviewState(), {
+        slug: COOKSMART_WINTER_SLUG,
+        status: "approved",
+        today,
+      });
+      assert.equal(approved.ok, true);
+      if (!approved.ok) return;
+      const published = publishBatch(approved.state, {
+        slugs: [COOKSMART_WINTER_SLUG],
+        today,
+      });
+      assert.equal(published.ok, true);
+      if (!published.ok) return;
 
-    writeReviewState(published.state);
-    // Same process: memory must already have the publish without re-reading the file.
-    assert.equal(isCampLive(readReviewState(), COOKSMART_WINTER_SLUG), true);
-
-    // Restore empty for other tests / the repo.
-    writeReviewState(emptyReviewState());
-    resetReviewStateCacheForTests();
+      writeReviewState(published.state);
+      // Same process: memory must already have the publish without re-reading the file.
+      assert.equal(isCampLive(readReviewState(), COOKSMART_WINTER_SLUG), true);
+    } finally {
+      writeFileSync(file, original);
+      resetReviewStateCacheForTests();
+    }
   });
 });
