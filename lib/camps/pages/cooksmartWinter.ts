@@ -3,10 +3,29 @@
  * docs/camps/pages/reference/cooksmart-winter.html (Nov 21, 2026).
  * Used only by CookSmartWinterPage for slug cooksmart-winter.
  */
+import type { Metadata } from "next";
+import { shellMeta } from "@/lib/shell/meta";
 
 export const COOKSMART_WINTER_SLUG = "cooksmart-winter";
 
 export const COOKSMART_CHECKED_ON = "2026-11-21";
+
+/** Public `/camps/cooksmart-winter` tab title + description (layout template adds `| Compass by Vavy`). */
+export const COOKSMART_PAGE_META = {
+  title: "COOKSMART Winter Holiday Cooking Camp, Mississauga",
+  description:
+    "Screen-free cooking camp for ages 5–12: kids cook lunch, bake and learn life skills. Book single days, Dec 21–23 & 28–30, 2026.",
+  path: `/camps/${COOKSMART_WINTER_SLUG}`,
+} as const;
+
+/** Same robots as other public shell pages: index + follow. */
+export function cooksmartPageMetadata(): Metadata {
+  return shellMeta({
+    title: COOKSMART_PAGE_META.title,
+    description: COOKSMART_PAGE_META.description,
+    path: COOKSMART_PAGE_META.path,
+  });
+}
 
 /** City slugs that may show the COOKSMART card on winter-break. */
 export const COOKSMART_CHECKED_SO_FAR_CITIES = ["ontario", "mississauga"] as const;
@@ -216,7 +235,7 @@ export type CooksmartWinterContent = {
 
 export const cooksmartWinter: CooksmartWinterContent = {
   title: "Winter Holiday Cooking Camp",
-  providerLine: "COOKSMART · COOKSMART Clarkson, 1700 Mazo Crescent, Mississauga",
+  providerLine: "COOKSMART · 1700 Mazo Crescent, Mississauga",
   badge: "Verified Nov 21, 2026",
   summaryHtml: "<b>Screen-free cooking camp:</b> kids cook lunch, bake and learn life skills. Book single days.",
   facts: [
@@ -499,7 +518,7 @@ export const cooksmartWinter: CooksmartWinterContent = {
 export const COOKSMART_CHECKED_SO_FAR = {
   href: `/camps/${COOKSMART_WINTER_SLUG}`,
   title: cooksmartWinter.title,
-  placeLine: "COOKSMART · Clarkson, Mississauga",
+  placeLine: "COOKSMART · Mississauga",
   agesDates: `Ages ${cooksmartWinter.facts[0].values[0]} · ${cooksmartWinter.facts[1].values[0]}`,
   priceLine: `Full day $${COOKSMART_PRICE.full} · Half day $${COOKSMART_PRICE.half}, plus HST`,
   verified: cooksmartWinter.badge,
