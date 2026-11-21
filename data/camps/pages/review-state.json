@@ -1,5 +1,12 @@
 {
   "publishedOn": null,
-  "decisions": {},
+  "decisions": {
+    "cooksmart-winter": {
+      "status": "approved",
+      "note": null,
+      "decidedOn": "2026-11-21",
+      "publishedOn": "2026-11-21"
+    }
+  },
   "summaries": {}
 }
