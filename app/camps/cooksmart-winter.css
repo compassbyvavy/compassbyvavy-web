@@ -1,0 +1,195 @@
+/* Format C extras for COOKSMART winter only. Base layout uses listing.css. */
+.cooksmart-badge {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+  background: var(--amber);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 500;
+  padding: 5px 11px;
+  border-radius: 999px;
+  margin: 0 0 14px;
+}
+.cooksmart-catch {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 12px 14px;
+  margin: 0 0 18px;
+}
+.cooksmart-catch h2 {
+  font-family: var(--font-body);
+  font-size: 19px;
+  margin: 0 0 6px;
+}
+.cooksmart-catch ul {
+  margin: 0;
+  padding-left: 18px;
+}
+.cooksmart-catch li {
+  margin: 4px 0;
+  font-size: 15px;
+}
+.cooksmart-key {
+  display: grid;
+  gap: 8px;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 12px 14px;
+  margin: 0 0 12px;
+  font-size: 15px;
+}
+.cooksmart-key span {
+  color: var(--muted);
+  font-size: 13px;
+}
+.cooksmart-days {
+  display: grid;
+  gap: 10px;
+}
+.cooksmart-dcard {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  overflow: hidden;
+}
+.cooksmart-dcard h3 {
+  margin: 0;
+  padding: 9px 14px;
+  font-size: 15px;
+  background: var(--surface);
+  display: flex;
+  justify-content: space-between;
+}
+.cooksmart-dcard .listing-opt {
+  min-height: 50px;
+  border-top: 1px solid var(--line);
+}
+.cooksmart-dcard h3 + .listing-opt {
+  border-top: 0;
+}
+.cooksmart-booklist {
+  background: #fff;
+  border: 2px solid var(--green);
+  border-radius: 12px;
+  padding: 12px 14px;
+  margin: 12px 0;
+}
+.cooksmart-booklist h3 {
+  margin: 0 0 4px;
+  font-size: 17px;
+}
+.cooksmart-brow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 0;
+  border-top: 1px solid var(--line);
+  font-size: 15px;
+}
+.cooksmart-brow:first-of-type {
+  border-top: 0;
+}
+.cooksmart-brow small {
+  display: block;
+  color: var(--muted);
+  font-size: 13px;
+}
+.cooksmart-bk {
+  flex: none;
+  background: var(--green);
+  color: #fff;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 14px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+}
+.cooksmart-dirbtn {
+  display: inline-block;
+  margin-top: 6px;
+  background: var(--green);
+  color: #fff;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 14px;
+  padding: 8px 14px;
+  border-radius: 10px;
+  min-height: 44px;
+}
+.cooksmart-q {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  margin-bottom: 8px;
+}
+.cooksmart-q summary {
+  cursor: pointer;
+  list-style: none;
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 14px;
+  min-height: 52px;
+  align-items: center;
+  font-size: 15px;
+  font-weight: 500;
+}
+.cooksmart-q summary::-webkit-details-marker {
+  display: none;
+}
+.cooksmart-q summary .a {
+  font-weight: 400;
+  font-size: 13px;
+  color: var(--muted);
+  text-align: right;
+}
+.cooksmart-q summary .a.ask {
+  font-style: italic;
+}
+.cooksmart-q[open] summary {
+  border-bottom: 1px solid var(--line);
+}
+.cooksmart-q .ans {
+  padding: 10px 14px 12px;
+  font-size: 15px;
+}
+.cooksmart-q .lvl {
+  display: block;
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 6px;
+}
+.cooksmart-learn-title {
+  font-size: 17px;
+  margin: 18px 0 6px;
+}
+.cooksmart-say-head {
+  font-size: 15px;
+  margin: 0 0 8px;
+}
+.cooksmart-links {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  font-size: 14px;
+  margin: 4px 0 14px;
+}
+.cooksmart .listing-btn {
+  min-height: 44px;
+  height: auto;
+  padding: 10px 16px;
+  white-space: normal;
+  text-align: center;
+}
+@media (min-width: 700px) {
+  .cooksmart-days {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
