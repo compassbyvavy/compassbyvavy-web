@@ -41,13 +41,13 @@ export function redirectFor(pathname: string): RedirectResult | null {
   const path = clean(pathname);
   if (path === "/camps") return { destination: "/ontario/camps", status: 301 };
   if (path === "/camps/admin" || path.startsWith("/camps/admin/")) return null;
-  if (path === "/camps/preview") return { destination: "/ontario/camps", status: 302 };
+  // Batch camp pages and their previews are served by app/camps/* — don't redirect them away.
+  if (path === "/camps/preview" || path.startsWith("/camps/preview/")) return null;
   if (path.startsWith("/camps/")) {
     const slug = path.slice("/camps/".length).split("/")[0];
-    return {
-      destination: CAMP_SUBCATEGORY[slug] ?? "/ontario/camps",
-      status: 302,
-    };
+    const destination = CAMP_SUBCATEGORY[slug];
+    if (!destination) return null;
+    return { destination, status: 302 };
   }
 
   if (path === "/learn") return { destination: "/guides", status: 301 };

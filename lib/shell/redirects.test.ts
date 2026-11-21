@@ -44,6 +44,9 @@ describe("launch redirects", () => {
     assert.deepEqual(redirectFor("/camps"), { destination: "/ontario/camps", status: 301 });
     assert.equal(redirectFor("/camps/admin"), null);
     assert.equal(redirectFor("/camps/admin/ingestion"), null);
+    assert.equal(redirectFor("/camps/preview"), null);
+    assert.equal(redirectFor("/camps/preview/cooksmart-winter"), null);
+    assert.equal(redirectFor("/camps/cooksmart-winter"), null);
     assert.deepEqual(redirectFor("/camps/ymca-mississauga-winter-break-day-camp"), {
       destination: "/ontario/camps/winter-break",
       status: 302,
