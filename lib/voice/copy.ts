@@ -13,6 +13,7 @@ export const parentCopy = {
   noSource: "No source is on file yet.",
   pickYourCamp: "Pick your camp",
   pickYourDays: "Pick your days",
+  checkedSoFar: "Checked so far",
   isThisRight: "Is this right for my child?",
   parentQuestions: "Parent questions",
   where: "Where",

@@ -4,7 +4,7 @@ import { BATCH_1, BATCH_1_TOKEN_RECORD } from "@/lib/camps/pages/batch1";
 import { campReviewAdminAllowed } from "@/lib/camps/pages/adminGate";
 import { breakPrices, flagsForCamp } from "@/lib/camps/pages/flags";
 import { previewPath } from "@/lib/camps/pages/preview";
-import { decisionFor, editedSummary } from "@/lib/camps/pages/review";
+import { campPublishedOn, decisionFor, editedSummary } from "@/lib/camps/pages/review";
 import { readReviewState } from "@/lib/camps/pages/store";
 import { torontoToday } from "@/lib/camps/campPage";
 import { decideCampAction, publishBatchAction, saveSummaryAction } from "./actions";
@@ -36,17 +36,21 @@ export default async function CampPageReviewScreen() {
 
   const state = readReviewState();
   const today = torontoToday();
+  const pendingPublish = BATCH_1.some(
+    (camp) => decisionFor(state, camp.slug).status === "approved" && !campPublishedOn(state, camp.slug),
+  );
 
   return (
     <div className={styles.page}>
       <h1>Camp pages</h1>
       <p className={styles.lede}>
-        Approve, fix, or decline each camp. Publish batch puts the approved camps live together. Fix and decline stay
-        unpublished and carry over.
+        Approve, fix, or decline each camp. Publish batch puts approved camps that are not live yet. You can publish
+        again later for camps approved after the first run. Fix and decline stay unpublished and carry over.
       </p>
       <p className={styles.batch}>Batch 1</p>
       {BATCH_1.map((camp) => {
         const decision = decisionFor(state, camp.slug);
+        const publishedOn = campPublishedOn(state, camp.slug);
         const flags = flagsForCamp(camp, { today, breakPrices: breakPrices(BATCH_1, camp.breakId) });
         return (
           <section className={styles.card} key={camp.slug}>
@@ -57,6 +61,7 @@ export default async function CampPageReviewScreen() {
               <a href={previewPath(camp, BATCH_1_TOKEN_RECORD.token)}>Preview</a>
               {" · "}
               <span className={styles.status}>{STATUS_LABEL[decision.status]}</span>
+              {publishedOn ? ` · Live since ${publishedOn}` : null}
               {decision.note ? ` · ${decision.note}` : null}
             </p>
             {flags.length ? (
@@ -104,8 +109,8 @@ export default async function CampPageReviewScreen() {
         );
       })}
       <form action={publishBatchAction}>
-        <button className={`${styles.btn} ${styles.ok} ${styles.publish}`} type="submit" disabled={Boolean(state.publishedOn)}>
-          {state.publishedOn ? `Published ${state.publishedOn}` : "Publish batch"}
+        <button className={`${styles.btn} ${styles.ok} ${styles.publish}`} type="submit" disabled={!pendingPublish}>
+          {pendingPublish ? "Publish approved camps" : "Nothing new to publish"}
         </button>
       </form>
     </div>

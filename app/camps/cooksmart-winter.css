@@ -181,12 +181,59 @@
   font-size: 14px;
   margin: 4px 0 14px;
 }
+.cooksmart.listing {
+  /* Room for the sticky bar (stacked ~120–140px on a 375px phone). */
+  padding-bottom: max(140px, calc(120px + env(safe-area-inset-bottom, 0px)));
+}
+.cooksmart .listing-bar .listing-wrap {
+  align-items: stretch;
+  min-height: 76px;
+  height: auto;
+  flex-wrap: wrap;
+  padding-top: 10px;
+  padding-bottom: calc(10px + env(safe-area-inset-bottom, 0px));
+}
+.cooksmart .listing-sum {
+  flex: 1 1 160px;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  justify-content: center;
+}
+.cooksmart .listing-sum b {
+  line-height: 1.35;
+  margin: 0;
+}
+.cooksmart .listing-btns {
+  flex: 1 1 auto;
+  align-self: center;
+  justify-content: flex-end;
+}
 .cooksmart .listing-btn {
   min-height: 44px;
   height: auto;
   padding: 10px 16px;
   white-space: normal;
   text-align: center;
+}
+@media (max-width: 420px) {
+  .cooksmart .listing-bar .listing-wrap {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+  .cooksmart .listing-sum {
+    flex: 0 0 auto;
+  }
+  .cooksmart .listing-btns {
+    width: 100%;
+    justify-content: stretch;
+  }
+  .cooksmart .listing-btn {
+    width: 100%;
+    justify-content: center;
+  }
 }
 @media (min-width: 700px) {
   .cooksmart-days {

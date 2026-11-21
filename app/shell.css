@@ -785,6 +785,22 @@ summary:focus-visible {
   line-height: 1.4;
 }
 
+.checked-so-far {
+  margin: 8px 0 28px;
+}
+
+.checked-so-far h2 {
+  margin: 0 0 12px;
+  font-family: var(--font-display), Georgia, serif;
+  font-size: 24px;
+  font-weight: 600;
+}
+
+.checked-so-far-cards {
+  grid-template-columns: 1fr;
+  margin-bottom: 0;
+}
+
 .check-short h2 {
   margin-bottom: 12px;
 }

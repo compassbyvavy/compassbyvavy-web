@@ -8,6 +8,21 @@ export const COOKSMART_WINTER_SLUG = "cooksmart-winter";
 
 export const COOKSMART_CHECKED_ON = "2026-11-21";
 
+/** City slugs that may show the COOKSMART card on winter-break. */
+export const COOKSMART_CHECKED_SO_FAR_CITIES = ["ontario", "mississauga"] as const;
+
+export function cooksmartCheckedSoFarEligible(input: {
+  city: string;
+  categorySlug: string;
+  subcategorySlug: string;
+}): boolean {
+  return (
+    input.categorySlug === "camps" &&
+    input.subcategorySlug === "winter-break" &&
+    (COOKSMART_CHECKED_SO_FAR_CITIES as readonly string[]).includes(input.city)
+  );
+}
+
 /** Address used for Google Directions (not COOKSMART's Pengilley pin). */
 export const COOKSMART_DIRECTIONS_ADDRESS = "1700 Mazo Crescent, Mississauga, ON L5J 1Y8";
 
@@ -63,6 +78,12 @@ export function withCooksmartExclusivePick(current: CooksmartPick[], next: Cooks
   const exists = current.some((item) => item.dayId === next.dayId && item.kind === next.kind);
   if (exists) return current.filter((item) => !(item.dayId === next.dayId && item.kind === next.kind));
   return [...current.filter((item) => item.dayId !== next.dayId), next];
+}
+
+/** Booking list and multi-day bar use date order, not click order. */
+export function sortedCooksmartPicks(selected: readonly CooksmartPick[]): CooksmartPick[] {
+  const order = new Map(COOKSMART_DAYS.map((day, index) => [day.id, index]));
+  return [...selected].sort((a, b) => (order.get(a.dayId) ?? 0) - (order.get(b.dayId) ?? 0));
 }
 
 export function cooksmartTaxTotal(price: number): string {
@@ -473,3 +494,13 @@ export const cooksmartWinter: CooksmartWinterContent = {
   bookingListNote:
     "COOKSMART books one day per checkout. Each button opens that day's form with the date already picked, so book them one after another. Siblings: set quantity to 2 and use code CSFAMILY2 each time.",
 };
+
+/** Winter-break subcategory card — built from the listing above, not retyped. */
+export const COOKSMART_CHECKED_SO_FAR = {
+  href: `/camps/${COOKSMART_WINTER_SLUG}`,
+  title: cooksmartWinter.title,
+  placeLine: "COOKSMART · Clarkson, Mississauga",
+  agesDates: `Ages ${cooksmartWinter.facts[0].values[0]} · ${cooksmartWinter.facts[1].values[0]}`,
+  priceLine: `Full day $${COOKSMART_PRICE.full} · Half day $${COOKSMART_PRICE.half}, plus HST`,
+  verified: cooksmartWinter.badge,
+} as const;

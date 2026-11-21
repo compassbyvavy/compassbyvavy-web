@@ -45,7 +45,7 @@ export function renderReviewPack(input: {
     "",
     "No fact below was guessed. A missing fact is Ask the camp.",
     "Found on source is yes or no for a web page, and feed for a booking feed. Camp Watcher matches the feeds.",
-    `The preview token stops working on ${formatLongDate(expires)}, or when this batch is published.`,
+    `The preview token stops working on ${formatLongDate(expires)}, or for a camp once that camp is published.`,
     "Open a preview on a branch deploy by putting that site's origin in front of the path. The pages are not linked from the public site.",
     "",
   ];

@@ -5,7 +5,7 @@ import { CookSmartWinterPage } from "@/components/camps/pages/CookSmartWinterPag
 import { BATCH_1_TOKEN_RECORD, listingBySlug } from "@/lib/camps/pages/batch1";
 import { COOKSMART_WINTER_SLUG } from "@/lib/camps/pages/cooksmartWinter";
 import { previewAccess } from "@/lib/camps/pages/preview";
-import { approvalDate, editedSummary } from "@/lib/camps/pages/review";
+import { approvalDate, campPublishedOn, editedSummary } from "@/lib/camps/pages/review";
 import { readReviewState } from "@/lib/camps/pages/store";
 import { buildCampListingPage } from "@/lib/camps/pages/view";
 import { torontoToday } from "@/lib/camps/campPage";
@@ -37,7 +37,7 @@ export default async function CampPreviewPage({ params, searchParams }: PageProp
     batch: listing ? BATCH_1_TOKEN_RECORD : null,
     supplied: t,
     today: torontoToday(),
-    publishedOn: state.publishedOn,
+    publishedOn: listing ? campPublishedOn(state, listing.slug) : null,
   });
   if (!listing || access !== "ok") notFound();
 

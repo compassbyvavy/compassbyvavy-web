@@ -1,12 +1,15 @@
 /**
  * Review decisions for the camp-page batches.
  *
- * The file is the store until the camp_page_review migration is applied.
- * A process-wide copy keeps a server action and the next render on the same
- * decisions. Production on compassbyvavy.ca does not open the admin screen.
+ * The JSON is statically imported so Cloudflare Workers bundle it (same pattern
+ * as discover.json). writeReviewState still writes the file on disk for local
+ * approve → commit. A process-wide copy keeps a server action and the next
+ * render on the same decisions without a restart. Production on
+ * compassbyvavy.ca does not open the admin screen.
  */
 import { readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
+import bundledReviewState from "@/data/camps/pages/review-state.json";
 import { emptyReviewState, type ReviewState } from "@/lib/camps/pages/review";
 
 const FILE = path.join(process.cwd(), "data/camps/pages/review-state.json");
@@ -14,13 +17,23 @@ const KEY = "__compassCampPageReviewState";
 
 type GlobalState = typeof globalThis & { [KEY]?: ReviewState };
 
+function normalizeState(parsed: unknown): ReviewState {
+  if (!parsed || typeof parsed !== "object") return emptyReviewState();
+  const row = parsed as Partial<ReviewState>;
+  if (!row.decisions || typeof row.decisions !== "object") return emptyReviewState();
+  return {
+    publishedOn: row.publishedOn ?? null,
+    decisions: row.decisions,
+    summaries: row.summaries ?? {},
+  };
+}
+
 function readFileState(): ReviewState {
   try {
-    const parsed = JSON.parse(readFileSync(FILE, "utf8")) as ReviewState;
-    if (!parsed || typeof parsed !== "object" || !parsed.decisions) return emptyReviewState();
-    return { publishedOn: parsed.publishedOn ?? null, decisions: parsed.decisions, summaries: parsed.summaries ?? {} };
+    return normalizeState(JSON.parse(readFileSync(FILE, "utf8")));
   } catch {
-    return emptyReviewState();
+    // Worker / read-only deploy: use the bundled copy.
+    return normalizeState(bundledReviewState);
   }
 }
 
@@ -37,4 +50,9 @@ export function writeReviewState(state: ReviewState): void {
   } catch {
     // A read-only deploy keeps the decision in this process only.
   }
+}
+
+/** Test helper: drop the in-memory copy so the next read reloads. */
+export function resetReviewStateCacheForTests(): void {
+  delete (globalThis as GlobalState)[KEY];
 }

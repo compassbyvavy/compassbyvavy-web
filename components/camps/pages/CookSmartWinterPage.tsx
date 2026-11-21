@@ -11,6 +11,7 @@ import {
   cooksmartOptionId,
   cooksmartTaxTotal,
   cooksmartWinter,
+  sortedCooksmartPicks,
   summarizeCooksmartBar,
   withCooksmartExclusivePick,
   type CooksmartOptionKind,
@@ -31,7 +32,7 @@ export function CookSmartWinterPage({ banner = null }: { banner?: string | null 
   }
 
   const bookingItems = bar.showBookingList
-    ? selected.map((pick) => {
+    ? sortedCooksmartPicks(selected).map((pick) => {
         const day = COOKSMART_DAYS.find((row) => row.id === pick.dayId)!;
         const price = COOKSMART_PRICE[pick.kind];
         return {

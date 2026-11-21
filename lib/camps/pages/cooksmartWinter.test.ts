@@ -12,6 +12,7 @@ import {
   cooksmartDirectionsUrl,
   cooksmartTaxTotal,
   cooksmartWinter,
+  sortedCooksmartPicks,
   summarizeCooksmartBar,
   withCooksmartExclusivePick,
 } from "@/lib/camps/pages/cooksmartWinter";
@@ -62,6 +63,18 @@ describe("COOKSMART winter Format C", () => {
     const half = withCooksmartExclusivePick([], { dayId: "dec-21", kind: "half" });
     const full = withCooksmartExclusivePick(half, { dayId: "dec-21", kind: "full" });
     assert.deepEqual(full, [{ dayId: "dec-21", kind: "full" }]);
+  });
+
+  it("booking list is in date order, not click order", () => {
+    const picked = [
+      { dayId: "dec-22", kind: "half" as const },
+      { dayId: "dec-21", kind: "full" as const },
+      { dayId: "dec-30", kind: "full" as const },
+    ];
+    assert.deepEqual(
+      sortedCooksmartPicks(picked).map((pick) => pick.dayId),
+      ["dec-21", "dec-22", "dec-30"],
+    );
   });
 
   it("writes all 12 booking URLs with the right type and date", () => {

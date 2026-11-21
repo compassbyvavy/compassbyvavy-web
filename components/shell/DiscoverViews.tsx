@@ -10,6 +10,8 @@ import {
   type DiscoverCategory,
   type DiscoverSubcategory,
 } from "@/lib/taxonomy/catalog";
+import { COOKSMART_CHECKED_SO_FAR } from "@/lib/camps/pages/cooksmartWinter";
+import { parentCopy } from "@/lib/voice/copy";
 
 export function DiscoverHub({ city, cityName }: { city: string; cityName: string }) {
   return (
@@ -142,11 +144,14 @@ export function SubcategoryView({
   cityName,
   category,
   subcategory,
+  showCooksmartCheckedSoFar = false,
 }: {
   city: string;
   cityName: string;
   category: DiscoverCategory;
   subcategory: DiscoverSubcategory;
+  /** Request-time: only true when COOKSMART is live and this is winter-break. */
+  showCooksmartCheckedSoFar?: boolean;
 }) {
   const siblings = orderForSeason(subcategoriesFor(category.id));
   return (
@@ -161,6 +166,7 @@ export function SubcategoryView({
         <p className="lede">{asSentence(subcategory.description)}</p>
         <ChipRow city={city} category={category.slug} rows={siblings} current={subcategory.slug} />
         {category.slug === "camps" && subcategory.slug === "pa-days" ? <BoardPicker /> : null}
+        {showCooksmartCheckedSoFar ? <CheckedSoFarCooksmart /> : null}
         <NotifyBox
           idPrefix={`notify-${subcategory.slug}`}
           sourcePage={`/${city}/${category.slug}/${subcategory.slug}`}
@@ -172,6 +178,26 @@ export function SubcategoryView({
         <CheckList />
       </div>
     </article>
+  );
+}
+
+function CheckedSoFarCooksmart() {
+  const card = COOKSMART_CHECKED_SO_FAR;
+  return (
+    <div className="checked-so-far">
+      <h2>{parentCopy.checkedSoFar}</h2>
+      <ul className="sub-cards checked-so-far-cards">
+        <li>
+          <Link className="sub-card" href={card.href}>
+            <strong>{card.title}</strong>
+            <span>{card.placeLine}</span>
+            <span>{card.agesDates}</span>
+            <span>{card.priceLine}</span>
+            <span>{card.verified}</span>
+          </Link>
+        </li>
+      </ul>
+    </div>
   );
 }
 

@@ -1,5 +1,12 @@
 import { notFound } from "next/navigation";
+import { connection } from "next/server";
 import { SubcategoryView } from "@/components/shell/DiscoverViews";
+import {
+  COOKSMART_WINTER_SLUG,
+  cooksmartCheckedSoFarEligible,
+} from "@/lib/camps/pages/cooksmartWinter";
+import { isCampLive } from "@/lib/camps/pages/review";
+import { readReviewState } from "@/lib/camps/pages/store";
 import { shellMeta } from "@/lib/shell/meta";
 import {
   categoryBySlug,
@@ -42,12 +49,28 @@ export default async function SubcategoryPage({ params }: Props) {
   const category = categoryBySlug(categorySlug);
   const subcategory = category ? subcategoryBySlug(category.id, subcategorySlug) : undefined;
   if (!category || !subcategory || !isLocationSlug(city)) notFound();
+
+  // Only winter-break (ontario/mississauga) opts into request-time rendering for the live check.
+  // Other subcategory paths never call connection(), so generateStaticParams stays static.
+  let showCooksmartCheckedSoFar = false;
+  if (
+    cooksmartCheckedSoFarEligible({
+      city,
+      categorySlug: category.slug,
+      subcategorySlug: subcategory.slug,
+    })
+  ) {
+    await connection();
+    showCooksmartCheckedSoFar = isCampLive(readReviewState(), COOKSMART_WINTER_SLUG);
+  }
+
   return (
     <SubcategoryView
       city={city}
       cityName={locationName(city)}
       category={category}
       subcategory={subcategory}
+      showCooksmartCheckedSoFar={showCooksmartCheckedSoFar}
     />
   );
 }
