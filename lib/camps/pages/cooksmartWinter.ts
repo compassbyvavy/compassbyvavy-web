@@ -3,10 +3,29 @@
  * docs/camps/pages/reference/cooksmart-winter.html (Nov 21, 2026).
  * Used only by CookSmartWinterPage for slug cooksmart-winter.
  */
+import type { Metadata } from "next";
+import { shellMeta } from "@/lib/shell/meta";
 
 export const COOKSMART_WINTER_SLUG = "cooksmart-winter";
 
 export const COOKSMART_CHECKED_ON = "2026-11-21";
+
+/** Public `/camps/cooksmart-winter` tab title + description (layout template adds `| Compass by Vavy`). */
+export const COOKSMART_PAGE_META = {
+  title: "Winter Holiday Cooking Camp by COOKSMART, Mississauga",
+  description:
+    "Screen-free cooking camp for ages 5–12: kids cook lunch, bake and learn life skills. Book single days, Dec 21–23 & 28–30, 2026.",
+  path: `/camps/${COOKSMART_WINTER_SLUG}`,
+} as const;
+
+/** Same robots as other public shell pages: index + follow. */
+export function cooksmartPageMetadata(): Metadata {
+  return shellMeta({
+    title: COOKSMART_PAGE_META.title,
+    description: COOKSMART_PAGE_META.description,
+    path: COOKSMART_PAGE_META.path,
+  });
+}
 
 /** City slugs that may show the COOKSMART card on winter-break. */
 export const COOKSMART_CHECKED_SO_FAR_CITIES = ["ontario", "mississauga"] as const;

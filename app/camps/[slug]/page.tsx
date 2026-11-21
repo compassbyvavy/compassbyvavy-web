@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { CampPage } from "@/components/camps/CampPage";
 import { CampListingPage } from "@/components/camps/pages/CampListingPage";
@@ -11,7 +12,10 @@ import {
   resolveCatalogProgramBySlug,
 } from "@/lib/camps/catalog";
 import { listingBySlug } from "@/lib/camps/pages/batch1";
-import { COOKSMART_WINTER_SLUG } from "@/lib/camps/pages/cooksmartWinter";
+import {
+  COOKSMART_WINTER_SLUG,
+  cooksmartPageMetadata,
+} from "@/lib/camps/pages/cooksmartWinter";
 import { approvalDate, editedSummary, isCampLive } from "@/lib/camps/pages/review";
 import { readReviewState } from "@/lib/camps/pages/store";
 import { buildCampListingPage } from "@/lib/camps/pages/view";
@@ -23,6 +27,14 @@ export const dynamic = "force-dynamic";
 type PageProps = {
   params: Promise<{ slug: string }>;
 };
+
+/** COOKSMART only — every other slug keeps the camps layout title. */
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const { slug } = await params;
+  if (slug !== COOKSMART_WINTER_SLUG) return {};
+  if (!isCampLive(readReviewState(), COOKSMART_WINTER_SLUG)) return {};
+  return cooksmartPageMetadata();
+}
 
 /**
  * Camp program detail — Prompt 5.

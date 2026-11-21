@@ -8,8 +8,11 @@ import {
   COOKSMART_BOOKING_URLS,
   COOKSMART_DAYS,
   COOKSMART_DIRECTIONS_ADDRESS,
+  COOKSMART_PAGE_META,
+  COOKSMART_WINTER_SLUG,
   cooksmartBookingUrl,
   cooksmartDirectionsUrl,
+  cooksmartPageMetadata,
   cooksmartTaxTotal,
   cooksmartWinter,
   sortedCooksmartPicks,
@@ -18,6 +21,22 @@ import {
 } from "@/lib/camps/pages/cooksmartWinter";
 
 describe("COOKSMART winter Format C", () => {
+  it("sets the public page title and description (indexable like other shell pages)", () => {
+    assert.equal(
+      COOKSMART_PAGE_META.title,
+      "Winter Holiday Cooking Camp by COOKSMART, Mississauga",
+    );
+    assert.equal(
+      COOKSMART_PAGE_META.description,
+      "Screen-free cooking camp for ages 5–12: kids cook lunch, bake and learn life skills. Book single days, Dec 21–23 & 28–30, 2026.",
+    );
+    assert.equal(COOKSMART_PAGE_META.path, `/camps/${COOKSMART_WINTER_SLUG}`);
+    const meta = cooksmartPageMetadata();
+    assert.equal(meta.title, COOKSMART_PAGE_META.title);
+    assert.equal(meta.description, COOKSMART_PAGE_META.description);
+    assert.deepEqual(meta.robots, { index: true, follow: true });
+  });
+
   it("empty bar says Pick a day and links to #sessions", () => {
     const bar = summarizeCooksmartBar([]);
     assert.equal(bar.buttonLabel, "Pick a day");
