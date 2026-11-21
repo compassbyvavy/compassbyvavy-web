@@ -5,7 +5,13 @@ import { campReviewAdminAllowed } from "@/lib/camps/pages/adminGate";
 import { flagsForCamp } from "@/lib/camps/pages/flags";
 import { renderReviewPack } from "@/lib/camps/pages/pack";
 import { previewAccess, tokenExpiresOn } from "@/lib/camps/pages/preview";
-import { decideCamp, emptyReviewState, isCampLive, publishBatch } from "@/lib/camps/pages/review";
+import {
+  campPublishedOn,
+  decideCamp,
+  emptyReviewState,
+  isCampLive,
+  publishBatch,
+} from "@/lib/camps/pages/review";
 import type { CampListing } from "@/lib/camps/pages/types";
 import { ASK_THE_CAMP } from "@/lib/camps/pages/types";
 import { buildCampListingPage } from "@/lib/camps/pages/view";
@@ -29,7 +35,7 @@ describe("camp page template", () => {
   });
 
   it("hides the summary box when the camp has not written one", () => {
-    const page = buildCampListingPage(listingBySlug("cooksmart-winter")!, { today });
+    const page = buildCampListingPage(listingBySlug("visual-arts-mississauga-winter")!, { today });
     assert.equal(page.summary, null);
   });
 
@@ -149,6 +155,12 @@ describe("preview token", () => {
     assert.equal(previewAccess({ batch, supplied: batch.token, today: tokenExpiresOn(batch.createdOn), publishedOn: null }), "expired");
     assert.equal(previewAccess({ batch, supplied: batch.token, today, publishedOn: today }), "expired");
   });
+
+  it("expires only the published camp; other batch camps keep the preview", () => {
+    const batch = BATCH_1_TOKEN_RECORD;
+    assert.equal(previewAccess({ batch, supplied: batch.token, today, publishedOn: today }), "expired");
+    assert.equal(previewAccess({ batch, supplied: batch.token, today, publishedOn: null }), "ok");
+  });
 });
 
 describe("admin decisions", () => {
@@ -168,6 +180,64 @@ describe("admin decisions", () => {
     assert.deepEqual(published.published, [slugs[1]]);
     assert.equal(isCampLive(published.state, slugs[1]), true);
     assert.equal(isCampLive(published.state, slugs[0]), false);
+    assert.equal(campPublishedOn(published.state, slugs[1]), today);
+  });
+
+  it("publishes COOKSMART alone and leaves KSG previewable", () => {
+    const batch = BATCH_1_TOKEN_RECORD;
+    const cook = "cooksmart-winter";
+    const ksg = "ksg-winter";
+    const approved = decideCamp(emptyReviewState(), { slug: cook, status: "approved", today });
+    assert.equal(approved.ok, true);
+    if (!approved.ok) return;
+    const published = publishBatch(approved.state, { slugs: [cook, ksg], today });
+    assert.equal(published.ok, true);
+    if (!published.ok) return;
+    assert.deepEqual(published.published, [cook]);
+    assert.equal(isCampLive(published.state, cook), true);
+    assert.equal(isCampLive(published.state, ksg), false);
+    assert.equal(previewAccess({ batch, supplied: batch.token, today, publishedOn: campPublishedOn(published.state, cook) }), "expired");
+    assert.equal(previewAccess({ batch, supplied: batch.token, today, publishedOn: campPublishedOn(published.state, ksg) }), "ok");
+  });
+
+  it("can publish KSG later without changing COOKSMART's publish date", () => {
+    const cook = "cooksmart-winter";
+    const ksg = "ksg-winter";
+    const cookDay = "2026-11-21";
+    const ksgDay = "2026-11-22";
+    const cookApproved = decideCamp(emptyReviewState(), { slug: cook, status: "approved", today: cookDay });
+    assert.equal(cookApproved.ok, true);
+    if (!cookApproved.ok) return;
+    const cookPublished = publishBatch(cookApproved.state, { slugs: [cook, ksg], today: cookDay });
+    assert.equal(cookPublished.ok, true);
+    if (!cookPublished.ok) return;
+    const again = publishBatch(cookPublished.state, { slugs: [cook, ksg], today: ksgDay });
+    assert.equal(again.ok, false);
+    const ksgApproved = decideCamp(cookPublished.state, { slug: ksg, status: "approved", today: ksgDay });
+    assert.equal(ksgApproved.ok, true);
+    if (!ksgApproved.ok) return;
+    const ksgPublished = publishBatch(ksgApproved.state, { slugs: [cook, ksg], today: ksgDay });
+    assert.equal(ksgPublished.ok, true);
+    if (!ksgPublished.ok) return;
+    assert.deepEqual(ksgPublished.published, [ksg]);
+    assert.equal(isCampLive(ksgPublished.state, cook), true);
+    assert.equal(isCampLive(ksgPublished.state, ksg), true);
+    assert.equal(campPublishedOn(ksgPublished.state, cook), cookDay);
+    assert.equal(campPublishedOn(ksgPublished.state, ksg), ksgDay);
+  });
+
+  it("still treats legacy batch-wide publishedOn as live for approved camps", () => {
+    const cook = "cooksmart-winter";
+    const state = {
+      publishedOn: today,
+      decisions: {
+        [cook]: { status: "approved" as const, note: null, decidedOn: today },
+      },
+      summaries: {},
+    };
+    assert.equal(isCampLive(state, cook), true);
+    assert.equal(campPublishedOn(state, cook), today);
+    assert.equal(isCampLive(state, "ksg-winter"), false);
   });
 
   it("stays off the public site", () => {

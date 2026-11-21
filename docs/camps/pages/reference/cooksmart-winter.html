@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Format C (mix) · COOKSMART Winter Holiday Cooking Camp · Compass review draft</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Newsreader:opsz,wght@6..72,500;6..72,600&display=swap" rel="stylesheet">
+<style>
+  :root{--bg:#FAF8F3;--pine:#33503E;--amber:#A8763A;--ink:#26241F;--surface:#EFEAE0;--border:#E3DCCB;--terra:#B16B42;--muted:#6B675E}
+  *{box-sizing:border-box} html{scroll-behavior:smooth}
+  body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 Inter,system-ui,sans-serif;padding-bottom:92px}
+  a{color:var(--pine)} .wrap{max-width:760px;margin:0 auto;padding:0 20px}
+  .fmt{background:var(--ink);color:#fff;font-size:13px;text-align:center;padding:8px 12px}
+  .draft{background:var(--terra);color:#fff;font-size:13px;text-align:center;padding:8px 12px}
+  header.top{border-bottom:1px solid var(--border);background:#fff}
+  header.top .wrap{display:flex;align-items:center;justify-content:space-between;height:56px}
+  .logo{font-family:Newsreader,serif;font-size:21px;font-weight:600;color:var(--pine);text-decoration:none}
+  .crumbs{font-size:13px;color:var(--muted);margin:18px 0 6px} .crumbs a{color:var(--muted);text-decoration:none}
+  h1{font-family:Newsreader,serif;font-weight:600;font-size:32px;line-height:1.15;margin:4px 0 6px}
+  .provider{color:var(--muted);font-size:15px;margin:0 0 10px}
+  .badge{display:inline-flex;gap:6px;align-items:center;background:var(--amber);color:#fff;font-size:13px;font-weight:500;padding:5px 11px;border-radius:999px;margin:0 0 14px}
+  .verdict{background:#fff;border:1px solid var(--border);border-left:4px solid var(--pine);border-radius:0;padding:12px 14px;font-size:15px;margin:0 0 16px}
+  .facts{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin:0 0 14px}
+  .fact{background:#fff;border:1px solid var(--border);border-radius:12px;padding:11px 13px}
+  .fact .k{font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
+  .fact .v{font-weight:600;font-size:15px;margin-top:2px} .fact .s{font-size:13px;color:var(--muted)}
+  .status{display:flex;gap:10px;align-items:flex-start;background:#EEF3EF;border:1px solid #C9D9CE;border-radius:12px;padding:12px 14px;font-size:15px;margin-bottom:18px}
+  .dot{width:10px;height:10px;border-radius:50%;background:var(--pine);margin-top:7px;flex:none}
+  .status b{display:block} .status span{color:var(--muted);font-size:13px}
+  .catch{background:#fff;border:1px solid var(--border);border-radius:12px;padding:12px 14px;margin:0 0 18px}
+  .catch h2{font-size:19px;margin:0 0 6px} .catch ul{margin:0;padding-left:18px} .catch li{margin:4px 0;font-size:15px}
+  nav.pills{position:sticky;top:0;z-index:5;background:var(--bg);padding:10px 0;border-bottom:1px solid var(--border);display:flex;gap:8px;overflow-x:auto;scrollbar-width:none}
+  nav.pills a{flex:none;background:var(--pine);color:#fff;text-decoration:none;font-size:14px;font-weight:500;padding:9px 15px;border-radius:999px;min-height:40px;display:flex;align-items:center}
+  section{padding:26px 0 6px;border-bottom:1px solid var(--border)}
+  h2{font-family:Newsreader,serif;font-weight:600;font-size:24px;margin:0 0 6px}
+  .sub{color:var(--muted);font-size:14px;margin:0 0 14px}
+  .grp{font-weight:600;font-size:14px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin:18px 0 8px}
+  .sess{background:#fff;border:1px solid var(--border);border-radius:12px;margin-bottom:8px}
+  .opt{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:11px 14px;cursor:pointer;min-height:56px}
+  .opt .l1{font-weight:600;font-size:15px} .opt .l2{font-size:13px;color:var(--muted)}
+  .opt .price{text-align:right;font-weight:600;white-space:nowrap} .opt .price small{display:block;font-weight:400;color:var(--muted);font-size:12px}
+  .opt input{width:22px;height:22px;accent-color:var(--pine);flex:none} .opt.sel{background:#EEF3EF}
+  .note{font-size:13px;color:var(--muted);margin:6px 0 14px}
+  dl{margin:0} .row{display:grid;grid-template-columns:140px 1fr;gap:12px;padding:11px 0;border-top:1px solid var(--border);font-size:15px}
+  .row:first-child{border-top:0} dt{color:var(--muted)} dd{margin:0}
+  .ask{color:var(--muted);font-weight:400;font-style:italic}
+  ul.plain{padding-left:18px;margin:0 0 12px} ul.plain li{margin:4px 0} .src{font-size:14px} .src li{margin:6px 0}
+  .links{display:flex;gap:16px;flex-wrap:wrap;font-size:14px;margin:4px 0 14px}
+  .review{margin:30px 0 10px;background:#FFF8F2;border:2px dashed var(--terra);border-radius:14px;padding:14px 16px;font-size:14px}
+  .review h2{font-size:19px;color:var(--terra)} .review li{margin:5px 0}
+  .bar{position:fixed;left:0;right:0;bottom:0;background:#fff;border-top:1px solid var(--border);z-index:10}
+  .bar .wrap{display:flex;align-items:center;justify-content:space-between;gap:12px;height:76px}
+  .bar .sum{font-size:14px;line-height:1.3} .bar .sum b{font-size:16px;display:block}
+  .btns{display:flex;gap:8px}
+  .btn{border:0;border-radius:10px;font:600 15px Inter,sans-serif;padding:0 16px;height:46px;cursor:pointer;text-decoration:none;display:flex;align-items:center}
+  .btn.pri{background:var(--pine);color:#fff} .btn.sec{background:var(--surface);color:var(--ink)}
+  .btn[aria-disabled=true]{opacity:.45;pointer-events:none}
+  details.q{background:#fff;border:1px solid var(--border);border-radius:12px;margin-bottom:8px}
+  details.q summary{cursor:pointer;list-style:none;display:flex;justify-content:space-between;gap:12px;padding:12px 14px;min-height:52px;align-items:center;font-size:15px;font-weight:500}
+  details.q summary::-webkit-details-marker{display:none}
+  details.q summary .a{font-weight:400;font-size:13px;color:var(--muted);text-align:right}
+  details.q summary .a.ask{font-style:italic}
+  details.q[open] summary{border-bottom:1px solid var(--border)}
+  details.q .ans{padding:10px 14px 12px;font-size:15px} details.q .lvl{display:block;font-size:12px;color:var(--muted);margin-top:6px}
+  .key{display:grid;gap:8px;background:#fff;border:1px solid var(--border);border-radius:12px;padding:12px 14px;margin:0 0 12px;font-size:15px}
+  .key span{color:var(--muted);font-size:13px}
+  .days{display:grid;gap:10px}
+  .dcard{background:#fff;border:1px solid var(--border);border-radius:12px;overflow:hidden}
+  .dcard h3{margin:0;padding:9px 14px;font-size:15px;background:var(--surface);display:flex;justify-content:space-between}
+  .dcard h3 small{font-weight:400;color:var(--muted);font-size:12px}
+  .dcard .opt{min-height:50px;border-top:1px solid var(--border)} .dcard h3+.opt{border-top:0}
+  .booklist{background:#fff;border:2px solid var(--pine);border-radius:12px;padding:12px 14px;margin:12px 0}
+  .booklist h3{margin:0 0 4px;font-size:17px} .booklist .brow{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:9px 0;border-top:1px solid var(--border);font-size:15px}
+  .booklist .brow:first-of-type{border-top:0} .booklist .brow small{display:block;color:var(--muted);font-size:13px}
+  .booklist a.bk{flex:none;background:var(--pine);color:#fff;text-decoration:none;font-weight:600;font-size:14px;padding:10px 14px;border-radius:10px}
+  .dirbtn{display:inline-block;margin-top:6px;background:var(--pine);color:#fff;text-decoration:none;font-weight:600;font-size:14px;padding:8px 14px;border-radius:10px}
+  @media (min-width:700px){.days{grid-template-columns:repeat(3,1fr)}}
+  @media (min-width:700px){h1{font-size:40px}.facts{grid-template-columns:repeat(3,1fr)}}
+</style></head><body>
+<div class="fmt">FORMAT C · the mix: your drafts' layout plus tap-to-open parent questions</div>
+<div class="draft">Review draft: not published. Facts from COOKSMART's own pages, checked Nov 21, 2026 by reading every page and booking page.</div>
+<header class="top"><div class="wrap"><a class="logo" href="#">Compass</a><span style="font-size:14px;color:var(--muted)">Mississauga</span></div></header>
+<main class="wrap">
+  <div class="crumbs"><a href="#">Discover</a> › <a href="#">Camps</a> › <a href="#">Winter break</a></div>
+  <h1>Winter Holiday Cooking Camp</h1>
+  <p class="provider">COOKSMART · COOKSMART Clarkson, 1700 Mazo Crescent, Mississauga</p>
+  <div class="badge">Verified Nov 21, 2026</div>
+  <div class="verdict"><b>Screen-free cooking camp:</b> kids cook lunch, bake and learn life skills. Book single days.</div>
+  <div class="facts">
+    <div class="fact"><div class="k">Ages</div><div class="v">5–12</div><div class="s">SK to Grade 7, grouped by age</div></div>
+    <div class="fact"><div class="k">Dates</div><div class="v">Dec 21–23 &amp; 28–30</div><div class="s">Mon–Wed both weeks; book any day</div></div>
+    <div class="fact"><div class="k">Price</div><div class="v">Full day $98</div><div class="v">Half day $67</div><div class="s">Plus HST: $110.74 and $75.71</div></div>
+    <div class="fact"><div class="k">Hours</div><div class="v">Full day 9:00–4:00</div><div class="v">Half day 9:00–1:30</div></div>
+    <div class="fact"><div class="k">Before &amp; after care</div><div class="v"><span class="ask">Ask the camp</span></div><div class="s">Not on their site</div></div>
+    <div class="fact"><div class="k">Lunch</div><div class="v">Included</div><div class="s">With snacks · nut-free kitchen</div></div>
+  </div>
+  <div class="status"><div class="dot"></div><div><b>Registration open</b>16–20 full-day and 5–6 half-day spots left on each date.<br><span>Checked Nov 21, 2026 on COOKSMART's camp and booking pages</span></div></div>
+  <div class="catch"><h2>Is this right for my child?</h2><ul>
+    <li>Camp runs 9:00 to 4:00, and no before or after care is listed. Ask the camp if you need it.</li>
+    <li>Half day ends at 1:30, right after lunch.</li>
+    <li>Use the address 1700 Mazo Crescent, or our <a href="https://www.google.com/maps/dir/?api=1&amp;destination=1700+Mazo+Crescent,+Mississauga,+ON+L5J+1Y8" target="_blank" rel="noopener">Directions</a> link. COOKSMART's own Google map pin is about 1 km away.</li>
+    <li>Cancelling within 2 weeks costs half the fee; within 72 hours, no refund.</li>
+  </ul></div>
+</main>
+<nav class="pills wrap" aria-label="Sections"><a href="#sessions">Pick your days</a><a href="#about">What kids do</a><a href="#questions">Parent questions</a><a href="#where">Where</a><a href="#say">What parents say</a><a href="#checked">How we checked</a></nav>
+<main class="wrap">
+  <section id="sessions"><h2>Pick your days</h2><div class="key">
+      <div><b>Full day</b> · 9:00–4:00 · $98 + HST<br><span>Hot lunch they cook, snacks, baking and afternoon activities</span></div>
+      <div><b>Half day</b> · 9:00–1:30 · $67 + HST<br><span>Fruit snack, baking and lunch they cook</span></div>
+    </div>
+    <p class="sub">Pick full or half for each date you want. Spots are from COOKSMART's booking pages on Nov 21, 2026 and change as families book. Check current spots: <a href="https://cooksmartscheduling.as.me/?appointmentType=99733065" target="_blank" rel="noopener">full day ↗</a> · <a href="https://cooksmartscheduling.as.me/?appointmentType=99732924" target="_blank" rel="noopener">half day ↗</a></p><div id="list" class="days"></div>
+    <div id="booklist" class="booklist" hidden></div>
+    <p class="note">Siblings: set quantity to 2 on each day you book and use code CSFAMILY2. COOKSMART's winter booking page doesn't say how much it saves.</p></section>
+  <section id="about"><h2>What kids do</h2>
+    <p class="sub">A typical day, from COOKSMART's camp page (checked Nov 21, 2026).</p>
+    <dl>
+      <div class="row"><dt>9:00</dt><dd>Arrive, wash hands, put on aprons, set up stations, and a food-identification challenge.</dd></div>
+      <div class="row"><dt>10:00</dt><dd>Cook the day's hot lunch: safe chopping (claw and bridge grips), measuring, and heat safety.</dd></div>
+      <div class="row"><dt>12:00</dt><dd>Eat the lunch they cooked, then indoor games and social time. <b>Half day goes home at 1:30.</b></dd></div>
+      <div class="row"><dt>1:30–4:00</dt><dd><b>Full day only:</b> holiday baking, afternoon snacks, food science experiments, sewing, mindfulness and holiday crafts.</dd></div>
+    </dl>
+    <p class="note">Half-day campers also learn life skills, make a fruit snack and do some baking (COOKSMART's half-day booking page). The camp page doesn't say at what time.</p>
+    <h3 style="font-size:17px;margin:18px 0 6px">What they learn</h3>
+    <dl>
+      <div class="row"><dt>Baking</dt><dd>Measuring spices, rolling dough, cookie cutters and icing. Treats come home to share.</dd></div>
+      <div class="row"><dt>Crafts</dt><dd>Seasonal crafts, including cinnamon salt-dough ornaments.</dd></div>
+      <div class="row"><dt>Life skills</dt><dd>Beginner sewing, money basics, table manners, and cleaning up their station.</dd></div>
+      <div class="row"><dt>Food science</dt><dd>Experiments with yeast and baking soda, taste tests, and how food fuels a growing body.</dd></div>
+    </dl>
+    <p class="note">From COOKSMART's camp page, checked Nov 21, 2026. The page doesn't say which of these half-day campers do; sewing, crafts and food science are listed for full-day afternoons.</p></section>
+  <section id="questions"><h2>Parent questions</h2><p class="sub">Tap a question for the answer. "Ask the camp" means COOKSMART's pages don't say.</p>
+    <details class="q"><summary><span>Is there before or after care?</span><span class="a ask">Ask the camp</span></summary><div class="ans">No before or after care is listed for winter camp. (COOKSMART's summer camp page offers an extra afternoon session to 6:00, but the winter page doesn't.) Ask the camp before booking.</div></details>
+    <details class="q"><summary><span>What about lunch and special diets?</span><span class="a">Lunch and snacks included</span></summary><div class="ans">Both half and full day include lunch and healthy snacks that the kids make themselves. Half day includes a fruit snack and baking; full day adds afternoon snacks. COOKSMART says recipes are vegetarian and halal-friendly; gluten-free and dairy needs can be handled with advance notice.<span class="lvl">Verified Nov 21, 2026 · camp website and booking pages</span></div></details>
+    <details class="q"><summary><span>Allergy and nut policy?</span><span class="a">Nut-free</span></summary><div class="ans">COOKSMART says the facility and all ingredients are 100% peanut- and tree-nut-free. Families give full allergy and diet details at registration. For a life-threatening allergy, your child must carry their own unexpired EpiPen (a waist pouch is suggested) and you fill in a Medical Confirmation form. Staff are trained to use an EpiPen.<span class="lvl">Verified Nov 21, 2026 · camp website, camps page and parent info</span></div></details>
+    <details class="q"><summary><span>Can my child take medication at camp?</span><span class="a">Yes, with a form</span></summary><div class="ans">You fill in a Medical Confirmation form. Medicine comes in its original pharmacy-labelled container, one day's dose at a time, with any measuring spoon labelled. Kids take it themselves under staff supervision; if they can't, you need to arrange someone else to give it.<span class="lvl">Verified Nov 21, 2026 · COOKSMART parent info for camps</span></div></details>
+    <details class="q"><summary><span>What if my child gets sick?</span><span class="a">You'll be called</span></summary><div class="ans">Keep sick children at home. If a child gets sick at camp, COOKSMART calls you to pick them up.<span class="lvl">Verified Nov 21, 2026 · COOKSMART parent info for camps</span></div></details>
+    <details class="q"><summary><span>What's the staff ratio?</span><span class="a ask">Ask the camp</span></summary><div class="ans">No number is given. COOKSMART says class sizes are "strictly limited" with small-group coaching.<span class="lvl">Verified Nov 21, 2026 · camp website</span></div></details>
+    <details class="q"><summary><span>Are staff checked and trained?</span><span class="a">Yes</span></summary><div class="ans">Instructors are police-checked (vulnerable sector), certified food handlers, and trained in first aid and CPR. Camp staff are also certified in allergy awareness, and most have HIGH FIVE or university child-development training.<span class="lvl">Verified Nov 21, 2026 · camp website and parent info</span></div></details>
+    <details class="q"><summary><span>Do kids use real knives and ovens?</span><span class="a">Child-safe knives</span></summary><div class="ans">Kids use child-safe nylon and serrated knives on non-slip prep mats, with small-group coaching. Only instructors handle hot ovens.<span class="lvl">Verified Nov 21, 2026 · camp website</span></div></details>
+    <details class="q"><summary><span>How big are the groups?</span><span class="a ask">Ask the camp</span></summary><div class="ans">Kids are grouped into age-appropriate teams: older kids do more advanced chopping and kitchen math, younger ones build the basics. Class sizes are "strictly limited"; numbers not given.<span class="lvl">Verified Nov 21, 2026 · camp website</span></div></details>
+    <details class="q"><summary><span>Can siblings or friends be together?</span><span class="a">Where possible</span></summary><div class="ans">COOKSMART says it groups siblings or friends together where possible. Tell them when you register.<span class="lvl">Verified Nov 21, 2026 · COOKSMART FAQ</span></div></details>
+    <details class="q"><summary><span>Are there discounts?</span><span class="a">Sibling code, membership</span></summary><div class="ans"><b>Siblings:</b> book quantity 2 with code CSFAMILY2; the winter page doesn't say how much it saves (on COOKSMART's teen page the same code takes $25 off each extra teen). <b>COOKSMART Club:</b> a yearly family membership gives 20% off all camps, winter included. Its page says $149 a year, but the checkout box on the same page says CA$169: ask which is right. <b>Gift certificates</b> of $25 and $50 can be used toward any program.<span class="lvl">Verified Nov 21, 2026 · booking pages, membership page</span></div></details>
+    <details class="q"><summary><span>Phones, toys and devices?</span><span class="a">Leave them home</span></summary><div class="ans">COOKSMART asks campers to leave toys and personal items at home. Any device brought to camp stays in a bag, not a pocket.<span class="lvl">Verified Nov 21, 2026 · COOKSMART parent info for camps</span></div></details>
+    <details class="q"><summary><span>Does my child need to be toilet trained?</span><span class="a ask">Ask the camp</span></summary><div class="ans">COOKSMART's pages don't say. Ask before booking, especially for 5-year-olds.</div></details>
+    <details class="q"><summary><span>Special needs support?</span><span class="a ask">Ask the camp</span></summary><div class="ans">COOKSMART runs autism-friendly, sensory-conscious programs for schools and lists Autism Ontario and Shining Stars as partners, but its camp pages don't describe support at camp. Ask before booking.<span class="lvl">Verified Nov 21, 2026 · inclusive programs page</span></div></details>
+    <details class="q"><summary><span>Do they go outside in winter?</span><span class="a ask">Ask the camp</span></summary><div class="ans">COOKSMART's general parent info says campers go outside every day and should dress for the weather. The winter camp page only mentions indoor games. Ask which applies, and pack warm clothes to be safe.<span class="lvl">Verified Nov 21, 2026 · COOKSMART parent info for camps</span></div></details>
+    <details class="q"><summary><span>Swimming or field trips?</span><span class="a">None listed</span></summary><div class="ans">Neither appears in the winter camp's activities.<span class="lvl">Verified Nov 21, 2026 · camp website</span></div></details>
+    <details class="q"><summary><span>What should we pack?</span><span class="a">Water, shoes, apron</span></summary><div class="ans">A reusable water bottle, indoor shoes and an apron (camp aprons are available too). Hair tied back, sleeves that roll up. Label everything. Equipment and ingredients are provided.<span class="lvl">Verified Nov 21, 2026 · camp website and parent info</span></div></details>
+    <details class="q"><summary><span>Cancellation and refunds?</span><span class="a">Tiered</span></summary><div class="ans">In writing, separately for each child. More than a month before: refund minus $60. 2–4 weeks: minus $100. 2 weeks or less: minus 50%. Within 72 hours, or once camp starts: no refund. COOKSMART's FAQ adds that credits toward future programs may be possible. How these tiers apply to single days isn't stated: ask the camp.<span class="lvl">Verified Nov 21, 2026 · cancellation policy and FAQ</span></div></details>
+    <details class="q"><summary><span>Subsidy or tax receipt?</span><span class="a ask">Ask the camp</span></summary><div class="ans">No subsidy or tax receipt information is listed. COOKSMART's FAQ says it occasionally offers promotions; contact them directly.</div></details>
+    <details class="q"><summary><span>Licensed or accredited?</span><span class="a">Insured, no accreditation listed</span></summary><div class="ans">COOKSMART says it is insured and covered by WSIB. No camp accreditation is listed.<span class="lvl">Verified Nov 21, 2026 · about page</span></div></details>
+  </section>
+  <section id="where"><h2>Where</h2><dl>
+    <div class="row"><dt>Address</dt><dd><b>1700 Mazo Crescent, Mississauga L5J 1Y8</b>, near Southdown Road and Truscott Drive (Clarkson). Google lists Christ First United Church in the same building.<br><a class="dirbtn" href="https://www.google.com/maps/dir/?api=1&amp;destination=1700+Mazo+Crescent,+Mississauga,+ON+L5J+1Y8" target="_blank" rel="noopener">Directions to 1700 Mazo Crescent ↗</a></dd></div>
+    <div class="row"><dt>Maps warning</dt><dd>Use our Directions button or type the address. COOKSMART's "Open in Google Maps" link goes to its business pin at 1713 Pengilley Place, about 1 km away.</dd></div>
+    <div class="row"><dt>Parking</dt><dd>Free on site</dd></div>
+    <div class="row"><dt>Transit</dt><dd>4 minutes from Clarkson GO</dd></div>
+    <div class="row"><dt>Drop-off</dt><dd>A parent or guardian signs your child in and out at the camp entrance, by the COOKSMART sign. Anyone else picking up must be on your list and show photo ID. Arrive 5 minutes early.</dd></div>
+    <div class="row"><dt>Contact</dt><dd>647-894-2086 · info@cooksmart.ca</dd></div>
+  </dl></section>
+  <section id="say"><h2>What parents say</h2>
+    <p style="font-size:15px;margin:0 0 8px"><b>5.0 on Google from 50 reviews</b> (Nov 21, 2026). We read all 50: 48 five-star, 2 four-star, no complaints. About 13 have no written comment.</p>
+    <ul class="plain">
+      <li>Kids come home excited, describe what they made, and start cooking at home.</li>
+      <li>Staff are described as warm, patient and organized, with parents greeted at the door and signed in and out each day.</li>
+      <li>Parents like not packing lunches or snacks.</li>
+      <li>Groups can mix ages. One parent noted a large group with a wide age range that still stayed engaged; another said an older child who usually avoids camps for younger kids enjoyed it.</li>
+      <li>Staff respected families' dietary preferences.</li>
+    </ul>
+    <p class="note">Most reviews are about summer camps, classes, online classes and parties. None we found are specifically about winter camp. COOKSMART is also on the 2026 Consumer Choice Award list for Peel Region (Cooking Classes).</p>
+  </section>
+  <section id="checked"><h2>How we checked</h2><ul class="src plain">
+    <li><a href="https://www.cooksmart.ca/programs/camps-hub/winter-camp">Winter camp page</a>, read in full. Checked Nov 21, 2026</li>
+    <li>Booking pages, <a href="https://cooksmartscheduling.as.me/?appointmentType=99733065">full day</a> and <a href="https://cooksmartscheduling.as.me/?appointmentType=99732924">half day</a>: prices with HST, spots for all six dates, sibling code, and each date's own booking link. Checked Nov 21, 2026</li>
+    <li><a href="https://www.cooksmart.ca/parent-info">Parent info for camps</a>: drop-off, medication, allergies, illness, staff training. Checked Nov 21, 2026</li>
+    <li><a href="https://www.cooksmart.ca/cancellation-policy">Cancellation policy</a>, <a href="https://www.cooksmart.ca/faqs">FAQ</a>, <a href="https://www.cooksmart.ca/camps">camps page</a>, <a href="https://www.cooksmart.ca/about-us">about page</a>, <a href="https://www.cooksmart.ca/membership">membership page</a>, <a href="https://www.cooksmart.ca/contact">contact page</a>. Checked Nov 21, 2026</li>
+    <li>Google Maps: all 50 COOKSMART reviews, both map pins, and our Directions link (opens on the 1700 Mazo Crescent building). Checked Nov 21, 2026</li>
+    <li><a href="https://www.ccaward.com/award-winners/peel-region/">Consumer Choice Award Peel Region list</a>. Checked Nov 21, 2026</li>
+  </ul>
+  <div class="links"><a href="#">Report a change</a><a href="#">Are you the camp? Update your listing</a></div></section>
+  <div class="review"><h2>Review notes (only you see this box)</h2><ul>
+    <li><b>Booking handoff (new):</b> COOKSMART's booking system has a separate link for each date, and it opens that day's form with the date already picked. One day picked: the bar's button opens that day's form. Two or more: a "Your booking list" box shows one Book button per day. COOKSMART takes one day per checkout (no way to add several dates was shown), so parents book the days one after another but never pick dates again. Before anything is picked, the button just says "Pick a day". Checked Nov 21 by opening Dec 21 full day, Dec 22 half day and Dec 30 half day; I stopped at their form and booked nothing.</li>
+    <li><b>Save removed</b> until it can actually keep a parent's picks after a reload.</li>
+    <li><b>Spots</b> are still Nov 21 numbers (rechecked this morning: unchanged), shown with the date and a "Check current spots" link. For Cursor: show a live count only when a live lookup succeeds for that date and option; otherwise show the dated count and the check link.</li>
+    <li><b>Directions</b> button added (Where section and the "Is this right" box). It opens on 1700 Mazo Crescent, not COOKSMART's Pengilley pin.</li>
+    <li><b>Spots changed since Nov 14:</b> Dec 22 full day 17 → 16, Dec 22 half day 6 → 5, Dec 21 full day 15 → 16.</li>
+    <li><b>Address catch:</b> the map links on COOKSMART's winter camp and workshop pages go to 1713 Pengilley Place (its business address), 1.06 km from 1700 Mazo Crescent. Their camps page and festival page link to the right place. Worth telling COOKSMART in your outreach.</li>
+    <li><b>Membership price mismatch:</b> $149 in the page text, CA$169 in the checkout box. Ask COOKSMART.</li>
+    <li><b>Outdoor time:</b> parent info says outside every day; winter page says indoor games. Ask COOKSMART.</li>
+    <li><b>Hidden email:</b> COOKSMART's pages hide an info@cooksmart.com link; their contact page shows info@cooksmart.ca. Mention it to them.</li>
+    <li><b>Snack wording differs</b> between their camp page and half-day booking page; our wording fits both.</li>
+    <li><b>Correction kept on record:</b> "money basics" is on their page ("basic financial literacy"); I wrongly removed it earlier.</li>
+    <li><b>Photos:</b> don't reuse COOKSMART's camp photos (children's faces, and they're COOKSMART's).</li>
+    <li><b>Your care email:</b> sent Nov 14; your follow-up reminder was Nov 20.</li>
+    <li><b>Still to ask COOKSMART</b> (7): before/after care, staff ratio, group sizes, toilet training, special needs at camp, outdoor time in winter, subsidy and tax receipts. Plus how refund tiers apply to single days, and the membership price.</li>
+  </ul></div>
+</main>
+<div class="bar"><div class="wrap"><div class="sum" id="sum"><b>Pick a day</b>$98 full · $67 half, plus HST</div>
+<div class="btns"><a class="btn pri" id="reg" href="#sessions">Pick a day</a></div></div></div>
+<script>
+const TYPE={full:'99733065',half:'99732924'},NAME={full:'Full day',half:'Half day'},PRICE={full:98,half:67};
+const link=(k,iso)=>'https://cooksmartscheduling.as.me/schedule/7b98e4f9/appointment/'+TYPE[k]+'/calendar/2518109/datetime/'+iso+'T09%3A00%3A00-05%3A00?appointmentTypeIds%5B%5D='+TYPE[k];
+const D=[['Mon, Dec 21','2026-12-21',16,6],['Tue, Dec 22','2026-12-22',16,5],['Wed, Dec 23','2026-12-23',20,6],['Mon, Dec 28','2026-12-28',20,5],['Tue, Dec 29','2026-12-29',20,5],['Wed, Dec 30','2026-12-30',20,6]];
+const host=document.getElementById('list'),bl=document.getElementById('booklist');
+D.forEach(([d,iso,f,h],i)=>{const c=document.createElement('div');c.className='dcard';
+ let html='<h3>'+d+'</h3>';
+ [['full',f],['half',h]].forEach(([k,s])=>{
+  html+='<label class="opt"><input type="checkbox" data-d="'+i+'" data-k="'+k+'" data-p="'+PRICE[k]+'"><div style="flex:1"><div class="l1">'+NAME[k]+'</div><div class="l2">'+s+' spots on Nov 21</div></div><div class="price">$'+PRICE[k]+'</div></label>';});
+ c.innerHTML=html;host.appendChild(c);});
+function upd(){const sel=[...host.querySelectorAll('input:checked')];
+ host.querySelectorAll('.opt').forEach(l=>l.classList.toggle('sel',l.querySelector('input').checked));
+ const sum=document.getElementById('sum'),reg=document.getElementById('reg');
+ reg.removeAttribute('target');reg.removeAttribute('rel');
+ if(!sel.length){sum.innerHTML='<b>Pick a day</b>$98 full · $67 half, plus HST';reg.textContent='Pick a day';reg.href='#sessions';bl.hidden=true;bl.innerHTML='';return;}
+ const items=sel.map(i=>{const [d,iso]=D[+i.dataset.d];return {d,k:i.dataset.k,p:+i.dataset.p,url:link(i.dataset.k,iso)}});
+ const t=items.reduce((a,x)=>a+x.p,0);
+ sum.innerHTML='<b>'+items.length+' picked · $'+t+' + HST = $'+(t*1.13).toFixed(2)+'</b>'+(items.length==1?'Opens COOKSMART\'s form for this day':'COOKSMART books one day at a time');
+ if(items.length==1){const x=items[0];reg.textContent='Book '+x.d.split(', ')[1]+' '+NAME[x.k].toLowerCase()+' ↗';reg.href=x.url;reg.target='_blank';reg.rel='noopener';bl.hidden=true;bl.innerHTML='';return;}
+ reg.textContent='Book your '+items.length+' days';reg.href='#booklist';
+ bl.hidden=false;
+ bl.innerHTML='<h3>Your booking list</h3><p class="note" style="margin:0 0 6px">COOKSMART books one day per checkout. Each button opens that day\'s form with the date already picked, so book them one after another. Siblings: set quantity to 2 and use code CSFAMILY2 each time.</p>'+
+  items.map(x=>'<div class="brow"><div><b>'+x.d+'</b> · '+NAME[x.k]+'<small>$'+x.p+' + HST = $'+(x.p*1.13).toFixed(2)+'</small></div><a class="bk" href="'+x.url+'" target="_blank" rel="noopener">Book ↗</a></div>').join('');}
+host.addEventListener('change',e=>{const i=e.target;if(i.checked)host.querySelectorAll('input[data-d="'+i.dataset.d+'"]').forEach(o=>{if(o!==i)o.checked=false});upd();});
+</script></body></html>

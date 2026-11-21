@@ -1,6 +1,7 @@
 /**
- * One token per batch. It stops working when the batch is published, or 30 days
- * after it was created. A wrong token never opens the page.
+ * One token per batch. A camp's preview stops working when that camp is
+ * published, or 30 days after the token was created. A wrong token never
+ * opens the page. Other unpublished camps in the batch keep working.
  */
 import type { CampListing } from "@/lib/camps/pages/types";
 
@@ -28,7 +29,7 @@ export function previewAccess(input: {
   batch: BatchToken | null;
   supplied: string | null | undefined;
   today: string;
-  /** Set when Publish batch has run. */
+  /** This camp's publish date (per-camp or legacy batch-wide). */
   publishedOn: string | null;
 }): PreviewDecision {
   if (!input.batch) return "wrong";

@@ -41,6 +41,8 @@ export function redirectFor(pathname: string): RedirectResult | null {
   const path = clean(pathname);
   if (path === "/camps") return { destination: "/ontario/camps", status: 301 };
   if (path === "/camps/admin" || path.startsWith("/camps/admin/")) return null;
+  // COOKSMART Format C only — every other /camps path keeps main's redirect behaviour.
+  if (path === "/camps/cooksmart-winter" || path === "/camps/preview/cooksmart-winter") return null;
   if (path === "/camps/preview") return { destination: "/ontario/camps", status: 302 };
   if (path.startsWith("/camps/")) {
     const slug = path.slice("/camps/".length).split("/")[0];
