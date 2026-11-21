@@ -75,6 +75,7 @@ This branch leaves `review-state.json` empty (no approvals committed). To go liv
 - Sticky bar matches the HTML (no Save).
 - Site chrome (header/footer) wraps the page; the reference was a standalone draft.
 - Booking list is date-ordered (Dec 21 → Dec 22 → Dec 30).
+- Provider line and card drop "Clarkson" (Vineeta, Nov 21).
 
 ## Next.js “2 Issues” on screenshots
 

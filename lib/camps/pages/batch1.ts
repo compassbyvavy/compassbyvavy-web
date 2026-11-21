@@ -365,7 +365,7 @@ export const BATCH_1: CampListing[] = [
     batch: 1,
     name: "Winter Holiday Cooking Camp",
     provider: "COOKSMART",
-    place: "COOKSMART Clarkson, 1700 Mazo Crescent, Mississauga",
+    place: "1700 Mazo Crescent, Mississauga",
     breakId: "winter",
     summary: "Screen-free cooking camp: kids cook lunch, bake and learn life skills. Book single days.",
     ages: sourced("5–12", "https://www.cooksmart.ca/programs/camps-hub/winter-camp", "2026-11-21", "SK to Grade 7, grouped by age"),
